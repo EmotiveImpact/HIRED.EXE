@@ -203,7 +203,6 @@
     "references/enemies-hud-concepts.png",
     "references/environment-concepts.png"
   ],
-  "legacyScreenshot": "prototype/HIRED-EXE-screenshot.png",
   "rules": [
     "All pixel backgrounds are render-only scenery, never collision masks.",
     "Character/enemy concept sheets contain labels and irregular poses; do not treat them as ready transparent frame strips.",

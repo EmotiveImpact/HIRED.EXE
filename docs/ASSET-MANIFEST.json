@@ -4,8 +4,8 @@
     {
       "path": "assets/manifest.json",
       "role": "production-asset",
-      "bytes": 6049,
-      "sha256": "2d9336cf980e8f4eff965cf472460b058b0885cc5448b8031a0128769a6c35a2"
+      "bytes": 5989,
+      "sha256": "1897999a5c3418206a145b42eb74b1df44749f1b46f4a2a58df960ceb66842f9"
     },
     {
       "path": "assets/previews/world-1.jpg",
@@ -288,6 +288,12 @@
       "role": "generated-source",
       "bytes": 4180,
       "sha256": "b6eb4583161f8057baaafc20b389249c1f205dcc7731fe062b5d418d7d95c0a4"
+    },
+    {
+      "path": "assets/source/character-prompts.md",
+      "role": "generated-source",
+      "bytes": 7181,
+      "sha256": "674fad30db628ab44e3b9e3c5d9ec5f5270b715bf3b5f3504dfc1447db4955d6"
     },
     {
       "path": "assets/source/environment-prompts.json",
