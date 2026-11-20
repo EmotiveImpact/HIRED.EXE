@@ -80,9 +80,9 @@ async function run() {
     click('portfolio-back'); click('start-game');
     check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
     click('scene-next');
-    check(byId('overlay').textContent.includes('250 characters'),'Missing opening dialogue');
+    check(byId('overlay').textContent.includes('Page One of Two'),'Missing opening dialogue');
     click('portfolio-button'); click('portfolio-back');
-    check(app().mode==='scene' && byId('overlay').textContent.includes('250 characters'),'Portfolio lost current comic panel');
+    check(app().mode==='scene' && byId('overlay').textContent.includes('Page One of Two'),'Portfolio lost current comic panel');
     click('scene-prev'); click('scene-next'); click('scene-next');
     check(byId('overlay').querySelector('.comic-burst'),'Opening did not reach action panel');
     click('scene-next');

@@ -30,7 +30,7 @@ def run(profile, base):
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
         activate('#start-game')
-        assert page.locator('#comic-title').inner_text() == 'The sensible version'
+        assert page.locator('#comic-title').inner_text() == 'A quick application'
         activate('#scene-next')
         activate('#scene-next')
         assert page.locator('.comic-burst .comic-illustration').is_visible()
@@ -97,7 +97,7 @@ def run(profile, base):
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')
         expect(page.locator('#comic-dialogue p')).to_have_text(
-            'Please prove you think outside the box. Maximum 250 characters.'
+            'CV imported successfully. Welcome, Page One of Two.'
         )
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode") == 'playing'

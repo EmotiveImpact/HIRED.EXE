@@ -138,10 +138,10 @@
   ];
 
   const bonusItems = [
-    { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'One quick question. A 14-point plan.' },
-    { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'It estimated the fix at one change. The diff has notes.' },
-    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Hot when the build started.' },
-    { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a newer one.' }
+    { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'Start a fresh chat and explain the whole project again.' },
+    { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'Fixed the typo. Changed twelve files. One was your CV.' },
+    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'There’s a teaspoon standing up in it.' },
+    { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'Unzips to a folder called “old”.' }
   ];
 
   const LEVELS = definitions.map((level, levelIndex) => {
