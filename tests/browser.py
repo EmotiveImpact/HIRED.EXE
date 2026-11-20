@@ -6,7 +6,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'evidence'
@@ -96,7 +96,9 @@ def run(profile, base):
         activate('#start-game')
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')
-        assert page.locator('.comic-dialogue').inner_text().endswith('Maximum 250 characters.')
+        expect(page.locator('#comic-dialogue p')).to_have_text(
+            'Please prove you think outside the box. Maximum 250 characters.'
+        )
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode") == 'playing'
         page.goto((ROOT/'dist/HIRED-EXE-v0.4-ART-BOOK.html').as_uri())
