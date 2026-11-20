@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 R = str(Path(__file__).resolve().parents[1]) + '/'
 OUT = sys.argv[1]
-W, H = 2400, 1560
+W, H = 2400, 1620
 BG = '#EEEAFB'; INK = '#251A43'; BLUE = '#173AC3'; CARD = '#FFFFFF'; MUTED = '#5B5486'
 F = '/usr/share/fonts/truetype/dejavu/DejaVuSans'
 def font(s, b=False): return ImageFont.truetype(F + ('-Bold' if b else '') + '.ttf', s)
@@ -110,7 +110,7 @@ castnotes = ['Cast rules:',
 text_block(cx0+28, cy0+580, castnotes, size=20, gap=6, width=cw-60, bold_first=True)
 
 # ---- Style
-sx, sy, sw, sh = 40, 960, 2320, 560
+sx, sy, sw, sh = 40, 960, 2320, 620
 card(sx, sy, sw, sh, 'THE LOOK  /  ONE COMIC, ONE FINISH')
 b = (sx+30, sy+50, 560, 280); paste_fit(manga.crop((600, 0, 1200, 300)), b); frame(b)
 d.text((sx+30, sy+338), 'Target finish: an existing panel', font=font(19), fill=MUTED)
@@ -133,7 +133,7 @@ for i, c in enumerate(pal):
     x = sx+30 + i*86; d.rounded_rectangle((x, sy+378, x+76, sy+430), 8, fill=c, outline=INK, width=2)
 d.text((sx+30, sy+438), 'Game palette. Ink is deep plum, never pure black. No brown or beige paper tones.', font=font(19), fill=MUTED)
 rules = ['Every panel:',
- 'Landscape 1536 x 1024. The game shows the middle 2:1 band, so heads, hands and props stay out of the top and bottom sixth. No panel borders.',
+ 'Landscape 1536 x 1024. The game shows the middle 2:1 band (it crops 128 pixels off the top and bottom), so heads, hands and props stay out of the top and bottom eighth. No panel borders.',
  'Bold plum ink outlines, flat colour with halftone dot shading, speed lines only for action beats.',
  'No words, letters, numbers, speech bubbles or logos anywhere in the art. The game adds all the text.',
  'Screens show simple shapes only (boxes, bars, a pixel tree), never readable writing.',

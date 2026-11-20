@@ -4,8 +4,8 @@
     {
       "path": "assets/cutscenes/PANEL-BRIEF.md",
       "role": "production-asset",
-      "bytes": 39939,
-      "sha256": "b013d8170a3016cc691f3c0a59d5cdf6dc75c0bdf81b11ea8071436d1a5a202b"
+      "bytes": 40012,
+      "sha256": "98b5fab99e3b408a43171e9cda519191ae41586db90142e00e31729296a0dc69"
     },
     {
       "path": "assets/cutscenes/locations-sheet.png",
@@ -16,8 +16,8 @@
     {
       "path": "assets/cutscenes/model-sheet.png",
       "role": "production-asset",
-      "bytes": 2347078,
-      "sha256": "4b7f4368d71b5addca7487ec99c377c6ae32513647072bce482acaee42b196a6"
+      "bytes": 2350516,
+      "sha256": "288d95fed40924798fb130b8a253f381fb26c949ec673d0111a8a20ab4ad87f1"
     },
     {
       "path": "assets/manifest.json",
