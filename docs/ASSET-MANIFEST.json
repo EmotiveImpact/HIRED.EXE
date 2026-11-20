@@ -1,0 +1,227 @@
+{
+  "format": 1,
+  "assets": [
+    {
+      "path": "assets/concepts/bosses-directory.png",
+      "role": "concept",
+      "bytes": 1996070,
+      "sha256": "551830fb0af8eddbc738a5002584a9ea473700fd6e568c989259ad2e8449df96"
+    },
+    {
+      "path": "assets/previews/world-1.jpg",
+      "role": "runtime-preview",
+      "bytes": 283572,
+      "sha256": "9adb791b46f6178cccb540cff027ce8e838feb720ed3d5cfc9fbc3247caf941c"
+    },
+    {
+      "path": "assets/previews/world-2.jpg",
+      "role": "runtime-preview",
+      "bytes": 270899,
+      "sha256": "53da8ceacfa966ec8c9ae3a7f5bbc156764f0129b3c0e981a1b7df4f54d06080"
+    },
+    {
+      "path": "assets/previews/world-3.jpg",
+      "role": "runtime-preview",
+      "bytes": 276022,
+      "sha256": "1b6a42e4ca50e6c1fd3be6d359f7743de5f8a79c4c2fc26c18fd02a84e6a1432"
+    },
+    {
+      "path": "assets/previews/world-4.jpg",
+      "role": "runtime-preview",
+      "bytes": 347838,
+      "sha256": "ece6d0714bb2e6afb154cee708842b4d6708315251b646b30bd88391c95eb969"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley.png",
+      "role": "production-asset",
+      "bytes": 2267319,
+      "sha256": "709bbb4c62142d2baacae191a1a87f3dce46cd60f70ffee7854294b88c3defa6"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run.png",
+      "role": "production-asset",
+      "bytes": 2229641,
+      "sha256": "7a1f7018f5fd726a24586fa0ea2424fbec750833a1499d47176772ab9c884798"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-hq.png",
+      "role": "production-asset",
+      "bytes": 2883966,
+      "sha256": "0b00ddb07413cd83da5d496f5d1c8990e48a9be109fd1cf5ac8f30f3a8c8166b"
+    },
+    {
+      "path": "assets/production/backgrounds/ship-it-city.png",
+      "role": "production-asset",
+      "bytes": 2297164,
+      "sha256": "cc65b479446f98501f94edc094f546f81013208312d6d730c7cf8534e20e1f03"
+    },
+    {
+      "path": "assets/production/characters/hero-atlas.json",
+      "role": "production-asset",
+      "bytes": 6565,
+      "sha256": "81b2de9d18dabacebd7fbbafecce3938e6585defe52256d58a11d77a9fe17f65"
+    },
+    {
+      "path": "assets/production/characters/hero-atlas.png",
+      "role": "production-asset",
+      "bytes": 149242,
+      "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+    },
+    {
+      "path": "assets/production/characters/hero-source.png",
+      "role": "generated-source",
+      "bytes": 1313170,
+      "sha256": "0fac068fe14cec7f4ac3400dd95d9a77097b324fa57844349600528b40f1f168"
+    },
+    {
+      "path": "assets/production/characters/portrait-reference.png",
+      "role": "production-asset",
+      "bytes": 63711,
+      "sha256": "8d930927c0ae3516ef82654d1a93d213d4776e693e8d5d0f9afebfa6d3e980b9"
+    },
+    {
+      "path": "assets/production/enemies/enemy-atlas.json",
+      "role": "production-asset",
+      "bytes": 6113,
+      "sha256": "5021abec7f82c6281a942baaf2451975b44ef3d292419683312ced87515453da"
+    },
+    {
+      "path": "assets/production/enemies/enemy-atlas.png",
+      "role": "production-asset",
+      "bytes": 323701,
+      "sha256": "d63758937a20b0d393c66ae32aaa7d66266e78bd9b256e21651c4e5cccdc6a20"
+    },
+    {
+      "path": "assets/production/enemies/enemy-cutout.png",
+      "role": "generated-source",
+      "bytes": 1153948,
+      "sha256": "41d06d53532af93902f761ad61d658625fe732857b38dc00ffecab4d55d368cb"
+    },
+    {
+      "path": "assets/production/enemies/enemy-source.png",
+      "role": "generated-source",
+      "bytes": 2681297,
+      "sha256": "add47b5387a45110146524a40017e8ba3a2776957394d66b7d54d4680ea2f2d8"
+    },
+    {
+      "path": "assets/production/enemies/icons/bricks.png",
+      "role": "production-asset",
+      "bytes": 11287,
+      "sha256": "5c049102e9dafdb87bfed4fb6f50833cf074437145d22647f39fde57e57e6a37"
+    },
+    {
+      "path": "assets/production/enemies/icons/briefcase.png",
+      "role": "production-asset",
+      "bytes": 15570,
+      "sha256": "b06cc5c7dce98aac777fe25caec8ca515da600ac65694d82361efd299a23e639"
+    },
+    {
+      "path": "assets/production/enemies/icons/bulb.png",
+      "role": "production-asset",
+      "bytes": 15091,
+      "sha256": "6f4af1eae5e7d3dec4c6bfa01e1f2614e99fcdd225e659a2b4a3bfa4b238a9b1"
+    },
+    {
+      "path": "assets/production/enemies/icons/code.png",
+      "role": "production-asset",
+      "bytes": 15017,
+      "sha256": "c44d19e10d2ed4cb6e7b092bd6627978021d525c00a7082947e48c47dfff7af8"
+    },
+    {
+      "path": "assets/production/enemies/icons/cube.png",
+      "role": "production-asset",
+      "bytes": 21107,
+      "sha256": "bffe176736151abebafea3efdeda840235d298640b6cb235d7d952a0e29210a1"
+    },
+    {
+      "path": "assets/production/enemies/icons/heart.png",
+      "role": "production-asset",
+      "bytes": 14427,
+      "sha256": "48cc6671a023a48738aa9c28d087e8328bda3feceb8eebaae920580519b39f87"
+    },
+    {
+      "path": "assets/production/enemies/icons/palette.png",
+      "role": "production-asset",
+      "bytes": 18375,
+      "sha256": "f3d1154e37ee1a7a625a1dc29281f1aca3b983d668cfc6c8749c9b6d7dd6fa1e"
+    },
+    {
+      "path": "assets/production/enemies/icons/terminal.png",
+      "role": "production-asset",
+      "bytes": 16931,
+      "sha256": "ce0d6525f3ba26621878f67c90129314e407480e7714ecd44982dfcbd6674f80"
+    },
+    {
+      "path": "assets/production/environment/props-atlas.json",
+      "role": "production-asset",
+      "bytes": 3750,
+      "sha256": "d6a10ef50d15ed9515024ca8ef6a80a60554ac6cb679537176b62bfe38babec1"
+    },
+    {
+      "path": "assets/production/environment/props-atlas.png",
+      "role": "production-asset",
+      "bytes": 646549,
+      "sha256": "702244587e310d96179994df183d50e04dc2502e4de9077345621a0b285eb655"
+    },
+    {
+      "path": "assets/production/environment/terrain-atlas.json",
+      "role": "production-asset",
+      "bytes": 3670,
+      "sha256": "4276fde5b170a69d51c6c945cfe9f60f3bdb44e064bf5db9baeee02e2005f266"
+    },
+    {
+      "path": "assets/production/environment/terrain-atlas.png",
+      "role": "production-asset",
+      "bytes": 316612,
+      "sha256": "0e73591412dfdc629fad18f3cdeea79eeb9c7b6c71d8eb3a472c06f632b21e07"
+    },
+    {
+      "path": "assets/reference/enemies-approved.png",
+      "role": "approved-reference",
+      "bytes": 2203763,
+      "sha256": "6b295020017762f94d10aa1113913fb5abe1ccbbbec6909a46214dcecb512bcb"
+    },
+    {
+      "path": "assets/reference/environment-approved.png",
+      "role": "approved-reference",
+      "bytes": 2385148,
+      "sha256": "5cd3637c2c81804417e56c0eee7c402a4eb24e6c9b25b62a514b448dfa619e2d"
+    },
+    {
+      "path": "assets/reference/gameplay-approved.png",
+      "role": "approved-reference",
+      "bytes": 2458280,
+      "sha256": "cf7daf12e96e8a31a00fc1170976a1fedd58b7463e5b769012a98a2ef4a73fd7"
+    },
+    {
+      "path": "assets/reference/hero-approved.png",
+      "role": "approved-reference",
+      "bytes": 1999860,
+      "sha256": "0de7933d48c2186b1545bfebf0521fd922f724a6230b6b01e903ae98e2182110"
+    },
+    {
+      "path": "assets/source/background-prompts.json",
+      "role": "generated-source",
+      "bytes": 4180,
+      "sha256": "b6eb4583161f8057baaafc20b389249c1f205dcc7731fe062b5d418d7d95c0a4"
+    },
+    {
+      "path": "assets/source/environment-prompts.json",
+      "role": "generated-source",
+      "bytes": 3527,
+      "sha256": "cc1663c32ca85e634affa17b5a0f573b24e69124aa5e02829866a59d1e8624fc"
+    },
+    {
+      "path": "assets/source/props-generated.png",
+      "role": "generated-source",
+      "bytes": 1279387,
+      "sha256": "b61a841e0e413f38f7e6d9fde5a4e10d50de6560e9d776bf33864ca5f70a7da1"
+    },
+    {
+      "path": "assets/source/terrain-generated.png",
+      "role": "generated-source",
+      "bytes": 1631789,
+      "sha256": "3f1aa7b4bee8394526851fe30494991084fc6c69701b4552bff28ad842f557b8"
+    }
+  ]
+}
