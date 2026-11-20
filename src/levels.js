@@ -190,8 +190,9 @@
       checkpoints: [{ x: 1100, y: 400 }, { x: 4000, y: 440 }, { x: 5230, y: 400 }, { x: 7460, y: 440 }],
       springs: [{ x: 1770, y: 440, w: 44, h: 16 }, { x: 5960, y: 384, w: 44, h: 16 }], boosts: [],
       signoffs: [
-        { x: 8030, label: 'BRIEF' }, { x: 8290, label: 'BUILD' }, { x: 8520, label: 'SHIP' },
-        { x: 8400, label: 'SHIP AGAIN' }
+        // Left to right in filing order, far enough apart that the labels never touch.
+        { x: 7965, label: 'BRIEF' }, { x: 8125, label: 'BUILD' }, { x: 8285, label: 'SHIP' },
+        { x: 8445, label: 'SHIP AGAIN' }
       ],
       boss: { type: 'scopecreep', name: 'Scope Creep', x: 8130, floor: 440, w: 94, h: 88, health: 4 },
       decor: [{ type: 'sign', x: 100, y: 440, text: 'SHIP IT CITY' }, { type: 'crate', x: 340, y: 440 },
@@ -322,8 +323,11 @@
       level.platforms.push({ x: g.x, y: g.y, w: g.w, h: g.h, type: 'gate', oneWay: false, id: 'gate-' + i,
         dx: 0, dy: 0, needs: g.needs, label: g.label });
     });
-    const finalGround = level.platforms.filter(p => p.type === 'ground').at(-1);
-    level.exit = { x: level.width - 160, y: finalGround.y - 104, w: 84, h: 104 };
+    // The portal stands on whichever ground is under it. Set pieces are appended to the platform
+    // list, so the last ground in the list is not necessarily the last ground in the world.
+    const exitX = level.width - 160;
+    const exitGround = level.platforms.find(p => p.type === 'ground' && p.x <= exitX && p.x + p.w >= exitX + 84);
+    level.exit = { x: exitX, y: exitGround.y - 104, w: 84, h: 104 };
     level.levelIndex = levelIndex;
     return level;
   });

@@ -283,6 +283,39 @@ test('every world keeps one finish line, after its boss, at the end of the level
   }
 });
 
+test('every finish portal stands on the ground beneath it', () => {
+  for (const l of LEVELS) {
+    const centre = l.exit.x + l.exit.w / 2;
+    const floor = l.platforms.find(p => p.type === 'ground' && p.x <= centre && p.x + p.w >= centre);
+    assert.equal(l.exit.y + l.exit.h, floor.y, `${l.name} portal floats or sinks`);
+  }
+});
+
+test('Scope Creep terminals sit inside the arena, in order, with room for their labels', () => {
+  const g = gameAtStart(1), b = g.state.boss, xs = b.signoffs.map(t => t.x);
+  assert.equal(xs.length, b.maxHealth);
+  for (let i = 0; i < xs.length; i++) {
+    assert.ok(xs[i] - 55 >= b.arena[0] && xs[i] + 55 <= b.arena[1], `${b.signoffs[i].label} outside the arena`);
+    if (i) assert.ok(xs[i] - xs[i - 1] >= 160, `${b.signoffs[i].label} crowds ${b.signoffs[i - 1].label}`);
+  }
+});
+
+test('bosses walk back after a charge or a hit instead of jumping', () => {
+  for (const level of [0, 1, 2]) {
+    const g = gameAtStart(level), b = g.state.boss, p = g.state.player;
+    Object.assign(p, { x: b.originX - 360, y: b.floor - p.h, vx: 0, vy: 0 });
+    g.step({});
+    assert.equal(b.active, true);
+    Object.assign(b, { x: b.arena[0] + 4, phase: 'vulnerable', timer: 1 });
+    let last = b.x;
+    for (let i = 0; i < 60; i++) {
+      Object.assign(p, { x: b.originX - 360, invulnerable: 99 }); g.step({});
+      assert.ok(Math.abs(b.x - last) <= 3.001, `${LEVELS[level].name} boss jumped ${Math.round(b.x - last)}px`);
+      last = b.x;
+    }
+  }
+});
+
 test('the Feed catches a player who stops and resets for the retry', () => {
   const g = gameAtStart(2), p = g.state.player, c = g.state.chase;
   Object.assign(p, { x: c.startX + 160, y: 382 }); tick(g, {}, 3);

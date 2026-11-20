@@ -374,7 +374,9 @@
       if (!b.enraged && b.maxHealth >= 4 && b.health <= b.maxHealth - 2) { b.enraged = true; this.emit('bossPhase', { name: b.name }); }
       const fast = b.enraged;
       if (b.phase === 'patrol') {
-        b.x = b.originX + Math.sin(s.tick * 0.035) * 24;
+        // Walk back towards the starting spot rather than snapping there after a charge or a hit.
+        const home = b.originX + Math.sin(s.tick * 0.035) * 24;
+        b.x += clamp(home - b.x, -3, 3);
         if (b.timer <= 0) { b.phase = 'telegraph'; b.timer = fast ? 42 : 54; b.facing = p.x < b.x ? -1 : 1; this.emit('bossTelegraph', { type: b.type }); }
       } else if (b.phase === 'telegraph') {
         if (b.timer <= 0) {
@@ -470,6 +472,8 @@
       s.camera.x = clamp(s.player.x + s.player.w / 2 - this.viewWidth * 0.35, 0, s.world.width - this.viewWidth);
       if (s.chase && !s.chase.done) { s.chase.active = false; s.chase.x = s.chase.startX - s.chase.lead; }
       s.projectiles = [];
+      // A boss mid-charge does not carry on while the player walks back from the checkpoint.
+      if (s.boss.alive && s.boss.active && s.boss.type !== 'finalreview') { s.boss.phase = 'patrol'; s.boss.timer = 90; }
       // With no lives left the app restarts the world from its first screen. Relaxed mode never runs out.
       if (!s.assist && s.lives === 0) this.emit('gameOver', { reason, levelIndex: s.levelIndex, deaths: s.deaths });
       else this.emit('respawn', { reason, checkpoint: s.checkpoint.id, deaths: s.deaths, lives: s.lives });
