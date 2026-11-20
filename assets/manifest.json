@@ -1,6 +1,6 @@
 {
-  "version": "handoff-2026-11-20",
-  "state": "art committed, art integration into playable v0.3 still unverified",
+  "version": "illustrated-edition-001",
+  "state": "Illustrated runtime. Test evidence is in docs/PLAYTEST.md.",
   "artStyle": "original lush, readable 16-bit-inspired console platformer; restrained retro desktop border; not copied franchise art",
   "viewport": {
     "logicalWidth": 960,
@@ -30,22 +30,22 @@
     {
       "role": "hero",
       "path": "assets/production/characters/hero-atlas.png",
-      "status": "needs frame/anchor review and animation system"
+      "frameMap": "assets/production/characters/hero-atlas.json"
     },
     {
       "role": "enemies",
       "path": "assets/production/enemies/enemy-atlas.png",
-      "status": "needs separate enemy frame maps and QA"
+      "frameMap": "assets/production/enemies/enemy-atlas.json"
     },
     {
       "role": "props",
       "path": "assets/production/environment/props-atlas.png",
-      "status": "needs runtime metadata and QA"
+      "frameMap": "assets/production/environment/props-atlas.json"
     },
     {
       "role": "terrain",
       "path": "assets/production/environment/terrain-atlas.png",
-      "status": "needs collider separation and QA"
+      "frameMap": "assets/production/environment/terrain-atlas.json"
     }
   ],
   "sourceAtlases": [

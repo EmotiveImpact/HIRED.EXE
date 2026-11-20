@@ -39,7 +39,9 @@ def bind_static_images(html, mapping, symbol):
         if path not in mapping:
             return match.group(0)
         return 'src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-inline-src="'+path+'"'
-    html=re.sub(r'src="(assets/[^"<>]+)"',repl,html)
+    icon = 'assets/production/enemies/icons/terminal.png'
+    html=html.replace(f'<link rel="icon" href="{icon}">', f'<link rel="icon" href="{mapping[icon]}">')
+    html=re.sub(r'src="((?:assets|references)/[^"<>]+)"',repl,html)
     bootstrap='''\n<script>
 globalThis.SYMBOL = MAPPING;
 document.querySelectorAll('[data-inline-src]').forEach(el=>{el.src=globalThis.SYMBOL[el.dataset.inlineSrc];});
@@ -59,7 +61,7 @@ game_html=game_html.replace('href="art-book.html"','href="HIRED-EXE-v0.4-ART-BOO
 
 art_html=(ROOT/'art-book.html').read_text()
 art_paths=set(runtime_paths)
-for folder in ['assets/reference','assets/concepts','assets/previews']:
+for folder in ['references','assets/previews']:
     art_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/folder).glob('*') if p.suffix.lower() in ['.png','.jpg','.webp'])
 art_map={p:data_uri(ROOT/p) for p in sorted(art_paths)}
 art_html=bind_static_images(art_html,art_map,'HIRED_ART_ASSETS')
@@ -79,7 +81,7 @@ art_html=re.sub(r'href="((?:docs/[^"<>]+)|(?:assets/[^"<>]+\.json))"',local_down
 # The multi-file site is deliberately also kept: it is easier to edit and review.
 for name in ['index.html','styles.css','art-book.html']:
     shutil.copy2(ROOT/name,DIST/name)
-for name in ['src','assets','docs']:
+for name in ['src','assets','docs','references']:
     shutil.copytree(ROOT/name,DIST/name,dirs_exist_ok=True)
 
 manifest=[]

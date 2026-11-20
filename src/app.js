@@ -25,20 +25,41 @@
         });
       }
       progress.assist = saved.assist === true;
+      const record = saved.checkpoint;
+      if (record?.level === progress.lastLevel && H.LEVELS[record.level].checkpoints.some(cp => cp.id === record.checkpoint))
+        progress.checkpoint = record;
       // Audio always starts off after a page reload; a fresh gesture is required.
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
   const save = () => {try {localStorage.setItem(SAVE_KEY,JSON.stringify(progress));storageAvailable=true;return true;} catch (_) {storageAvailable=false;return false;}};
   let game = new H.Game(), preview = new H.Game();
   preview.start(0,{assist:true});
+  // The title stage is assembled from the same actors and surfaces as world one.
+  Object.assign(preview.state.player, { x: 571, y: 286, grounded: true });
+  const compact = matchMedia('(max-width: 540px) and (orientation: portrait)');
+  function sizeCamera() {
+    const width = compact.matches ? 480 : H.WIDTH;
+    game.viewWidth = width;
+    if (renderer) renderer.canvas.width = uiMode === 'home' ? H.WIDTH : width;
+    if (game.state) {
+      const s = game.state;
+      s.camera.x = Math.max(0, Math.min(s.world.width - width, s.player.x - width * .35));
+    }
+  }
+  compact.addEventListener('change', sizeCamera);
+  const movementHelp = () => matchMedia('(pointer: coarse)').matches
+    ? 'Hold an arrow to move · Tap Jump twice for height · Dash to break through'
+    : 'A / D move · Space jump / double jump · Shift dash';
   let renderer, uiMode='boot', ready=false, previousTime=0, toastTimeout, ribbonTimeout;
   let interviewIndex=0, interviewChoice=null;
+  let interviewAnswers=[];
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
   let helpBack=showHome, portfolioBack=showHome, worldsBack=showHome;
   let jumpPressed=false, dashPressed=false;
 
   function clearInputs() {
+    game.pendingJump=false; game.pendingDash=false;
     keys.clear(); touch.clear(); pointers.clear(); jumpPressed=false; dashPressed=false;
     document.querySelectorAll('[data-control]').forEach(b=>b.classList.remove('is-held'));
   }
@@ -46,7 +67,7 @@
     const result = {
       left:keys.has('ArrowLeft')||keys.has('KeyA')||touch.has('left'),
       right:keys.has('ArrowRight')||keys.has('KeyD')||touch.has('right'),
-      down:keys.has('ArrowDown')||keys.has('KeyS'),
+      down:keys.has('ArrowDown')||keys.has('KeyS')||touch.has('down'),
       jumpHeld:keys.has('Space')||keys.has('ArrowUp')||keys.has('KeyW')||touch.has('jump'),
       jumpPressed,dashPressed
     };
@@ -58,13 +79,17 @@
     clearTimeout(toastTimeout); toastTimeout=setTimeout(()=>$('toast').classList.add('hidden'),duration);
   }
   function setMode(mode) {
-    uiMode=mode; clearInputs(); previousTime=performance.now();
+    uiMode=mode;
+    if (renderer) renderer.canvas.width = compact.matches && mode !== 'home' ? 480 : H.WIDTH;
+    game.viewWidth = compact.matches ? 480 : H.WIDTH;
+    clearInputs(); previousTime=performance.now();
     const playing=mode==='playing';
     $('overlay').classList.toggle('hidden',playing);
     $('viewport').classList.toggle('menu-open',!playing);
     $('hud').classList.toggle('hidden',!playing);
     $('pause-button').textContent=playing?'Pause [P]':mode==='pause'?'Resume [P]':'Pause [P]';
     $('pause-button').disabled=!['playing','pause'].includes(mode);
+    $('touch-controls').inert=!playing;
     $('mode-label').textContent=playing?(progress.assist?'RELAXED MODE':'STANDARD MODE'):'4 WORLDS / ORIGINAL PIXEL ART';
     if (!playing) { $('toast').classList.add('hidden'); $('level-ribbon').classList.add('hidden'); }
   }
@@ -83,10 +108,10 @@
     $('status').textContent='Ready to play';
     $('overlay').className='overlay home-overlay';
     $('overlay').setAttribute('aria-label','Main menu');
-    const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0;
+    const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRED<em>.EXE</em></h1><h2>Jump into the work.<br>Meet the person behind it.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':hasProgress?'Continue the journey':'Start the application'}</button><button class="btn subtle" id="choose-world">Choose a world</button><button class="btn subtle" id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button></div><p class="home-meta">FOUR WORLDS · DOUBLE JUMPS · ZERO FORMS</p></div><div class="home-stamp">A PLAYABLE INTRODUCTION / 0.4</div>`;
-    bindActions({'start-game':()=>hasRun?resume():startLevel(hasProgress?progress.lastLevel:0),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRED<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button></div></div></div>`;
+    bindActions({'start-game':()=>hasRun?resume():progress.results[3]&&!progress.checkpoint?beginInterview():startLevel(hasProgress?progress.lastLevel:0,progress.checkpoint),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
   }
   function assistRow() {return `<label class="toggle-row"><input id="assist-toggle" type="checkbox" ${progress.assist?'checked':''}><span>Relaxed mode<small>Keep the platforming. Contact damage is switched off.</small></span></label>`;}
   function bindAssist() {$('assist-toggle')?.addEventListener('change',e=>{progress.assist=e.target.checked;game.setAssist(progress.assist);save();});}
@@ -98,12 +123,13 @@
     modal('World directory',`<p class="eyebrow">CHOOSE YOUR STARTING POINT</p><h2>Four stages. One story.</h2><p class="muted">Start at the beginning or take a look around. Every world is open.</p><div class="world-grid">${H.LEVELS.map((l,i)=>`<button class="world-card" id="world-${i}"><img src="${asset(`assets/production/backgrounds/${ids[i]}.png`)}" alt="">${progress.results[i]?'<span class="clear-badge">CLEARED</span>':''}<span>${String(i+1).padStart(2,'0')} / ${esc(l.name)}</span><small>${esc(l.subtitle)}</small></button>`).join('')}</div>${assistRow()}`,true,back);
     H.LEVELS.forEach((_,i)=>$('world-'+i).addEventListener('click',()=>startLevel(i)));bindAssist();
   }
-  function startLevel(index) {
+  function startLevel(index, checkpoint=null) {
     if(!ready)return;
     game.start(index,{assist:progress.assist});
+    if (!game.restoreCheckpoint(checkpoint)) delete progress.checkpoint;
     progress.lastLevel=index;save();
     setMode('playing');$('game').focus({preventScroll:true});
-    $('status').textContent='A / D move · Space jump / double jump · Shift dash';
+    $('status').textContent=movementHelp();
     $('level-ribbon').textContent=`${String(index+1).padStart(2,'0')} / ${H.LEVELS[index].name.toUpperCase()}`;
     $('level-ribbon').classList.remove('hidden');
     clearTimeout(ribbonTimeout);ribbonTimeout=setTimeout(()=>$('level-ribbon').classList.add('hidden'),3200);
@@ -113,7 +139,7 @@
   function resume() {
     if(!game.state||game.state.mode!=='playing'){showHome();return;}
     setMode('playing');$('game').focus({preventScroll:true});
-    $('status').textContent='A / D move · Space jump / double jump · Shift dash';
+    $('status').textContent=movementHelp();
   }
   function showPause() {
     if(!game.state||game.state.mode!=='playing'){showHome();return;}
@@ -143,14 +169,17 @@
   function showHelp(from=uiMode) {
     const back=from==='help'?helpBack:captureReturn(from);helpBack=back;
     setMode('help');
-    modal('How to play',`<p class="eyebrow">A FEW GOOD MOVES</p><h2>You already know the way.</h2><div class="controls-grid"><div class="control-card"><strong>Move</strong><span class="key">A</span> <span class="key">D</span> or <span class="key">←</span> <span class="key">→</span></div><div class="control-card"><strong>Jump & double jump</strong><span class="key">Space</span> / <span class="key">W</span> / <span class="key">↑</span></div><div class="control-card"><strong>Dash</strong><span class="key">Shift</span> or <span class="key">X</span></div><div class="control-card"><strong>Pause</strong><span class="key">P</span> or <span class="key">Esc</span></div></div><ul class="help-list"><li>Hold jump for height. Tap again in the air for a second jump.</li><li>Land on an enemy or dash through it. Watch your dash meter recharge.</li><li>Bosses warn, attack, then leave an opening. Strike when the shield is down.</li><li>Collect ideas and optional skill tokens. Defeat the boss to open the exit.</li><li>Computer terminals save your place within a run. Retries are unlimited.</li><li>Hold Down and jump to drop through a floating platform.</li></ul><p class="tiny-note">On a phone, use the controls below the game. Landscape gives the world more room. You can visit the portfolio at any time.</p><div class="modal-actions"><button class="btn primary" id="help-back">Got it</button></div>`,true,back);
+    modal('How to play',`<p class="eyebrow">A FEW GOOD MOVES</p><h2>You already know the way.</h2><div class="controls-grid"><div class="control-card"><strong>Move</strong><span class="key">A</span> <span class="key">D</span> or <span class="key">←</span> <span class="key">→</span></div><div class="control-card"><strong>Jump & double jump</strong><span class="key">Space</span> / <span class="key">W</span> / <span class="key">↑</span></div><div class="control-card"><strong>Dash</strong><span class="key">Shift</span> or <span class="key">X</span></div><div class="control-card"><strong>Pause</strong><span class="key">P</span> or <span class="key">Esc</span></div></div><ul class="help-list"><li>Hold jump for height. Tap again in the air for a second jump.</li><li>Land on an enemy or dash through it. Watch your dash meter recharge.</li><li>Dodge the CV Filter and the Algorithm, then strike while their shields are down. In Ship It City, dash through the three lit terminals in order.</li><li>Collect ideas and optional skill tokens. Defeat the boss to open the exit.</li><li>Computer terminals save your place on this browser. Retries are unlimited.</li><li>Hold Down and press Jump to drop through a floating platform. Look for the small briefcase on the high route in each world for a portfolio field note.</li></ul><p class="tiny-note">On a phone, use the controls below the game. Landscape gives the world more room. You can visit the portfolio at any time.</p><div class="modal-actions"><button class="btn primary" id="help-back">Got it</button></div>`,true,back);
     $('help-back').addEventListener('click',back);
   }
   function showPortfolio(from=uiMode) {
     const back=from==='portfolio'?portfolioBack:captureReturn(from);portfolioBack=back;
     setMode('portfolio');
     const contact=safeLink(E.contactUrl);
-    modal('Augustus / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="Illustrated Augustus"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">View project</a>`:''}</article>`).join('')}</div><p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
+    const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
+    const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
+      `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
+    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
     $('portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
@@ -162,6 +191,7 @@
       bestTime:Math.min(Number(old?.bestTime)||Infinity,event.time),
       completed:true
     };
+    delete progress.checkpoint;
     progress.lastLevel=Math.min(3,event.levelIndex+1);save();showComplete();
   }
   function showComplete() {
@@ -170,21 +200,33 @@
     $('status').textContent=storageAvailable?'World complete. Progress saved on this browser.':'World complete. Progress kept for this session.';
     const last=s.levelIndex===3;
     modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':'Good work. Onwards.'}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div><div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button><button class="btn" id="complete-portfolio">View portfolio</button></div>`,false,showWorlds);
-    bindActions({'next-world':()=>{if(last){interviewIndex=0;interviewChoice=null;showInterview();}else startLevel(s.levelIndex+1);},'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
+    bindActions({'next-world':()=>{if(last)beginInterview();else startLevel(s.levelIndex+1);},'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
+  }
+  function beginInterview() {
+    interviewIndex=0; interviewChoice=null; interviewAnswers=[]; showInterview();
   }
   function showInterview() {
     setMode('interview');
     const q=E.interview[interviewIndex];
-    modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There is no wrong answer.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,showComplete);
+    modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There is no wrong answer.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,game.state?.mode==='complete'?showComplete:showHome);
     q.answers.forEach((_,i)=>$('answer-'+i).addEventListener('click',()=>{interviewChoice=i;showInterview();}));
-    $('interview-next')?.addEventListener('click',()=>{interviewIndex++;interviewChoice=null;if(interviewIndex>=E.interview.length)showFinish();else showInterview();});
+    $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex>=E.interview.length)showFinish();else showInterview();});
     if(interviewChoice!==null)requestAnimationFrame(()=>$('interview-next')?.focus({preventScroll:true}));
   }
   function showFinish() {
     setMode('finish');
     const complete=Object.keys(progress.results).filter(i=>progress.results[i]?.completed).length;
     const skills=new Set(Object.values(progress.results).flatMap(r=>Array.isArray(r.skills)?r.skills:[])).size;
-    modal('HIRED.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>Let's make something good.</h2><p>A little curiosity, a lot of making, and a willingness to keep learning. That is the introduction. The next conversation can be about the work.</p><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${safeLink(E.contactUrl)?`<a class="btn" href="${esc(E.contactUrl)}">Let's talk</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    const project = E.portfolio.find(item => item.name === interviewAnswers[1]);
+    const topics = interviewAnswers.map(esc).join(' · ');
+    let contact = safeLink(E.contactUrl);
+    if (contact?.startsWith('mailto:')) {
+      const draft = new URL(contact);
+      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIRED.EXE'].filter(Boolean).join(' / '));
+      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRED.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
+      contact = draft.href;
+    }
+    modal('HIRED.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])}</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -212,11 +254,22 @@
   function events() {
     for(const e of game.drainEvents()) {
       audio.effect(e.type);
-      if(e.type==='hint')toast(e.text,4600);
-      if(e.type==='skill')toast(`${e.skill.title} · ${e.skill.project}`,3700);
-      if(e.type==='checkpoint')toast('Checkpoint saved. Keep going.',2300);
+      if(e.type==='hint'){
+        const firstSteps=matchMedia('(pointer: coarse)').matches && game.state.levelIndex===0 && e.text.startsWith('Move with');
+        toast(firstSteps?'Hold an arrow to run. Tap Jump, then tap again in the air.':e.text,4600);
+      }
+      if(e.type==='skill'){
+        const note = e.item.secret && E.fieldNotes?.[e.skill.id];
+        toast(note ? 'Field note · ' + note : [e.skill.title,E.skillProjects?.[e.skill.id]].filter(Boolean).join(' · '),note?6000:3700);
+      }
+      if(e.type==='checkpoint'){
+        progress.checkpoint=game.checkpointRecord();
+        toast(save()?'Checkpoint saved. You can return here later.':'Checkpoint reached for this session.',2300);
+      }
       if(e.type==='respawn')toast('Back on your feet. Your collected ideas are safe.',2600);
-      if(e.type==='bossOpening')toast('Shield down! Stomp or dash now.',1800);
+      if(e.type==='signoff')toast(e.label+' signed off.',1800);
+      if(e.type==='welcome')toast('Your interview is through the doors.',3000);
+      if(e.type==='bossOpening' && !game.state.world.signoffs)toast('Shield down! Stomp or dash now.',1800);
       if(e.type==='bossDefeated')toast('Review cleared. The exit is open!',3200);
       if(e.type==='complete')finishLevel(e);
     }
@@ -262,7 +315,8 @@
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
   $('sound-button').addEventListener('click',async()=>{audio.enabled=!audio.enabled;if(audio.enabled)await audio.start();updateSound();if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
-  $('title-edition').textContent=E.company+' edition';
+  $('title-edition').textContent=E.editionLabel;
+  $('art-book-link').search = globalThis.location.search;
   document.title='HIRED.EXE | '+E.applicant;
 
   async function boot() {

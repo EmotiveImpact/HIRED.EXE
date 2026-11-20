@@ -137,33 +137,7 @@ test('bosses accept a stomp only during their opening', () => {
   }
 });
 
-function controller(game) {
-  const s = game.state, p = s.player, b = s.boss, c = p.x + p.w / 2;
-  const input = { right: true, jumpHeld: true };
-  const arena = s.world.platforms.filter(pl => pl.type === 'ground').at(-1);
-  if (b.alive && b.active && p.x > arena.x + 50) {
-    const diff = b.x + b.w / 2 - c;
-    input.right = diff > 12; input.left = diff < -12;
-    if (!s.assist && b.phase !== 'vulnerable') {
-      // Read the telegraph, leave room for the attack, then re-enter on the opening.
-      const safeX = Math.max(arena.x + 85, b.x - (b.phase === 'attack' ? 250 : 150));
-      input.right = safeX - c > 12; input.left = safeX - c < -12;
-      const nearbyShot = s.projectiles.some(shot => Math.abs(shot.x - c) < 130 && Math.abs(shot.y - (p.y + p.h / 2)) < 95);
-      if (p.grounded && (nearbyShot || (b.type === 'scopecreep' && b.phase === 'attack' && Math.abs(diff) < 240))) input.jumpPressed = true;
-      return input;
-    }
-    if (b.phase === 'vulnerable' && p.grounded && Math.abs(diff) < 160 && p.dashCooldown <= 0) input.dashPressed = true;
-    if (b.phase === 'vulnerable' && !p.grounded && p.vy > 0 && Math.abs(diff) < 160 && p.dashCooldown <= 0) input.dashPressed = true;
-    return input;
-  }
-  const platform = s.world.platforms.find(pl => pl.id === p.groundId);
-  const groundAhead = s.world.platforms.find(pl => pl.type === 'ground' && c + 90 >= pl.x && c + 90 <= pl.x + pl.w);
-  const upcomingEnemy = s.enemies.some(e => e.alive && e.type !== 'plane' && e.x - c < 130 && e.x - c > -20 && Math.abs(e.y + e.h - (p.y + p.h)) < 45);
-  if (p.grounded && ((platform && platform.x + platform.w - (p.x + p.w) < 78) || !groundAhead || upcomingEnemy)) input.jumpPressed = true;
-  const below = s.world.platforms.find(pl => pl.type === 'ground' && c > pl.x && c < pl.x + pl.w);
-  if (!p.grounded && p.jumps === 1 && p.vy > 1 && !below) input.jumpPressed = true;
-  return input;
-}
+const controller = require('./route-controller.js');
 
 test('input-only controller can cross every layout, defeat its boss and reach the exit', () => {
   for (let level = 0; level < LEVELS.length; level++) {
@@ -188,4 +162,31 @@ test('input-only controller can complete normal mode without an endless damage l
     assert.ok(s.deaths <= 2, `Normal world ${level + 1} needed too many retries: ${s.deaths}`);
     console.log(`Normal input route: world ${level + 1}, ${s.time.toFixed(1)}s, ${s.deaths} retries, ${s.player.health} hearts at exit.`);
   }
+});
+
+test('checkpoint records resume normal geometry and keep only recognised collectibles and enemies', () => {
+  const original = gameAtStart(1);
+  for (let i = 0; i < 5000 && original.state.checkpoint.id === 'start'; i++) original.step(controller(original));
+  const record = JSON.parse(JSON.stringify(original.checkpointRecord()));
+  assert.ok(record.collected.length);
+  record.collected.push('unknown-id');
+  const fresh = gameAtStart(1);
+  assert.equal(fresh.restoreCheckpoint(record), true);
+  assert.deepEqual(fresh.state.checkpoint, original.state.checkpoint);
+  assert.equal(fresh.state.coins, original.state.coins);
+  assert.deepEqual(fresh.state.skills, original.state.skills);
+  assert.equal(fresh.state.player.x, fresh.state.checkpoint.x);
+  assert.equal(fresh.state.deaths, original.state.deaths);
+  assert.equal(fresh.state.time, original.state.time);
+  assert.equal(gameAtStart(0).restoreCheckpoint(record), false);
+  assert.equal(gameAtStart(1).restoreCheckpoint({...record,checkpoint:'retired'}), false);
+});
+
+test('each world has one discoverable field note and the final host welcomes without combat', () => {
+  for (const level of LEVELS) assert.equal(level.collectibles.filter(item => item.secret).length, 1);
+  const game = gameAtStart(3);
+  for(let i = 0; game.state.mode !== 'complete' && i < 6000; i++) game.step(controller(game));
+  const events = game.drainEvents();
+  assert.ok(events.some(e => e.type === 'welcome'));
+  assert.ok(!events.some(e => ['bossHit','shot','bossDefeated'].includes(e.type)));
 });

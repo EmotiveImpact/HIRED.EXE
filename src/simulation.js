@@ -10,7 +10,7 @@
 
   class Game {
     constructor() {
-      this.state = null; this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
+      this.viewWidth = WIDTH; this.state = null; this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
     }
     start(index = 0, options = {}) {
       const world = H.createLevel(index);
@@ -25,9 +25,40 @@
       this.emit('start', { levelIndex: world.levelIndex });
       return this.state;
     }
+    checkpointRecord() {
+      const s = this.state;
+      if (!s || s.checkpoint.id === 'start') return null;
+      return { level: s.levelIndex, checkpoint: s.checkpoint.id,
+        collected: s.world.collectibles.filter(i => i.collected).map(i => i.id),
+        defeated: s.enemies.filter(e => !e.alive).map(e => e.id),
+        score: s.score, time: s.time, deaths: s.deaths };
+    }
+    restoreCheckpoint(record) {
+      const s = this.state;
+      if (!record || record.level !== s.levelIndex) return false;
+      const cp = s.world.checkpoints.find(point => point.id === record.checkpoint);
+      if (!cp) return false;
+      const picked = new Set(Array.isArray(record.collected) ? record.collected : []);
+      const defeated = new Set(Array.isArray(record.defeated) ? record.defeated : []);
+      for (const item of s.world.collectibles) {
+        item.collected = picked.has(item.id);
+        if (item.collected && item.kind === 'skill') s.skills.push(item.skill.id);
+        else if (item.collected) s.coins++;
+      }
+      for (const enemy of s.enemies) enemy.alive = !defeated.has(enemy.id);
+      for (const point of s.world.checkpoints) point.active = point.x <= cp.x;
+      const number = n => Number.isFinite(n) && n >= 0 ? n : 0;
+      s.score = Math.floor(number(record.score)); s.time = number(record.time); s.deaths = Math.floor(number(record.deaths));
+      s.checkpoint = { id: cp.id, x: cp.x + 8, y: cp.y - s.player.h };
+      s.player = this.makePlayer(s.checkpoint);
+      s.player.invulnerable = 75;
+      s.camera.x = clamp(s.player.x - this.viewWidth * .35, 0, s.world.width - this.viewWidth);
+      s.hintsShown = s.world.hints.flatMap((hint,i) => hint.x < cp.x ? [i] : []);
+      return true;
+    }
     makePlayer(spawn) {
       return { x: spawn.x, y: spawn.y, w: 34, h: 58, vx: 0, vy: 0, facing: 1, grounded: false, groundId: null,
-        jumps: 0, health: 3, invulnerable: 0, dashTime: 0, dashCooldown: 0, coyote: 0, jumpBuffer: 0,
+        jumps: 0, health: 3, invulnerable: 0, hurtFrames: 0, dashTime: 0, dashCooldown: 0, coyote: 0, jumpBuffer: 0,
         boostTime: 0, animation: 'idle', animationTime: 0, dropTime: 0, springCooldown: 0 };
     }
     emit(type, data = {}) { this.events.push({ type, ...data }); }
@@ -48,7 +79,7 @@
     tick(input) {
       const s = this.state, p = s.player, world = s.world;
       s.tick++; s.time += STEP;
-      for (const field of ['invulnerable', 'dashCooldown', 'coyote', 'jumpBuffer', 'boostTime', 'dropTime', 'springCooldown']) {
+      for (const field of ['invulnerable', 'hurtFrames', 'dashCooldown', 'coyote', 'jumpBuffer', 'boostTime', 'dropTime', 'springCooldown']) {
         if (p[field] > 0) p[field]--;
       }
       this.movePlatforms();
@@ -56,7 +87,7 @@
       if (p.grounded) { p.coyote = PHYSICS.coyoteFrames; p.jumps = 0; }
       if (input.down && input.jumpPressed && p.grounded) {
         const platform = world.platforms.find(pl => pl.id === p.groundId);
-        if (platform && platform.oneWay) { p.dropTime = 16; p.y += 5; p.grounded = false; p.groundId = null; p.jumpBuffer = 0; }
+        if (platform && platform.oneWay) { p.dropTime = 16; p.coyote = 0; p.jumps = 1; p.y += 5; p.grounded = false; p.groundId = null; p.jumpBuffer = 0; }
       }
       if (p.jumpBuffer > 0 && (p.grounded || p.coyote > 0 || p.jumps < 2)) {
         const firstJump = p.grounded || p.coyote > 0;
@@ -95,9 +126,9 @@
       if (s.player !== p) return;
       if (p.y > 650) { this.respawn('fall'); return; }
       this.moveParticles();
-      const desired = clamp(p.x + p.w / 2 - WIDTH * 0.35, 0, world.width - WIDTH);
+      const desired = clamp(p.x + p.w / 2 - this.viewWidth * 0.35, 0, world.width - this.viewWidth);
       s.camera.x += (desired - s.camera.x) * 0.12;
-      const animation = p.invulnerable > 0 && s.tick % 12 < 3 ? 'hurt' : p.dashTime > 0 ? 'dash'
+      const animation = p.hurtFrames > 0 ? 'hurt' : p.dashTime > 0 ? 'dash'
         : !p.grounded ? (p.vy < 0 ? 'jump' : 'fall') : input.down ? 'crouch' : Math.abs(p.vx) > 0.5 ? 'run' : 'idle';
       if (animation !== p.animation) { p.animation = animation; p.animationTime = 0; }
       else p.animationTime++;
@@ -208,6 +239,13 @@
     moveBoss(previousBottom) {
       const s = this.state, p = s.player, b = s.boss;
       if (!b.alive) return;
+      if (b.type === 'finalreview') {
+        if (p.x + p.w >= b.x - 80) {
+          b.health = 0; b.alive = false; b.phase = 'welcome';
+          this.emit('welcome');
+        }
+        return;
+      }
       if (!b.active && p.x > b.originX - 430) {
         b.active = true; b.phase = 'patrol'; b.timer = 70; this.emit('bossStart', { name: b.name });
       }
@@ -225,7 +263,7 @@
           if (b.x < s.world.width - 870 || b.x + b.w > s.world.width - 270) b.facing *= -1;
           b.x = clamp(b.x, s.world.width - 870, s.world.width - 270 - b.w);
         } else {
-          const interval = b.type === 'algorithm' ? 18 : b.type === 'finalreview' ? 20 : 30;
+          const interval = b.type === 'algorithm' ? 36 : 30;
           if (b.timer % interval === 0) this.fireBossShot(b, p);
         }
         if (b.timer <= 0) { b.phase = 'vulnerable'; b.timer = 110; this.emit('bossOpening', { name: b.name }); }
@@ -233,6 +271,19 @@
         b.phase = 'patrol'; b.timer = 54;
       }
       if (b.type === 'algorithm') b.y = b.baseY + Math.sin(s.tick * 0.035) * 18;
+      if (s.world.signoffs) {
+        const target = s.world.signoffs[b.maxHealth - b.health];
+        const terminal = { x: target.x - 24, y: b.floor - 72, w: 48, h: 72 };
+        if (p.dashTime > 0 && overlaps(p, terminal)) {
+          b.health--;
+          this.emit('signoff', { label: target.label });
+          this.burst(target.x, b.floor - 60, 'cyan', 15);
+          s.score += 350;
+          if (b.health === 0) this.clearBoss(b);
+        }
+        if (b.alive && overlaps(p, b) && p.dashTime === 0 && b.phase === 'attack') this.hurt(b.x + b.w / 2);
+        return;
+      }
       if (!overlaps(p, b)) return;
       const attack = p.dashTime > 0 || (p.vy > 0 && previousBottom <= b.y + 18);
       if (b.phase === 'vulnerable' && b.hitCooldown <= 0 && attack) {
@@ -241,16 +292,25 @@
         s.score += 350; this.emit('bossHit', { health: b.health, maxHealth: b.maxHealth });
         this.burst(b.x + b.w / 2, b.y + b.h / 2, 'gold', 18);
         if (b.health <= 0) {
-          b.alive = false; b.phase = 'defeated'; s.projectiles = []; s.score += 650;
-          this.emit('bossDefeated', { name: b.name }); this.burst(b.x + b.w / 2, b.y + b.h / 2, 'confetti', 30);
+          this.clearBoss(b);
         } else { b.phase = 'patrol'; b.timer = 65; }
       } else if (b.phase !== 'vulnerable' || !attack) this.hurt(b.x + b.w / 2);
+    }
+    clearBoss(boss) {
+      boss.alive = false; boss.phase = 'defeated';
+      this.state.projectiles = []; this.state.score += 650;
+      this.emit('bossDefeated', { name: boss.name });
+      this.burst(boss.x + boss.w / 2, boss.y + boss.h / 2, 'confetti', 30);
     }
     fireBossShot(b, p) {
       const from = centre(b), to = centre(p), angle = Math.atan2(to.y - from.y, to.x - from.x);
       const speed = b.type === 'algorithm' ? 4.1 : 3.7;
-      this.state.projectiles.push({ x: from.x, y: from.y, w: 14, h: 14, vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed, life: 170, kind: b.type === 'algorithm' ? 'purple' : 'cyan' });
+      const offsets = b.type === 'algorithm' ? [-0.32, 0, 0.32] : [0];
+      for (const offset of offsets) {
+        this.state.projectiles.push({ x: from.x, y: from.y, w: 14, h: 14,
+          vx: Math.cos(angle + offset) * speed, vy: Math.sin(angle + offset) * speed,
+          life: 170, kind: b.type === 'algorithm' ? 'purple' : 'cyan' });
+      }
       this.emit('shot');
     }
     moveProjectiles() {
@@ -267,7 +327,7 @@
     hurt(sourceX) {
       const s = this.state, p = s.player;
       if (s.assist || p.invulnerable > 0) return;
-      p.health--; p.invulnerable = 90; p.dashTime = 0;
+      p.health--; p.hurtFrames = 13; p.invulnerable = 90; p.dashTime = 0;
       p.vx = p.x + p.w / 2 < sourceX ? -6 : 6; p.vy = -7; p.grounded = false; p.groundId = null;
       this.emit('hurt', { health: p.health }); this.burst(p.x + p.w / 2, p.y + p.h / 2, 'pink', 10);
       if (p.health <= 0) this.respawn('health');
@@ -275,7 +335,7 @@
     respawn(reason) {
       const s = this.state;
       s.deaths++; s.player = this.makePlayer(s.checkpoint); s.player.invulnerable = 100;
-      s.camera.x = clamp(s.player.x + s.player.w / 2 - WIDTH * 0.35, 0, s.world.width - WIDTH);
+      s.camera.x = clamp(s.player.x + s.player.w / 2 - this.viewWidth * 0.35, 0, s.world.width - this.viewWidth);
       s.projectiles = []; this.emit('respawn', { reason, checkpoint: s.checkpoint.id, deaths: s.deaths });
       // Keep collected ideas, skill tokens and boss damage; a fall never erases the application story.
       this.burst(s.player.x + s.player.w / 2, s.player.y + s.player.h / 2, 'cyan', 16);

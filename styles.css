@@ -7,3 +7,49 @@
 @media (orientation:landscape) and (max-height:600px) and (pointer:coarse){#desktop{padding:0;justify-content:center}.desktop-label,.desktop-footer,.statusbar{display:none}#game-window{max-width:100%;border-width:2px}.titlebar{height:26px}.menubar{position:absolute;right:58px;top:0;z-index:50;padding:0;border:0;background:transparent}.menubar button{color:#e7ecff;font-size:10px;min-height:24px}.menubar .menu-group:first-child{display:none}.window-title .title-edition{display:none}.chrome-button{height:21px;width:22px;font-size:19px}#viewport,#viewport.menu-open{height:calc(100svh - 30px);width:calc((100svh - 30px)*16/9);margin:0 auto;max-width:100%;min-height:0;aspect-ratio:16/9}#viewport.menu-open #game{width:100%;transform:none;object-fit:fill}.overlay.home-overlay{padding:20px 30px}.home-content{width:50%;max-width:350px}.game-logo{font-size:40px;margin-bottom:14px}.home-content h2{font-size:16px}.home-copy{font-size:11px;margin-bottom:12px}.edition-pill{font-size:9px;margin-bottom:10px}.home-buttons .btn{min-height:30px;font-size:11px;padding:6px}.home-buttons{gap:5px}.home-meta{display:none}.home-stamp{display:none}#touch-controls{position:absolute;bottom:8px;left:12px;right:12px;z-index:15;background:transparent;border:0;padding:0;pointer-events:none}.touch-group{pointer-events:auto}.touch-group button{width:48px;height:45px;opacity:.75;box-shadow:1px 1px #31284c}.touch-note{display:none}.menu-open~#touch-controls{display:none}.modal-body{padding:13px;max-height:80svh}.modal-window.wide{width:min(720px,100%)}.world-card img{aspect-ratio:5}.world-grid{gap:8px}.world-card>span{padding:5px 8px;font-size:12px}.world-card small{padding:0 8px 5px;font-size:9px}.portfolio-grid{grid-template-columns:1fr 1fr}.modal-body h2{font-size:19px}.modal-body p{font-size:11px}.world-hud strong{font-size:10px}}
 @media (prefers-reduced-motion:reduce){.loading-track i{animation:none;width:70%}button:active{transform:none}}
 #game-window:fullscreen{width:100vw;max-width:none;height:100svh;display:flex;flex-direction:column;border:0;background:#151a41}#game-window:fullscreen #viewport{flex:1;min-height:0;aspect-ratio:auto;max-width:calc((100svh - 94px)*16/9);width:100%;margin:auto}#game-window:fullscreen #game{object-fit:contain}#game-window:fullscreen .statusbar{background:#c9c9dc}
+
+/* The title stage leaves the atlas character and city visible beside the menu. */
+.overlay.home-overlay { background:linear-gradient(90deg,#131c45f7 0%,#162451ec 27%,#18275590 43%,transparent 60%); }
+.home-content { max-width:440px; }
+.home-content h2 { font-size:clamp(17px,1.75vw,24px); }
+.home-links { display:flex; gap:18px; flex-wrap:wrap; }
+.home-links button { background:transparent; color:#fff; padding:10px 0; border:0; text-decoration:underline; text-underline-offset:4px; font-size:13px; }
+.home-links button:hover { color:var(--gold); }
+.menu-open~#touch-controls { display:none; }
+@media (min-width:801px) and (min-height:601px) {
+  #desktop { padding:14px 20px; }
+  #game-window,.desktop-label,.desktop-footer { width:min(1390px, 100%, calc((100svh - 153px)*16/9)); }
+}
+@media (max-width:540px) and (orientation:portrait) {
+  #desktop { padding-top:max(10px,env(safe-area-inset-top)); }
+  #viewport { aspect-ratio:480/540; }
+  #viewport.menu-open { min-height:450px; height:calc(100svh - 153px); }
+  #viewport.menu-open #game { width:100%; height:100%; transform:none; object-fit:cover; }
+  .overlay.home-overlay { align-items:flex-end; padding:20px; background:linear-gradient(0deg,#141d46 0%,#172349fb 24%,#16264be8 45%,#18275344 68%,transparent 85%); }
+  .home-content { width:100%; max-width:none; }
+  .home-copy { max-width:34ch; margin-bottom:14px; }
+  .home-content h2 { font-size:18px; max-width:none; margin-bottom:8px; }
+  .edition-pill { margin-bottom:12px; }
+  .game-logo { margin-bottom:14px; }
+  .home-links { justify-content:space-between; }
+  .home-links button { min-height:44px; }
+  #touch-controls { padding:10px max(9px,env(safe-area-inset-right)) 14px max(9px,env(safe-area-inset-left)); }
+  .touch-group button { height:55px; }
+  #hud { height:55px; background:linear-gradient(#15204fe8,#15204f88,transparent); gap:7px; }
+  .world-hud strong { font-size:10px; }
+  .hud-label { font-size:8px; }
+  .toast { font-size:12px; bottom:12px; }
+  .level-ribbon { top:58px; font-size:11px; }
+}
+@media (orientation:landscape) and (max-height:600px) and (pointer:coarse) {
+  #touch-controls { left:max(12px,env(safe-area-inset-left)); right:max(12px,env(safe-area-inset-right)); bottom:max(8px,env(safe-area-inset-bottom)); }
+  .home-links button { padding:6px 0; }
+}
+.field-notes { margin-top:14px; padding:12px; background:#f3f0fc; border:1px solid #bcb3d6; }
+.field-notes summary { cursor:pointer; font-weight:bold; }
+.field-notes p { margin:12px 0 0; }
+@media (max-width:365px) {
+  #touch-controls { padding-inline:6px; gap:3px; }
+  .touch-group { gap:4px; }
+  .touch-group button,.touch-group .touch-jump,.touch-group .touch-dash { width:46px; }
+}

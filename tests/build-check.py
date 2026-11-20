@@ -147,7 +147,7 @@ def expected_images():
         runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).glob('*.png'))
     runtime.add('assets/production/characters/portrait-reference.png')
     gallery = set(runtime)
-    for folder in ('assets/reference', 'assets/concepts', 'assets/previews'):
+    for folder in ('references', 'assets/previews'):
         gallery.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).iterdir() if p.suffix.lower() in IMAGE_SUFFIXES)
     return runtime, gallery, metadata
 
@@ -176,7 +176,10 @@ def check_bundle(page: Page, symbol: str, expected: set[str]):
             assert zoom in mapping or zoom.startswith('data:'), f'{page.path.name}: unresolved zoom {zoom}'
         href = attrs.get('href', '')
         if href.startswith('data:'):
-            unpack_data(href)
+            mime, _ = unpack_data(href)
+            if tag == 'link' and attrs.get('rel') == 'icon':
+                assert mime.startswith('image/'), 'Invalid embedded favicon'
+                continue
             assert attrs.get('download'), f'{page.path.name}: embedded file link is not downloadable'
             downloads.append(attrs['download'])
         elif (target := relative_target(href)):

@@ -95,6 +95,7 @@
         if (!item.collected && this.visible(item.x - 24, 48)) this.collectible(item, state);
       }
       for (const enemy of state.enemies) if (enemy.alive && this.visible(enemy.x, enemy.w)) this.enemy(enemy);
+      this.signoffs(state);
       this.boss(state);
       for (const shot of state.projectiles) this.projectile(shot);
       this.player(state.player, state);
@@ -321,6 +322,13 @@
     }
 
     collectible(item, state) {
+      if (item.secret) {
+        const close = Math.abs(state.player.x - item.x) < 185 && state.player.y < item.y + 115;
+        if (!close) {
+          this.sprite('enemies','briefcase',item.x,item.y + 10,19,false,.72);
+          return;
+        }
+      }
       const ctx = this.ctx, bob = Math.sin(this.time * 4 + item.x * .017) * 4;
       const skill = item.kind === 'skill';
       const pick = skill ? ['palette', 'bricks', 'code', 'cube'][this.levelIndex] : 'bulb';
@@ -349,14 +357,33 @@
       this.sprite('enemies', frame, e.x + e.w / 2, e.y + e.h + 1, height, e.type === 'plane' && e.facing < 0);
     }
 
+    signoffs(state) {
+      if (!state.world.signoffs) return;
+      const cleared = state.boss.maxHealth - state.boss.health;
+      for (const [i, terminal] of state.world.signoffs.entries()) {
+        if (!this.visible(terminal.x - 55, 110)) continue;
+        const floor = state.boss.floor;
+        this.sprite('props', 'terminal', terminal.x, floor, 68, false, i > cleared ? .55 : 1);
+        const prompt = i < cleared ? 'FILED' : i === cleared ? 'DASH' : 'WAIT';
+        this.label(terminal.label + ' · ' + prompt, terminal.x, floor - 82,
+          i === cleared ? '#ffe070' : '#d4f5e3', 11);
+      }
+    }
+
     boss(state) {
       const b = state.boss;
-      if (!b?.alive || !this.visible(b.x - 80, b.w + 160)) return;
+      if (!b || !this.visible(b.x - 80, b.w + 160)) return;
+      if (b.type === 'finalreview') {
+        this.sprite('enemies', b.type, b.x + b.w / 2, b.floor, 90);
+        this.label(b.alive ? 'RECEPTION' : 'THE ROOM IS YOURS', b.x + b.w / 2, b.floor - 105, '#ffe8ae', 12);
+        return;
+      }
+      if (!b.alive) return;
       const ctx = this.ctx, cx = b.x + b.w / 2, feet = b.y + b.h;
       const visualHeight = b.h + 24;
       const open = b.phase === 'vulnerable';
       const warning = b.phase === 'telegraph';
-      if (b.active && !open) {
+      if (b.active && !open && b.type !== 'scopecreep') {
         ctx.save();
         ctx.strokeStyle = warning ? '#ffd46f' : 'rgba(157,201,255,.7)'; ctx.lineWidth = warning ? 3 : 2;
         ctx.setLineDash(warning ? [6, 4] : [3, 7]); ctx.lineDashOffset = -this.time * 22;
@@ -377,6 +404,8 @@
           const wx = cx + b.facing * (b.w / 2 + 36), wy = feet - 60;
           ctx.fillStyle = '#ffdc73'; ctx.beginPath(); ctx.moveTo(wx, wy - 22); ctx.lineTo(wx - 18, wy + 10); ctx.lineTo(wx + 18, wy + 10); ctx.closePath(); ctx.fill();
           ctx.fillStyle = ink; ctx.font = 'bold 25px monospace'; ctx.textAlign = 'center'; ctx.fillText('!', wx, wy + 6); ctx.textAlign = 'left';
+        } else if (b.type === 'scopecreep') {
+          this.label(b.phase === 'attack' ? 'CHARGE!' : 'FILE THE LIT BRIEF', cx, feet + 23, '#ffdf9a', 10);
         } else if (open) {
           this.label('OPEN · STOMP OR DASH', cx, feet + 23, '#b4ffcb', 10);
           const bounce = Math.sin(this.time * 8) * 3;
@@ -385,7 +414,7 @@
           ctx.lineTo(cx + 7, feet - visualHeight - 10 + bounce);
           ctx.lineTo(cx, feet - visualHeight - 3 + bounce); ctx.closePath(); ctx.fill();
         } else if (b.phase === 'attack') {
-          this.label(b.type === 'scopecreep' ? 'CHARGE!' : 'DODGE THE SCAN', cx, feet + 23, '#ffdb92', 10);
+          this.label(b.type === 'algorithm' ? 'DODGE THE FAN' : 'DODGE THE SCAN', cx, feet + 23, '#ffdb92', 10);
         } else {
           this.label('SHIELD UP', cx, feet + 23, '#d2e7ff', 9);
         }
