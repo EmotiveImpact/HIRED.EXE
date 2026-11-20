@@ -2,6 +2,7 @@ name: Playtest
 on:
   push:
     branches: [feat/hired-exe-art-and-game-handoff, claude/project-thread-va15vo]
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
