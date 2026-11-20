@@ -1,4 +1,4 @@
-# HIRED.EXE art bible
+# HIRE.EXE art bible
 
 ## The approved direction
 

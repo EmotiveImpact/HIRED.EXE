@@ -90,7 +90,7 @@ def run(profile, base):
             external_requests.append(route.request.url)
             route.abort()
         context.route(re.compile(r'^https?://'), reject_network)
-        page.goto((ROOT/'dist/HIRED-EXE-v0.4-PLAY.html').as_uri())
+        page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
         activate('#start-game')
@@ -101,7 +101,7 @@ def run(profile, base):
         )
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode") == 'playing'
-        page.goto((ROOT/'dist/HIRED-EXE-v0.4-ART-BOOK.html').as_uri())
+        page.goto((ROOT/'dist/HIRE-EXE-v0.4-ART-BOOK.html').as_uri())
         page.locator('[data-go="components"]').first.click()
         page.select_option('#animation-select','victory')
         assert page.locator('#hero-preview').is_visible()

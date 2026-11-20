@@ -19,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / 'dist'
 IMAGE_SUFFIXES = {'.png', '.jpg', '.jpeg', '.gif', '.webp'}
 COMPANIONS = {
-    'HIRED-EXE-v0.4-PLAY.html': {'HIRED-EXE-v0.4-ART-BOOK.html'},
-    'HIRED-EXE-v0.4-ART-BOOK.html': {'HIRED-EXE-v0.4-PLAY.html'},
+    'HIRE-EXE-v0.4-PLAY.html': {'HIRE-EXE-v0.4-ART-BOOK.html'},
+    'HIRE-EXE-v0.4-ART-BOOK.html': {'HIRE-EXE-v0.4-PLAY.html'},
 }
 
 
@@ -197,8 +197,8 @@ def check_bundle(page: Page, symbol: str, expected: set[str]):
 
 def main():
     runtime, gallery, metadata = expected_images()
-    play = Page(DIST / 'HIRED-EXE-v0.4-PLAY.html')
-    art = Page(DIST / 'HIRED-EXE-v0.4-ART-BOOK.html')
+    play = Page(DIST / 'HIRE-EXE-v0.4-PLAY.html')
+    art = Page(DIST / 'HIRE-EXE-v0.4-ART-BOOK.html')
     report = {
         'game': check_bundle(play, 'HIRED_EMBEDDED_ASSETS', runtime),
         'art_book': check_bundle(art, 'HIRED_ART_ASSETS', gallery),

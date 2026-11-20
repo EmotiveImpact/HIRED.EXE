@@ -111,7 +111,7 @@
     $('overlay').setAttribute('aria-label','Main menu');
     const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRED<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button></div></div></div>`;
+    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button></div></div></div>`;
     bindActions({'start-game':()=>hasRun?resume():progress.results[3]&&!progress.checkpoint?beginInterview():hasProgress?startLevel(progress.lastLevel,progress.checkpoint):beginScene(0),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
   }
   function beginScene(index) {
@@ -280,11 +280,11 @@
     let contact = safeLink(E.contactUrl);
     if (contact?.startsWith('mailto:')) {
       const draft = new URL(contact);
-      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIRED.EXE'].filter(Boolean).join(' / '));
-      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRED.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
+      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIRE.EXE'].filter(Boolean).join(' / '));
+      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRED.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -400,7 +400,7 @@
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('title-edition').textContent=E.editionLabel;
   $('art-book-link').search = globalThis.location.search;
-  document.title='HIRED.EXE | '+E.applicant;
+  document.title='HIRE.EXE | '+E.applicant;
 
   async function boot() {
     try {
@@ -414,10 +414,10 @@
       $('loading-text').textContent='The game assets could not be opened.';
       $('loading').querySelector('.loading-track').style.display='none';
       const small=$('loading').querySelector('small');
-      small.textContent='Open the complete folder, or use HIRED-EXE-v0.4-PLAY.html, which includes every game asset.';
+      small.textContent='Open the complete folder, or use HIRE-EXE-v0.4-PLAY.html, which includes every game asset.';
       const retry=document.createElement('button');retry.className='btn';retry.textContent='Try again';retry.addEventListener('click',()=>location.reload());small.after(retry);
       $('status').textContent='Loading error: '+error.message;
-      console.error('HIRED.EXE loading failed',error);
+      console.error('HIRE.EXE loading failed',error);
     }
   }
   boot();

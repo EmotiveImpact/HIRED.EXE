@@ -1,4 +1,4 @@
-# Working on HIRED.EXE
+# Working on HIRE.EXE
 
 ## Keep the direction recognisable
 

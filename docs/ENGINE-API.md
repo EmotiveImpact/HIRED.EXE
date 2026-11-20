@@ -1,4 +1,4 @@
-# HIRED.EXE simulation API
+# HIRE.EXE simulation API
 
 The game simulation is dependency-free JavaScript. Load `src/levels.js` before `src/simulation.js`. Both extend `globalThis.Hired`. They also expose CommonJS exports for Node tests.
 

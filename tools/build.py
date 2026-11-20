@@ -57,8 +57,8 @@ game_html=(ROOT/'index.html').read_text()
 game_html=game_html.replace('<link rel="stylesheet" href="styles.css">','<style>\n'+(ROOT/'styles.css').read_text()+'\n</style>')
 game_html=bind_static_images(game_html,runtime_map,'HIRED_EMBEDDED_ASSETS')
 game_html=re.sub(r'<script src="([^"]+)"></script>',lambda m:'<script>\n'+(ROOT/m.group(1)).read_text().replace('</script','<\\/script')+'\n</script>',game_html)
-game_html=game_html.replace('href="art-book.html"','href="HIRED-EXE-v0.4-ART-BOOK.html"')
-(DIST/'HIRED-EXE-v0.4-PLAY.html').write_text(game_html)
+game_html=game_html.replace('href="art-book.html"','href="HIRE-EXE-v0.4-ART-BOOK.html"')
+(DIST/'HIRE-EXE-v0.4-PLAY.html').write_text(game_html)
 
 art_html=(ROOT/'art-book.html').read_text()
 art_paths={path for path in runtime_paths if not path.endswith('.webp')}
@@ -69,7 +69,7 @@ art_map={p:data_uri(ROOT/p) for p in sorted(art_paths)}
 art_html=bind_static_images(art_html,art_map,'HIRED_ART_ASSETS')
 art_html=art_html.replace('image.src = src; button.dataset.zoom = src;', 'image.src = globalThis.HIRED_ART_ASSETS?.[src] || src; button.dataset.zoom = globalThis.HIRED_ART_ASSETS?.[src] || src;')
 art_html=art_html.replace("atlas.src = 'assets/production/characters/hero-atlas.png';", "atlas.src = globalThis.HIRED_ART_ASSETS?.['assets/production/characters/hero-atlas.png'] || 'assets/production/characters/hero-atlas.png';")
-art_html=art_html.replace('href="index.html"','href="HIRED-EXE-v0.4-PLAY.html"')
+art_html=art_html.replace('href="index.html"','href="HIRE-EXE-v0.4-PLAY.html"')
 def local_download(match):
     path=ROOT/match.group(1)
     if not path.is_file():
@@ -78,7 +78,7 @@ def local_download(match):
 # The catalogue's JSON buttons must work when this HTML is downloaded alone,
 # just like its Markdown notes. Images are handled by the inline asset map.
 art_html=re.sub(r'href="((?:docs/[^"<>]+)|(?:assets/[^"<>]+\.json))"',local_download,art_html)
-(DIST/'HIRED-EXE-v0.4-ART-BOOK.html').write_text(art_html)
+(DIST/'HIRE-EXE-v0.4-ART-BOOK.html').write_text(art_html)
 
 # The multi-file site is deliberately also kept: it is easier to edit and review.
 for name in ['index.html','styles.css','art-book.html']:
@@ -94,7 +94,7 @@ for p in sorted((ROOT/'assets').rglob('*')):
         manifest.append({'path':rel,'role':role,'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
 (ROOT/'docs/ASSET-MANIFEST.json').write_text(json.dumps({'format':1,'assets':manifest},indent=2)+'\n')
 shutil.copy2(ROOT/'docs/ASSET-MANIFEST.json',DIST/'docs/ASSET-MANIFEST.json')
-for name in ['HIRED-EXE-v0.4-PLAY.html','HIRED-EXE-v0.4-ART-BOOK.html']:
+for name in ['HIRE-EXE-v0.4-PLAY.html','HIRE-EXE-v0.4-ART-BOOK.html']:
     p=DIST/name
     print(f'{name}: {p.stat().st_size/1048576:.1f} MiB')
 print(f'Static site: {DIST}/index.html; {len(runtime_paths)} embedded runtime images; {len(manifest)} asset entries.')
