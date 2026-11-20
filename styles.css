@@ -185,6 +185,8 @@
   background-repeat:no-repeat;
   box-shadow:0 0 0 4px #251a43;
 }
+/* A single full panel fills the 2:1 frame; a 3:2 source loses only its top and bottom sixth. */
+.comic-panel {background-size:cover;background-position:center}
 .comic-illustrated .comic-effect {left:7%;top:12%}
 .comic-illustrated.comic-burst .comic-illustration {animation:comic-print .24s ease-out both}
 @keyframes comic-print {from{transform:scale(.96)}to{transform:scale(1)}}

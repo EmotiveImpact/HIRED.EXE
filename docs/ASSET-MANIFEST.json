@@ -2,6 +2,24 @@
   "format": 1,
   "assets": [
     {
+      "path": "assets/cutscenes/PANEL-BRIEF.md",
+      "role": "production-asset",
+      "bytes": 39939,
+      "sha256": "b013d8170a3016cc691f3c0a59d5cdf6dc75c0bdf81b11ea8071436d1a5a202b"
+    },
+    {
+      "path": "assets/cutscenes/locations-sheet.png",
+      "role": "production-asset",
+      "bytes": 1468212,
+      "sha256": "315a4fc4d5c1327e0d3b34a35ef4af8043d25d7959dd5464fe343b64f513ba95"
+    },
+    {
+      "path": "assets/cutscenes/model-sheet.png",
+      "role": "production-asset",
+      "bytes": 2347078,
+      "sha256": "4b7f4368d71b5addca7487ec99c377c6ae32513647072bce482acaee42b196a6"
+    },
+    {
       "path": "assets/manifest.json",
       "role": "production-asset",
       "bytes": 5989,

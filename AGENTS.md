@@ -31,4 +31,4 @@ Inspect important visual changes in a permitted browser surface when available. 
 
 ## Documents
 
-`docs/` holds the art bible, the level design, the engine API and the playtest report. `docs/ASSET-MANIFEST.json` is written by `tools/build.py`. Keep facts that change with the code, such as test counts and timings, in `docs/PLAYTEST.md` only.
+`docs/` holds the art bible, the level design, the engine API and the playtest report. `assets/cutscenes/PANEL-BRIEF.md` is the brief for the full-panel cutscene art: reference sheets, locked rooms, one prompt per panel and how to wire panels in. `docs/ASSET-MANIFEST.json` is written by `tools/build.py`. Keep facts that change with the code, such as test counts and timings, in `docs/PLAYTEST.md` only.
