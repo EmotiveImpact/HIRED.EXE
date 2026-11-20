@@ -11,19 +11,23 @@
   "backgrounds": [
     {
       "id": "application-alley",
-      "path": "assets/production/backgrounds/application-alley.png"
+      "path": "assets/production/backgrounds/application-alley.png",
+      "runtimePath": "assets/production/backgrounds/application-alley.webp"
     },
     {
       "id": "ship-it-city",
-      "path": "assets/production/backgrounds/ship-it-city.png"
+      "path": "assets/production/backgrounds/ship-it-city.png",
+      "runtimePath": "assets/production/backgrounds/ship-it-city.webp"
     },
     {
       "id": "growth-run",
-      "path": "assets/production/backgrounds/growth-run.png"
+      "path": "assets/production/backgrounds/growth-run.png",
+      "runtimePath": "assets/production/backgrounds/growth-run.webp"
     },
     {
       "id": "interview-hq",
-      "path": "assets/production/backgrounds/interview-hq.png"
+      "path": "assets/production/backgrounds/interview-hq.png",
+      "runtimePath": "assets/production/backgrounds/interview-hq.webp"
     }
   ],
   "atlases": [
@@ -197,5 +201,15 @@
     "Separated sprites may include transparent padding; normalise anchors and collision bodies before use.",
     "Keep employer-specific dialogue, portfolio evidence and character data separate from the engine.",
     "Approval required before merge to main or production promotion."
-  ]
+  ],
+  "runtimeBackgroundExport": {
+    "size": [
+      960,
+      540
+    ],
+    "resampling": "nearest",
+    "format": "WebP",
+    "quality": 93,
+    "method": 6
+  }
 }

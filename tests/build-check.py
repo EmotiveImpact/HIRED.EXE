@@ -143,10 +143,11 @@ def expected_images():
     }.items():
         metadata[name] = json.loads((ROOT / path).read_text())
     runtime = {entry['image'] for entry in metadata.values()}
-    for folder in ('assets/production/backgrounds', 'assets/production/enemies/icons'):
-        runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).glob('*.png'))
+    for folder, pattern in [('assets/production/backgrounds', '*.webp'), ('assets/production/enemies/icons', '*.png')]:
+        runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).glob(pattern))
     runtime.add('assets/production/characters/portrait-reference.png')
-    gallery = set(runtime)
+    gallery = {path for path in runtime if not path.endswith('.webp')}
+    gallery.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.png'))
     for folder in ('references', 'assets/previews'):
         gallery.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).iterdir() if p.suffix.lower() in IMAGE_SUFFIXES)
     return runtime, gallery, metadata
@@ -219,7 +220,7 @@ def main():
     for i in range(1, 5):
         assert f'assets/previews/world-{i}.jpg' in gallery, f'Actual world capture {i} missing'
     for slug in ('application-alley', 'ship-it-city', 'growth-run', 'interview-hq'):
-        assert f'assets/production/backgrounds/{slug}.png' in runtime, f'World background {slug} missing'
+        assert f'assets/production/backgrounds/{slug}.webp' in runtime, f'World background {slug} missing'
     assert len([name for name in report['art_book']['unique_downloads'] if name.endswith('.json')]) == 4, 'Four atlas JSON downloads must be embedded'
 
     sources = []

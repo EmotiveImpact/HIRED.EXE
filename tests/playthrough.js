@@ -94,6 +94,7 @@ async function run() {
     click('pause-button');click('restart-level');
     check(app().state.coins===0 && app().state.checkpoint.id==='start','Restart retained run state');
     notes('PASS portfolio, pause/help/return, movement, double jump, dash, cancellation and restart');
+    let restored = false;
     for(let index=0;index<4;index++) {
       let lastTick=-1;
       const phases = new Set();
@@ -101,6 +102,17 @@ async function run() {
       while(app().mode==='playing'){
         const s=app().state;
         if(s.tick!==lastTick){
+          if (index===0 && !restored && s.checkpoint.id!=='start') {
+            const id = s.checkpoint.id, coins = app().progress.checkpoint.collected.length;
+            controls.release();
+            const load = new Promise(resolve => frame.addEventListener('load',resolve,{once:true}));
+            win.location.reload(); await load; await until(()=>app()?.mode==='home','Checkpoint reload failed');
+            check(byId('start-game').textContent.includes('checkpoint'),'Resume action missing');
+            click('start-game');
+            check(app().state.checkpoint.id===id && app().state.world.collectibles.filter(i=>i.collected).length===coins,'Checkpoint snapshot lost');
+            restored=true; notes('PASS checkpoint resume after reload'); lastTick=-1;
+            continue;
+          }
           lastTick=s.tick; phases.add(s.boss.phase); controls.route(s);
           if(!shots.has(index+1) && s.player.x > (index===1?4110:index===2?4220:850)) capture(index+1);
           if(s.tick%15<3) statusLine.textContent=s.world.name+' · '+Math.round(s.player.x)+' / '+s.world.width;
@@ -129,7 +141,11 @@ async function run() {
     win.location.reload(); await reloaded;
     await until(()=>app()?.mode==='home','Reload did not return to title');
     check(Object.keys(app().progress.results).length===4 && JSON.stringify(before.results)===JSON.stringify(app().progress.results),'Results did not survive reload ('+win.HIRED_EDITION.id+', '+Object.keys(app().progress.results).length+' saved worlds)');
-    notes('PASS saved results after reload'); statusLine.textContent='PASS · '+layout.selectedOptions[0].text+' · four worlds and interview';
+    notes('PASS saved results after reload');
+    click('start-game'); check(app().mode==='interview','Completed interview could not be reopened');
+    for(const i of [0,0,1]){click('answer-'+i);click('interview-next');}
+    check(app().mode==='finish','Revisited ending missing');
+    statusLine.textContent='PASS · '+layout.selectedOptions[0].text+' · four worlds and interview';
   } catch(error) { statusLine.textContent='FAIL · '+error.message; }
   finally {
     if (prior===null) localStorage.removeItem(saveKey); else localStorage.setItem(saveKey,prior);

@@ -4,8 +4,8 @@
     {
       "path": "assets/manifest.json",
       "role": "production-asset",
-      "bytes": 5255,
-      "sha256": "a270c8d3344d12f5f21d0f9c5d479f582e245099bec89efd5160183053813129"
+      "bytes": 5710,
+      "sha256": "a7135b3e75f04021f6a04c096b7e99233dae4d28717ce669b131099c6da51906"
     },
     {
       "path": "assets/previews/world-1.jpg",
@@ -38,10 +38,22 @@
       "sha256": "709bbb4c62142d2baacae191a1a87f3dce46cd60f70ffee7854294b88c3defa6"
     },
     {
+      "path": "assets/production/backgrounds/application-alley.webp",
+      "role": "production-asset",
+      "bytes": 215866,
+      "sha256": "56e46ad1308d480452fa9f89eb675c9950c7ee95ca51cc956080010684368261"
+    },
+    {
       "path": "assets/production/backgrounds/growth-run.png",
       "role": "production-asset",
       "bytes": 2229641,
       "sha256": "7a1f7018f5fd726a24586fa0ea2424fbec750833a1499d47176772ab9c884798"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run.webp",
+      "role": "production-asset",
+      "bytes": 218544,
+      "sha256": "94cc61839da6d5791c9d752390e76095815621ddd5ab90cc2ed7913e51fd96a7"
     },
     {
       "path": "assets/production/backgrounds/interview-hq.png",
@@ -50,10 +62,22 @@
       "sha256": "0b00ddb07413cd83da5d496f5d1c8990e48a9be109fd1cf5ac8f30f3a8c8166b"
     },
     {
+      "path": "assets/production/backgrounds/interview-hq.webp",
+      "role": "production-asset",
+      "bytes": 296004,
+      "sha256": "33033f2ac216e17c353e148e8920e8fcd6f57cf7e4c8e8c038703a0c0f746c93"
+    },
+    {
       "path": "assets/production/backgrounds/ship-it-city.png",
       "role": "production-asset",
       "bytes": 2297164,
       "sha256": "cc65b479446f98501f94edc094f546f81013208312d6d730c7cf8534e20e1f03"
+    },
+    {
+      "path": "assets/production/backgrounds/ship-it-city.webp",
+      "role": "production-asset",
+      "bytes": 211836,
+      "sha256": "11e8c7cd97b2090700980fd07cd58939b72928cd856cc341d64d8becff178f02"
     },
     {
       "path": "assets/production/characters/hero-atlas.json",

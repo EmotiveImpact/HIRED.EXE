@@ -1,5 +1,7 @@
 # HIRED.EXE | Work mode execution brief
 
+**Historical handover.** For the implemented game and current test evidence, see [the playtest report](PLAYTEST.md) and [draft PR #1](https://github.com/EmotiveImpact/HIRED.EXE/pull/1).
+
 ## Mission
 
 Take the already-built v0.4 original illustrated four-world game from this repository to a **verified public playable preview** and polished employer-ready version. The previous URL served old v0.3 and must not be confused with the new game. Keep the art and user-approved direction intact. Do not re-create the game from scratch.

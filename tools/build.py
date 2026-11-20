@@ -25,7 +25,7 @@ meta = {k:json.loads((ROOT/p).read_text()) for k,p in meta_paths.items()}
 (ROOT/'src/assets.js').write_text('globalThis.HIRED_ASSET_META = '+json.dumps(meta,separators=(',',':'))+';\n')
 
 runtime_paths = {v['image'] for v in meta.values()}
-runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.png'))
+runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.webp'))
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/enemies/icons').glob('*.png'))
 runtime_paths.add('assets/production/characters/portrait-reference.png')
 for path in runtime_paths:
@@ -60,7 +60,8 @@ game_html=game_html.replace('href="art-book.html"','href="HIRED-EXE-v0.4-ART-BOO
 (DIST/'HIRED-EXE-v0.4-PLAY.html').write_text(game_html)
 
 art_html=(ROOT/'art-book.html').read_text()
-art_paths=set(runtime_paths)
+art_paths={path for path in runtime_paths if not path.endswith('.webp')}
+art_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.png'))
 for folder in ['references','assets/previews']:
     art_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/folder).glob('*') if p.suffix.lower() in ['.png','.jpg','.webp'])
 art_map={p:data_uri(ROOT/p) for p in sorted(art_paths)}

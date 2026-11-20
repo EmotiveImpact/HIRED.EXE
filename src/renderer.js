@@ -39,7 +39,7 @@
         terrain: this.meta.terrain?.image || 'assets/production/environment/terrain-atlas.png',
         props: this.meta.props?.image || 'assets/production/environment/props-atlas.png'
       };
-      BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.png'; });
+      BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
       const results = await Promise.allSettled(Object.entries(specs).map(([key, path]) => new Promise((resolve, reject) => {
         const im = new root.Image();
         im.onload = () => {

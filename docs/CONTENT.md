@@ -1,6 +1,13 @@
 # Candidate and employer content
 
-## Current edition
+## Current portfolio links
+
+The Solved Studio and neutral portfolio editions link to the Vlume product page and the SALEANE demo. The named projects and contact come from the candidate's materials. The public Vlume page describes Mac app mixing and per-speaker output controls. The SALEANE demo URL returned its application page during review. The other cards offer a personal walkthrough. The original recovered copy is documented below.
+
+- [Vlume](https://vlumeaudio.com/)
+- [SALEANE demo](https://saleane.vercel.app/demo)
+
+## Original edition
 
 The recovered v0.3 source identifies the applicant as **Augustus Edem**, the company as **Solved Studio** and the role as **Builder**. It describes the candidate as a creative director and AI-native product builder. This is an independent application concept, not an official Solved Studio game or an endorsement.
 

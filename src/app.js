@@ -120,7 +120,7 @@
     worldsBack=back;
     setMode('worlds');
     const ids=['application-alley','ship-it-city','growth-run','interview-hq'];
-    modal('World directory',`<p class="eyebrow">CHOOSE YOUR STARTING POINT</p><h2>Four stages. One story.</h2><p class="muted">Start at the beginning or take a look around. Every world is open.</p><div class="world-grid">${H.LEVELS.map((l,i)=>`<button class="world-card" id="world-${i}"><img src="${asset(`assets/production/backgrounds/${ids[i]}.png`)}" alt="">${progress.results[i]?'<span class="clear-badge">CLEARED</span>':''}<span>${String(i+1).padStart(2,'0')} / ${esc(l.name)}</span><small>${esc(l.subtitle)}</small></button>`).join('')}</div>${assistRow()}`,true,back);
+    modal('World directory',`<p class="eyebrow">CHOOSE YOUR STARTING POINT</p><h2>Four stages. One story.</h2><p class="muted">Start at the beginning or take a look around. Every world is open.</p><div class="world-grid">${H.LEVELS.map((l,i)=>`<button class="world-card" id="world-${i}"><img src="${asset(`assets/production/backgrounds/${ids[i]}.webp`)}" alt="">${progress.results[i]?'<span class="clear-badge">CLEARED</span>':''}<span>${String(i+1).padStart(2,'0')} / ${esc(l.name)}</span><small>${esc(l.subtitle)}</small></button>`).join('')}</div>${assistRow()}`,true,back);
     H.LEVELS.forEach((_,i)=>$('world-'+i).addEventListener('click',()=>startLevel(i)));bindAssist();
   }
   function startLevel(index, checkpoint=null) {
@@ -217,7 +217,7 @@
     setMode('finish');
     const complete=Object.keys(progress.results).filter(i=>progress.results[i]?.completed).length;
     const skills=new Set(Object.values(progress.results).flatMap(r=>Array.isArray(r.skills)?r.skills:[])).size;
-    const project = E.portfolio.find(item => item.name === interviewAnswers[1]);
+    const project = E.portfolio.find(item => interviewAnswers.includes(item.name));
     const topics = interviewAnswers.map(esc).join(' · ');
     let contact = safeLink(E.contactUrl);
     if (contact?.startsWith('mailto:')) {

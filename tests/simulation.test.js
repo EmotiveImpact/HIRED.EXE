@@ -190,3 +190,27 @@ test('each world has one discoverable field note and the final host welcomes wit
   assert.ok(events.some(e => e.type === 'welcome'));
   assert.ok(!events.some(e => ['bossHit','shot','bossDefeated'].includes(e.type)));
 });
+
+test('all twelve skill tokens and four upper-route field notes are reachable using movement alone', () => {
+  for (let level = 0; level < LEVELS.length; level++) {
+    const game = new Game();
+    game.start(level);
+    for (let tick = 0; tick < 18000 && game.state.mode === 'playing'; tick++) {
+      const {player,world} = game.state;
+      const token = world.collectibles.find(item => item.kind === 'skill' && !item.collected);
+      const input = controller(game);
+      if (token) {
+        const distance = token.x - player.x - player.w / 2;
+        if (Math.abs(distance) < 230) {
+          input.right = distance > 5; input.left = distance < -5;
+          const needsHeight = player.jumps === 1 && player.vy > -1 && token.y < player.y + 30;
+          if (player.grounded || needsHeight) input.jumpPressed = true;
+        }
+      }
+      game.step(input);
+    }
+    assert.equal(game.state.skills.length, 3, game.state.world.name);
+    assert.ok(game.state.world.collectibles.filter(item => item.secret).every(item => item.collected));
+    assert.equal(game.state.mode, 'complete');
+  }
+});

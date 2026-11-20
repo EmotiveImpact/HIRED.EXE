@@ -1,5 +1,7 @@
 # WORK MODE HANDOVER | HIRED.EXE
 
+**Historical handover.** For the implemented game and current test evidence, see [the playtest report](PLAYTEST.md) and [draft PR #1](https://github.com/EmotiveImpact/HIRED.EXE/pull/1).
+
 **Read this first.** The user has approved the visual direction and wants a proper, polished four-world side-scrolling platformer, not just a concept mock-up. Complete development in this GitHub repository.
 
 **Repository:** https://github.com/EmotiveImpact/HIRED.EXE

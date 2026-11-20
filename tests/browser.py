@@ -74,11 +74,16 @@ def run(profile, base):
         (OUT/'result.txt').write_text(report)
         print(report, flush=True)
         assert report.startswith('PASS'), report
-        page.goto(base+'/dist/HIRED-EXE-v0.4-PLAY.html')
+        page.frame_locator('iframe').locator('#final-portfolio').wait_for()
+        page.locator('iframe').screenshot(path=OUT/'ending.jpg')
+        context.set_offline(True)
+        page.goto((ROOT/'dist/HIRED-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
-        page.goto(base+'/dist/HIRED-EXE-v0.4-ART-BOOK.html')
-        page.locator('[data-world="2"]').count()
+        page.goto((ROOT/'dist/HIRED-EXE-v0.4-ART-BOOK.html').as_uri())
+        page.locator('[data-go="components"]').first.click()
+        page.select_option('#animation-select','victory')
+        assert page.locator('#hero-preview').is_visible()
         assert page.evaluate("Object.keys(HIRED_ART_ASSETS).some(path=>path.endsWith('world-4.jpg'))")
         assert not errors, errors
         browser.close()

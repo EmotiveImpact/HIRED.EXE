@@ -32,7 +32,7 @@ const solvedEdition = {
     {name:'Emotive Impact', description:'Video production and creative direction. The foundation of my approach to storytelling and making ideas tangible.',url:null},
     {name:'Vlume', description:'A Mac audio mixer with per-app controls and multi-speaker output.',url:'https://vlumeaudio.com/'},
     {name:'Commune', description:'A community product exploring how people organise shared household life.',url:null},
-    {name:'SALEANE', description:'An assistant for small service businesses, connecting customer bookings with the owner’s diary.',url:null},
+    {name:'SALEANE', description:'An assistant for small service businesses, connecting customer bookings with the owner’s diary.',url:'https://saleane.vercel.app/demo'},
     {name:'Cairn', description:'A Mac storage app built around understanding what takes up space and choosing what to clear.',url:null}
   ],
   contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRED.EXE%20-%20Let%27s%20talk',

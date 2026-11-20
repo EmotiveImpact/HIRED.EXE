@@ -1,5 +1,7 @@
 # HIRED.EXE 0.4 release evidence
 
+**Historical handover.** For the implemented game and current test evidence, see [the playtest report](PLAYTEST.md) and [draft PR #1](https://github.com/EmotiveImpact/HIRED.EXE/pull/1).
+
 The game, visual component kit and exploration archive are assembled for review and a later repository move. This record separates delivered implementation from observed tests.
 
 ## Included in the release
