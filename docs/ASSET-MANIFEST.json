@@ -1,0 +1,407 @@
+{
+  "format": 1,
+  "assets": [
+    {
+      "path": "assets/manifest.json",
+      "role": "production-asset",
+      "bytes": 6049,
+      "sha256": "2d9336cf980e8f4eff965cf472460b058b0885cc5448b8031a0128769a6c35a2"
+    },
+    {
+      "path": "assets/previews/world-1.jpg",
+      "role": "runtime-preview",
+      "bytes": 184455,
+      "sha256": "073ef7fed786be043bebc36f0cae57534847755f816924f447c6be4ef133a878"
+    },
+    {
+      "path": "assets/previews/world-2.jpg",
+      "role": "runtime-preview",
+      "bytes": 179233,
+      "sha256": "0b6589339e8ab7dda4537c28791f59916a057ccf44b7073f9ac0b0ca01912382"
+    },
+    {
+      "path": "assets/previews/world-3.jpg",
+      "role": "runtime-preview",
+      "bytes": 185258,
+      "sha256": "e768d15bd286e53e938e9f2230d029bb4da886e7767d5e7321f807ac67c0aa4f"
+    },
+    {
+      "path": "assets/previews/world-4.jpg",
+      "role": "runtime-preview",
+      "bytes": 219424,
+      "sha256": "87663ad8e0b14b3f20ddb65240d252d4545736ef8640f1ce4e3d0802b0d8103d"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley.png",
+      "role": "production-asset",
+      "bytes": 2267319,
+      "sha256": "709bbb4c62142d2baacae191a1a87f3dce46cd60f70ffee7854294b88c3defa6"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley.webp",
+      "role": "production-asset",
+      "bytes": 215866,
+      "sha256": "56e46ad1308d480452fa9f89eb675c9950c7ee95ca51cc956080010684368261"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run.png",
+      "role": "production-asset",
+      "bytes": 2229641,
+      "sha256": "7a1f7018f5fd726a24586fa0ea2424fbec750833a1499d47176772ab9c884798"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run.webp",
+      "role": "production-asset",
+      "bytes": 218544,
+      "sha256": "94cc61839da6d5791c9d752390e76095815621ddd5ab90cc2ed7913e51fd96a7"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-hq.png",
+      "role": "production-asset",
+      "bytes": 2883966,
+      "sha256": "0b00ddb07413cd83da5d496f5d1c8990e48a9be109fd1cf5ac8f30f3a8c8166b"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-hq.webp",
+      "role": "production-asset",
+      "bytes": 296004,
+      "sha256": "33033f2ac216e17c353e148e8920e8fcd6f57cf7e4c8e8c038703a0c0f746c93"
+    },
+    {
+      "path": "assets/production/backgrounds/ship-it-city.png",
+      "role": "production-asset",
+      "bytes": 2297164,
+      "sha256": "cc65b479446f98501f94edc094f546f81013208312d6d730c7cf8534e20e1f03"
+    },
+    {
+      "path": "assets/production/backgrounds/ship-it-city.webp",
+      "role": "production-asset",
+      "bytes": 211836,
+      "sha256": "11e8c7cd97b2090700980fd07cd58939b72928cd856cc341d64d8becff178f02"
+    },
+    {
+      "path": "assets/production/characters/hero-atlas.json",
+      "role": "production-asset",
+      "bytes": 6565,
+      "sha256": "81b2de9d18dabacebd7fbbafecce3938e6585defe52256d58a11d77a9fe17f65"
+    },
+    {
+      "path": "assets/production/characters/hero-atlas.png",
+      "role": "production-asset",
+      "bytes": 149242,
+      "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+    },
+    {
+      "path": "assets/production/characters/portrait-reference.png",
+      "role": "production-asset",
+      "bytes": 55870,
+      "sha256": "881e44e6f3f13cd1e1fa18bfa427e554af80d951263ff6e8314a8d3198971b1e"
+    },
+    {
+      "path": "assets/production/enemies/enemy-atlas.json",
+      "role": "production-asset",
+      "bytes": 6113,
+      "sha256": "5021abec7f82c6281a942baaf2451975b44ef3d292419683312ced87515453da"
+    },
+    {
+      "path": "assets/production/enemies/enemy-atlas.png",
+      "role": "production-asset",
+      "bytes": 323701,
+      "sha256": "d63758937a20b0d393c66ae32aaa7d66266e78bd9b256e21651c4e5cccdc6a20"
+    },
+    {
+      "path": "assets/production/enemies/icons/bricks.png",
+      "role": "production-asset",
+      "bytes": 11287,
+      "sha256": "5c049102e9dafdb87bfed4fb6f50833cf074437145d22647f39fde57e57e6a37"
+    },
+    {
+      "path": "assets/production/enemies/icons/briefcase.png",
+      "role": "production-asset",
+      "bytes": 15570,
+      "sha256": "b06cc5c7dce98aac777fe25caec8ca515da600ac65694d82361efd299a23e639"
+    },
+    {
+      "path": "assets/production/enemies/icons/bulb.png",
+      "role": "production-asset",
+      "bytes": 15091,
+      "sha256": "6f4af1eae5e7d3dec4c6bfa01e1f2614e99fcdd225e659a2b4a3bfa4b238a9b1"
+    },
+    {
+      "path": "assets/production/enemies/icons/code.png",
+      "role": "production-asset",
+      "bytes": 15017,
+      "sha256": "c44d19e10d2ed4cb6e7b092bd6627978021d525c00a7082947e48c47dfff7af8"
+    },
+    {
+      "path": "assets/production/enemies/icons/cube.png",
+      "role": "production-asset",
+      "bytes": 21107,
+      "sha256": "bffe176736151abebafea3efdeda840235d298640b6cb235d7d952a0e29210a1"
+    },
+    {
+      "path": "assets/production/enemies/icons/heart.png",
+      "role": "production-asset",
+      "bytes": 14427,
+      "sha256": "48cc6671a023a48738aa9c28d087e8328bda3feceb8eebaae920580519b39f87"
+    },
+    {
+      "path": "assets/production/enemies/icons/palette.png",
+      "role": "production-asset",
+      "bytes": 18375,
+      "sha256": "f3d1154e37ee1a7a625a1dc29281f1aca3b983d668cfc6c8749c9b6d7dd6fa1e"
+    },
+    {
+      "path": "assets/production/enemies/icons/terminal.png",
+      "role": "production-asset",
+      "bytes": 16931,
+      "sha256": "ce0d6525f3ba26621878f67c90129314e407480e7714ecd44982dfcbd6674f80"
+    },
+    {
+      "path": "assets/production/environment/props-atlas.json",
+      "role": "production-asset",
+      "bytes": 3750,
+      "sha256": "d6a10ef50d15ed9515024ca8ef6a80a60554ac6cb679537176b62bfe38babec1"
+    },
+    {
+      "path": "assets/production/environment/props-atlas.png",
+      "role": "production-asset",
+      "bytes": 646549,
+      "sha256": "702244587e310d96179994df183d50e04dc2502e4de9077345621a0b285eb655"
+    },
+    {
+      "path": "assets/production/environment/terrain-atlas.json",
+      "role": "production-asset",
+      "bytes": 3670,
+      "sha256": "4276fde5b170a69d51c6c945cfe9f60f3bdb44e064bf5db9baeee02e2005f266"
+    },
+    {
+      "path": "assets/production/environment/terrain-atlas.png",
+      "role": "production-asset",
+      "bytes": 316612,
+      "sha256": "0e73591412dfdc629fad18f3cdeea79eeb9c7b6c71d8eb3a472c06f632b21e07"
+    },
+    {
+      "path": "assets/production/story/manga-panels.webp",
+      "role": "production-asset",
+      "bytes": 350262,
+      "sha256": "4d5c42adca312feef1de3864c003017fc3de29013d71ef32c18a06227eabcd4a"
+    },
+    {
+      "path": "assets/props/briefcase-block.png",
+      "role": "production-asset",
+      "bytes": 51747,
+      "sha256": "ec4a78f348ec29d36c5194c14a70e336f43b5a3a6c899a55282516592fbabb23"
+    },
+    {
+      "path": "assets/props/checkpoint-terminal.png",
+      "role": "production-asset",
+      "bytes": 65295,
+      "sha256": "5f558947b5e5e3be2cf3c178edeaff1efe780fe2567aeb05623892447bedd961"
+    },
+    {
+      "path": "assets/props/coffee-shop.png",
+      "role": "production-asset",
+      "bytes": 150978,
+      "sha256": "a9baca97529c6616a5cf9c022a17a4e4544df00de1b6ad5c62bc5d76a176c80a"
+    },
+    {
+      "path": "assets/props/computer-tunnel.png",
+      "role": "production-asset",
+      "bytes": 128389,
+      "sha256": "1e9a9e5ba0955477939420c8059d993e2133955871ed71f494ccdc9db9d12d66"
+    },
+    {
+      "path": "assets/props/grass-floating-platform.png",
+      "role": "production-asset",
+      "bytes": 71940,
+      "sha256": "06d590ab2392f33fac06d7834c619c94ad83081164c96ef5b9d24efeadae318d"
+    },
+    {
+      "path": "assets/props/green-tree.png",
+      "role": "production-asset",
+      "bytes": 106184,
+      "sha256": "1ba12ee4d30eb36c22bf6ec941783d6a80ebf85d1bfd3de135c63b95c0f10d2d"
+    },
+    {
+      "path": "assets/props/hiring-portal.png",
+      "role": "production-asset",
+      "bytes": 128172,
+      "sha256": "f7182906ff0efcaf98a8c7efc1a6138c6ffe94f002ea639c32884495805c9f3c"
+    },
+    {
+      "path": "assets/props/hover-platform.png",
+      "role": "production-asset",
+      "bytes": 51746,
+      "sha256": "d74706c25d13c76a98c0791f7b8ecab954bcab583ac13dfcdfc7a509b5b09b5f"
+    },
+    {
+      "path": "assets/props/ladder.png",
+      "role": "production-asset",
+      "bytes": 43985,
+      "sha256": "eb7cbbacf46e61f1456baed7798917a055e3cbf05c27973379d6f24695e9ab57"
+    },
+    {
+      "path": "assets/props/metal-platform.png",
+      "role": "production-asset",
+      "bytes": 45769,
+      "sha256": "c80fe36a12dda2e172ec2604cd8b3030d3446fd60027aa886b9b5f51394d6018"
+    },
+    {
+      "path": "assets/props/pink-tree.png",
+      "role": "production-asset",
+      "bytes": 107394,
+      "sha256": "8b6ca5a07eec3e02dd2a7e87ea2e86a3ec4ff4fcc221ba3c66a7b2718067f277"
+    },
+    {
+      "path": "assets/props/purple-briefcase-banner.png",
+      "role": "production-asset",
+      "bytes": 55060,
+      "sha256": "66035a8e7dc5fd16c1ddd0adf0e3bdfc07cfab320c7ec2fd46a0fd29f40d7efb"
+    },
+    {
+      "path": "assets/props/satellite-dish.png",
+      "role": "production-asset",
+      "bytes": 60706,
+      "sha256": "205597a10868a22b9e1e45caaea15599f843d4dce3c8b2c8d01fe20bc83c5f89"
+    },
+    {
+      "path": "assets/props/stone-platform.png",
+      "role": "production-asset",
+      "bytes": 52174,
+      "sha256": "4d35bd8eb9a3b5dfa7c86c38bfc78513e1595e84d5fc179843ca52721f721d9e"
+    },
+    {
+      "path": "assets/props/streetlamp.png",
+      "role": "production-asset",
+      "bytes": 49017,
+      "sha256": "016bc8217741deeb7d2c5314d094b4e148796f01df98452febbd9f99baf7b7c1"
+    },
+    {
+      "path": "assets/props/tools-crate.png",
+      "role": "production-asset",
+      "bytes": 74105,
+      "sha256": "7f3fd39e4c4c177180c822082f44e7ce66a4ab91957d5a82e346c760aa747ab2"
+    },
+    {
+      "path": "assets/source/background-prompts.json",
+      "role": "generated-source",
+      "bytes": 4180,
+      "sha256": "b6eb4583161f8057baaafc20b389249c1f205dcc7731fe062b5d418d7d95c0a4"
+    },
+    {
+      "path": "assets/source/environment-prompts.json",
+      "role": "generated-source",
+      "bytes": 3527,
+      "sha256": "cc1663c32ca85e634affa17b5a0f573b24e69124aa5e02829866a59d1e8624fc"
+    },
+    {
+      "path": "assets/source-atlases/props-4x4.png",
+      "role": "production-asset",
+      "bytes": 1279387,
+      "sha256": "b61a841e0e413f38f7e6d9fde5a4e10d50de6560e9d776bf33864ca5f70a7da1"
+    },
+    {
+      "path": "assets/source-atlases/terrain-4x4.png",
+      "role": "production-asset",
+      "bytes": 1631789,
+      "sha256": "3f1aa7b4bee8394526851fe30494991084fc6c69701b4552bff28ad842f557b8"
+    },
+    {
+      "path": "assets/tiles/circuit-tech.png",
+      "role": "production-asset",
+      "bytes": 87903,
+      "sha256": "0f3e3554f498317fcf26f3f7af74187ce459c1b75ae69321708c952bbf70905e"
+    },
+    {
+      "path": "assets/tiles/cyan-glass.png",
+      "role": "production-asset",
+      "bytes": 91124,
+      "sha256": "d73b7cde98841467f575ea349fc4152e282844c6cd79e1270f73516daaedca1b"
+    },
+    {
+      "path": "assets/tiles/cyan-top-tech.png",
+      "role": "production-asset",
+      "bytes": 92459,
+      "sha256": "7fd37688df46e3150b3f8beb46bf46c632b2e5f7d897921b746247ae433722cf"
+    },
+    {
+      "path": "assets/tiles/flower-brick.png",
+      "role": "production-asset",
+      "bytes": 117106,
+      "sha256": "2fb56967491f2a5b7e2b8e5638eeee4717ee7d3a5f56041bb453b8cfb0c94563"
+    },
+    {
+      "path": "assets/tiles/golden-grass-stone.png",
+      "role": "production-asset",
+      "bytes": 114408,
+      "sha256": "715a7669af8c7b02a792dc0c15a8a16206f8551ce2620030222e2a180b74e29c"
+    },
+    {
+      "path": "assets/tiles/grass-brick.png",
+      "role": "production-asset",
+      "bytes": 107271,
+      "sha256": "6b9a0d77497b533f5d69103197e9d058dcc8a67036dae82f9a11be5388b79f39"
+    },
+    {
+      "path": "assets/tiles/hazard-steel.png",
+      "role": "production-asset",
+      "bytes": 98107,
+      "sha256": "efce35aa3b566b631f3961149a2e62e4803d973d1f6f22a1e84f979732464290"
+    },
+    {
+      "path": "assets/tiles/ivy-stone.png",
+      "role": "production-asset",
+      "bytes": 118915,
+      "sha256": "029624c37e02caf4cde645847b6a4462ee099c804991d6c6bc9cfc89ba7684c4"
+    },
+    {
+      "path": "assets/tiles/lilac-stone.png",
+      "role": "production-asset",
+      "bytes": 93144,
+      "sha256": "9027a2abe6d028f3e669fc906061b00d55a3192a9db3746a22571e2bc452d99c"
+    },
+    {
+      "path": "assets/tiles/magenta-tech.png",
+      "role": "production-asset",
+      "bytes": 93258,
+      "sha256": "4634d24014712bd9f2f025b59e0c3a577c624b114c20cfc997f7ee765f5db0f7"
+    },
+    {
+      "path": "assets/tiles/metal-topped-brick.png",
+      "role": "production-asset",
+      "bytes": 96085,
+      "sha256": "2206d00fe730cb96f523708e1c7b2b06c7af93e1af8df503a6bff5d11d79c1fa"
+    },
+    {
+      "path": "assets/tiles/plain-brick.png",
+      "role": "production-asset",
+      "bytes": 92255,
+      "sha256": "d435fe8a2b2b3361439905757dbd88b1456c1868de735a38a62736c634b67ca9"
+    },
+    {
+      "path": "assets/tiles/riveted-steel.png",
+      "role": "production-asset",
+      "bytes": 93421,
+      "sha256": "8c092dc3d7e911d2bccb6ec80a4fc99da8311bf22bdbc702bbc1e01d50312715"
+    },
+    {
+      "path": "assets/tiles/tech-window.png",
+      "role": "production-asset",
+      "bytes": 95084,
+      "sha256": "4a73afcd318812649b9c81ac0dada082d4dd3075d38d2fb14410f7988eeca5d7"
+    },
+    {
+      "path": "assets/tiles/vent.png",
+      "role": "production-asset",
+      "bytes": 87540,
+      "sha256": "62c443c264188faffb7aa4b63768f30d2cfc2d62b394aa42c48621c5b0f720c4"
+    },
+    {
+      "path": "assets/tiles/vine-brick.png",
+      "role": "production-asset",
+      "bytes": 114832,
+      "sha256": "6dc6eaa40471ff51fbda01d71190231a821c501bb07575c61a008e188518a984"
+    }
+  ]
+}

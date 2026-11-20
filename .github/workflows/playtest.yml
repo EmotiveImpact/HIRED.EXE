@@ -1,0 +1,34 @@
+name: Playtest
+on:
+  push:
+    branches: [feat/hired-exe-art-and-game-handoff]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  play:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [desktop, android, iphone]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: node --test tests/simulation.test.js
+      - run: python tools/build.py && python tests/build-check.py
+      - name: Play all four worlds in the pinned browser image
+        run: |
+          docker run --rm --ipc=host \
+            -v "$GITHUB_WORKSPACE:/game" -w /game \
+            mcr.microsoft.com/playwright/python:v1.55.0-noble \
+            sh -ec 'pip install --quiet playwright==1.55.0 && python tests/browser.py "$1"' \
+            sh "${{ matrix.profile }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playtest-${{ matrix.profile }}
+          path: evidence/
