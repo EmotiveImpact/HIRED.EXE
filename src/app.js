@@ -138,8 +138,11 @@
     const scene=H.SCENES[sceneIndex], beat=scene.beats[sceneBeat];
     const last=sceneBeat===scene.beats.length-1;
     const nextLabel=last?(sceneIndex===H.LEVELS.length?'Enter the interview':'Play '+H.LEVELS[sceneIndex].name):'Next panel';
-    const illustrated=Number.isInteger(beat.art);
-    const panel=illustrated
+    const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel));
+    const illustrated=fullPanel||Number.isInteger(beat.art);
+    const panel=fullPanel
+      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
+      : illustrated
       ? `<div class="comic-illustration" style="${esc(`background-image:url('${asset('assets/production/story/manga-panels.webp')}');background-position:${beat.art%2*100}% ${Math.floor(beat.art/2)*50}%`)}"></div>`
       : `<div class="comic-frame"><img src="${asset('assets/production/backgrounds/'+scene.backdrop+'.webp')}" alt=""><div class="comic-rays"></div></div>
         <div class="comic-inset">${comicSprite('enemies',beat.prop,'comic-prop')}</div>

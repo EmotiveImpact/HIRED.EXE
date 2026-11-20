@@ -29,6 +29,7 @@ runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/enemies/icons').glob('*.png'))
 runtime_paths.add('assets/production/characters/portrait-reference.png')
 runtime_paths.add('assets/production/story/manga-panels.webp')
+runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/story/panels').glob('*.jpg'))
 for path in runtime_paths:
     if not (ROOT/path).is_file():
         raise FileNotFoundError(path)
@@ -61,7 +62,7 @@ game_html=game_html.replace('href="art-book.html"','href="HIRE-EXE-v0.4-ART-BOOK
 (DIST/'HIRE-EXE-v0.4-PLAY.html').write_text(game_html)
 
 art_html=(ROOT/'art-book.html').read_text()
-art_paths={path for path in runtime_paths if not path.endswith('.webp')}
+art_paths={path for path in runtime_paths if not path.endswith('.webp') and '/story/panels/' not in path}
 art_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.png'))
 for folder in ['references','assets/previews']:
     art_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/folder).glob('*') if p.suffix.lower() in ['.png','.jpg','.webp'])

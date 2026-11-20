@@ -4,24 +4,32 @@
   const bot = { pose: 'idle_1', prop: 'recruitmentbot' };
   const algo = { pose: 'idle_1', prop: 'algorithm' };
 
+  /* Full comic panels for the cutscenes. A beat shows its panel only once the
+     panel's id is listed in ready and the file exists at folder + id + '.jpg'.
+     Until then it falls back to its old art or sprites. See assets/cutscenes/PANEL-BRIEF.md. */
+  H.PANELS = {
+    folder: 'assets/production/story/panels/',
+    ready: []
+  };
+
   H.SCENES = [
     {
       title: 'Forty boxes',
       backdrop: 'application-alley',
       beats: [
-        { art: 2, effect: 'UPLOAD OK', speaker: 'CV Filter',
+        { panel: 'p01-forty-boxes', art: 2, effect: 'UPLOAD OK', speaker: 'CV Filter',
           line: 'Thank you for uploading your CV. To continue, please type your entire CV into these forty boxes.' },
         { art: 0, effect: 'BOX 7', speaker: 'Augustus',
           line: 'Box seven. Years of experience. I’ve got twenty. The dropdown stops at five.' },
-        { ...bot, effect: 'ERROR', speaker: 'CV Filter',
+        { panel: 'p01-forty-boxes', ...bot, effect: 'ERROR', speaker: 'CV Filter',
           line: 'Please select a value between nought and five.' },
-        { pose: 'crouch_0', prop: 'terminal', effect: 'FINE.', speaker: 'Augustus',
+        { panel: 'p02-four-of-me', pose: 'crouch_0', prop: 'terminal', effect: 'FINE.', speaker: 'Augustus',
           line: 'Fine. Five years each. Put me down as four people.' },
-        { ...bot, effect: '4 RECEIVED', speaker: 'CV Filter',
+        { panel: 'p01-forty-boxes', ...bot, effect: '4 RECEIVED', speaker: 'CV Filter',
           line: 'Four applications received. Unfortunately, three of you have been unsuccessful.' },
-        { pose: 'hurt_0', prop: 'recruitmentbot', effect: 'WHICH ONE?', speaker: 'Augustus',
+        { panel: 'p02-four-of-me', pose: 'hurt_0', prop: 'recruitmentbot', effect: 'WHICH ONE?', speaker: 'Augustus',
           line: 'Which one of me got through?' },
-        { ...bot, effect: 'RESULT', speaker: 'CV Filter',
+        { panel: 'p01-forty-boxes', ...bot, effect: 'RESULT', speaker: 'CV Filter',
           line: 'The one with the least experience.' },
         { art: 1, effect: 'BUILD IT!', speaker: 'Augustus', burst: true,
           line: 'Right. Forget the form. I could build them a whole game in the time box nine is taking.' }
@@ -31,17 +39,17 @@
       title: 'A few changes',
       backdrop: 'ship-it-city',
       beats: [
-        { pose: 'idle_1', prop: 'terminal', effect: 'LOVE IT', speaker: 'Scope Creep',
+        { panel: 'p03-few-changes', pose: 'idle_1', prop: 'terminal', effect: 'LOVE IT', speaker: 'Scope Creep',
           line: 'Love it. Wouldn’t change a thing. I’ve just got a few changes.' },
-        { art: 2, effect: 'QUICK ONE', speaker: 'Scope Creep',
+        { panel: 'p04-small-ocean', art: 2, effect: 'QUICK ONE', speaker: 'Scope Creep',
           line: 'Could it have a swimming level? Nothing major. Just a small ocean.' },
-        { pose: 'idle_1', prop: 'terminal', effect: '5 WEEKS', speaker: 'Augustus',
+        { panel: 'p03-few-changes', pose: 'idle_1', prop: 'terminal', effect: '5 WEEKS', speaker: 'Augustus',
           line: 'That would take a normal person five weeks.' },
-        { pose: 'hurt_0', prop: 'terminal', effect: 'REALLY?', speaker: 'Scope Creep',
+        { panel: 'p04-small-ocean', pose: 'hurt_0', prop: 'terminal', effect: 'REALLY?', speaker: 'Scope Creep',
           line: 'Really? It only took me five seconds to ask.' },
-        { pose: 'victory_1', prop: 'terminal', effect: '5 MINUTES', speaker: 'Augustus',
+        { panel: 'p03-few-changes', pose: 'victory_1', prop: 'terminal', effect: '5 MINUTES', speaker: 'Augustus',
           line: 'Lucky for you, it’d take me five minutes.' },
-        { pose: 'idle_1', prop: 'terminal', effect: 'SO, YES?', speaker: 'Scope Creep',
+        { panel: 'p04-small-ocean', pose: 'idle_1', prop: 'terminal', effect: 'SO, YES?', speaker: 'Scope Creep',
           line: 'Brilliant! So that’s a yes.' },
         { art: 3, effect: 'CUT.', speaker: 'Augustus', burst: true,
           line: 'It’s a no. Twenty years as a film editor. Just because you can shoot a scene doesn’t mean it stays in.' }
@@ -51,21 +59,21 @@
       title: 'Your numbers are in',
       backdrop: 'growth-run',
       beats: [
-        { pose: 'hurt_0', prop: 'algorithm', effect: 'INSIGHTS', speaker: 'The Algorithm',
+        { panel: 'p05-two-players', pose: 'hurt_0', prop: 'algorithm', effect: 'INSIGHTS', speaker: 'The Algorithm',
           line: 'Your demo has had two players so far. Both of them were you.' },
-        { ...algo, effect: 'AND?', speaker: 'Augustus',
+        { panel: 'p05-two-players', ...algo, effect: 'AND?', speaker: 'Augustus',
           line: 'Right. And did we like it?' },
-        { pose: 'hurt_0', prop: 'algorithm', effect: 'REVIEWS', speaker: 'The Algorithm',
+        { panel: 'p05-two-players', pose: 'hurt_0', prop: 'algorithm', effect: 'REVIEWS', speaker: 'The Algorithm',
           line: 'One of you did. The other one reported eleven bugs.' },
-        { pose: 'victory_1', prop: 'algorithm', effect: 'HIRE HIM', speaker: 'Augustus',
+        { panel: 'p05-two-players', pose: 'victory_1', prop: 'algorithm', effect: 'HIRE HIM', speaker: 'Augustus',
           line: 'Good. He’s the one you want.' },
-        { ...algo, effect: 'TOP TIP', speaker: 'The Algorithm',
+        { panel: 'p06-every-day', ...algo, effect: 'TOP TIP', speaker: 'The Algorithm',
           line: 'To grow your audience, you need to post every single day.' },
-        { pose: 'crouch_0', prop: 'algorithm', effect: 'ABOUT WHAT?', speaker: 'Augustus',
+        { panel: 'p06-every-day', pose: 'crouch_0', prop: 'algorithm', effect: 'ABOUT WHAT?', speaker: 'Augustus',
           line: 'About what?' },
-        { ...algo, effect: 'OBVIOUSLY', speaker: 'The Algorithm',
+        { panel: 'p06-every-day', ...algo, effect: 'OBVIOUSLY', speaker: 'The Algorithm',
           line: 'About how you post every single day.' },
-        { pose: 'jump_1', prop: 'bulb', effect: 'GO.', speaker: 'Augustus', burst: true,
+        { panel: 'p07-pester', pose: 'jump_1', prop: 'bulb', effect: 'GO.', speaker: 'Augustus', burst: true,
           line: 'I’ll do it the old-fashioned way. Make something good, then pester people until they look.' }
       ]
     },
@@ -75,15 +83,15 @@
       beats: [
         { art: 4, effect: 'ONE EMAIL', speaker: 'Augustus',
           line: 'Four worlds and three bosses, done. Now the hard part. A two-line email.' },
-        { pose: 'crouch_0', prop: 'envelope_0', effect: 'DRAFT 19', speaker: 'Augustus',
+        { panel: 'p08-draft-nineteen', pose: 'crouch_0', prop: 'envelope_0', effect: 'DRAFT 19', speaker: 'Augustus',
           line: 'I built the game quicker than this. I’ve been on the word ‘Hi’ since Tuesday.' },
-        { pose: 'idle_1', prop: 'envelope_0', effect: 'TONE', speaker: 'Augustus',
+        { panel: 'p08-draft-nineteen', pose: 'idle_1', prop: 'envelope_0', effect: 'TONE', speaker: 'Augustus',
           line: '‘Dear Sir or Madam’ sounds like I’m complaining about the bins. ‘Hey’ sounds like I’m selling them a gym membership.' },
-        { pose: 'dash_1', prop: 'plane_1', effect: 'SEND.', speaker: 'Augustus',
+        { panel: 'p08-draft-nineteen', pose: 'dash_1', prop: 'plane_1', effect: 'SEND.', speaker: 'Augustus',
           line: 'Read it nineteen times. Not one typo. Send.' },
-        { pose: 'hurt_0', prop: 'briefcase', effect: 'OH NO', speaker: 'Augustus',
+        { panel: 'p09-nothing-attached', pose: 'hurt_0', prop: 'briefcase', effect: 'OH NO', speaker: 'Augustus',
           line: '‘Please find attached.’ I haven’t attached anything.' },
-        { pose: 'dash_1', prop: 'plane_1', effect: 'VERSION 2', speaker: 'Augustus', burst: true,
+        { panel: 'p09-nothing-attached', pose: 'dash_1', prop: 'plane_1', effect: 'VERSION 2', speaker: 'Augustus', burst: true,
           line: 'Second email. ‘Now with attachment.’ Call it version two. Nobody ships a perfect version one.' }
       ]
     },
@@ -93,19 +101,19 @@
       beats: [
         { art: 5, effect: 'COME IN', speaker: 'Interview host',
           line: 'Come in, come in. Did you find us all right?' },
-        { pose: 'idle_1', prop: 'briefcase', effect: 'TRAFFIC', speaker: 'Augustus',
+        { panel: 'p10-traffic', pose: 'idle_1', prop: 'briefcase', effect: 'TRAFFIC', speaker: 'Augustus',
           line: 'Not bad. Four worlds, three bosses. Bit of traffic round the Algorithm.' },
         { art: 5, effect: 'REFERENCE', speaker: 'Interview host',
           line: 'We rang your reference. She says you’re talented, hard-working and not eating properly.' },
-        { pose: 'hurt_0', prop: 'envelope_0', effect: 'AH.', speaker: 'Augustus',
+        { panel: 'p10-traffic', pose: 'hurt_0', prop: 'envelope_0', effect: 'AH.', speaker: 'Augustus',
           line: 'In my defence, she has known me the longest.' },
         { art: 5, effect: 'WEAKNESS?', speaker: 'Interview host',
           line: 'So. What would you say is your biggest weakness?' },
-        { pose: 'idle_1', prop: 'briefcase', effect: 'HONESTLY', speaker: 'Augustus',
+        { panel: 'p10-traffic', pose: 'idle_1', prop: 'briefcase', effect: 'HONESTLY', speaker: 'Augustus',
           line: 'You asked for a CV and I built you a video game.' },
         { art: 5, effect: 'STRENGTH?', speaker: 'Interview host',
           line: 'And your biggest strength?' },
-        { pose: 'victory_1', prop: 'briefcase', effect: 'SAME.', speaker: 'Augustus', burst: true,
+        { panel: 'p11-same-answer', pose: 'victory_1', prop: 'briefcase', effect: 'SAME.', speaker: 'Augustus', burst: true,
           line: 'Same answer.' }
       ]
     }
