@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#070f27" />
+  <meta name="description" content="HIRED.EXE. One builder. Four levels. Zero cover letters. A playable application by Augustus Edem." />
+  <title>HIRED.EXE | The Application Is the Application</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <div class="utility-bar"><span class="brand"><span class="brand-mark">H<span class="brand-spark">✦</span></span> HIRED<span class="dotexe">.EXE</span></span><span class="edition-label" id="editionLabel">SOLVED STUDIO EDITION // 001</span><div class="utility-right"><span class="connection"><i></i> SYSTEM ONLINE</span><button id="soundButton" class="chrome-btn" aria-label="Toggle sound" title="Toggle sound">♪ ON</button><button id="howButton" class="chrome-btn" title="How to play">? HELP</button></div></div>
+    <main class="game-window" aria-label="HIRED.EXE platform game">
+      <div class="window-title"><span>▣ &nbsp;HIRED.EXE / <span id="windowSubtitle">APPLICATION SYSTEM</span></span><span class="window-actions"><b>_</b><b>▣</b><b>×</b></span></div>
+      <div class="menu-strip"><span>FILE</span><span>PLAYER</span><span>LEVELS</span><span>ABOUT</span><span class="right-menu" id="menuStatus">READY TO RUN</span></div>
+      <div class="game-frame" id="gameFrame">
+        <canvas id="game" width="960" height="540" aria-label="Side-scrolling platformer. Use arrow keys or WASD to move, space to jump, Shift to dash. Mobile controls below."></canvas>
+        <div id="overlay" class="overlay show" aria-live="polite"><div class="overlay-inner" id="overlayContent"></div></div>
+        <div class="mobile-control-layer" id="touchControls" aria-label="Touch controls"><div class="touch-left"><button data-key="left" aria-label="Move left">◀</button><button data-key="right" aria-label="Move right">▶</button></div><div class="touch-right"><button data-key="dash" class="touch-dash" aria-label="Dash">DASH</button><button data-key="jump" class="touch-jump" aria-label="Jump">JUMP</button></div></div>
+      </div>
+      <div class="status-strip"><span id="statusLeft">C:\\HIRED\\SOLVED\\START.EXE</span><span id="statusRight">ARROWS/WASD MOVE · SPACE JUMP · SHIFT DASH · P PAUSE</span></div>
+    </main>
+    <div class="bottom-content"><div class="lower-left"><span class="small-marker">// AN UNCONVENTIONAL APPLICATION</span><h1>Don't read my CV.<br><em>Play it.</em></h1><p>Built by <strong>Augustus Edem</strong>. A creative director and AI-native product builder who would rather make something than talk about making something.</p></div><div class="lower-right"><div class="tiny-card"><span>THE MISSION</span><strong>4 WORLDS</strong><small>Beat the hiring process</small></div><div class="tiny-card"><span>THE PLAYER</span><strong>1 BUILDER</strong><small>Collect proof. Ship products.</small></div><div class="tiny-card"><span>THE ENDGAME</span><strong>LET'S TALK</strong><small>No fake job offers required</small></div></div></div>
+    <footer>© 2026 AUGUSTUS EDEM &nbsp;·&nbsp; AN INDEPENDENT CREATIVE APPLICATION &nbsp;·&nbsp; NOT AN OFFICIAL SOLVED STUDIO GAME</footer>
+  </div>
+  <script src="./js/editions.js"></script>
+  <script src="./js/game.js"></script>
+</body>
+</html>
