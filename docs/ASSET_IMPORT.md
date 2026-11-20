@@ -1,21 +1,18 @@
-# Asset import checklist
+# Actual game assets | current state
 
-The original 53-file bundle **HIRED-EXE-work-handoff.zip** was generated in this project's ChatGPT conversation. The binary images are **not yet present on this Git branch**. In Work mode, take that archive as the input and import these paths:
+The original artwork **has been uploaded to this GitHub branch**, not left in a handover ZIP. `assets/manifest.json` is the path inventory.
 
-- `assets/backgrounds/01-application-alley.png`
-- `assets/backgrounds/02-ship-it-city.png`
-- `assets/backgrounds/03-growth-run.png`
-- `assets/backgrounds/04-final-interview-hq.png`
-- `assets/atlases/terrain-4x4.png`
-- `assets/atlases/props-4x4.png`
-- `assets/tiles/*.png` (16 individual generated tile crops)
-- `assets/props/*.png` (16 individual generated prop crops)
-- `assets/manifest.json` (atlas coordinates)
-- `references/approved-gameplay-target.png`
-- `references/augustus-character-concepts.png`
-- `references/enemies-hud-concepts.png`
-- `references/environment-concepts.png`
+## Art currently committed
+- Four world backgrounds in `assets/production/backgrounds/`.
+- An Augustus hero atlas, enemies atlas, terrain atlas and props atlas under `assets/production/`.
+- Source 4×4 terrain/prop atlases in `assets/source-atlases/`.
+- 16 extracted, transparent terrain PNGs in `assets/tiles/` and 16 extracted prop PNGs in `assets/props/`.
+- Four approved concept sheets in `references/`.
 
-The background plates are parallax artwork, **not physical colliders**. The 4×4 source art sheets are separate from the visually labelled character and enemy *concept* sheets. Do not crop character animation blindly. Normalise sprites and verify them at real game size.
+## Integration cautions
+The four labelled concept sheets are reference artwork, not guaranteed uniformly dimensioned animation strips. Review the new production atlases before assigning frame rectangles, pivot points and collision bodies. Normalise tile and prop padding, use nearest-neighbour sprite rendering, keep parallax backgrounds behind physical colliders, and test foreground clarity across all four worlds.
 
-This document exists so the correct art can be imported without fabricating missing files or claiming assets are already committed.
+The current `index.html` still uses its **original procedurally drawn graphics**. Do not describe the new illustrated worlds as implemented in-game until screenshots from an end-to-end playthrough prove it.
+
+## Recover if needed
+`HIRED-EXE-work-handoff.zip` exists in the originating ChatGPT conversation as a backup. The **repository branch** is the source for continuation.

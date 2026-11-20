@@ -1,49 +1,35 @@
 # HIRED.EXE 🎮
 
-**A job application you can play.** An original, four-world 16-bit-inspired browser platform game starring Augustus, with a hiring-process adventure and employer-specific editions.
+**The application is the application.** A genuine four-level, side-scrolling, 16-bit-inspired platform game where Augustus travels through the hiring process, starting with a Solved Studio edition. The intention is a *memorable playable demonstration of creative judgement and AI-assisted product building*, with reusable editions for future employers.
 
-**Current status (20 November 2026):** The v0.3 game is playable as a standalone HTML file with procedurally drawn graphics. A new original 16-bit-inspired art direction and 53-file artwork/source handover bundle have been produced separately. **The new generated artwork is not yet integrated into this checked-in game.** Do not present this branch as the finished art-rich release.
+## Current status | 20 November 2026
 
-## Play
+**Playable baseline:** the old four-world v0.3 browser platformer with procedurally drawn art at `index.html` and `prototype/source/`. **New art:** the four original illustrated backgrounds, hero/enemy/environment atlases, 32 separate ground/prop PNGs and approved style sheets are committed to this branch. **Not yet proven:** those images are integrated into the actual playable worlds; complete game/physics/boss/mobile QA and a final public release remain unfinished.
 
-- [Existing hosted v0.3 prototype](https://hired-exe-augustus-preview.vercel.app/)
-- Open `index.html` in a modern browser or serve the repository: `python3 -m http.server 8000`, then visit `http://localhost:8000/`.
-- Keyboard: **A/D** or **arrows** to move, **Space/W/Up** to jump and double-jump, **Shift/X** to dash, **P/Escape** to pause. Touch controls are shown on mobile.
+**Start with [the Work mode handover](docs/WORK_MODE_HANDOFF.md)**. It includes the remaining work, implementation order, tests and release restrictions.
 
-## Four worlds
+## Try the existing prototype
 
-| World | Edition 001 concept | Theme |
-| --- | --- | --- |
-| 1. Application Alley | The CV Filter | Recruitment, tutorial, moving CV enemies |
-| 2. Ship It City | Scope Creep | Building, deadlines, moving platforms |
-| 3. Growth Run | The Algorithm | Momentum, speed, reach |
-| 4. Final Interview HQ | The Interview | Precision, portfolio evidence, conversation |
+Legacy v0.3 URL: https://hired-exe-augustus-preview.vercel.app/ (this still uses procedural art).
 
-The game is a **demonstration of creative and product-building capability**, not a promise or claim that a job offer has been made.
+Local: `python3 -m http.server 8000` at the repository root, then open `http://localhost:8000/`; alternatively open the standalone `index.html`. Controls: A/D or arrows move; Space/W/Up jump; Shift/X dash; P/Escape pause. Touch controls appear on mobile.
 
-## Design system
+## The four levels
 
-Original 16-bit-inspired pixel art with a retro Windows application frame. Core visual direction: teal-jacket hero, warm terracotta/grass terrain, violet architectural outlines, cyan technology, gold pickups and blossom-coloured city backdrops. See `docs/ART_STYLE_BIBLE.md`, `docs/LEVEL_BLUEPRINT.md`, `docs/IMPLEMENTATION_PLAN.md`.
+1. **Application Alley:** tutorials, CV bots and the CV Filter.
+2. **Ship It City:** industrial traversal, delivery constraints and Scope Creep.
+3. **Growth Run:** dash routes, flying threats and The Algorithm.
+4. **Final Interview HQ:** ascending into the studio and discovering authentic portfolio evidence and a real contact CTA.
 
-The original approved gameplay concept, hero/enemy sheets, four background plates, 4×4 terrain atlas, 4×4 props atlas, 32 extracted tiles/props and asset manifest are included in the **HIRED-EXE-work-handoff.zip** delivered in the project conversation. Those binary graphics must be imported into `assets/` in the next repository pass. `docs/ASSET_IMPORT.md` lists the expected paths.
+### Source and design
 
-## Project layout
+- **Game:** `index.html` (standalone), `prototype/source/` (HTML/CSS/JS components), `prototype/HIRED-EXE-PLAY.html` (preserved snapshot).
+- **Art:** `assets/production/` (new world backdrops and atlas sources), `assets/tiles/` and `assets/props/` (32 individually extracted original PNGs), `assets/source-atlases/` (original source sheets), `assets/manifest.json` (paths and intended uses).
+- **Approved exploration:** `references/` (gameplay target, Augustus character art, enemy and HUD concepts, environment concepts).
+- **Specs:** `docs/ART_STYLE_BIBLE.md`, `docs/LEVEL_BLUEPRINT.md`, `docs/DECISION_LOG.md`, `docs/WORK_MODE_HANDOFF.md`, `docs/IMPLEMENTATION_PLAN.md`.
 
-- `index.html`: fully self-contained playable v0.3 (no dependencies)
-- `prototype/HIRED-EXE-PLAY.html`: original packaged v0.3 snapshot
-- `docs/`: visual bible, level design, development acceptance tests, handoff
-- `assets/`: planned target location for the production image assets
+The visual target is lush, detailed, bright **original** SNES-era-style pixel art with a restrained Windows-style frame. Mario and Sonic are genre inspirations, never source sprites or level layouts. The game is an independent application, **not affiliated with or endorsed by Solved Studio**. All rights reserved unless separately licensed.
 
-## Ownership and accuracy
+## Review and release
 
-Original game and generated art assets created for Emotive Impact. Mario/Sonic are historical genre references only, not assets or character designs used here. No third-party licence is granted merely by this public repository; all rights reserved unless separately stated. The Solved Studio edition is an independent application and is **not endorsed by Solved Studio**.
-
-## Next production milestone
-
-1. Import and normalise the approved PNG backgrounds, tile atlas, prop atlas and isolated components.
-2. Export usable, uniform-frame transparent Augustus and enemy sprite atlases from the reference illustrations; do not slice labelled presentation sheets as if they were ready-made frames.
-3. Wire background parallax, terrain sprites, foreground props and animation states into the actual renderer.
-4. Test all four worlds, checkpoints, enemy and boss collisions, mobile controls and final interview in a visible browser.
-5. Publish a verified preview with screenshots and a reviewable PR.
-
-**Do not claim the art-rich build is finished until those tests have actually passed.**
+Work on branch `feat/hired-exe-art-and-game-handoff` and [draft PR #1](https://github.com/EmotiveImpact/HIRED.EXE/pull/1). The repository is currently **public**. Do not merge, announce a finished art-integrated game, or promote a new production build until gameplay and assets are verified and the user approves.

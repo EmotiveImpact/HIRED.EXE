@@ -1,0 +1,201 @@
+{
+  "version": "handoff-2026-11-20",
+  "state": "art committed, art integration into playable v0.3 still unverified",
+  "artStyle": "original lush, readable 16-bit-inspired console platformer; restrained retro desktop border; not copied franchise art",
+  "viewport": {
+    "logicalWidth": 960,
+    "logicalHeight": 540,
+    "recommendedTileSize": 48,
+    "filter": "nearest"
+  },
+  "backgrounds": [
+    {
+      "id": "application-alley",
+      "path": "assets/production/backgrounds/application-alley.png"
+    },
+    {
+      "id": "ship-it-city",
+      "path": "assets/production/backgrounds/ship-it-city.png"
+    },
+    {
+      "id": "growth-run",
+      "path": "assets/production/backgrounds/growth-run.png"
+    },
+    {
+      "id": "interview-hq",
+      "path": "assets/production/backgrounds/interview-hq.png"
+    }
+  ],
+  "atlases": [
+    {
+      "role": "hero",
+      "path": "assets/production/characters/hero-atlas.png",
+      "status": "needs frame/anchor review and animation system"
+    },
+    {
+      "role": "enemies",
+      "path": "assets/production/enemies/enemy-atlas.png",
+      "status": "needs separate enemy frame maps and QA"
+    },
+    {
+      "role": "props",
+      "path": "assets/production/environment/props-atlas.png",
+      "status": "needs runtime metadata and QA"
+    },
+    {
+      "role": "terrain",
+      "path": "assets/production/environment/terrain-atlas.png",
+      "status": "needs collider separation and QA"
+    }
+  ],
+  "sourceAtlases": [
+    "assets/source-atlases/terrain-4x4.png",
+    "assets/source-atlases/props-4x4.png"
+  ],
+  "tiles": [
+    {
+      "id": "circuit-tech",
+      "path": "assets/tiles/circuit-tech.png"
+    },
+    {
+      "id": "cyan-glass",
+      "path": "assets/tiles/cyan-glass.png"
+    },
+    {
+      "id": "cyan-top-tech",
+      "path": "assets/tiles/cyan-top-tech.png"
+    },
+    {
+      "id": "flower-brick",
+      "path": "assets/tiles/flower-brick.png"
+    },
+    {
+      "id": "golden-grass-stone",
+      "path": "assets/tiles/golden-grass-stone.png"
+    },
+    {
+      "id": "grass-brick",
+      "path": "assets/tiles/grass-brick.png"
+    },
+    {
+      "id": "hazard-steel",
+      "path": "assets/tiles/hazard-steel.png"
+    },
+    {
+      "id": "ivy-stone",
+      "path": "assets/tiles/ivy-stone.png"
+    },
+    {
+      "id": "lilac-stone",
+      "path": "assets/tiles/lilac-stone.png"
+    },
+    {
+      "id": "magenta-tech",
+      "path": "assets/tiles/magenta-tech.png"
+    },
+    {
+      "id": "metal-topped-brick",
+      "path": "assets/tiles/metal-topped-brick.png"
+    },
+    {
+      "id": "plain-brick",
+      "path": "assets/tiles/plain-brick.png"
+    },
+    {
+      "id": "riveted-steel",
+      "path": "assets/tiles/riveted-steel.png"
+    },
+    {
+      "id": "tech-window",
+      "path": "assets/tiles/tech-window.png"
+    },
+    {
+      "id": "vent",
+      "path": "assets/tiles/vent.png"
+    },
+    {
+      "id": "vine-brick",
+      "path": "assets/tiles/vine-brick.png"
+    }
+  ],
+  "props": [
+    {
+      "id": "briefcase-block",
+      "path": "assets/props/briefcase-block.png"
+    },
+    {
+      "id": "checkpoint-terminal",
+      "path": "assets/props/checkpoint-terminal.png"
+    },
+    {
+      "id": "coffee-shop",
+      "path": "assets/props/coffee-shop.png"
+    },
+    {
+      "id": "computer-tunnel",
+      "path": "assets/props/computer-tunnel.png"
+    },
+    {
+      "id": "grass-floating-platform",
+      "path": "assets/props/grass-floating-platform.png"
+    },
+    {
+      "id": "green-tree",
+      "path": "assets/props/green-tree.png"
+    },
+    {
+      "id": "hiring-portal",
+      "path": "assets/props/hiring-portal.png"
+    },
+    {
+      "id": "hover-platform",
+      "path": "assets/props/hover-platform.png"
+    },
+    {
+      "id": "ladder",
+      "path": "assets/props/ladder.png"
+    },
+    {
+      "id": "metal-platform",
+      "path": "assets/props/metal-platform.png"
+    },
+    {
+      "id": "pink-tree",
+      "path": "assets/props/pink-tree.png"
+    },
+    {
+      "id": "purple-briefcase-banner",
+      "path": "assets/props/purple-briefcase-banner.png"
+    },
+    {
+      "id": "satellite-dish",
+      "path": "assets/props/satellite-dish.png"
+    },
+    {
+      "id": "stone-platform",
+      "path": "assets/props/stone-platform.png"
+    },
+    {
+      "id": "streetlamp",
+      "path": "assets/props/streetlamp.png"
+    },
+    {
+      "id": "tools-crate",
+      "path": "assets/props/tools-crate.png"
+    }
+  ],
+  "referenceSheets": [
+    "references/approved-gameplay-target.png",
+    "references/augustus-character-concepts.png",
+    "references/enemies-hud-concepts.png",
+    "references/environment-concepts.png"
+  ],
+  "legacyScreenshot": "prototype/HIRED-EXE-screenshot.png",
+  "rules": [
+    "All pixel backgrounds are render-only scenery, never collision masks.",
+    "Character/enemy concept sheets contain labels and irregular poses; do not treat them as ready transparent frame strips.",
+    "Separated sprites may include transparent padding; normalise anchors and collision bodies before use.",
+    "Keep employer-specific dialogue, portfolio evidence and character data separate from the engine.",
+    "Approval required before merge to main or production promotion."
+  ]
+}
