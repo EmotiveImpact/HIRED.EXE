@@ -10,7 +10,7 @@ The game, visual component kit and exploration archive are assembled for review 
 | --- | --- |
 | Playable game | Four authored side-scrolling worlds, acceleration, variable and double jump, dash, checkpoints, springs, moving platforms, boost lanes, enemies and boss encounters |
 | Presentation | Retro desktop interface, original hero, generated world art, HUD, sound toggle and original synthesised audio |
-| Visitor flow | Open world selection, unlimited retries, Relaxed mode, direct portfolio access and a three-topic final conversation |
+| Visitor flow | Open world selection, three lives per world with checkpoint respawns, Relaxed mode, direct portfolio access and a three-topic final conversation |
 | Reuse | Central employer/candidate edition file and edition-specific local progress |
 | Hero | 18 production frames in an 80 × 96 fixed-cell atlas, with animation metadata and a shared foot anchor |
 | Enemies and rewards | Three two-frame enemy families, four boss base poses, eight icons and matching metadata |

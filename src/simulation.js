@@ -5,7 +5,7 @@
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const overlaps = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
   const centre = r => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
-  const PHYSICS = Object.freeze({ gravity: 0.66, jump: 14.6, doubleJump: 13.5, runSpeed: 6.2,
+  const PHYSICS = Object.freeze({ lives: 3, maxLives: 9, gravity: 0.66, jump: 14.6, doubleJump: 13.5, runSpeed: 6.2,
     boostSpeed: 8.8, dashSpeed: 13.2, dashFrames: 11, dashCooldown: 48, coyoteFrames: 7, bufferFrames: 8 });
 
   class Game {
@@ -27,6 +27,7 @@
       this.state = { mode: 'playing', levelIndex: world.levelIndex, world, player: this.makePlayer(world.spawn),
         camera: { x: 0, y: 0 }, score: 0, coins: 0, skills: [], checkpoint: { ...world.spawn, id: 'start' },
         enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, lift, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
+        lives: PHYSICS.lives,
         assist: Boolean(options.assist), hintsShown: [], completed: false };
       this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
       this.emit('start', { levelIndex: world.levelIndex });
@@ -238,7 +239,11 @@
         }
         else if (item.kind === 'skill') { s.skills.push(item.skill.id); s.score += 250; this.emit('skill', { skill: item.skill, item }); }
         else if (item.kind === 'bonus') this.emit('bonus', { item });
-        else { s.coins++; s.score += 10; this.emit('coin', { x: item.x, y: item.y }); }
+        else {
+          s.coins++; s.score += 10; this.emit('coin', { x: item.x, y: item.y });
+          // Every fifty ideas buys another go, up to a sensible ceiling.
+          if (s.coins % 50 === 0 && s.lives < PHYSICS.maxLives) { s.lives++; this.emit('extraLife', { lives: s.lives, coins: s.coins }); }
+        }
         this.burst(item.x, item.y, item.kind === 'coin' ? 'gold' : 'purple', 8);
       }
     }
@@ -460,11 +465,15 @@
     }
     respawn(reason) {
       const s = this.state;
-      s.deaths++; s.player = this.makePlayer(s.checkpoint); s.player.invulnerable = 100;
+      s.deaths++; if (!s.assist) s.lives = Math.max(0, s.lives - 1);
+      s.player = this.makePlayer(s.checkpoint); s.player.invulnerable = 100;
       s.camera.x = clamp(s.player.x + s.player.w / 2 - this.viewWidth * 0.35, 0, s.world.width - this.viewWidth);
       if (s.chase && !s.chase.done) { s.chase.active = false; s.chase.x = s.chase.startX - s.chase.lead; }
-      s.projectiles = []; this.emit('respawn', { reason, checkpoint: s.checkpoint.id, deaths: s.deaths });
-      // Keep collected ideas, skill tokens and boss damage; a fall never erases the application story.
+      s.projectiles = [];
+      // With no lives left the app restarts the world from its first screen. Relaxed mode never runs out.
+      if (!s.assist && s.lives === 0) this.emit('gameOver', { reason, levelIndex: s.levelIndex, deaths: s.deaths });
+      else this.emit('respawn', { reason, checkpoint: s.checkpoint.id, deaths: s.deaths, lives: s.lives });
+      // Keep collected ideas, skill tokens and boss damage on an ordinary retry.
       this.burst(s.player.x + s.player.w / 2, s.player.y + s.player.h / 2, 'cyan', 16);
     }
     burst(x, y, kind, count) {

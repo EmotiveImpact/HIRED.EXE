@@ -2,7 +2,7 @@
 
 ## Shared play contract
 
-The game uses a 960 × 540 logical view, with the camera following a side-scrolling world. Movement combines acceleration, air control, variable jump height, a second jump and a short dash. Coyote time and a jump buffer make near-edge input forgiving. Checkpoints support unlimited retries rather than exhausting a small stock of lives.
+The game uses a 960 × 540 logical view, with the camera following a side-scrolling world. Movement combines acceleration, air control, variable jump height, a second jump and a short dash. Coyote time and a jump buffer make near-edge input forgiving. Each world gives three lives. A death returns the player to the last checkpoint, and losing the last life restarts the world. Fifty ideas earn an extra life, and Relaxed mode never loses one.
 
 The main route should be understandable through platform shape and lightbulb placement. Optional upper routes contain skill evidence and reward confident movement. Collecting three skill tokens adds a completion goal without making the portfolio inaccessible to a visitor who prefers a direct route. Exact engine rules and final coordinates live in `src/levels.js` and `ENGINE-API.md`.
 
@@ -30,7 +30,7 @@ Each world carries three set pieces and one secret room, none of which adds a ne
 | World | Set piece | Engine data | Rule |
 | --- | --- | --- | --- |
 | Application Alley | Keyword Gate | `gates` with `needs: 'keys'`, three `key` collectibles | A solid gate before the arena opens when all three keyword tags are collected. The keys sit low, on a ledge and above a spring within one courtyard, so backtracking is never more than a screen and a half. |
-| Ship It City | False finish | `fakeExit` | A finish portal stands where the level used to end. Touching it fires `fakeExit`, Scope Creep hauls it away, and a second half of lifts and terraces leads to the real arena. |
+| Ship It City | Phase 2 | signs only | The 'NEARLY DONE' and 'PHASE 2 (QUICK TWEAK)' signs mark where the level used to end, and a second half of lifts and terraces leads to the arena. The decoy finish portal was removed after playtesting because it read as a bug. |
 | Growth Run | The Feed | `chase` | A wall of content pursues the player from x 4560 to x 7440 at 4.7 pixels per tick against a run speed of 6.2. It never trails by more than 380 pixels. Being overtaken returns the player to the checkpoint before the sprint and resets the wall. Assist mode slows it by a fifth. |
 | Final Interview HQ | Three rounds | `rounds`, `gates` with a round index | One-hit rematches with the CV Filter, Scope Creep and the Algorithm, each in its own terrace arena behind a gate, before the host welcomes the player without combat. |
 

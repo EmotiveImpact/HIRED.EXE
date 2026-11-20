@@ -302,6 +302,8 @@
     $('world-name').textContent=s.world.name;
     $('coin-count').textContent=String(s.coins).padStart(2,'0');
     $('skill-count').textContent=s.skills.length+'/3';
+    const lives=s.assist?'RELAXED':'×'+s.lives;
+    if($('lives').textContent!==lives){$('lives').textContent=lives;$('lives').setAttribute('aria-label',s.assist?'Relaxed mode, unlimited retries':s.lives+(s.lives===1?' life':' lives')+' left');}
     const health=s.player.health;
     if($('hearts').dataset.health!==String(health)){
       $('hearts').dataset.health=health;$('hearts').setAttribute('aria-label',health+' hearts');
@@ -312,6 +314,7 @@
   let taunts=0;
   const bark = type => H.BARKS?.[type];
   function events() {
+    let gameOver=null;
     for(const e of game.drainEvents()) {
       audio.effect(e.type);
       if(e.type==='hint'){
@@ -327,9 +330,10 @@
         progress.checkpoint=game.checkpointRecord();
         toast(save()?'Saved. First thing an editor learns. Usually the hard way.':'Checkpoint reached for this session.',2600);
       }
-      if(e.type==='respawn'){const b=game.state.boss;toast(e.reason==='feed'?'The Feed scrolled past you. Back to the checkpoint, and keep moving.':b?.active&&bark(b.type)?.lose?bark(b.type).lose:e.reason==='fall'?'You fell into a gap in your CV. Back to the checkpoint.':'Unfortunately, on this occasion. Back to the checkpoint. Your ideas are safe.',3200);}
+      if(e.type==='respawn'){const b=game.state.boss;const why=e.reason==='feed'?'The Feed scrolled past you.':b?.active&&bark(b.type)?.lose?bark(b.type).lose:e.reason==='fall'?'You fell into a gap in your CV.':'Unfortunately, on this occasion.';toast(why+(game.state.assist?' Back to the checkpoint.':` ${e.lives} ${e.lives===1?'life':'lives'} left.`),3400);}
+      if(e.type==='gameOver'){toast('Game over. We’ve decided to start the process again from the beginning.',4200);gameOver=e.levelIndex;break;}
+      if(e.type==='extraLife')toast(e.coins===50?'50 ideas. Extra life. Don’t tell Scope Creep.':`${e.coins} ideas. Another extra life.`,2800);
       if(e.type==='hurt'&&e.health>0&&!game.state.boss?.active)toast('Feedback received.',1300);
-      if(e.type==='coin'&&game.state.coins===50)toast('50 ideas. Don’t tell Scope Creep.',2600);
       if(e.type==='bossStart'){taunts=0;const b=bark(game.state.boss.type);if(b?.start)toast(b.start,3000);}
       if(e.type==='bossTelegraph'){const b=bark(e.type);if(b?.taunts&&taunts++%2===1)toast(b.taunts[(taunts>>1)%b.taunts.length],3000);}
       if(e.type==='bossHit'&&e.health>0){const b=bark(game.state.boss.type);const i=e.maxHealth-e.health-1;if(b?.hits)toast(b.hits[i%b.hits.length],2400);}
@@ -343,7 +347,6 @@
       if(e.type==='liftDone')toast('Your floor. The doors are open.',2400);
       if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter now believes you are qualified.`,2400);
       if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
-      if(e.type==='fakeExit')toast('Shipped! Oh. Scope Creep has one quick thing. It’s a phase two.',3600);
       if(e.type==='chaseStart')toast('The Feed is behind you. Run!',2600);
       if(e.type==='chaseEnd')toast('You outran the Feed. It will have forgotten you by tomorrow.',3000);
       if(e.type==='bossPhase')toast(e.name+' has escalated this to a second stage. Faster warnings, shorter openings.',3000);
@@ -351,6 +354,8 @@
       if(e.type==='bossDefeated')toast((bark(game.state.boss.type)?.defeat||'Review cleared.')+' The exit is open!',4200);
       if(e.type==='complete')finishLevel(e);
     }
+    // Out of lives: the world starts again from its first screen, and the old checkpoint is forgotten.
+    if(gameOver!==null){delete progress.checkpoint;startLevel(gameOver);}
   }
   function frame(now) {
     const dt=previousTime?Math.min(.1,(now-previousTime)/1000):0;previousTime=now;

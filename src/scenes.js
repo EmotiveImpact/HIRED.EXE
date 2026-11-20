@@ -138,7 +138,6 @@
         BRIEF: 'BRIEF signed off. Scope Creep: Signed off? I’ve not finished starting.',
         BUILD: 'BUILD signed off. Scope Creep: Could it be the same, but different?',
         SHIP: 'SHIP signed off. Scope Creep: You can’t ship it. I had an idea in the shower.',
-        HOTFIX: 'HOTFIX signed off. Scope Creep: While you’re in there...',
         'SHIP AGAIN': 'SHIP AGAIN signed off. That’s the one.'
       },
       hits: ['Scope Creep: Fine. I’ll raise it as a ticket.'],
