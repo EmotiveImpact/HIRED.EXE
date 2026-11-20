@@ -14,12 +14,25 @@ These measurements come from the delivered `src/levels.js`. Coordinates are logi
 
 | World | Width | Ground heights | Checkpoints x | Optional skills x |
 | --- | ---: | --- | --- | --- |
-| Application Alley | 4600 | 440, 420 | 1370, 3020 | 540, 2256, 3260 |
-| Ship It City | 5000 | 440, 400, 384 | 1100, 2860 | 682, 2176, 3520 |
-| Growth Run | 5200 | 440 | 1250, 3470 | 524, 2056, 3666 |
-| Final Interview HQ | 4200 | 440, 400, 360, 320 | 1100, 2850 | 466, 1736, 3006 |
+| Application Alley | 7800 | 440, 420 | 1370, 3770, 5180, 6440 | 540, 2256, 3260 |
+| Ship It City | 8780 | 440, 400, 384 | 1100, 4000, 5230, 7460 | 682, 2176, 3520 |
+| Growth Run | 8720 | 440 | 1250, 4270, 7600 | 524, 2056, 3666 |
+| Final Interview HQ | 7420 | 440, 400, 360, 350, 340, 330, 320 | 1100, 3400, 4450, 5510, 6590 | 466, 1736, 3006 |
 
 The exit sits at `world.width - 160`. Defeating the boss opens it; score and skill counts do not gate completion. The largest main-route ground gap is 200 pixels. Raised optional routes supply additional movement challenges. Checkpoints heal on activation. A fall or loss of health returns the player to the most recent checkpoint while preserving collected ideas, skills, defeated enemies and boss damage within that level session.
+
+### Extended route set pieces
+
+Each world carries one set piece that lengthens the route without adding a new control. The automated input route now takes about 2 minutes 10 seconds across the four worlds, up from about 1 minute. That figure is a perfect, never-stopping run; no human first-play timing has been taken yet.
+
+| World | Set piece | Engine data | Rule |
+| --- | --- | --- | --- |
+| Application Alley | Keyword Gate | `gates` with `needs: 'keys'`, three `key` collectibles | A solid gate before the arena opens when all three keyword tags are collected. The keys sit low, on a ledge and above a spring within one courtyard, so backtracking is never more than a screen and a half. |
+| Ship It City | False finish | `fakeExit` | A finish portal stands where the level used to end. Touching it fires `fakeExit`, Scope Creep hauls it away, and a second half of lifts and terraces leads to the real arena. |
+| Growth Run | The Feed | `chase` | A wall of content pursues the player from x 4560 to x 7440 at 4.7 pixels per tick against a run speed of 6.2. It never trails by more than 380 pixels. Being overtaken returns the player to the checkpoint before the sprint and resets the wall. Assist mode slows it by a fifth. |
+| Final Interview HQ | Three rounds | `rounds`, `gates` with a round index | One-hit rematches with the CV Filter, Scope Creep and the Algorithm, each in its own terrace arena behind a gate, before the host welcomes the player without combat. |
+
+The three main bosses have five health units. After two hits a boss escalates: the warning shortens from 54 to 42 ticks, the opening from 110 to 95, and each gains one move. The CV Filter adds a floor-level scan that must be jumped, Scope Creep charges faster and opens with a thrown requirement, and the Algorithm widens its fan from three shots to five. Interview rounds start escalated.
 
 ## World identities
 
@@ -66,7 +79,7 @@ Mixed enemies can revisit earlier lessons, but their placement must still leave 
 
 The engine exposes the sequence `dormant → patrol → telegraph → attack → vulnerable`, followed by `defeated` when health reaches zero. Stomping or dashing damages the boss only when the simulation marks it vulnerable. Show the warning, attack and opening differently. Pair colour changes with words or pose changes so the player can understand the rule.
 
-The first encounter teaches the shared grammar. Later encounters change movement, silhouette and projectile pattern. Each boss has three health units. Telegraphing lasts 54 simulation ticks, attacks last 65 ticks for Scope Creep and 72 for the other bosses, and the opening lasts 110 ticks. At 60 simulation ticks per second, these provide visible reaction and counterattack windows. Boss damage and defeat survive checkpoint retries within the current level session.
+The first encounter teaches the shared grammar. Later encounters change movement, silhouette and projectile pattern. Each main boss has five health units and escalates after two hits, as described above. Telegraphing lasts 54 simulation ticks before escalation, attacks last 65 ticks for Scope Creep and 72 for the other bosses, and the opening lasts 110 ticks. At 60 simulation ticks per second, these provide visible reaction and counterattack windows. Boss damage and defeat survive checkpoint retries within the current level session.
 
 The runtime boss atlas currently provides one base pose per boss. Movement, warning, projectiles, flashes and vulnerability feedback are applied by the engine and renderer. The separate boss concept sheet is character exploration, not an unimplemented promise of frame-by-frame attack animations.
 

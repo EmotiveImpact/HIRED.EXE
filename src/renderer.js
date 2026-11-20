@@ -85,12 +85,13 @@
       this.decor(state.world, true);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
-        this.platform(p);
+        if (p.type === 'gate') this.gate(p, state); else this.platform(p);
       }
       for (const b of state.world.boosts) if (this.visible(b.x, b.w)) this.boost(b);
       for (const s of state.world.springs) if (this.visible(s.x, s.w)) this.spring(s, state);
       for (const cp of state.world.checkpoints) if (this.visible(cp.x - 40, 120)) this.checkpoint(cp);
       this.exit(state);
+      this.fakeExit(state);
       for (const item of state.world.collectibles) {
         if (!item.collected && this.visible(item.x - 24, 48)) this.collectible(item, state);
       }
@@ -100,6 +101,7 @@
       for (const shot of state.projectiles) this.projectile(shot);
       this.player(state.player, state);
       for (const p of state.particles) this.particle(p);
+      this.feed(state);
       ctx.restore();
       // A quiet lower-edge vignette reinforces depth without covering the playfield.
       const shade = ctx.createLinearGradient(0, 512, 0, HGT);
@@ -330,6 +332,18 @@
         }
       }
       const ctx = this.ctx, bob = Math.sin(this.time * 4 + item.x * .017) * 4;
+      if (item.kind === 'key') {
+        // A keyword tag: the only thing the CV Filter can read.
+        const x = round(item.x), y = round(item.y + bob), width = Math.max(58, item.word.length * 7 + 18);
+        ctx.fillStyle = 'rgba(255,224,112,.22)'; ctx.fillRect(x - width / 2 - 5, y - 16, width + 10, 32);
+        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 - 2, y - 13, width + 4, 26);
+        ctx.fillStyle = '#ffe070'; ctx.fillRect(x - width / 2, y - 11, width, 22);
+        ctx.fillStyle = '#fff6c4'; ctx.fillRect(x - width / 2, y - 11, width, 3);
+        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 + 4, y - 2, 4, 4);
+        ctx.save(); ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(item.word, x + 4, y + 4); ctx.restore();
+        return;
+      }
       if (item.kind === 'bonus') {
         const x = round(item.x), y = round(item.y + bob);
         ctx.fillStyle = '#261a45';
@@ -365,6 +379,68 @@
       }
     }
 
+    gate(g, state) {
+      const ctx = this.ctx, x = round(g.x), floor = g.y + g.h, top = floor - 250;
+      ctx.fillStyle = '#261a45'; ctx.fillRect(x - 4, top - 6, g.w + 8, 256);
+      ctx.fillStyle = '#5a4a9a'; ctx.fillRect(x, top, g.w, 250);
+      ctx.fillStyle = '#7d6cc4'; ctx.fillRect(x, top, 5, 250);
+      for (let y = top + 14; y < floor - 8; y += 34) {
+        ctx.fillStyle = '#3a2d70'; ctx.fillRect(x + 6, y, g.w - 12, 4);
+        ctx.fillStyle = '#ffd36c'; ctx.fillRect(x + 8, y + 9, 5, 5); ctx.fillRect(x + g.w - 13, y + 9, 5, 5);
+      }
+      ctx.fillStyle = '#ffd36c'; ctx.fillRect(x - 4, top - 10, g.w + 8, 6);
+      const pulse = .5 + .5 * Math.sin(this.time * 4);
+      ctx.fillStyle = `rgba(255,120,150,${.25 + pulse * .3})`; ctx.fillRect(x - 8, top, 3, 250);
+      this.label(g.label, x + g.w / 2, top + 44, '#ffe8ae', 11);
+      if (g.needs === 'keys') {
+        const keys = state.world.collectibles.filter(item => item.kind === 'key');
+        this.label(keys.filter(k => k.collected).length + ' / ' + keys.length + ' KEYWORDS', x + g.w / 2, top + 66, '#d4f5e3', 10);
+      } else this.label('CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
+    }
+
+    fakeExit(state) {
+      const f = state.fakeExit;
+      if (!f || f.timer >= 150 || !this.visible(f.x - 60, f.w + 120)) return;
+      const cx = f.x + f.w / 2, feet = f.y + f.h;
+      // Once touched, the finish line leans and is hauled away to the right.
+      const lift = f.triggered ? Math.min(26, f.timer * 1.5) : 0;
+      this.sprite('props', 'portal', cx, feet + 2 - lift, 116, false, f.triggered ? .9 : 1);
+      this.label(f.triggered ? 'ONE MORE THING…' : 'SHIPPED! FINISH HERE', cx, feet - 133 - lift, f.triggered ? '#ffc2a8' : '#b6fff0', 10);
+      if (f.triggered) this.sprite('enemies', 'scopecreep', cx + 74, feet - lift, 96);
+    }
+
+    feed(state) {
+      const c = state.chase;
+      if (!c || !c.active) return;
+      const ctx = this.ctx, right = round(c.x), left = round(this.camera) - 10;
+      if (right < left) {
+        // Off screen: an edge glow warns that the Feed is closing in.
+        ctx.fillStyle = `rgba(255,131,180,${.2 + .2 * Math.sin(this.time * 9)})`; ctx.fillRect(left + 10, 0, 10, HGT);
+        return;
+      }
+      ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, right - left, HGT);
+      const cards = ['#ff83b4', '#6af4ff', '#ffda5e', '#bb8cff'];
+      const scroll = (this.time * 260) % 132;
+      ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, HGT); ctx.clip();
+      for (let col = 0; col < 4; col++) {
+        const x = right - 112 - col * 118;
+        for (let y = -132 + scroll * (col % 2 ? 1 : -1) - 132; y < HGT + 132; y += 132) {
+          const tone = cards[Math.abs(Math.floor(y / 132) + col) % 4];
+          ctx.fillStyle = '#3a2d70'; ctx.fillRect(x, round(y), 104, 120);
+          ctx.fillStyle = tone; ctx.fillRect(x + 6, round(y) + 6, 92, 62);
+          ctx.fillStyle = '#d9d2ff'; ctx.fillRect(x + 6, round(y) + 76, 70, 6); ctx.fillRect(x + 6, round(y) + 90, 48, 6);
+          ctx.fillStyle = '#ff83b4'; ctx.fillRect(x + 84, round(y) + 98, 12, 12);
+        }
+      }
+      ctx.restore();
+      for (let y = 0; y < HGT; y += 18) {
+        const jag = 6 + 6 * Math.sin(this.time * 10 + y * .3);
+        ctx.fillStyle = '#ff83b4'; ctx.fillRect(right - 2, y, round(jag) + 2, 9);
+        ctx.fillStyle = '#fff1d0'; ctx.fillRect(right + round(jag), y + 2, 3, 3);
+      }
+      this.label('THE FEED', right - 62, 118, '#ffd0e2', 13);
+    }
+
     enemy(e) {
       const animation = e.type === 'inbox' ? 'envelope' : e.type;
       const frame = animation + '_' + Math.floor((e.phase || 0) / (animation === 'plane' ? 14 : 8)) % 2;
@@ -373,9 +449,9 @@
     }
 
     signoffs(state) {
-      if (!state.world.signoffs) return;
+      if (!state.boss.signoffs) return;
       const cleared = state.boss.maxHealth - state.boss.health;
-      for (const [i, terminal] of state.world.signoffs.entries()) {
+      for (const [i, terminal] of state.boss.signoffs.entries()) {
         if (!this.visible(terminal.x - 55, 110)) continue;
         const floor = state.boss.floor;
         this.sprite('props', 'terminal', terminal.x, floor, 68, false, i > cleared ? .55 : 1);
@@ -409,7 +485,7 @@
       if (!hitFlash) this.sprite('enemies', b.type, cx, feet, visualHeight);
       if (b.active) {
         const y = feet - visualHeight - 34;
-        this.label(b.name.toUpperCase(), cx, y - 15, '#fff9e9', 10);
+        this.label(b.name.toUpperCase() + (b.enraged && b.maxHealth > 1 ? ' · ESCALATED' : ''), cx, y - 15, b.enraged ? '#ffc2a8' : '#fff9e9', 10);
         ctx.fillStyle = '#20183f'; ctx.fillRect(cx - 49, y, 98, 9);
         ctx.fillStyle = '#b8a1ed'; ctx.fillRect(cx - 47, y + 2, 94, 5);
         ctx.fillStyle = open ? '#8af2bc' : '#ffb15d';

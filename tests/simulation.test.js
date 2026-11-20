@@ -10,10 +10,13 @@ const { LEVELS } = globalThis.Hired;
 const tick = (game, input = {}, count = 1) => { for (let i = 0; i < count; i++) game.step(input); };
 const gameAtStart = (index = 0, options = {}) => { const game = new Game(); game.start(index, options); tick(game, {}, 2); game.drainEvents(); return game; };
 
-test('four level layouts have distinct topology, two checkpoints and three skills', () => {
-  assert.deepEqual(LEVELS.map(l => l.width), [4600, 5000, 5200, 4200]);
+test('four level layouts have distinct topology, regular checkpoints and three skills', () => {
+  assert.deepEqual(LEVELS.map(l => l.width), [7800, 8780, 8720, 7420]);
   for (const l of LEVELS) {
-    assert.equal(l.checkpoints.length, 2);
+    assert.ok(l.checkpoints.length >= 3);
+    // No stretch between saves is longer than about ten seconds of running.
+    const saves = [0, ...l.checkpoints.map(cp => cp.x), l.boss.x];
+    for (let i = 1; i < saves.length; i++) assert.ok(saves[i] - saves[i - 1] <= 3400, `${l.name} save gap ${saves[i] - saves[i - 1]}`);
     assert.equal(l.collectibles.filter(c => c.kind === 'skill').length, 3);
     assert.ok(l.exit.x > l.boss.x);
     const grounds = l.platforms.filter(p => p.type === 'ground');
@@ -132,7 +135,7 @@ test('bosses accept a stomp only during their opening', () => {
     Object.assign(b, { active: true, phase: vulnerable ? 'vulnerable' : 'telegraph', timer: 100 });
     Object.assign(p, { x: b.x + 20, y: b.y - p.h - 3, vy: 6, grounded: false, coyote: 0, jumps: 1 });
     g.step({ jumpHeld: true });
-    assert.equal(b.health, vulnerable ? 2 : 3);
+    assert.equal(b.health, vulnerable ? b.maxHealth - 1 : b.maxHealth);
     assert.equal(p.health, vulnerable ? 3 : 2);
   }
 });
@@ -182,13 +185,15 @@ test('checkpoint records resume normal geometry and keep only recognised collect
   assert.equal(gameAtStart(1).restoreCheckpoint({...record,checkpoint:'retired'}), false);
 });
 
-test('each world has one discoverable field note and the final host welcomes without combat', () => {
+test('each world has one discoverable field note and the final host welcomes without combat after three rounds', () => {
   for (const level of LEVELS) assert.equal(level.collectibles.filter(item => item.secret).length, 1);
   const game = gameAtStart(3);
   for(let i = 0; game.state.mode !== 'complete' && i < 6000; i++) game.step(controller(game));
   const events = game.drainEvents();
   assert.ok(events.some(e => e.type === 'welcome'));
-  assert.ok(!events.some(e => ['bossHit','shot','bossDefeated'].includes(e.type)));
+  assert.equal(events.filter(e => e.type === 'roundCleared').length, 3);
+  const afterRounds = events.slice(events.map(e => e.type).lastIndexOf('roundCleared') + 1);
+  assert.ok(!afterRounds.some(e => ['bossHit','shot','bossDefeated','signoff'].includes(e.type)));
 });
 
 test('all twelve skill tokens and four upper-route field notes are reachable using movement alone', () => {
@@ -213,4 +218,54 @@ test('all twelve skill tokens and four upper-route field notes are reachable usi
     assert.ok(game.state.world.collectibles.filter(item => item.secret).every(item => item.collected));
     assert.equal(game.state.mode, 'complete');
   }
+});
+
+test('the keyword gate stays shut until all three keywords are collected', () => {
+  const g = gameAtStart(0), p = g.state.player;
+  const gate = g.state.world.platforms.find(pl => pl.type === 'gate');
+  Object.assign(p, { x: gate.x - 120, y: 382 });
+  tick(g, { right: true }, 90);
+  assert.ok(p.x + p.w <= gate.x, 'the closed gate blocks the street');
+  const keys = g.state.world.collectibles.filter(item => item.kind === 'key');
+  assert.equal(keys.length, 3);
+  for (const k of keys) { Object.assign(p, { x: k.x - 17, y: k.y - 30, vx: 0, vy: 0 }); g.step({}); }
+  assert.equal(g.state.keys, 3);
+  assert.ok(!g.state.world.platforms.some(pl => pl.type === 'gate'));
+  assert.ok(g.drainEvents().some(e => e.type === 'gateOpen'));
+});
+
+test('the false finish in Ship It City never completes the world', () => {
+  const g = gameAtStart(1), p = g.state.player, f = g.state.fakeExit;
+  Object.assign(p, { x: f.x, y: 382 }); tick(g, {}, 5);
+  assert.equal(f.triggered, true); assert.equal(g.state.mode, 'playing');
+  assert.ok(g.drainEvents().some(e => e.type === 'fakeExit'));
+  assert.ok(g.state.world.exit.x > f.x + 3000);
+});
+
+test('the Feed catches a player who stops and resets for the retry', () => {
+  const g = gameAtStart(2), p = g.state.player, c = g.state.chase;
+  Object.assign(p, { x: c.startX + 160, y: 382 }); tick(g, {}, 3);
+  assert.equal(c.active, true);
+  for (let i = 0; i < 400 && g.state.deaths === 0; i++) g.step({});
+  assert.equal(g.state.deaths, 1); assert.equal(c.active, false);
+  assert.ok(g.drainEvents().some(e => e.type === 'respawn' && e.reason === 'feed'));
+});
+
+test('main bosses escalate after two hits and interview rounds run in order', () => {
+  const g = gameAtStart(0), b = g.state.boss;
+  assert.equal(b.maxHealth, 5);
+  Object.assign(b, { active: true, phase: 'patrol', timer: 50, health: 3 }); g.step({});
+  assert.equal(b.enraged, true);
+  assert.ok(g.drainEvents().some(e => e.type === 'bossPhase'));
+  const hq = gameAtStart(3);
+  assert.deepEqual(hq.state.bossQueue.map(boss => boss.type), ['recruitmentbot', 'scopecreep', 'algorithm', 'finalreview']);
+  assert.equal(hq.state.world.platforms.filter(pl => pl.type === 'gate').length, 3);
+});
+
+test('resuming at a late checkpoint skips the rounds already cleared', () => {
+  const g = gameAtStart(3);
+  const record = { level: 3, checkpoint: 'checkpoint-3', collected: [], defeated: [], score: 0, time: 60, deaths: 0 };
+  assert.equal(g.restoreCheckpoint(record), true);
+  assert.equal(g.state.bossIndex, 2); assert.equal(g.state.boss.type, 'algorithm');
+  assert.equal(g.state.world.platforms.filter(pl => pl.type === 'gate').length, 1);
 });
