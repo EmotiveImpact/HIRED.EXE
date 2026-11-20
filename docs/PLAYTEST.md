@@ -1,4 +1,4 @@
-# HIRED.EXE playtest
+# HIRE.EXE playtest
 
 The four pictures below are browser captures of the playable game. The original concept illustrations are under `references/`. The game uses the approved 18-frame hero atlas, three animated enemy families, four environment plates, separate terrain and props, and independently defined collision surfaces.
 

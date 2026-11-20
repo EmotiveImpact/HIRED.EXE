@@ -8,7 +8,7 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT.parent/'deliverables'
 OUT.mkdir(exist_ok=True)
-archive=OUT/'HIRED-EXE-v0.4-PROJECT.zip'
+archive=OUT/'HIRE-EXE-v0.4-PROJECT.zip'
 excluded={'dist','release','.git','node_modules','__pycache__'}
 files=[]
 for p in sorted(ROOT.rglob('*')):
@@ -17,8 +17,8 @@ for p in sorted(ROOT.rglob('*')):
         files.append((p,rel))
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
     for p,rel in files:
-        z.write(p,'HIRED-EXE-v0.4/'+str(rel))
-for name in ['HIRED-EXE-v0.4-PLAY.html','HIRED-EXE-v0.4-ART-BOOK.html']:
+        z.write(p,'HIRE-EXE-v0.4/'+str(rel))
+for name in ['HIRE-EXE-v0.4-PLAY.html','HIRE-EXE-v0.4-ART-BOOK.html']:
     source=ROOT/'dist'/name
     if not source.is_file():
         raise SystemExit('Run python3 tools/build.py before packaging.')

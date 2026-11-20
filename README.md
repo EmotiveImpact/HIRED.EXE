@@ -1,8 +1,8 @@
-# HIRED.EXE
+# HIRE.EXE
 
 An original four-world platformer and playable job application by Augustus Edem. The default edition introduces Augustus to Solved Studio. Use **Meet Augustus** on the title screen for direct access to the work and contact details.
 
-[Play the current preview or review the evidence on draft PR #1](https://github.com/EmotiveImpact/HIRED.EXE/pull/1)
+Play it at [hireexe.me](https://hireexe.me).
 
 ## Play
 
@@ -38,7 +38,7 @@ python3 tests/build-check.py
 python3 tools/package.py
 ```
 
-The two offline editions are generated in `dist/`. Open `HIRED-EXE-v0.4-PLAY.html` directly in a browser for the standalone game. Keep `HIRED-EXE-v0.4-ART-BOOK.html` beside it to follow the catalogue link offline.
+The two offline editions are generated in `dist/`. Open `HIRE-EXE-v0.4-PLAY.html` directly in a browser for the standalone game. Keep `HIRE-EXE-v0.4-ART-BOOK.html` beside it to follow the catalogue link offline.
 
 ## Read more
 
