@@ -1,5 +1,6 @@
 """Run with Playwright browsers installed. Uses a disposable origin and context."""
 import argparse
+import re
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -76,7 +77,13 @@ def run(profile, base):
         assert report.startswith('PASS'), report
         page.frame_locator('iframe').locator('#final-portfolio').wait_for()
         page.locator('iframe').screenshot(path=OUT/'ending.jpg')
-        context.set_offline(True)
+        # WebKit's offline transport also rejects a file:// main document.
+        # Load the actual files while denying and recording every HTTP(S) request.
+        external_requests = []
+        def reject_network(route):
+            external_requests.append(route.request.url)
+            route.abort()
+        context.route(re.compile(r'^https?://'), reject_network)
         page.goto((ROOT/'dist/HIRED-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
@@ -85,6 +92,7 @@ def run(profile, base):
         page.select_option('#animation-select','victory')
         assert page.locator('#hero-preview').is_visible()
         assert page.evaluate("Object.keys(HIRED_ART_ASSETS).some(path=>path.endsWith('world-4.jpg'))")
+        assert not external_requests, external_requests
         assert not errors, errors
         browser.close()
 
