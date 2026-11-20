@@ -80,17 +80,22 @@
       this.decor(state.world, false);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w)) continue;
-        if (p.type === 'ground') this.ground(p);
+        if (p.type === 'ground') { this.ground(p); if (p.belt) this.belt(p); }
       }
+      this.lift(state);
       this.decor(state.world, true);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
-        this.platform(p);
+        if (p.type === 'gate') this.gate(p, state);
+        else if (p.type === 'wall' || p.type === 'breakable') this.wall(p, state);
+        else this.platform(p);
       }
       for (const b of state.world.boosts) if (this.visible(b.x, b.w)) this.boost(b);
+      for (const c of state.world.crushers || []) if (this.visible(c.x, c.w)) this.crusher(c);
       for (const s of state.world.springs) if (this.visible(s.x, s.w)) this.spring(s, state);
       for (const cp of state.world.checkpoints) if (this.visible(cp.x - 40, 120)) this.checkpoint(cp);
       this.exit(state);
+      this.fakeExit(state);
       for (const item of state.world.collectibles) {
         if (!item.collected && this.visible(item.x - 24, 48)) this.collectible(item, state);
       }
@@ -100,6 +105,7 @@
       for (const shot of state.projectiles) this.projectile(shot);
       this.player(state.player, state);
       for (const p of state.particles) this.particle(p);
+      this.feed(state);
       ctx.restore();
       // A quiet lower-edge vignette reinforces depth without covering the playfield.
       const shade = ctx.createLinearGradient(0, 512, 0, HGT);
@@ -190,6 +196,10 @@
       const ctx = this.ctx, theme = THEMES[this.levelIndex];
       const name = p.type === 'moving' && this.levelIndex !== 2 ? 'metal_platform' : theme.platform;
       const f = this.frame('props', name), im = this.images.props;
+      if (p.crumble) {
+        if (p.shake && p.y < p.crumble.to) { ctx.save(); ctx.translate(Math.sin(this.time * 60) * 2, 0); }
+        this.label(p.y >= p.crumble.to ? 'CORRECTED' : p.label, p.x + p.w / 2, p.y - 16, p.shake ? '#ffb3b3' : '#b4ffcb', 10);
+      }
       if (p.type === 'moving') {
         ctx.save();
         ctx.strokeStyle = 'rgba(236,246,255,.40)'; ctx.lineWidth = 2; ctx.setLineDash([4, 7]);
@@ -210,6 +220,82 @@
         ctx.fillRect(round(p.x + 13), round(p.y + 25), 16, 3);
         ctx.fillRect(round(p.x + p.w - 29), round(p.y + 25), 16, 3);
       }
+      if (p.crumble && p.shake && p.y < p.crumble.to) ctx.restore();
+    }
+
+    belt(p) {
+      // Moving chevrons along the running surface show which way the conveyor pulls.
+      const ctx = this.ctx, dir = Math.sign(p.belt), y = p.y;
+      ctx.fillStyle = '#231b3f'; ctx.fillRect(p.x, y - 2, p.w, 12);
+      ctx.fillStyle = '#ffd56b'; ctx.fillRect(p.x, y - 3, p.w, 2);
+      ctx.save(); ctx.beginPath(); ctx.rect(p.x, y - 2, p.w, 12); ctx.clip();
+      const offset = ((this.time * Math.abs(p.belt) * 60) % 28) * dir;
+      ctx.fillStyle = dir > 0 ? '#8af2bc' : '#ff9a8a';
+      for (let x = p.x - 28 + offset; x < p.x + p.w + 28; x += 28) {
+        for (let i = 0; i < 5; i++) ctx.fillRect(round(x + (dir > 0 ? i : 4 - i) * 2), y + 1 + i, 6, 1);
+        for (let i = 0; i < 4; i++) ctx.fillRect(round(x + (dir > 0 ? 3 - i : 1 + i) * 2), y + 6 + i, 6, 1);
+      }
+      ctx.restore();
+    }
+
+    wall(p, state) {
+      const ctx = this.ctx, theme = THEMES[this.levelIndex], x = round(p.x), y = round(p.y);
+      ctx.fillStyle = ink; ctx.fillRect(x - 2, y - 2, p.w + 4, p.h + 4);
+      ctx.fillStyle = theme.base; ctx.fillRect(x, y, p.w, p.h);
+      ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.fillRect(x, y, p.w, 3);
+      ctx.fillStyle = 'rgba(29,22,57,.3)';
+      for (let i = 12; i < Math.max(p.w, p.h); i += 22) {
+        if (p.w > p.h) ctx.fillRect(x + i, y + 4, 2, p.h - 6); else ctx.fillRect(x + 3, y + i, p.w - 6, 2);
+      }
+      if (p.type !== 'breakable') return;
+      // A cracked panel: the only hint that a dash will go straight through.
+      ctx.strokeStyle = '#ffe9a2'; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(x + 4, y + 14); ctx.lineTo(x + 14, y + 38); ctx.lineTo(x + 7, y + 58); ctx.lineTo(x + 18, y + 84); ctx.lineTo(x + 9, y + p.h - 6);
+      ctx.moveTo(x + 14, y + 38); ctx.lineTo(x + 21, y + 30);
+      ctx.stroke();
+      const glow = .25 + .25 * Math.sin(this.time * 3);
+      ctx.fillStyle = `rgba(255,233,162,${glow})`; ctx.fillRect(x + p.w - 3, y + 8, 3, p.h - 16);
+      if (Math.abs(state.player.x - p.x) < 150 && Math.abs(state.player.y + state.player.h - (p.y + p.h)) < 12) {
+        this.label('LOOKS THIN. DASH?', x + p.w / 2, y - 14, '#ffe8ae', 10);
+      }
+    }
+
+    crusher(c) {
+      const ctx = this.ctx, x = round(c.x), bottom = round(c.top + c.h);
+      ctx.fillStyle = '#2b2350'; ctx.fillRect(x + c.w / 2 - 9, 0, 18, bottom - 36);
+      ctx.fillStyle = '#6b6f9c'; ctx.fillRect(x + c.w / 2 - 5, 0, 5, bottom - 36);
+      ctx.fillStyle = ink; ctx.fillRect(x - 3, bottom - 43, c.w + 6, 46);
+      ctx.fillStyle = '#51567f'; ctx.fillRect(x, bottom - 40, c.w, 40);
+      ctx.fillStyle = '#8a8fc0'; ctx.fillRect(x, bottom - 40, c.w, 5);
+      for (let i = 0; i < c.w; i += 24) {
+        ctx.fillStyle = i / 24 % 2 ? '#231b3f' : '#ffd56b'; ctx.fillRect(x + i, bottom - 10, Math.min(24, c.w - i), 10);
+      }
+      if (c.warn) {
+        ctx.fillStyle = `rgba(255,120,120,${.3 + .3 * Math.sin(this.time * 24)})`; ctx.fillRect(x, c.floor - 4, c.w, 4);
+        this.label('!', x + c.w / 2, bottom + 20, '#ffdc73', 14);
+      }
+    }
+
+    lift(state) {
+      const l = state.lift;
+      if (!l || !this.visible(l.x0, l.x1 - l.x0)) return;
+      const ctx = this.ctx, top = l.floor - 250, width = l.x1 - l.x0;
+      ctx.fillStyle = 'rgba(31,25,68,.34)'; ctx.fillRect(l.x0, top, width, 250);
+      if (l.stage === 'riding') {
+        // Shaft lights streaming downwards sell the ascent.
+        ctx.save(); ctx.beginPath(); ctx.rect(l.x0, top, width, 250); ctx.clip();
+        ctx.fillStyle = 'rgba(255,233,162,.35)';
+        for (let i = 0; i < 9; i++) {
+          const y = top + ((this.time * 190 + i * 61) % 290) - 20;
+          ctx.fillRect(l.x0 + 30 + (i * 137) % (width - 60), y, 3, 26);
+        }
+        ctx.restore();
+      }
+      ctx.strokeStyle = '#ffd36c'; ctx.lineWidth = 4; ctx.strokeRect(l.x0, top, width, 250);
+      ctx.fillStyle = '#261a45'; ctx.fillRect(l.x0 - 2, top - 8, width + 4, 10);
+      const text = l.stage === 'riding' ? 'FLOOR ' + (l.wave + 1) + ' OF ' + l.waves.length + ' · GOING UP'
+        : l.stage === 'done' ? 'YOUR FLOOR. DOORS OPEN' : 'LIFT TO INTERVIEW FLOORS';
+      this.label(text, l.x0 + width / 2, top + 26, '#ffe8ae', 11);
     }
 
     decor(world, front) {
@@ -330,6 +416,25 @@
         }
       }
       const ctx = this.ctx, bob = Math.sin(this.time * 4 + item.x * .017) * 4;
+      if (item.kind === 'key') {
+        // A keyword tag: the only thing the CV Filter can read.
+        if (item.bell) {
+          const bx = round(item.x), by = round(item.y + bob);
+          ctx.fillStyle = '#261a45'; ctx.fillRect(bx - 13, by + 6, 26, 6); ctx.fillRect(bx - 11, by - 8, 22, 15);
+          ctx.fillStyle = '#ffd36c'; ctx.fillRect(bx - 9, by - 6, 18, 12); ctx.fillRect(bx - 11, by + 7, 22, 3);
+          ctx.fillStyle = '#fff6c4'; ctx.fillRect(bx - 7, by - 5, 4, 8); ctx.fillRect(bx - 2, by - 11, 4, 4);
+          return;
+        }
+        const x = round(item.x), y = round(item.y + bob), width = Math.max(58, item.word.length * 7 + 18);
+        ctx.fillStyle = 'rgba(255,224,112,.22)'; ctx.fillRect(x - width / 2 - 5, y - 16, width + 10, 32);
+        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 - 2, y - 13, width + 4, 26);
+        ctx.fillStyle = '#ffe070'; ctx.fillRect(x - width / 2, y - 11, width, 22);
+        ctx.fillStyle = '#fff6c4'; ctx.fillRect(x - width / 2, y - 11, width, 3);
+        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 + 4, y - 2, 4, 4);
+        ctx.save(); ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(item.word, x + 4, y + 4); ctx.restore();
+        return;
+      }
       if (item.kind === 'bonus') {
         const x = round(item.x), y = round(item.y + bob);
         ctx.fillStyle = '#261a45';
@@ -365,6 +470,68 @@
       }
     }
 
+    gate(g, state) {
+      const ctx = this.ctx, x = round(g.x), floor = g.y + g.h, top = floor - 250;
+      ctx.fillStyle = '#261a45'; ctx.fillRect(x - 4, top - 6, g.w + 8, 256);
+      ctx.fillStyle = '#5a4a9a'; ctx.fillRect(x, top, g.w, 250);
+      ctx.fillStyle = '#7d6cc4'; ctx.fillRect(x, top, 5, 250);
+      for (let y = top + 14; y < floor - 8; y += 34) {
+        ctx.fillStyle = '#3a2d70'; ctx.fillRect(x + 6, y, g.w - 12, 4);
+        ctx.fillStyle = '#ffd36c'; ctx.fillRect(x + 8, y + 9, 5, 5); ctx.fillRect(x + g.w - 13, y + 9, 5, 5);
+      }
+      ctx.fillStyle = '#ffd36c'; ctx.fillRect(x - 4, top - 10, g.w + 8, 6);
+      const pulse = .5 + .5 * Math.sin(this.time * 4);
+      ctx.fillStyle = `rgba(255,120,150,${.25 + pulse * .3})`; ctx.fillRect(x - 8, top, 3, 250);
+      this.label(g.label, x + g.w / 2, top + 44, '#ffe8ae', 11);
+      if (g.needs === 'keys') {
+        const keys = state.world.collectibles.filter(item => item.kind === 'key');
+        this.label(keys[0].bell ? 'RING FOR ATTENTION' : keys.filter(k => k.collected).length + ' / ' + keys.length + ' KEYWORDS', x + g.w / 2, top + 66, '#d4f5e3', 10);
+      } else this.label(g.needs === 'lift' ? 'WAIT FOR YOUR FLOOR' : 'CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
+    }
+
+    fakeExit(state) {
+      const f = state.fakeExit;
+      if (!f || f.timer >= 150 || !this.visible(f.x - 60, f.w + 120)) return;
+      const cx = f.x + f.w / 2, feet = f.y + f.h;
+      // Once touched, the finish line leans and is hauled away to the right.
+      const lift = f.triggered ? Math.min(26, f.timer * 1.5) : 0;
+      this.sprite('props', 'portal', cx, feet + 2 - lift, 116, false, f.triggered ? .9 : 1);
+      this.label(f.triggered ? 'ONE MORE THING…' : 'SHIPPED! FINISH HERE', cx, feet - 133 - lift, f.triggered ? '#ffc2a8' : '#b6fff0', 10);
+      if (f.triggered) this.sprite('enemies', 'scopecreep', cx + 74, feet - lift, 96);
+    }
+
+    feed(state) {
+      const c = state.chase;
+      if (!c || !c.active) return;
+      const ctx = this.ctx, right = round(c.x), left = round(this.camera) - 10;
+      if (right < left) {
+        // Off screen: an edge glow warns that the Feed is closing in.
+        ctx.fillStyle = `rgba(255,131,180,${.2 + .2 * Math.sin(this.time * 9)})`; ctx.fillRect(left + 10, 0, 10, HGT);
+        return;
+      }
+      ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, right - left, HGT);
+      const cards = ['#ff83b4', '#6af4ff', '#ffda5e', '#bb8cff'];
+      const scroll = (this.time * 260) % 132;
+      ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, HGT); ctx.clip();
+      for (let col = 0; col < 4; col++) {
+        const x = right - 112 - col * 118;
+        for (let y = -132 + scroll * (col % 2 ? 1 : -1) - 132; y < HGT + 132; y += 132) {
+          const tone = cards[Math.abs(Math.floor(y / 132) + col) % 4];
+          ctx.fillStyle = '#3a2d70'; ctx.fillRect(x, round(y), 104, 120);
+          ctx.fillStyle = tone; ctx.fillRect(x + 6, round(y) + 6, 92, 62);
+          ctx.fillStyle = '#d9d2ff'; ctx.fillRect(x + 6, round(y) + 76, 70, 6); ctx.fillRect(x + 6, round(y) + 90, 48, 6);
+          ctx.fillStyle = '#ff83b4'; ctx.fillRect(x + 84, round(y) + 98, 12, 12);
+        }
+      }
+      ctx.restore();
+      for (let y = 0; y < HGT; y += 18) {
+        const jag = 6 + 6 * Math.sin(this.time * 10 + y * .3);
+        ctx.fillStyle = '#ff83b4'; ctx.fillRect(right - 2, y, round(jag) + 2, 9);
+        ctx.fillStyle = '#fff1d0'; ctx.fillRect(right + round(jag), y + 2, 3, 3);
+      }
+      this.label('THE FEED', right - 62, 118, '#ffd0e2', 13);
+    }
+
     enemy(e) {
       const animation = e.type === 'inbox' ? 'envelope' : e.type;
       const frame = animation + '_' + Math.floor((e.phase || 0) / (animation === 'plane' ? 14 : 8)) % 2;
@@ -373,9 +540,9 @@
     }
 
     signoffs(state) {
-      if (!state.world.signoffs) return;
+      if (!state.boss.signoffs) return;
       const cleared = state.boss.maxHealth - state.boss.health;
-      for (const [i, terminal] of state.world.signoffs.entries()) {
+      for (const [i, terminal] of state.boss.signoffs.entries()) {
         if (!this.visible(terminal.x - 55, 110)) continue;
         const floor = state.boss.floor;
         this.sprite('props', 'terminal', terminal.x, floor, 68, false, i > cleared ? .55 : 1);
@@ -409,7 +576,7 @@
       if (!hitFlash) this.sprite('enemies', b.type, cx, feet, visualHeight);
       if (b.active) {
         const y = feet - visualHeight - 34;
-        this.label(b.name.toUpperCase(), cx, y - 15, '#fff9e9', 10);
+        this.label(b.name.toUpperCase() + (b.enraged && b.maxHealth > 1 ? ' · ESCALATED' : ''), cx, y - 15, b.enraged ? '#ffc2a8' : '#fff9e9', 10);
         ctx.fillStyle = '#20183f'; ctx.fillRect(cx - 49, y, 98, 9);
         ctx.fillStyle = '#b8a1ed'; ctx.fillRect(cx - 47, y + 2, 94, 5);
         ctx.fillStyle = open ? '#8af2bc' : '#ffb15d';

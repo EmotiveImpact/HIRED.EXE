@@ -14,12 +14,19 @@
     }
     start(index = 0, options = {}) {
       const world = H.createLevel(index);
-      const boss = { ...world.boss, y: world.boss.floor - world.boss.h, originX: world.boss.x,
-        baseY: world.boss.floor - world.boss.h, maxHealth: world.boss.health, phase: 'dormant',
-        timer: 0, active: false, alive: true, hitCooldown: 0, facing: -1, cycle: 0 };
+      // Interview rounds are fought in order; the world's own boss is always last.
+      const bossQueue = [...(world.rounds || []), world.boss].map(def => ({ ...def, y: def.floor - def.h, originX: def.x,
+        baseY: def.floor - def.h, maxHealth: def.health, phase: 'dormant', enraged: Boolean(def.enraged),
+        signoffs: def.signoffs || (def === world.boss ? world.signoffs : null) || null,
+        arena: def.arena || [world.width - 870, world.width - 270],
+        timer: 0, active: false, alive: true, hitCooldown: 0, facing: -1, cycle: 0 }));
+      const boss = bossQueue[0];
+      const chase = world.chase ? { ...world.chase, x: world.chase.startX - world.chase.lead, active: false, done: false } : null;
+      const lift = world.lift ? { ...world.lift, stage: 'idle', wave: 0, timer: 0 } : null;
+      const fakeExit = world.fakeExit ? { ...world.fakeExit, triggered: false, timer: 0 } : null;
       this.state = { mode: 'playing', levelIndex: world.levelIndex, world, player: this.makePlayer(world.spawn),
         camera: { x: 0, y: 0 }, score: 0, coins: 0, skills: [], checkpoint: { ...world.spawn, id: 'start' },
-        enemies: world.enemies, boss, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
+        enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, lift, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
         assist: Boolean(options.assist), hintsShown: [], completed: false };
       this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
       this.emit('start', { levelIndex: world.levelIndex });
@@ -44,7 +51,18 @@
         item.collected = picked.has(item.id);
         if (item.collected && item.kind === 'skill') s.skills.push(item.skill.id);
         else if (item.collected && item.kind === 'coin') s.coins++;
+        else if (item.collected && item.kind === 'key') s.keys++;
       }
+      // Rounds, the chase and the false finish behind the checkpoint are already history.
+      while (s.bossIndex < s.bossQueue.length - 1 && s.boss.originX < cp.x) {
+        s.boss.alive = false; s.boss.health = 0; s.boss.phase = 'defeated';
+        s.boss = s.bossQueue[++s.bossIndex];
+      }
+      if (s.chase) s.chase.done = cp.x >= s.chase.endX;
+      if (s.fakeExit) s.fakeExit.triggered = cp.x > s.fakeExit.x;
+      if (s.lift && cp.x >= s.lift.x1) s.lift.stage = 'done';
+      s.world.platforms = s.world.platforms.filter(pl => pl.type !== 'gate' || pl.x > cp.x);
+      this.openGates(true);
       for (const enemy of s.enemies) enemy.alive = !defeated.has(enemy.id);
       for (const point of s.world.checkpoints) point.active = point.x <= cp.x;
       const number = n => Number.isFinite(n) && n >= 0 ? n : 0;
@@ -117,7 +135,8 @@
       this.movePlayerX(p.vx);
       this.movePlayerY(p.vy);
       p.x = clamp(p.x, 0, world.width - p.w);
-      this.pickups(); this.checkpoints(); this.environmentEffects();
+      this.pickups(); this.checkpoints(); this.environmentEffects(); this.openGates(); this.setPieces();
+      if (s.player !== p) return;
       this.moveEnemies(previousBottom);
       if (s.player !== p) return;
       this.moveBoss(previousBottom);
@@ -126,7 +145,9 @@
       if (s.player !== p) return;
       if (p.y > 650) { this.respawn('fall'); return; }
       this.moveParticles();
-      const desired = clamp(p.x + p.w / 2 - this.viewWidth * 0.35, 0, world.width - this.viewWidth);
+      // During the chase the camera eases back so the Feed stays in view behind the player.
+      const lookBehind = s.chase && s.chase.active ? 0.5 : 0.35;
+      const desired = clamp(p.x + p.w / 2 - this.viewWidth * lookBehind, 0, world.width - this.viewWidth);
       s.camera.x += (desired - s.camera.x) * 0.12;
       const animation = p.hurtFrames > 0 ? 'hurt' : p.dashTime > 0 ? 'dash'
         : !p.grounded ? (p.vy < 0 ? 'jump' : 'fall') : input.down ? 'crouch' : Math.abs(p.vx) > 0.5 ? 'run' : 'idle';
@@ -148,6 +169,19 @@
       const s = this.state, p = s.player;
       for (const platform of s.world.platforms) {
         platform.dx = platform.dy = 0;
+        if (platform.crumble) {
+          // The all-time high holds for a moment, then drops with its rider to the floor.
+          const riding = p.grounded && p.groundId === platform.id;
+          if (riding && !platform.shake) { platform.shake = 1; this.emit('crash'); }
+          else if (platform.shake) platform.shake++;
+          if (platform.shake > 26 && platform.y < platform.crumble.to) {
+            platform.fall = Math.min(11, (platform.fall || 0) + 0.5);
+            platform.dy = Math.min(platform.fall, platform.crumble.to - platform.y);
+            platform.y += platform.dy;
+            if (riding) p.y += platform.dy;
+          }
+          continue;
+        }
         if (platform.type !== 'moving') continue;
         const oldX = platform.x, oldY = platform.y;
         const wave = Math.sin(s.tick * platform.speed + platform.phase);
@@ -164,10 +198,17 @@
       p.x += amount;
       for (const platform of this.state.world.platforms) {
         if (platform.oneWay || !overlaps(p, platform)) continue;
+        if (platform.type === 'breakable' && p.dashTime > 0) {
+          platform.broken = true; this.state.score += 300;
+          this.emit('secret', { name: platform.name });
+          this.burst(platform.x + platform.w / 2, platform.y + platform.h / 2, 'gold', 20);
+          continue;
+        }
         if (amount > 0) p.x = platform.x - p.w;
         else if (amount < 0) p.x = platform.x + platform.w;
         p.vx = 0; p.dashTime = 0;
       }
+      if (this.state.world.platforms.some(pl => pl.broken)) this.state.world.platforms = this.state.world.platforms.filter(pl => !pl.broken);
     }
     movePlayerY(amount) {
       const p = this.state.player, oldY = p.y, oldBottom = p.y + p.h, wasGrounded = p.grounded;
@@ -191,7 +232,11 @@
       for (const item of s.world.collectibles) {
         if (item.collected || !overlaps(p, { x: item.x - 17, y: item.y - 17, w: 34, h: 34 })) continue;
         item.collected = true;
-        if (item.kind === 'skill') { s.skills.push(item.skill.id); s.score += 250; this.emit('skill', { skill: item.skill, item }); }
+        if (item.kind === 'key') {
+          s.keys++; s.score += 100;
+          this.emit('key', { word: item.word, bell: Boolean(item.bell), count: s.keys, total: s.world.collectibles.filter(i => i.kind === 'key').length });
+        }
+        else if (item.kind === 'skill') { s.skills.push(item.skill.id); s.score += 250; this.emit('skill', { skill: item.skill, item }); }
         else if (item.kind === 'bonus') this.emit('bonus', { item });
         else { s.coins++; s.score += 10; this.emit('coin', { x: item.x, y: item.y }); }
         this.burst(item.x, item.y, item.kind === 'coin' ? 'gold' : 'purple', 8);
@@ -206,12 +251,79 @@
         this.emit('checkpoint', { checkpoint: cp }); this.burst(cp.x + 8, cp.y - 64, 'cyan', 12);
       }
     }
+    openGates(silent = false) {
+      const s = this.state, world = s.world;
+      if (!world.gates) return;
+      const keysLeft = world.collectibles.some(item => item.kind === 'key' && !item.collected);
+      const open = world.platforms.filter(pl => pl.type === 'gate' && (pl.needs === 'keys' ? !keysLeft : pl.needs === 'lift' ? s.lift.stage === 'done' : s.bossIndex > pl.needs));
+      if (!open.length) return;
+      world.platforms = world.platforms.filter(pl => !open.includes(pl));
+      for (const g of open) {
+        if (silent) continue;
+        this.emit('gateOpen', { label: g.label }); this.burst(g.x + g.w / 2, g.y + g.h - 90, 'gold', 16);
+      }
+    }
+    setPieces() {
+      const s = this.state, p = s.player, f = s.fakeExit, c = s.chase;
+      if (f) {
+        if (!f.triggered && overlaps(p, { x: f.x - 30, y: f.y, w: f.w + 30, h: f.h })) {
+          f.triggered = true; this.emit('fakeExit'); this.burst(f.x + f.w / 2, f.y + 40, 'confetti', 24);
+        }
+        // Scope Creep drags the finish line away to the real end of the level.
+        if (f.triggered && f.timer < 150) { f.timer++; f.x += 3 + f.timer * 0.16; }
+      }
+      const l = s.lift;
+      if (l && l.stage !== 'done') {
+        if (l.stage === 'idle' && p.x > l.x0 + 40) { l.stage = 'riding'; l.wave = 0; l.timer = 0; this.boardLift(); this.emit('liftFloor', { floor: 1, total: l.waves.length }); }
+        else if (l.stage === 'riding' && ++l.timer >= l.waveTicks) {
+          l.timer = 0; l.wave++;
+          for (const e of s.enemies) if (e.lift && e.alive) { e.alive = false; this.burst(e.x + e.w / 2, e.y + e.h / 2, 'purple', 8); }
+          if (l.wave >= l.waves.length) { l.stage = 'done'; this.emit('liftDone'); }
+          else { this.boardLift(); this.emit('liftFloor', { floor: l.wave + 1, total: l.waves.length }); }
+        }
+      }
+      if (c && !c.done) {
+        if (!c.active && p.x > c.startX) { c.active = true; c.x = c.startX - c.lead; this.emit('chaseStart'); }
+        if (c.active) {
+          // The Feed never falls far behind, so there is always pressure, and never gains on a runner.
+          c.x = Math.max(c.x + (s.assist ? c.speed * 0.8 : c.speed), p.x - c.trail);
+          if (p.x > c.endX) { c.active = false; c.done = true; this.emit('chaseEnd'); }
+          else if (c.x > p.x + 6) this.respawn('feed');
+        }
+      }
+    }
+    boardLift() {
+      const s = this.state, l = s.lift, p = s.player;
+      const sizes = { cv: [42, 44], inbox: [42, 38], plane: [46, 32] };
+      l.waves[l.wave].forEach((type, i) => {
+        const [w, h] = sizes[type];
+        // Passengers board at whichever door is further from the player.
+        let x = i % 2 ? l.x1 - 70 - i * 30 : l.x0 + 12 + i * 30;
+        if (Math.abs(x - p.x) < 150) x = p.x < (l.x0 + l.x1) / 2 ? l.x1 - 70 - i * 30 : l.x0 + 12 + i * 30;
+        const y = l.floor - h - (type === 'plane' ? 104 : 0);
+        s.enemies.push({ type, x, y, w, h, minX: l.x0 + 4, maxX: l.x1 - 4, speed: type === 'plane' ? 1.5 : 1.2,
+          facing: x < (l.x0 + l.x1) / 2 ? 1 : -1, id: 'lift-' + l.wave + '-' + i, baseY: y, alive: true, phase: 0, lift: true });
+      });
+    }
     environmentEffects() {
       const s = this.state, p = s.player;
       for (const spring of s.world.springs) {
         if (p.springCooldown > 0 || p.vy < 0 || !overlaps(p, { x: spring.x, y: spring.y - spring.h, w: spring.w, h: spring.h + 2 })) continue;
         p.vy = -19; p.grounded = false; p.groundId = null; p.jumps = 1; p.springCooldown = 20;
         this.emit('spring'); this.burst(spring.x + spring.w / 2, spring.y, 'gold', 7);
+      }
+      const under = p.grounded && s.world.platforms.find(pl => pl.id === p.groundId);
+      if (under && under.belt) { const vx = p.vx; this.movePlayerX(under.belt); p.vx = vx; }
+      for (const c of s.world.crushers || []) {
+        // Raised for half the cycle, then slam, hold and lift.
+        const t = ((s.tick + c.offset) % c.period) / c.period;
+        const reach = t < 0.5 ? 0 : t < 0.58 ? (t - 0.5) / 0.08 : t < 0.74 ? 1 : 1 - (t - 0.74) / 0.26;
+        c.reach = reach; c.warn = t > 0.36 && t < 0.5;
+        c.h = 40 + reach * (c.floor - c.top - 40);
+        if (reach > 0.45 && overlaps(p, { x: c.x, y: c.top, w: c.w, h: c.h })) {
+          this.hurt(c.x + c.w / 2 + (p.x + p.w / 2 < c.x + c.w / 2 ? 30 : -30));
+          if (s.player !== p) return;
+        }
       }
       for (const boost of s.world.boosts) {
         if (p.grounded && Math.abs(p.y + p.h - boost.y) < 5 && p.x + p.w > boost.x && p.x < boost.x + boost.w && p.vx > 0 && p.facing > 0) {
@@ -253,27 +365,33 @@
       if (!b.active) return;
       if (b.hitCooldown > 0) b.hitCooldown--;
       b.timer--;
+      // After two hits the review escalates: quicker warnings, shorter openings, one extra move.
+      if (!b.enraged && b.maxHealth >= 4 && b.health <= b.maxHealth - 2) { b.enraged = true; this.emit('bossPhase', { name: b.name }); }
+      const fast = b.enraged;
       if (b.phase === 'patrol') {
         b.x = b.originX + Math.sin(s.tick * 0.035) * 24;
-        if (b.timer <= 0) { b.phase = 'telegraph'; b.timer = 54; b.facing = p.x < b.x ? -1 : 1; this.emit('bossTelegraph', { type: b.type }); }
+        if (b.timer <= 0) { b.phase = 'telegraph'; b.timer = fast ? 42 : 54; b.facing = p.x < b.x ? -1 : 1; this.emit('bossTelegraph', { type: b.type }); }
       } else if (b.phase === 'telegraph') {
-        if (b.timer <= 0) { b.phase = 'attack'; b.timer = b.type === 'scopecreep' ? 65 : 72; b.cycle++; }
+        if (b.timer <= 0) {
+          b.phase = 'attack'; b.timer = b.type === 'scopecreep' ? 65 : 72; b.cycle++;
+          if (fast && b.type === 'scopecreep') this.fireBossShot(b, p);
+        }
       } else if (b.phase === 'attack') {
         if (b.type === 'scopecreep') {
-          b.x += b.facing * 5.6;
-          if (b.x < s.world.width - 870 || b.x + b.w > s.world.width - 270) b.facing *= -1;
-          b.x = clamp(b.x, s.world.width - 870, s.world.width - 270 - b.w);
+          b.x += b.facing * (fast ? 6.8 : 5.6);
+          if (b.x < b.arena[0] || b.x + b.w > b.arena[1]) b.facing *= -1;
+          b.x = clamp(b.x, b.arena[0], b.arena[1] - b.w);
         } else {
-          const interval = b.type === 'algorithm' ? 36 : 30;
+          const interval = b.type === 'algorithm' ? 36 : fast ? 24 : 30;
           if (b.timer % interval === 0) this.fireBossShot(b, p);
         }
-        if (b.timer <= 0) { b.phase = 'vulnerable'; b.timer = 110; this.emit('bossOpening', { name: b.name }); }
+        if (b.timer <= 0) { b.phase = 'vulnerable'; b.timer = fast ? 95 : 110; this.emit('bossOpening', { name: b.name }); }
       } else if (b.phase === 'vulnerable' && b.timer <= 0) {
         b.phase = 'patrol'; b.timer = 54;
       }
       if (b.type === 'algorithm') b.y = b.baseY + Math.sin(s.tick * 0.035) * 18;
-      if (s.world.signoffs) {
-        const target = s.world.signoffs[b.maxHealth - b.health];
+      if (b.signoffs) {
+        const target = b.signoffs[b.maxHealth - b.health];
         const terminal = { x: target.x - 24, y: b.floor - 72, w: 48, h: 72 };
         if (p.dashTime > 0 && overlaps(p, terminal)) {
           b.health--;
@@ -298,15 +416,22 @@
       } else if (b.phase !== 'vulnerable' || !attack) this.hurt(b.x + b.w / 2);
     }
     clearBoss(boss) {
+      const s = this.state;
       boss.alive = false; boss.phase = 'defeated';
-      this.state.projectiles = []; this.state.score += 650;
-      this.emit('bossDefeated', { name: boss.name });
+      s.projectiles = []; s.score += 650;
+      const last = s.bossIndex >= s.bossQueue.length - 1;
+      this.emit(last ? 'bossDefeated' : 'roundCleared', { name: boss.name, round: s.bossIndex + 1 });
+      if (!last) s.boss = s.bossQueue[++s.bossIndex];
       this.burst(boss.x + boss.w / 2, boss.y + boss.h / 2, 'confetti', 30);
     }
     fireBossShot(b, p) {
       const from = centre(b), to = centre(p), angle = Math.atan2(to.y - from.y, to.x - from.x);
       const speed = b.type === 'algorithm' ? 4.1 : 3.7;
-      const offsets = b.type === 'algorithm' ? [-0.32, 0, 0.32] : [0];
+      const offsets = b.type !== 'algorithm' ? [0] : b.enraged ? [-0.56, -0.28, 0, 0.28, 0.56] : [-0.32, 0, 0.32];
+      // The escalated CV Filter also sweeps the floor with a keyword scan that has to be jumped.
+      if (b.enraged && b.type === 'recruitmentbot') {
+        this.state.projectiles.push({ x: from.x, y: b.floor - 26, w: 14, h: 14, vx: Math.sign(to.x - from.x || -1) * 4.4, vy: 0, life: 150, kind: 'cyan' });
+      }
       for (const offset of offsets) {
         this.state.projectiles.push({ x: from.x, y: from.y, w: 14, h: 14,
           vx: Math.cos(angle + offset) * speed, vy: Math.sin(angle + offset) * speed,
@@ -337,6 +462,7 @@
       const s = this.state;
       s.deaths++; s.player = this.makePlayer(s.checkpoint); s.player.invulnerable = 100;
       s.camera.x = clamp(s.player.x + s.player.w / 2 - this.viewWidth * 0.35, 0, s.world.width - this.viewWidth);
+      if (s.chase && !s.chase.done) { s.chase.active = false; s.chase.x = s.chase.startX - s.chase.lead; }
       s.projectiles = []; this.emit('respawn', { reason, checkpoint: s.checkpoint.id, deaths: s.deaths });
       // Keep collected ideas, skill tokens and boss damage; a fall never erases the application story.
       this.burst(s.player.x + s.player.w / 2, s.player.y + s.player.h / 2, 'cyan', 16);

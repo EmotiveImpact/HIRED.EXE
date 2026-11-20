@@ -325,10 +325,22 @@
         progress.checkpoint=game.checkpointRecord();
         toast(save()?'Checkpoint saved. You can return here later.':'Checkpoint reached for this session.',2300);
       }
-      if(e.type==='respawn')toast('Back on your feet. Your collected ideas are safe.',2600);
+      if(e.type==='respawn')toast(e.reason==='feed'?'The Feed scrolled past you. Back to the checkpoint, and keep moving.':'Back on your feet. Your collected ideas are safe.',2600);
       if(e.type==='signoff')toast(e.label+' signed off.',1800);
       if(e.type==='welcome')toast('Your interview is through the doors.',3000);
-      if(e.type==='bossOpening' && !game.state.world.signoffs)toast('Shield down! Stomp or dash now.',1800);
+      if(e.type==='bossOpening' && !game.state.boss.signoffs)toast('Shield down! Stomp or dash now.',1800);
+      if(e.type==='key'&&e.bell){toast('Ding. Somebody will see you now.',2600);continue;}
+      if(e.type==='secret')toast('Secret room found · '+e.name,3200);
+      if(e.type==='crash')toast('All-time high! Hold on…',2000);
+      if(e.type==='liftFloor')toast(`Floor ${e.floor} of ${e.total}. Somebody is getting on.`,2400);
+      if(e.type==='liftDone')toast('Your floor. The doors are open.',2400);
+      if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter is satisfied.`,2400);
+      if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
+      if(e.type==='fakeExit')toast('Shipped! Wait. Scope Creep has added a phase two.',3600);
+      if(e.type==='chaseStart')toast('The Feed is behind you. Run!',2600);
+      if(e.type==='chaseEnd')toast('You outran the Feed. It will have forgotten you by tomorrow.',3000);
+      if(e.type==='bossPhase')toast(e.name+' has escalated. Faster warnings, shorter openings.',2800);
+      if(e.type==='roundCleared')toast(`Round ${e.round} of 3 cleared.`,2200);
       if(e.type==='bossDefeated')toast('Review cleared. The exit is open!',3200);
       if(e.type==='complete')finishLevel(e);
     }

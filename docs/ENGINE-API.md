@@ -55,12 +55,14 @@ Animation names: `idle`, `run`, `jump`, `fall`, `dash`, `crouch`, `hurt`, `victo
 
 | World | Width | Main ground heights | Checkpoints x | Boss |
 | --- | ---: | --- | --- | --- |
-| Application Alley | 4600 | 440, 420 | 1370, 3020 | Recruitment Bot |
-| Ship It City | 5000 | 440, 400, 384 | 1100, 2860 | Scope Creep |
-| Growth Run | 5200 | 440 | 1250, 3470 | The Algorithm |
-| Final Interview HQ | 4200 | 440, 400, 360, 320 | 1100, 2850 | Final Review |
+| Application Alley | 9350 | 440, 420, 200 | 1370, 1810, 4620, 6730, 7990 | Recruitment Bot |
+| Ship It City | 12880 | 440, 400, 384 | 1100, 2560, 4850, 7460, 8410, 9920, 11560 | Scope Creep |
+| Growth Run | 12920 | 440, bars 400 to 200 | 1250, 1590, 3300, 4690, 6890, 8470, 11800 | The Algorithm |
+| Final Interview HQ | 10150 | 440, 400, 360, 350 to 320 | 750, 1950, 2930, 5130, 6130, 7180, 8240, 9320 | Three rounds, then Final Review |
 
-Every world has three optional skill tokens, two checkpoints, a main route with gaps of at most 200 pixels, and additional platforms above the main route. No score or skill threshold gates the exit. The exit unlocks after the boss is defeated. The final interview dialogue is a UI responsibility after world four completes.
+Every world has three optional skill tokens, five to eight checkpoints, a main route with gaps of at most 200 pixels except the one crossed by the crane ride, and additional platforms above the main route. No score or skill threshold gates the exit. The exit unlocks after the boss is defeated. Application Alley's Keyword Gate needs its three `key` collectibles, which sit on the route to it.
+
+Optional level fields drive the set pieces: `gates` (solid `gate` platforms removed when `needs` is met, either `'keys'` or a round index), `fakeExit` (state at `state.fakeExit`, event `fakeExit`), `chase` (state at `state.chase`, events `chaseStart` and `chaseEnd`, respawn reason `feed`) and `rounds` (bosses fought before `boss`; `state.bossQueue`, `state.bossIndex`, event `roundCleared`). `state.boss` is always the current encounter and carries its own `signoffs` and `arena`. Further fields: `belt` on a ground (pixels per tick applied to a grounded player), `crushers` (each exposes `reach`, `warn` and the current `h`), `crumble` on a ledge (event `crash`), platform types `wall` and `breakable` (event `secret`), `ride` on the crane's moving platform, and `lift` (state at `state.lift`, events `liftFloor` and `liftDone`, enemies flagged `lift`). Gates accept `needs: 'keys'`, `needs: 'lift'` or a round index. See [LEVEL-DESIGN.md](LEVEL-DESIGN.md) for the rules. The final interview dialogue is a UI responsibility after world four completes.
 
 ### Platforms
 
@@ -89,7 +91,7 @@ Enemies have `id`, `type` (`cv`, `inbox`, `plane`), rectangle coordinates, `minX
 
 Boss fields include `type`, `name`, rectangle coordinates, `originX`, `baseY`, `floor`, `health`, `maxHealth`, `phase`, `timer`, `active`, `alive`, `hitCooldown`, `facing`, `cycle`.
 
-Boss types: `recruitmentbot`, `scopecreep`, `algorithm`, `finalreview`. Each has three health points. The first, third and fourth shoot aimed projectiles; the second charges horizontally. The Algorithm floats and fires more frequently.
+Boss types: `recruitmentbot`, `scopecreep`, `algorithm`, `finalreview`. The three main bosses have five health points and set `enraged` after two hits (event `bossPhase`); interview rounds have one and start enraged. The first, third and fourth shoot aimed projectiles; the second charges horizontally. The Algorithm floats and fires more frequently.
 
 The boss activates when the player approaches. Its sequence is `dormant → patrol → telegraph → attack → vulnerable`, repeating until `defeated`. Render the warning and vulnerability clearly. Telegraph lasts 54 ticks. Attack lasts 65 ticks for Scope Creep and 72 for others. Vulnerability lasts 110 ticks. A successful stomp or dash during vulnerability removes one health point, bounces the player, then starts a new cycle. Contact with an active shield does not damage the boss.
 
