@@ -21,7 +21,7 @@
 
   const definitions = [
     {
-      id: 'application-alley', name: 'Application Alley', subtitle: 'Every good story starts somewhere.',
+      id: 'application-alley', name: 'Application Alley', subtitle: 'Twenty years of work. One upload field.',
       objective: 'Find your feet, collect ideas and get past the CV Filter.',
       theme: 'alley', width: 7800, height: 540, spawn: { x: 96, y: 382 },
       platforms: [ground(0, 780), ground(900, 760), ground(1780, 740, 420), ground(2680, 680), ground(3500, 700),
@@ -46,6 +46,7 @@
       gates: [gate(6520, 440, 'keys', 'KEYWORD GATE')],
       boss: { type: 'recruitmentbot', name: 'CV Filter', x: 7150, floor: 440, w: 82, h: 82, health: 5 },
       decor: [{ type: 'cafe', x: 50, y: 440 }, { type: 'sign', x: 280, y: 440, text: 'APPLICATION ALLEY' },
+        { type: 'sign', x: 690, y: 440, text: 'MIND THE GAP IN YOUR CV' },
         { type: 'tree', x: 620, y: 440 }, { type: 'banner', x: 1110, y: 440 },
         { type: 'arch', x: 1810, y: 420 }, { type: 'tree', x: 2360, y: 420 },
         { type: 'terminal', x: 3030, y: 440 }, { type: 'banner', x: 3580, y: 440 },
@@ -97,8 +98,8 @@
         { type: 'crane', x: 2550, y: 384 }, { type: 'terminal', x: 2870, y: 384 },
         { type: 'crate', x: 3350, y: 440 }, { type: 'sign', x: 4300, y: 440, text: 'FINISH LINE AHEAD' },
         { type: 'sign', x: 5180, y: 400, text: 'PHASE 2' }, { type: 'crate', x: 5560, y: 400 },
-        { type: 'sign', x: 5900, y: 384, text: 'PHASE 2 (REVISED)' }, { type: 'crane', x: 6360, y: 384 },
-        { type: 'sign', x: 6720, y: 440, text: 'FINAL PHASE v3' }, { type: 'crate', x: 7080, y: 440 },
+        { type: 'sign', x: 5900, y: 384, text: 'PHASE 2 (QUICK TWEAK)' }, { type: 'crane', x: 6360, y: 384 },
+        { type: 'sign', x: 6720, y: 440, text: 'PHASE 2 FINAL_final v3' }, { type: 'crate', x: 7080, y: 440 },
         { type: 'sign', x: 7640, y: 440, text: 'DASH THROUGH LIT TERMINALS' }],
       hints: [{ x: 100, text: 'The lifts carry you. The lower route is always available.' },
         { x: 1680, text: 'Springs reveal higher routes and optional skill tokens.' },
@@ -178,7 +179,7 @@
       decor: [{ type: 'sign', x: 90, y: 440, text: 'FINAL INTERVIEW HQ' }, { type: 'tree', x: 520, y: 440 },
         { type: 'terminal', x: 1110, y: 400 }, { type: 'banner', x: 1460, y: 360 },
         { type: 'satellite', x: 2180, y: 400 }, { type: 'terminal', x: 2860, y: 360 },
-        { type: 'sign', x: 3160 - 180, y: 360, text: 'THREE ROUNDS TO GO' },
+        { type: 'sign', x: 3160 - 180, y: 360, text: 'JUST THREE MORE ROUNDS' },
         { type: 'sign', x: 6550, y: 320, text: 'BRING YOUR STORY' }, { type: 'banner', x: 7150, y: 320 }],
       hints: [{ x: 100, text: 'The final climb. Checkpoints keep your progress safe.' },
         { x: 3300, text: 'Three interview rounds stand between you and the room. You have met them all before.' },
@@ -187,10 +188,10 @@
   ];
 
   const bonusItems = [
-    { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'Start a fresh chat and explain the whole project again.' },
-    { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'Fixed the typo. Changed twelve files. One was your CV.' },
-    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'There’s a teaspoon standing up in it.' },
-    { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'Unzips to a folder called “old”.' }
+    { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'Finally, someone who thinks you’re absolutely right. £20 a month.' },
+    { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'Brilliant find. You’ve hit your usage limit. Try again at 4pm.' },
+    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Made at nine. Found at four. Drunk anyway.' },
+    { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
   ];
 
   const LEVELS = definitions.map((level, levelIndex) => {

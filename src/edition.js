@@ -5,8 +5,8 @@ const solvedEdition = {
   role: 'Builder',
   applicant: 'Augustus Edem',
   editionLabel: 'SOLVED STUDIO EDITION',
-  intro: 'I’m Augustus Edem. I made a four-world adventure for Solved Studio. Play through my application or go straight to the work.',
-  finish: 'Thanks for making the trip, Solved Studio. I’d love to sit down with your team and walk through the work you picked.',
+  intro: 'I’m Augustus Edem. Most people attach a CV. I got carried away and made Solved Studio a four-world adventure. Play through my application or go straight to the work.',
+  finish: 'Thank you for playing, Solved Studio. Unfortunately, on this occasion... sorry, force of habit. I’d love to sit down with your team and walk through the work you picked.',
   skillProjects: {
     "creative-direction": "Emotive Impact",
     "product-thinking": "Commune",
