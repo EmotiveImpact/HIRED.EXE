@@ -22,10 +22,11 @@
         timer: 0, active: false, alive: true, hitCooldown: 0, facing: -1, cycle: 0 }));
       const boss = bossQueue[0];
       const chase = world.chase ? { ...world.chase, x: world.chase.startX - world.chase.lead, active: false, done: false } : null;
+      const lift = world.lift ? { ...world.lift, stage: 'idle', wave: 0, timer: 0 } : null;
       const fakeExit = world.fakeExit ? { ...world.fakeExit, triggered: false, timer: 0 } : null;
       this.state = { mode: 'playing', levelIndex: world.levelIndex, world, player: this.makePlayer(world.spawn),
         camera: { x: 0, y: 0 }, score: 0, coins: 0, skills: [], checkpoint: { ...world.spawn, id: 'start' },
-        enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
+        enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, lift, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
         assist: Boolean(options.assist), hintsShown: [], completed: false };
       this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
       this.emit('start', { levelIndex: world.levelIndex });
@@ -59,6 +60,8 @@
       }
       if (s.chase) s.chase.done = cp.x >= s.chase.endX;
       if (s.fakeExit) s.fakeExit.triggered = cp.x > s.fakeExit.x;
+      if (s.lift && cp.x >= s.lift.x1) s.lift.stage = 'done';
+      s.world.platforms = s.world.platforms.filter(pl => pl.type !== 'gate' || pl.x > cp.x);
       this.openGates(true);
       for (const enemy of s.enemies) enemy.alive = !defeated.has(enemy.id);
       for (const point of s.world.checkpoints) point.active = point.x <= cp.x;
@@ -166,6 +169,19 @@
       const s = this.state, p = s.player;
       for (const platform of s.world.platforms) {
         platform.dx = platform.dy = 0;
+        if (platform.crumble) {
+          // The all-time high holds for a moment, then drops with its rider to the floor.
+          const riding = p.grounded && p.groundId === platform.id;
+          if (riding && !platform.shake) { platform.shake = 1; this.emit('crash'); }
+          else if (platform.shake) platform.shake++;
+          if (platform.shake > 26 && platform.y < platform.crumble.to) {
+            platform.fall = Math.min(11, (platform.fall || 0) + 0.5);
+            platform.dy = Math.min(platform.fall, platform.crumble.to - platform.y);
+            platform.y += platform.dy;
+            if (riding) p.y += platform.dy;
+          }
+          continue;
+        }
         if (platform.type !== 'moving') continue;
         const oldX = platform.x, oldY = platform.y;
         const wave = Math.sin(s.tick * platform.speed + platform.phase);
@@ -182,10 +198,17 @@
       p.x += amount;
       for (const platform of this.state.world.platforms) {
         if (platform.oneWay || !overlaps(p, platform)) continue;
+        if (platform.type === 'breakable' && p.dashTime > 0) {
+          platform.broken = true; this.state.score += 300;
+          this.emit('secret', { name: platform.name });
+          this.burst(platform.x + platform.w / 2, platform.y + platform.h / 2, 'gold', 20);
+          continue;
+        }
         if (amount > 0) p.x = platform.x - p.w;
         else if (amount < 0) p.x = platform.x + platform.w;
         p.vx = 0; p.dashTime = 0;
       }
+      if (this.state.world.platforms.some(pl => pl.broken)) this.state.world.platforms = this.state.world.platforms.filter(pl => !pl.broken);
     }
     movePlayerY(amount) {
       const p = this.state.player, oldY = p.y, oldBottom = p.y + p.h, wasGrounded = p.grounded;
@@ -211,7 +234,7 @@
         item.collected = true;
         if (item.kind === 'key') {
           s.keys++; s.score += 100;
-          this.emit('key', { word: item.word, count: s.keys, total: s.world.collectibles.filter(i => i.kind === 'key').length });
+          this.emit('key', { word: item.word, bell: Boolean(item.bell), count: s.keys, total: s.world.collectibles.filter(i => i.kind === 'key').length });
         }
         else if (item.kind === 'skill') { s.skills.push(item.skill.id); s.score += 250; this.emit('skill', { skill: item.skill, item }); }
         else if (item.kind === 'bonus') this.emit('bonus', { item });
@@ -232,7 +255,7 @@
       const s = this.state, world = s.world;
       if (!world.gates) return;
       const keysLeft = world.collectibles.some(item => item.kind === 'key' && !item.collected);
-      const open = world.platforms.filter(pl => pl.type === 'gate' && (pl.needs === 'keys' ? !keysLeft : s.bossIndex > pl.needs));
+      const open = world.platforms.filter(pl => pl.type === 'gate' && (pl.needs === 'keys' ? !keysLeft : pl.needs === 'lift' ? s.lift.stage === 'done' : s.bossIndex > pl.needs));
       if (!open.length) return;
       world.platforms = world.platforms.filter(pl => !open.includes(pl));
       for (const g of open) {
@@ -249,6 +272,16 @@
         // Scope Creep drags the finish line away to the real end of the level.
         if (f.triggered && f.timer < 150) { f.timer++; f.x += 3 + f.timer * 0.16; }
       }
+      const l = s.lift;
+      if (l && l.stage !== 'done') {
+        if (l.stage === 'idle' && p.x > l.x0 + 40) { l.stage = 'riding'; l.wave = 0; l.timer = 0; this.boardLift(); this.emit('liftFloor', { floor: 1, total: l.waves.length }); }
+        else if (l.stage === 'riding' && ++l.timer >= l.waveTicks) {
+          l.timer = 0; l.wave++;
+          for (const e of s.enemies) if (e.lift && e.alive) { e.alive = false; this.burst(e.x + e.w / 2, e.y + e.h / 2, 'purple', 8); }
+          if (l.wave >= l.waves.length) { l.stage = 'done'; this.emit('liftDone'); }
+          else { this.boardLift(); this.emit('liftFloor', { floor: l.wave + 1, total: l.waves.length }); }
+        }
+      }
       if (c && !c.done) {
         if (!c.active && p.x > c.startX) { c.active = true; c.x = c.startX - c.lead; this.emit('chaseStart'); }
         if (c.active) {
@@ -259,12 +292,38 @@
         }
       }
     }
+    boardLift() {
+      const s = this.state, l = s.lift, p = s.player;
+      const sizes = { cv: [42, 44], inbox: [42, 38], plane: [46, 32] };
+      l.waves[l.wave].forEach((type, i) => {
+        const [w, h] = sizes[type];
+        // Passengers board at whichever door is further from the player.
+        let x = i % 2 ? l.x1 - 70 - i * 30 : l.x0 + 12 + i * 30;
+        if (Math.abs(x - p.x) < 150) x = p.x < (l.x0 + l.x1) / 2 ? l.x1 - 70 - i * 30 : l.x0 + 12 + i * 30;
+        const y = l.floor - h - (type === 'plane' ? 104 : 0);
+        s.enemies.push({ type, x, y, w, h, minX: l.x0 + 4, maxX: l.x1 - 4, speed: type === 'plane' ? 1.5 : 1.2,
+          facing: x < (l.x0 + l.x1) / 2 ? 1 : -1, id: 'lift-' + l.wave + '-' + i, baseY: y, alive: true, phase: 0, lift: true });
+      });
+    }
     environmentEffects() {
       const s = this.state, p = s.player;
       for (const spring of s.world.springs) {
         if (p.springCooldown > 0 || p.vy < 0 || !overlaps(p, { x: spring.x, y: spring.y - spring.h, w: spring.w, h: spring.h + 2 })) continue;
         p.vy = -19; p.grounded = false; p.groundId = null; p.jumps = 1; p.springCooldown = 20;
         this.emit('spring'); this.burst(spring.x + spring.w / 2, spring.y, 'gold', 7);
+      }
+      const under = p.grounded && s.world.platforms.find(pl => pl.id === p.groundId);
+      if (under && under.belt) { const vx = p.vx; this.movePlayerX(under.belt); p.vx = vx; }
+      for (const c of s.world.crushers || []) {
+        // Raised for half the cycle, then slam, hold and lift.
+        const t = ((s.tick + c.offset) % c.period) / c.period;
+        const reach = t < 0.5 ? 0 : t < 0.58 ? (t - 0.5) / 0.08 : t < 0.74 ? 1 : 1 - (t - 0.74) / 0.26;
+        c.reach = reach; c.warn = t > 0.36 && t < 0.5;
+        c.h = 40 + reach * (c.floor - c.top - 40);
+        if (reach > 0.45 && overlaps(p, { x: c.x, y: c.top, w: c.w, h: c.h })) {
+          this.hurt(c.x + c.w / 2 + (p.x + p.w / 2 < c.x + c.w / 2 ? 30 : -30));
+          if (s.player !== p) return;
+        }
       }
       for (const boost of s.world.boosts) {
         if (p.grounded && Math.abs(p.y + p.h - boost.y) < 5 && p.x + p.w > boost.x && p.x < boost.x + boost.w && p.vx > 0 && p.facing > 0) {
