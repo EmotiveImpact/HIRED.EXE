@@ -2,7 +2,7 @@
 
 ## Keep the direction recognisable
 
-- Read `docs/ART-BIBLE.md` and inspect `assets/reference/` before changing the visual language.
+- Read `docs/ART-BIBLE.md` and inspect `references/` before changing the visual language.
 - Keep Augustus's approved character design, violet outlines, warm brick, bright foliage and cyan technology. The desktop chrome frames the game.
 - Use the existing production atlases and manifests. Preserve original references and generated sources. Put new visual versions alongside them and update their provenance.
 - Keep collision surfaces readable. Decoration, arches and ladder props do not imply mechanics that the engine does not implement.
@@ -29,8 +29,6 @@ Pillow is required only for regenerating atlases. The normal build uses Python's
 
 Inspect important visual changes in a permitted browser surface when available. Report the scope of observed checks accurately. Input-only engine traversal, DOM interaction and a physical-device play-through are different evidence.
 
-## Project history
+## Documents
 
-Keep `archive/`, the attachment index, prompt records and the curated exploration history. The exact full chat export has not been supplied. Preserve that distinction when adding repository history.
-
-No external repository identity is configured in this source package. Follow the user's chosen repository and deployment workflow when that next stage begins.
+`docs/` holds the art bible, the level design, the engine API and the playtest report. `docs/ASSET-MANIFEST.json` is written by `tools/build.py`. Keep facts that change with the code, such as test counts and timings, in `docs/PLAYTEST.md` only.

@@ -1,6 +1,6 @@
 """Pack generated RGBA artwork into deterministic game atlas cells.
 
-Only crops and nearest-neighbour scaling are applied; artwork remains in assets/source.
+Only crops and nearest-neighbour scaling are applied; artwork remains in assets/source-atlases.
 Run from any directory. Requires Pillow, used for build tooling only.
 """
 from pathlib import Path
@@ -17,11 +17,11 @@ PROPS = ['cafe','tree','pink_tree','arch','career_block','crate','terminal','lad
          'banner','satellite','lamp','portal']
 
 def pack(kind, names, cell, is_tile=False):
-    im = Image.open(ROOT / f'assets/source/{kind}-generated.png').convert('RGBA')
+    im = Image.open(ROOT / f'assets/source-atlases/{kind}-4x4.png').convert('RGBA')
     canvas = Image.new('RGBA', (4*cell, 4*cell))
     meta = {'image': f'assets/production/environment/{kind}-atlas.png',
             'size': list(canvas.size), 'cell': [cell,cell], 'frames': {},
-            'source': f'assets/source/{kind}-generated.png'}
+            'source': f'assets/source-atlases/{kind}-4x4.png'}
     for i, name in enumerate(names):
         col, row = i%4, i//4
         # Generated sheets are visually regular, not a guaranteed pixel grid.

@@ -66,7 +66,7 @@ def write_hero():
           "source":"hero-source.png","sourceSha256":hashlib.sha256(src.read_bytes()).hexdigest()}
     (CHAR/"hero-atlas.json").write_text(json.dumps(meta,indent=2)+"\n")
     # This portrait is a lossless crop from the approved concept, not a new face.
-    approved=Image.open(ROOT/"assets/reference/hero-approved.png").convert("RGBA")
+    approved=Image.open(ROOT/"references/augustus-character-concepts.png").convert("RGBA")
     approved.crop((1018,166,1215,340)).save(CHAR/"portrait-reference.png")
 
 def write_enemies():
