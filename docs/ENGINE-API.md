@@ -55,14 +55,14 @@ Animation names: `idle`, `run`, `jump`, `fall`, `dash`, `crouch`, `hurt`, `victo
 
 | World | Width | Main ground heights | Checkpoints x | Boss |
 | --- | ---: | --- | --- | --- |
-| Application Alley | 7800 | 440, 420 | 1370, 3770, 5180, 6440 | Recruitment Bot |
-| Ship It City | 8780 | 440, 400, 384 | 1100, 4000, 5230, 7460 | Scope Creep |
-| Growth Run | 8720 | 440 | 1250, 4270, 7600 | The Algorithm |
-| Final Interview HQ | 7420 | 440, 400, 360, 350 to 320 | 1100, 3400, 4450, 5510, 6590 | Three rounds, then Final Review |
+| Application Alley | 9350 | 440, 420, 200 | 1370, 1810, 4620, 6730, 7990 | Recruitment Bot |
+| Ship It City | 12880 | 440, 400, 384 | 1100, 2560, 4850, 7460, 8410, 9920, 11560 | Scope Creep |
+| Growth Run | 12920 | 440, bars 400 to 200 | 1250, 1590, 3300, 4690, 6890, 8470, 11800 | The Algorithm |
+| Final Interview HQ | 10150 | 440, 400, 360, 350 to 320 | 750, 1950, 2930, 5130, 6130, 7180, 8240, 9320 | Three rounds, then Final Review |
 
-Every world has three optional skill tokens, three to five checkpoints, a main route with gaps of at most 200 pixels, and additional platforms above the main route. No score or skill threshold gates the exit. The exit unlocks after the boss is defeated. Application Alley's Keyword Gate needs its three `key` collectibles, which sit on the route to it.
+Every world has three optional skill tokens, five to eight checkpoints, a main route with gaps of at most 200 pixels except the one crossed by the crane ride, and additional platforms above the main route. No score or skill threshold gates the exit. The exit unlocks after the boss is defeated. Application Alley's Keyword Gate needs its three `key` collectibles, which sit on the route to it.
 
-Optional level fields drive the set pieces: `gates` (solid `gate` platforms removed when `needs` is met, either `'keys'` or a round index), `fakeExit` (state at `state.fakeExit`, event `fakeExit`), `chase` (state at `state.chase`, events `chaseStart` and `chaseEnd`, respawn reason `feed`) and `rounds` (bosses fought before `boss`; `state.bossQueue`, `state.bossIndex`, event `roundCleared`). `state.boss` is always the current encounter and carries its own `signoffs` and `arena`. See [LEVEL-DESIGN.md](LEVEL-DESIGN.md) for the rules. The final interview dialogue is a UI responsibility after world four completes.
+Optional level fields drive the set pieces: `gates` (solid `gate` platforms removed when `needs` is met, either `'keys'` or a round index), `fakeExit` (state at `state.fakeExit`, event `fakeExit`), `chase` (state at `state.chase`, events `chaseStart` and `chaseEnd`, respawn reason `feed`) and `rounds` (bosses fought before `boss`; `state.bossQueue`, `state.bossIndex`, event `roundCleared`). `state.boss` is always the current encounter and carries its own `signoffs` and `arena`. Further fields: `belt` on a ground (pixels per tick applied to a grounded player), `crushers` (each exposes `reach`, `warn` and the current `h`), `crumble` on a ledge (event `crash`), platform types `wall` and `breakable` (event `secret`), `ride` on the crane's moving platform, and `lift` (state at `state.lift`, events `liftFloor` and `liftDone`, enemies flagged `lift`). Gates accept `needs: 'keys'`, `needs: 'lift'` or a round index. See [LEVEL-DESIGN.md](LEVEL-DESIGN.md) for the rules. The final interview dialogue is a UI responsibility after world four completes.
 
 ### Platforms
 

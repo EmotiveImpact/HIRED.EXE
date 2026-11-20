@@ -14,16 +14,18 @@ These measurements come from the delivered `src/levels.js`. Coordinates are logi
 
 | World | Width | Ground heights | Checkpoints x | Optional skills x |
 | --- | ---: | --- | --- | --- |
-| Application Alley | 7800 | 440, 420 | 1370, 3770, 5180, 6440 | 540, 2256, 3260 |
-| Ship It City | 8780 | 440, 400, 384 | 1100, 4000, 5230, 7460 | 682, 2176, 3520 |
-| Growth Run | 8720 | 440 | 1250, 4270, 7600 | 524, 2056, 3666 |
-| Final Interview HQ | 7420 | 440, 400, 360, 350, 340, 330, 320 | 1100, 3400, 4450, 5510, 6590 | 466, 1736, 3006 |
+| Application Alley | 9350 | 440, 420, 200 | 1370, 1810, 4620, 6730, 7990 | 540, 3106, 4110 |
+| Ship It City | 12880 | 440, 400, 384 | 1100, 2560, 4850, 7460, 8410, 9920, 11560 | 682, 2176, 4370 |
+| Growth Run | 12920 | 440, bars 400 to 200 | 1250, 1590, 3300, 4690, 6890, 8470, 11800 | 524, 2906, 7866 |
+| Final Interview HQ | 10150 | 440, 400, 360, 350, 340, 330, 320 | 750, 1950, 2930, 5130, 6130, 7180, 8240, 9320 | 466, 2586, 4766 |
+
+Final coordinates are produced when the level loads: `INSERTS` in `src/levels.js` splices each added stretch into the authored layout and moves everything after it to the right. Read live values from `Hired.LEVELS` when exact numbers matter.
 
 The exit sits at `world.width - 160`. Defeating the boss opens it; score and skill counts do not gate completion. The largest main-route ground gap is 200 pixels. Raised optional routes supply additional movement challenges. Checkpoints heal on activation. A fall or loss of health returns the player to the most recent checkpoint while preserving collected ideas, skills, defeated enemies and boss damage within that level session.
 
 ### Extended route set pieces
 
-Each world carries one set piece that lengthens the route without adding a new control. The automated input route now takes about 2 minutes 10 seconds across the four worlds, up from about 1 minute. That figure is a perfect, never-stopping run; no human first-play timing has been taken yet.
+Each world carries three set pieces and one secret room, none of which adds a new control. The automated input route now takes about 3 minutes 7 seconds across the four worlds in normal mode, up from about 1 minute. That figure is a perfect, never-stopping run; no human first-play timing has been taken yet.
 
 | World | Set piece | Engine data | Rule |
 | --- | --- | --- | --- |
@@ -31,6 +33,17 @@ Each world carries one set piece that lengthens the route without adding a new c
 | Ship It City | False finish | `fakeExit` | A finish portal stands where the level used to end. Touching it fires `fakeExit`, Scope Creep hauls it away, and a second half of lifts and terraces leads to the real arena. |
 | Growth Run | The Feed | `chase` | A wall of content pursues the player from x 4560 to x 7440 at 4.7 pixels per tick against a run speed of 6.2. It never trails by more than 380 pixels. Being overtaken returns the player to the checkpoint before the sprint and resets the wall. Assist mode slows it by a fifth. |
 | Final Interview HQ | Three rounds | `rounds`, `gates` with a round index | One-hit rematches with the CV Filter, Scope Creep and the Algorithm, each in its own terrace arena behind a gate, before the host welcomes the player without combat. |
+
+| Application Alley | Cover Letter Climb | a 240-pixel rooftop | Taller than a single jump, so it needs the second jump or the lift and ledge before it. |
+| Application Alley | The Spam Folder | secret room | See secret rooms below. The first design was a basement, but the camera does not scroll vertically, so it is a walled room above the street. |
+| Ship It City | Conveyors and presses | `belt` on a ground, `crushers` | One conveyor carries the player forward at 2.2 pixels per tick and one pushes back at 2.4. Two presses slam on a 150-tick cycle, half a cycle apart, with a floor warning before each slam. They hurt only while down. |
+| Ship It City | Crane ride | a `ride` moving platform | The only main-route gap wider than a jump (620 pixels). The platform docks level with both banks. |
+| Growth Run | A/B test | spring, upper ledges with boosts | Lane A is high and fast with gaps; lane B stays on the ground with more ideas and two enemies. Both rejoin. |
+| Growth Run | Bar chart climb | five rising grounds, `crumble` ledge | Bars rise 50 pixels at a time. The ledge at the top holds for 26 ticks, then drops its rider safely to the floor. |
+| Final Interview HQ | Waiting room | gate with `needs: 'keys'`, a `key` flagged `bell` | The door opens when the bell on the high ledge is collected. |
+| Final Interview HQ | The lift | `lift`, gate with `needs: 'lift'` | Three floors of 230 ticks each. Passengers board at the door further from the player and leave when the floor changes. The doors open after the third floor whatever happens, so it cannot be failed permanently. |
+
+Secret rooms: each world has one walled room on a ledge 232 pixels above the ground, holding eight ideas. Its front panel is a `breakable` wall that is solid to a walk and breaks to a dash (event `secret`, 300 points). The panel shows a crack and, when the player stands beside it, the label "LOOKS THIN. DASH?".
 
 The three main bosses have five health units. After two hits a boss escalates: the warning shortens from 54 to 42 ticks, the opening from 110 to 95, and each gains one move. The CV Filter adds a floor-level scan that must be jumped, Scope Creep charges faster and opens with a thrown requirement, and the Algorithm widens its fan from three shots to five. Interview rounds start escalated.
 

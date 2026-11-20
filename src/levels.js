@@ -19,6 +19,109 @@
     x: x + i * step, y: y - Math.sin(i / Math.max(1, count - 1) * Math.PI) * 48, kind: 'coin'
   }));
 
+  const wall = (x, y, w, h, extra = {}) => ({ x, y, w, h, type: 'wall', oneWay: false, ...extra });
+
+  // ---- Inserted stretches. Each builder receives the x where it starts and returns
+  // its pieces plus its width; everything authored after that point moves right.
+  const secretStretch = (name, floor) => x0 => {
+    const top = floor - 232, x = x0 + 340, w = 220;
+    return { width: 850,
+      platforms: [ground(x0, 700, floor), ledge(x0 + 60, floor - 122), ledge(x0 + 200, top, 140),
+        wall(x, top, w, 24), wall(x, top - 134, w, 24), wall(x + w - 24, top - 110, 24, 110),
+        wall(x, top - 110, 24, 110, { type: 'breakable', name })],
+      collectibles: [0, 1, 2, 3].flatMap(i => [{ x: x + 56 + i * 38, y: top - 30, kind: 'coin' }, { x: x + 56 + i * 38, y: top - 72, kind: 'coin' }]),
+      checkpoints: [{ x: x0 + 30, y: floor }],
+      enemies: [enemy('inbox', x0 + 420, floor, x0 + 380, x0 + 640)] };
+  };
+  const coverLetterClimb = x0 => ({ width: 700,
+    platforms: [ground(x0, 560, 200)],
+    enemies: [enemy('cv', x0 + 300, 200, x0 + 220, x0 + 500)],
+    collectibles: [...arc(x0 - 120, 250, 4, 36), ...arc(x0 + 560, 190, 4, 40)],
+    decor: [{ type: 'sign', x: x0 + 40, y: 200, text: 'COVER LETTER CLIMB' }],
+    hints: [{ x: x0 - 330, text: 'A rooftop. Jump, then jump again at the top of your arc.' }] });
+  const beltsAndPresses = x0 => ({ width: 2330,
+    platforms: [{ ...ground(x0, 620, 400), belt: 2.2 }, { ...ground(x0 + 760, 520, 400), belt: -2.4 }, ground(x0 + 1420, 760, 400),
+      ledge(x0 + 860, 270, 192)],
+    crushers: [{ x: x0 + 1680, w: 96, top: 150, floor: 400, period: 150, offset: 0 },
+      { x: x0 + 1980, w: 96, top: 150, floor: 400, period: 150, offset: 75 }],
+    collectibles: [...arc(x0 + 620, 300, 4, 38), ...arc(x0 + 880, 220, 4, 40)],
+    checkpoints: [{ x: x0 + 1450, y: 400 }],
+    decor: [{ type: 'sign', x: x0 + 40, y: 400, text: 'CONVEYOR A: WITH YOU' }, { type: 'sign', x: x0 + 800, y: 400, text: 'CONVEYOR B: AGAINST YOU' },
+      { type: 'sign', x: x0 + 1470, y: 400, text: 'QUALITY CONTROL' }],
+    hints: [{ x: x0 + 20, text: 'Conveyors carry you. The second one runs the wrong way, so keep moving.' },
+      { x: x0 + 1440, text: 'Presses slam on a rhythm. Wait for one to lift, then run or dash under it.' }] });
+  const craneRide = x0 => ({ width: 920,
+    platforms: [ground(x0, 300), { ...moving(x0 + 514, 440, 192, 214, 0, 0.012, -1.57), ride: true }],
+    enemies: [enemy('plane', x0 + 600, 330, x0 + 350, x0 + 880, 1.6)],
+    collectibles: [...arc(x0 + 380, 370, 5, 44), ...arc(x0 + 640, 370, 5, 44)],
+    checkpoints: [{ x: x0 + 40, y: 440 }],
+    decor: [{ type: 'sign', x: x0 + 90, y: 440, text: 'CRANE RIDE: WAIT FOR IT' }],
+    hints: [{ x: x0 + 20, text: 'The gap is too wide to jump. Step onto the crane platform and ride it across.' }] });
+  const abTest = x0 => ({ width: 1650,
+    platforms: [ground(x0, 1500), ledge(x0 + 190, 262, 380), ledge(x0 + 700, 262, 380), ledge(x0 + 1210, 262, 250)],
+    springs: [{ x: x0 + 90, y: 440, w: 44, h: 16 }],
+    boosts: [{ x: x0 + 200, y: 262, w: 300 }, { x: x0 + 710, y: 262, w: 300 }],
+    enemies: [enemy('cv', x0 + 560, 440, x0 + 480, x0 + 820, 1.5), enemy('inbox', x0 + 1080, 440, x0 + 980, x0 + 1320, 1.4),
+      enemy('plane', x0 + 620, 220, x0 + 560, x0 + 720, 1.2)],
+    collectibles: [...arc(x0 + 230, 232, 3, 60), ...arc(x0 + 760, 232, 3, 60),
+      ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => ({ x: x0 + 300 + i * 140, y: 350, kind: 'coin' }))],
+    checkpoints: [{ x: x0 + 30, y: 440 }, { x: x0 + 1420, y: 440 }],
+    decor: [{ type: 'sign', x: x0 + 150, y: 440, text: 'A/B TEST: A IS UP, B IS DOWN' }, { type: 'sign', x: x0 + 1290, y: 440, text: 'RESULT: INCONCLUSIVE' }],
+    hints: [{ x: x0 + 10, text: 'Two lanes. The spring takes you to A, fast and risky. B stays low with more ideas.' }] });
+  const barChart = x0 => ({ width: 1700,
+    platforms: [...[400, 350, 300, 250, 200].map((y, i) => ground(x0 + i * 200, 130, y)),
+      ...[0, 1, 2, 3].map(i => ground(x0 + 130 + i * 200, 70)), ground(x0 + 930, 620),
+      { ...ledge(x0 + 990, 200, 170), crumble: { to: 416 }, label: 'ALL-TIME HIGH' }],
+    collectibles: [...[400, 350, 300, 250, 200].map((y, i) => ({ x: x0 + 65 + i * 200, y: y - 44, kind: 'coin' })),
+      ...arc(x0 + 1010, 150, 4, 40)],
+    checkpoints: [{ x: x0 + 1180, y: 440 }],
+    decor: [{ type: 'sign', x: x0 + 1290, y: 440, text: 'MARKET CORRECTION' }],
+    hints: [{ x: x0 - 260, text: 'Up and to the right. Climb the chart one bar at a time.' }] });
+  const waitingRoom = x0 => ({ width: 910,
+    platforms: [ground(x0, 760, 400), ledge(x0 + 330, 250, 180)],
+    gates: [gate(x0 + 690, 400, 'keys', 'PLEASE WAIT')],
+    collectibles: [{ ...key(x0 + 420, 170, 'BELL'), bell: true }],
+    checkpoints: [{ x: x0 + 40, y: 400 }],
+    decor: [{ type: 'sign', x: x0 + 110, y: 400, text: 'WE WILL BE WITH YOU SHORTLY' }, { type: 'tree', x: x0 + 470, y: 400 }],
+    hints: [{ x: x0 + 20, text: 'The waiting room. Nobody is coming. There must be a bell somewhere.' }] });
+  const liftRide = x0 => ({ width: 970,
+    platforms: [ground(x0, 820, 360)],
+    gates: [gate(x0 + 730, 360, 'lift', 'LIFT DOORS')],
+    lift: { x0: x0 + 90, x1: x0 + 730, floor: 360, waveTicks: 230, waves: [['cv', 'inbox'], ['plane', 'cv'], ['inbox', 'plane', 'cv']] },
+    checkpoints: [{ x: x0 + 30, y: 360 }],
+    hints: [{ x: x0 + 10, text: 'The lift stops at three floors. Someone gets on at every one. Hold out until the doors open.' }] });
+  const INSERTS = [
+    [{ at: 1780, build: secretStretch('The Spam Folder', 440) }, { at: 4360, build: coverLetterClimb }],
+    [{ at: 2530, build: secretStretch('The Backlog', 384) }, { at: 5160, build: beltsAndPresses }, { at: 6700, build: craneRide }],
+    [{ at: 1560, build: secretStretch('The Vanity Metrics Vault', 440) }, { at: 2420, build: abTest }, { at: 3210, build: barChart }],
+    [{ at: 720, build: secretStretch('The Stationery Cupboard', 400) }, { at: 2040, build: waitingRoom }, { at: 3340, build: liftRide }]
+  ];
+  const LISTS = ['platforms', 'enemies', 'collectibles', 'checkpoints', 'springs', 'boosts', 'decor', 'hints', 'gates', 'crushers', 'signoffs', 'rounds'];
+  function shiftRight(level, from, dx) {
+    for (const name of LISTS) for (const item of level[name] || []) {
+      if (item.x < from) continue;
+      item.x += dx;
+      for (const field of ['baseX', 'minX', 'maxX']) if (field in item) item[field] += dx;
+      if (item.arena) item.arena = item.arena.map(v => v + dx);
+      for (const terminal of item.signoffs || []) terminal.x += dx;
+    }
+    if (level.boss.x >= from) level.boss.x += dx;
+    if (level.fakeExit && level.fakeExit.x >= from) level.fakeExit.x += dx;
+    if (level.chase) for (const field of ['startX', 'endX']) if (level.chase[field] >= from) level.chase[field] += dx;
+    if (level.lift && level.lift.x0 >= from) { level.lift.x0 += dx; level.lift.x1 += dx; }
+    level.width += dx;
+  }
+  function applyInserts(level, inserts) {
+    for (const insert of [...inserts].sort((a, b) => b.at - a.at)) {
+      const part = insert.build(insert.at);
+      shiftRight(level, insert.at, part.width);
+      for (const name of LISTS) if (part[name]) level[name] = [...(level[name] || []), ...part[name]];
+      if (part.lift) level.lift = part.lift;
+    }
+    level.checkpoints.sort((a, b) => a.x - b.x);
+    level.hints.sort((a, b) => a.x - b.x);
+  }
+
   const definitions = [
     {
       id: 'application-alley', name: 'Application Alley', subtitle: 'Every good story starts somewhere.',
@@ -194,6 +297,7 @@
   ];
 
   const LEVELS = definitions.map((level, levelIndex) => {
+    applyInserts(level, INSERTS[levelIndex]);
     level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
     level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
     // The regular trail stays on solid ground; extra arcs describe the jumps across gaps.
@@ -212,6 +316,7 @@
     level.checkpoints.forEach((c, i) => { c.id = 'checkpoint-' + i; c.active = false; });
     level.springs.forEach((s, i) => { s.id = 'spring-' + i; });
     level.boosts.forEach((b, i) => { b.id = 'boost-' + i; });
+    (level.crushers || []).forEach((c, i) => { c.id = 'crusher-' + i; c.h = 40; });
     // Gates are solid until their condition is met: every keyword found, or an interview round cleared.
     (level.gates || []).forEach((g, i) => {
       level.platforms.push({ x: g.x, y: g.y, w: g.w, h: g.h, type: 'gate', oneWay: false, id: 'gate-' + i,

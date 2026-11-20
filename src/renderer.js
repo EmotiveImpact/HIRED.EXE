@@ -80,14 +80,18 @@
       this.decor(state.world, false);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w)) continue;
-        if (p.type === 'ground') this.ground(p);
+        if (p.type === 'ground') { this.ground(p); if (p.belt) this.belt(p); }
       }
+      this.lift(state);
       this.decor(state.world, true);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
-        if (p.type === 'gate') this.gate(p, state); else this.platform(p);
+        if (p.type === 'gate') this.gate(p, state);
+        else if (p.type === 'wall' || p.type === 'breakable') this.wall(p, state);
+        else this.platform(p);
       }
       for (const b of state.world.boosts) if (this.visible(b.x, b.w)) this.boost(b);
+      for (const c of state.world.crushers || []) if (this.visible(c.x, c.w)) this.crusher(c);
       for (const s of state.world.springs) if (this.visible(s.x, s.w)) this.spring(s, state);
       for (const cp of state.world.checkpoints) if (this.visible(cp.x - 40, 120)) this.checkpoint(cp);
       this.exit(state);
@@ -192,6 +196,10 @@
       const ctx = this.ctx, theme = THEMES[this.levelIndex];
       const name = p.type === 'moving' && this.levelIndex !== 2 ? 'metal_platform' : theme.platform;
       const f = this.frame('props', name), im = this.images.props;
+      if (p.crumble) {
+        if (p.shake && p.y < p.crumble.to) { ctx.save(); ctx.translate(Math.sin(this.time * 60) * 2, 0); }
+        this.label(p.y >= p.crumble.to ? 'CORRECTED' : p.label, p.x + p.w / 2, p.y - 16, p.shake ? '#ffb3b3' : '#b4ffcb', 10);
+      }
       if (p.type === 'moving') {
         ctx.save();
         ctx.strokeStyle = 'rgba(236,246,255,.40)'; ctx.lineWidth = 2; ctx.setLineDash([4, 7]);
@@ -212,6 +220,82 @@
         ctx.fillRect(round(p.x + 13), round(p.y + 25), 16, 3);
         ctx.fillRect(round(p.x + p.w - 29), round(p.y + 25), 16, 3);
       }
+      if (p.crumble && p.shake && p.y < p.crumble.to) ctx.restore();
+    }
+
+    belt(p) {
+      // Moving chevrons along the running surface show which way the conveyor pulls.
+      const ctx = this.ctx, dir = Math.sign(p.belt), y = p.y;
+      ctx.fillStyle = '#231b3f'; ctx.fillRect(p.x, y - 2, p.w, 12);
+      ctx.fillStyle = '#ffd56b'; ctx.fillRect(p.x, y - 3, p.w, 2);
+      ctx.save(); ctx.beginPath(); ctx.rect(p.x, y - 2, p.w, 12); ctx.clip();
+      const offset = ((this.time * Math.abs(p.belt) * 60) % 28) * dir;
+      ctx.fillStyle = dir > 0 ? '#8af2bc' : '#ff9a8a';
+      for (let x = p.x - 28 + offset; x < p.x + p.w + 28; x += 28) {
+        for (let i = 0; i < 5; i++) ctx.fillRect(round(x + (dir > 0 ? i : 4 - i) * 2), y + 1 + i, 6, 1);
+        for (let i = 0; i < 4; i++) ctx.fillRect(round(x + (dir > 0 ? 3 - i : 1 + i) * 2), y + 6 + i, 6, 1);
+      }
+      ctx.restore();
+    }
+
+    wall(p, state) {
+      const ctx = this.ctx, theme = THEMES[this.levelIndex], x = round(p.x), y = round(p.y);
+      ctx.fillStyle = ink; ctx.fillRect(x - 2, y - 2, p.w + 4, p.h + 4);
+      ctx.fillStyle = theme.base; ctx.fillRect(x, y, p.w, p.h);
+      ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.fillRect(x, y, p.w, 3);
+      ctx.fillStyle = 'rgba(29,22,57,.3)';
+      for (let i = 12; i < Math.max(p.w, p.h); i += 22) {
+        if (p.w > p.h) ctx.fillRect(x + i, y + 4, 2, p.h - 6); else ctx.fillRect(x + 3, y + i, p.w - 6, 2);
+      }
+      if (p.type !== 'breakable') return;
+      // A cracked panel: the only hint that a dash will go straight through.
+      ctx.strokeStyle = '#ffe9a2'; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(x + 4, y + 14); ctx.lineTo(x + 14, y + 38); ctx.lineTo(x + 7, y + 58); ctx.lineTo(x + 18, y + 84); ctx.lineTo(x + 9, y + p.h - 6);
+      ctx.moveTo(x + 14, y + 38); ctx.lineTo(x + 21, y + 30);
+      ctx.stroke();
+      const glow = .25 + .25 * Math.sin(this.time * 3);
+      ctx.fillStyle = `rgba(255,233,162,${glow})`; ctx.fillRect(x + p.w - 3, y + 8, 3, p.h - 16);
+      if (Math.abs(state.player.x - p.x) < 150 && Math.abs(state.player.y + state.player.h - (p.y + p.h)) < 12) {
+        this.label('LOOKS THIN. DASH?', x + p.w / 2, y - 14, '#ffe8ae', 10);
+      }
+    }
+
+    crusher(c) {
+      const ctx = this.ctx, x = round(c.x), bottom = round(c.top + c.h);
+      ctx.fillStyle = '#2b2350'; ctx.fillRect(x + c.w / 2 - 9, 0, 18, bottom - 36);
+      ctx.fillStyle = '#6b6f9c'; ctx.fillRect(x + c.w / 2 - 5, 0, 5, bottom - 36);
+      ctx.fillStyle = ink; ctx.fillRect(x - 3, bottom - 43, c.w + 6, 46);
+      ctx.fillStyle = '#51567f'; ctx.fillRect(x, bottom - 40, c.w, 40);
+      ctx.fillStyle = '#8a8fc0'; ctx.fillRect(x, bottom - 40, c.w, 5);
+      for (let i = 0; i < c.w; i += 24) {
+        ctx.fillStyle = i / 24 % 2 ? '#231b3f' : '#ffd56b'; ctx.fillRect(x + i, bottom - 10, Math.min(24, c.w - i), 10);
+      }
+      if (c.warn) {
+        ctx.fillStyle = `rgba(255,120,120,${.3 + .3 * Math.sin(this.time * 24)})`; ctx.fillRect(x, c.floor - 4, c.w, 4);
+        this.label('!', x + c.w / 2, bottom + 20, '#ffdc73', 14);
+      }
+    }
+
+    lift(state) {
+      const l = state.lift;
+      if (!l || !this.visible(l.x0, l.x1 - l.x0)) return;
+      const ctx = this.ctx, top = l.floor - 250, width = l.x1 - l.x0;
+      ctx.fillStyle = 'rgba(31,25,68,.34)'; ctx.fillRect(l.x0, top, width, 250);
+      if (l.stage === 'riding') {
+        // Shaft lights streaming downwards sell the ascent.
+        ctx.save(); ctx.beginPath(); ctx.rect(l.x0, top, width, 250); ctx.clip();
+        ctx.fillStyle = 'rgba(255,233,162,.35)';
+        for (let i = 0; i < 9; i++) {
+          const y = top + ((this.time * 190 + i * 61) % 290) - 20;
+          ctx.fillRect(l.x0 + 30 + (i * 137) % (width - 60), y, 3, 26);
+        }
+        ctx.restore();
+      }
+      ctx.strokeStyle = '#ffd36c'; ctx.lineWidth = 4; ctx.strokeRect(l.x0, top, width, 250);
+      ctx.fillStyle = '#261a45'; ctx.fillRect(l.x0 - 2, top - 8, width + 4, 10);
+      const text = l.stage === 'riding' ? 'FLOOR ' + (l.wave + 1) + ' OF ' + l.waves.length + ' · GOING UP'
+        : l.stage === 'done' ? 'YOUR FLOOR. DOORS OPEN' : 'LIFT TO INTERVIEW FLOORS';
+      this.label(text, l.x0 + width / 2, top + 26, '#ffe8ae', 11);
     }
 
     decor(world, front) {
@@ -334,6 +418,13 @@
       const ctx = this.ctx, bob = Math.sin(this.time * 4 + item.x * .017) * 4;
       if (item.kind === 'key') {
         // A keyword tag: the only thing the CV Filter can read.
+        if (item.bell) {
+          const bx = round(item.x), by = round(item.y + bob);
+          ctx.fillStyle = '#261a45'; ctx.fillRect(bx - 13, by + 6, 26, 6); ctx.fillRect(bx - 11, by - 8, 22, 15);
+          ctx.fillStyle = '#ffd36c'; ctx.fillRect(bx - 9, by - 6, 18, 12); ctx.fillRect(bx - 11, by + 7, 22, 3);
+          ctx.fillStyle = '#fff6c4'; ctx.fillRect(bx - 7, by - 5, 4, 8); ctx.fillRect(bx - 2, by - 11, 4, 4);
+          return;
+        }
         const x = round(item.x), y = round(item.y + bob), width = Math.max(58, item.word.length * 7 + 18);
         ctx.fillStyle = 'rgba(255,224,112,.22)'; ctx.fillRect(x - width / 2 - 5, y - 16, width + 10, 32);
         ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 - 2, y - 13, width + 4, 26);
@@ -394,8 +485,8 @@
       this.label(g.label, x + g.w / 2, top + 44, '#ffe8ae', 11);
       if (g.needs === 'keys') {
         const keys = state.world.collectibles.filter(item => item.kind === 'key');
-        this.label(keys.filter(k => k.collected).length + ' / ' + keys.length + ' KEYWORDS', x + g.w / 2, top + 66, '#d4f5e3', 10);
-      } else this.label('CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
+        this.label(keys[0].bell ? 'RING FOR ATTENTION' : keys.filter(k => k.collected).length + ' / ' + keys.length + ' KEYWORDS', x + g.w / 2, top + 66, '#d4f5e3', 10);
+      } else this.label(g.needs === 'lift' ? 'WAIT FOR YOUR FLOOR' : 'CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
     }
 
     fakeExit(state) {

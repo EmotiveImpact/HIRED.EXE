@@ -329,6 +329,11 @@
       if(e.type==='signoff')toast(e.label+' signed off.',1800);
       if(e.type==='welcome')toast('Your interview is through the doors.',3000);
       if(e.type==='bossOpening' && !game.state.boss.signoffs)toast('Shield down! Stomp or dash now.',1800);
+      if(e.type==='key'&&e.bell){toast('Ding. Somebody will see you now.',2600);continue;}
+      if(e.type==='secret')toast('Secret room found · '+e.name,3200);
+      if(e.type==='crash')toast('All-time high! Hold on…',2000);
+      if(e.type==='liftFloor')toast(`Floor ${e.floor} of ${e.total}. Somebody is getting on.`,2400);
+      if(e.type==='liftDone')toast('Your floor. The doors are open.',2400);
       if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter is satisfied.`,2400);
       if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
       if(e.type==='fakeExit')toast('Shipped! Wait. Scope Creep has added a phase two.',3600);
