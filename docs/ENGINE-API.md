@@ -62,7 +62,7 @@ Animation names: `idle`, `run`, `jump`, `fall`, `dash`, `crouch`, `hurt`, `victo
 
 Every world has three optional skill tokens, five to eight checkpoints, a main route with gaps of at most 200 pixels except the one crossed by the crane ride, and additional platforms above the main route. No score or skill threshold gates the exit. The exit unlocks after the boss is defeated. Application Alley's Keyword Gate needs its three `key` collectibles, which sit on the route to it.
 
-Optional level fields drive the set pieces: `gates` (solid `gate` platforms removed when `needs` is met, either `'keys'` or a round index), `fakeExit` (state at `state.fakeExit`, event `fakeExit`), `chase` (state at `state.chase`, events `chaseStart` and `chaseEnd`, respawn reason `feed`) and `rounds` (bosses fought before `boss`; `state.bossQueue`, `state.bossIndex`, event `roundCleared`). `state.boss` is always the current encounter and carries its own `signoffs` and `arena`. Further fields: `belt` on a ground (pixels per tick applied to a grounded player), `crushers` (each exposes `reach`, `warn` and the current `h`), `crumble` on a ledge (event `crash`), platform types `wall` and `breakable` (event `secret`), `ride` on the crane's moving platform, and `lift` (state at `state.lift`, events `liftFloor` and `liftDone`, enemies flagged `lift`). Gates accept `needs: 'keys'`, `needs: 'lift'` or a round index. See [LEVEL-DESIGN.md](LEVEL-DESIGN.md) for the rules. The final interview dialogue is a UI responsibility after world four completes.
+Optional level fields drive the set pieces: `gates` (solid `gate` platforms removed when `needs` is met, either `'keys'` or a round index), `fakeExit` (legacy decoy portal, state at `state.fakeExit`, event `fakeExit`; no world uses it, and a test keeps every finish at the end of its world), `chase` (state at `state.chase`, events `chaseStart` and `chaseEnd`, respawn reason `feed`) and `rounds` (bosses fought before `boss`; `state.bossQueue`, `state.bossIndex`, event `roundCleared`). `state.boss` is always the current encounter and carries its own `signoffs` and `arena`. Further fields: `belt` on a ground (pixels per tick applied to a grounded player), `crushers` (each exposes `reach`, `warn` and the current `h`), `crumble` on a ledge (event `crash`), platform types `wall` and `breakable` (event `secret`), `ride` on the crane's moving platform, and `lift` (state at `state.lift`, events `liftFloor` and `liftDone`, enemies flagged `lift`). Gates accept `needs: 'keys'`, `needs: 'lift'` or a round index. See [LEVEL-DESIGN.md](LEVEL-DESIGN.md) for the rules. The final interview dialogue is a UI responsibility after world four completes.
 
 ### Platforms
 
@@ -99,7 +99,7 @@ Projectiles have `{x, y, w, h, vx, vy, life, kind}`. A dash dissolves a projecti
 
 ## Recovery and completion
 
-Health starts at three. Normal damage grants 90 ticks of invulnerability. A fall below y650 or losing all hearts respawns the player at the last checkpoint with full health and 100 ticks of invulnerability. There is no lives limit and no timer-based failure. Coins, skill tokens, defeated enemies and boss damage survive retries within that play session. Starting/restarting a level resets those states.
+Health starts at three. Normal damage grants 90 ticks of invulnerability. Each world starts with three lives (`state.lives`). A fall below y650 or losing all hearts costs a life and respawns the player at the last checkpoint with full health and 100 ticks of invulnerability. Losing the last life emits `gameOver` instead of `respawn`, and the UI restarts the world from the beginning. Every 50 ideas earns a life (event `extraLife`, capped at nine). Relaxed mode never loses lives. There is no timer-based failure. Coins, skill tokens, defeated enemies and boss damage survive retries within that play session. Starting/restarting a level resets those states.
 
 On boss defeat, projectiles are cleared and the exit opens. Overlapping the exit sets `mode: 'complete'`, stops movement and emits `complete`. The UI should record the result and offer the next world or final interview. Level completion does not represent any real employer decision.
 
@@ -116,7 +116,9 @@ Call `drainEvents()` once per render loop. It returns and clears the queued even
 | `skill` | `skill`, `item` |
 | `stomp` | `enemy` type |
 | `hurt` | `health` |
-| `respawn` | `reason: 'fall'|'health'`, `checkpoint`, `deaths` |
+| `respawn` | `reason: 'fall'|'health'|'feed'`, `checkpoint`, `deaths`, `lives` |
+| `gameOver` | `reason`, `levelIndex`, `deaths` |
+| `extraLife` | `lives`, `coins` |
 | `checkpoint` | `checkpoint` object |
 | `hint` | `text` |
 | `bossStart`, `bossOpening`, `bossDefeated` | `name` |

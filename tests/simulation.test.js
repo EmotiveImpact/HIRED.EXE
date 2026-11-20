@@ -119,6 +119,38 @@ test('checkpoints heal and retries preserve collected work', () => {
   assert.equal(g.state.player.health, 3);
 });
 
+test('each death costs a life and the last one restarts the world', () => {
+  const g = gameAtStart(0), p = g.state.player;
+  assert.equal(g.state.lives, PHYSICS.lives);
+  Object.assign(p, { x: 1370, y: 382 }); g.step({});
+  assert.equal(g.state.checkpoint.id, 'checkpoint-0');
+  g.drainEvents();
+  for (let left = PHYSICS.lives - 1; left > 0; left--) {
+    g.state.player.y = 710; g.step({});
+    const respawn = g.drainEvents().find(e => e.type === 'respawn');
+    assert.equal(respawn.lives, left); assert.equal(g.state.lives, left);
+    assert.equal(g.state.player.health, 3);
+  }
+  g.state.player.y = 710; g.step({});
+  const events = g.drainEvents();
+  assert.equal(g.state.lives, 0);
+  assert.ok(events.some(e => e.type === 'gameOver' && e.levelIndex === 0));
+  assert.ok(!events.some(e => e.type === 'respawn'));
+});
+
+test('relaxed mode never loses lives and fifty ideas earn one', () => {
+  const relaxed = gameAtStart(0, { assist: true });
+  for (let i = 0; i < 5; i++) { relaxed.state.player.y = 710; relaxed.step({}); }
+  assert.equal(relaxed.state.lives, PHYSICS.lives);
+  assert.ok(!relaxed.drainEvents().some(e => e.type === 'gameOver'));
+  const g = gameAtStart(0), p = g.state.player;
+  g.state.coins = 49;
+  const coin = g.state.world.collectibles.find(c => c.kind === 'coin' && !c.collected);
+  Object.assign(p, { x: coin.x - 17, y: coin.y - 30, vy: 0 }); g.step({});
+  assert.equal(g.state.coins, 50); assert.equal(g.state.lives, PHYSICS.lives + 1);
+  assert.ok(g.drainEvents().some(e => e.type === 'extraLife' && e.coins === 50));
+});
+
 test('damage is bounded by invulnerability and assist prevents damage', () => {
   const normal = gameAtStart(), assist = gameAtStart(0, { assist: true });
   normal.hurt(500); normal.hurt(500);
@@ -241,12 +273,47 @@ test('the keyword gate stays shut until all three keywords are collected', () =>
   assert.ok(g.drainEvents().some(e => e.type === 'gateOpen'));
 });
 
-test('the false finish in Ship It City never completes the world', () => {
-  const g = gameAtStart(1), p = g.state.player, f = g.state.fakeExit;
-  Object.assign(p, { x: f.x, y: 382 }); tick(g, {}, 5);
-  assert.equal(f.triggered, true); assert.equal(g.state.mode, 'playing');
-  assert.ok(g.drainEvents().some(e => e.type === 'fakeExit'));
-  assert.ok(g.state.world.exit.x > f.x + 3000);
+test('every world keeps one finish line, after its boss, at the end of the level', () => {
+  for (let level = 0; level < LEVELS.length; level++) {
+    const g = gameAtStart(level), l = LEVELS[level];
+    assert.equal(g.state.fakeExit, null, `${l.name} has a decoy exit`);
+    assert.ok(l.exit.x > l.boss.x, `${l.name} exit before boss`);
+    assert.ok(l.width - l.exit.x <= 400, `${l.name} exit is not at the end`);
+    assert.equal(g.state.world.exit.x, l.exit.x, `${l.name} exit moved at start`);
+  }
+});
+
+test('every finish portal stands on the ground beneath it', () => {
+  for (const l of LEVELS) {
+    const centre = l.exit.x + l.exit.w / 2;
+    const floor = l.platforms.find(p => p.type === 'ground' && p.x <= centre && p.x + p.w >= centre);
+    assert.equal(l.exit.y + l.exit.h, floor.y, `${l.name} portal floats or sinks`);
+  }
+});
+
+test('Scope Creep terminals sit inside the arena, in order, with room for their labels', () => {
+  const g = gameAtStart(1), b = g.state.boss, xs = b.signoffs.map(t => t.x);
+  assert.equal(xs.length, b.maxHealth);
+  for (let i = 0; i < xs.length; i++) {
+    assert.ok(xs[i] - 55 >= b.arena[0] && xs[i] + 55 <= b.arena[1], `${b.signoffs[i].label} outside the arena`);
+    if (i) assert.ok(xs[i] - xs[i - 1] >= 160, `${b.signoffs[i].label} crowds ${b.signoffs[i - 1].label}`);
+  }
+});
+
+test('bosses walk back after a charge or a hit instead of jumping', () => {
+  for (const level of [0, 1, 2]) {
+    const g = gameAtStart(level), b = g.state.boss, p = g.state.player;
+    Object.assign(p, { x: b.originX - 360, y: b.floor - p.h, vx: 0, vy: 0 });
+    g.step({});
+    assert.equal(b.active, true);
+    Object.assign(b, { x: b.arena[0] + 4, phase: 'vulnerable', timer: 1 });
+    let last = b.x;
+    for (let i = 0; i < 60; i++) {
+      Object.assign(p, { x: b.originX - 360, invulnerable: 99 }); g.step({});
+      assert.ok(Math.abs(b.x - last) <= 3.001, `${LEVELS[level].name} boss jumped ${Math.round(b.x - last)}px`);
+      last = b.x;
+    }
+  }
 });
 
 test('the Feed catches a player who stops and resets for the retry', () => {
@@ -259,9 +326,14 @@ test('the Feed catches a player who stops and resets for the retry', () => {
 });
 
 test('main bosses escalate after two hits and interview rounds run in order', () => {
-  const g = gameAtStart(0), b = g.state.boss;
-  assert.equal(b.maxHealth, 5);
-  Object.assign(b, { active: true, phase: 'patrol', timer: 50, health: 3 }); g.step({});
+  assert.deepEqual(LEVELS.slice(0, 3).map(l => l.boss.health), [3, 4, 4]);
+  const first = gameAtStart(0), cv = first.state.boss;
+  assert.equal(cv.maxHealth, 3);
+  Object.assign(cv, { active: true, phase: 'patrol', timer: 50, health: 1 }); first.step({});
+  assert.equal(cv.enraged, false, 'the first boss stays simple');
+  const g = gameAtStart(1), b = g.state.boss;
+  assert.equal(b.maxHealth, 4);
+  Object.assign(b, { active: true, phase: 'patrol', timer: 50, health: 2 }); g.step({});
   assert.equal(b.enraged, true);
   assert.ok(g.drainEvents().some(e => e.type === 'bossPhase'));
   const hq = gameAtStart(3);

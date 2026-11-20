@@ -169,7 +169,7 @@
     if(beat.burst)audio.effect('scene');
     focusDialog();
   }
-  function assistRow() {return `<label class="toggle-row"><input id="assist-toggle" type="checkbox" ${progress.assist?'checked':''}><span>Relaxed mode<small>Keep the platforming. Contact damage is switched off.</small></span></label>`;}
+  function assistRow() {return `<label class="toggle-row"><input id="assist-toggle" type="checkbox" ${progress.assist?'checked':''}><span>Relaxed mode<small>For hiring managers with a two o’clock. Contact damage is switched off.</small></span></label>`;}
   function bindAssist() {$('assist-toggle')?.addEventListener('change',e=>{progress.assist=e.target.checked;game.setAssist(progress.assist);save();});}
   function showWorlds(from=uiMode) {
     const back=(from==='worlds'||(typeof from!=='function'&&uiMode==='worlds'))?worldsBack:captureReturn(from);
@@ -200,7 +200,7 @@
   function showPause() {
     if(!game.state||game.state.mode!=='playing'){showHome();return;}
     setMode('pause');$('status').textContent='Paused. Take your time.';
-    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>A quick breather.</h2><p class="muted">Your place in this run is safe.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Main menu</button><button class="btn" id="pause-portfolio">Portfolio</button></div>`,false,resume);
+    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>Paused.</h2><p class="muted">Everything’s where you left it. Including the enemies.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Main menu</button><button class="btn" id="pause-portfolio">Portfolio</button></div>`,false,resume);
     bindActions({'resume-game':resume,'restart-level':()=>startLevel(game.state.levelIndex),'pause-worlds':showWorlds,'pause-help':()=>showHelp('pause'),'pause-home':showHome,'pause-portfolio':()=>showPortfolio('pause')});bindAssist();
   }
   function returnTo(mode) {
@@ -257,7 +257,7 @@
     $('status').textContent=storageAvailable?'World complete. Progress saved on this browser.':'World complete. Progress kept for this session.';
     const last=s.levelIndex===3;
     const bonus=s.world.collectibles.find(item=>item.kind==='bonus'&&item.collected);
-    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':'Good work. Onwards.'}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div>${bonus?`<p class="bonus-result">Found · ${esc(bonus.title)}</p>`:''}<div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button><button class="btn" id="complete-portfolio">View portfolio</button></div>`,false,showWorlds);
+    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':(['Application received.','Shipped. On time. No ocean.'][s.levelIndex]||'Good work. Onwards.')}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div>${bonus?`<p class="bonus-result">Found · ${esc(bonus.title)}</p>`:''}<div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button><button class="btn" id="complete-portfolio">View portfolio</button></div>`,false,showWorlds);
     bindActions({'next-world':()=>beginScene(s.levelIndex+1),'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
   }
   function beginInterview() {
@@ -266,7 +266,7 @@
   function showInterview() {
     setMode('interview');
     const q=E.interview[interviewIndex];
-    modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There is no wrong answer.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,game.state?.mode==='complete'?showComplete:showHome);
+    modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There are no wrong answers. Those are my job.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,game.state?.mode==='complete'?showComplete:showHome);
     q.answers.forEach((_,i)=>$('answer-'+i).addEventListener('click',()=>{interviewChoice=i;showInterview();}));
     $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex>=E.interview.length)showFinish();else showInterview();});
     if(interviewChoice!==null)requestAnimationFrame(()=>$('interview-next')?.focus({preventScroll:true}));
@@ -284,7 +284,7 @@
       draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRED.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRED.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])}</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIRED.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -302,6 +302,8 @@
     $('world-name').textContent=s.world.name;
     $('coin-count').textContent=String(s.coins).padStart(2,'0');
     $('skill-count').textContent=s.skills.length+'/3';
+    const lives=s.assist?'RELAXED':'×'+s.lives;
+    if($('lives').textContent!==lives){$('lives').textContent=lives;$('lives').setAttribute('aria-label',s.assist?'Relaxed mode, unlimited retries':s.lives+(s.lives===1?' life':' lives')+' left');}
     const health=s.player.health;
     if($('hearts').dataset.health!==String(health)){
       $('hearts').dataset.health=health;$('hearts').setAttribute('aria-label',health+' hearts');
@@ -309,7 +311,10 @@
     }
     $('dash-meter').firstElementChild.style.width=Math.max(0,Math.min(100,Math.round((1-s.player.dashCooldown/H.PHYSICS.dashCooldown)*100)))+'%';
   }
+  let taunts=0;
+  const bark = type => H.BARKS?.[type];
   function events() {
+    let gameOver=null;
     for(const e of game.drainEvents()) {
       audio.effect(e.type);
       if(e.type==='hint'){
@@ -323,27 +328,34 @@
       if(e.type==='bonus')toast(e.item.title+' · '+e.item.line,3800);
       if(e.type==='checkpoint'){
         progress.checkpoint=game.checkpointRecord();
-        toast(save()?'Checkpoint saved. You can return here later.':'Checkpoint reached for this session.',2300);
+        toast(save()?'Saved. First thing an editor learns. Usually the hard way.':'Checkpoint reached for this session.',2600);
       }
-      if(e.type==='respawn')toast(e.reason==='feed'?'The Feed scrolled past you. Back to the checkpoint, and keep moving.':'Back on your feet. Your collected ideas are safe.',2600);
-      if(e.type==='signoff')toast(e.label+' signed off.',1800);
+      if(e.type==='respawn'){const b=game.state.boss;const why=e.reason==='feed'?'The Feed scrolled past you.':b?.active&&bark(b.type)?.lose?bark(b.type).lose:e.reason==='fall'?'You fell into a gap in your CV.':'Unfortunately, on this occasion.';toast(why+(game.state.assist?' Back to the checkpoint.':` ${e.lives} ${e.lives===1?'life':'lives'} left.`),3400);}
+      if(e.type==='gameOver'){toast('Game over. We’ve decided to start the process again from the beginning.',4200);gameOver=e.levelIndex;break;}
+      if(e.type==='extraLife')toast(e.coins===50?'50 ideas. Extra life. Don’t tell Scope Creep.':`${e.coins} ideas. Another extra life.`,2800);
+      if(e.type==='hurt'&&e.health>0&&!game.state.boss?.active)toast('Feedback received.',1300);
+      if(e.type==='bossStart'){taunts=0;const b=bark(game.state.boss.type);if(b?.start)toast(b.start,3000);}
+      if(e.type==='bossTelegraph'){const b=bark(e.type);if(b?.taunts&&taunts++%2===1)toast(b.taunts[(taunts>>1)%b.taunts.length],3000);}
+      if(e.type==='bossHit'&&e.health>0){const b=bark(game.state.boss.type);const i=e.maxHealth-e.health-1;if(b?.hits)toast(b.hits[i%b.hits.length],2400);}
+      if(e.type==='signoff')toast(bark(game.state.boss.type)?.signoffs?.[e.label]||e.label+' signed off.',3000);
       if(e.type==='welcome')toast('Your interview is through the doors.',3000);
-      if(e.type==='bossOpening' && !game.state.boss.signoffs)toast('Shield down! Stomp or dash now.',1800);
+      if(e.type==='bossOpening' && !game.state.boss.signoffs)toast(bark(game.state.boss.type)?.opening||'Shield down! Stomp or dash now.',2000);
       if(e.type==='key'&&e.bell){toast('Ding. Somebody will see you now.',2600);continue;}
       if(e.type==='secret')toast('Secret room found · '+e.name,3200);
       if(e.type==='crash')toast('All-time high! Hold on…',2000);
       if(e.type==='liftFloor')toast(`Floor ${e.floor} of ${e.total}. Somebody is getting on.`,2400);
       if(e.type==='liftDone')toast('Your floor. The doors are open.',2400);
-      if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter is satisfied.`,2400);
+      if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter now believes you are qualified.`,2400);
       if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
-      if(e.type==='fakeExit')toast('Shipped! Wait. Scope Creep has added a phase two.',3600);
       if(e.type==='chaseStart')toast('The Feed is behind you. Run!',2600);
       if(e.type==='chaseEnd')toast('You outran the Feed. It will have forgotten you by tomorrow.',3000);
-      if(e.type==='bossPhase')toast(e.name+' has escalated. Faster warnings, shorter openings.',2800);
-      if(e.type==='roundCleared')toast(`Round ${e.round} of 3 cleared.`,2200);
-      if(e.type==='bossDefeated')toast('Review cleared. The exit is open!',3200);
+      if(e.type==='bossPhase')toast(e.name+' has escalated this to a second stage. Faster warnings, shorter openings.',3000);
+      if(e.type==='roundCleared')toast(`Round ${e.round} of 3 cleared. They’d like to see you again.`,2600);
+      if(e.type==='bossDefeated')toast((bark(game.state.boss.type)?.defeat||'Review cleared.')+' The exit is open!',4200);
       if(e.type==='complete')finishLevel(e);
     }
+    // Out of lives: the world starts again from its first screen, and the old checkpoint is forgotten.
+    if(gameOver!==null){delete progress.checkpoint;startLevel(gameOver);}
   }
   function frame(now) {
     const dt=previousTime?Math.min(.1,(now-previousTime)/1000):0;previousTime=now;

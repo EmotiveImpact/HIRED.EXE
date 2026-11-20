@@ -198,3 +198,5 @@
 @media (orientation:landscape) and (max-height:500px) {
   .comic-illustration {width:min(100%,calc(2 * clamp(112px,35vh,178px)))}
 }
+
+.player-hud .lives{color:#ffd35a;margin-left:4px;font-variant-numeric:tabular-nums}
