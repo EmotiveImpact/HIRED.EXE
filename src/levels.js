@@ -137,6 +137,13 @@
     }
   ];
 
+  const bonusItems = [
+    { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'One quick question. A 14-point plan.' },
+    { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'It estimated the fix at one change. The diff has notes.' },
+    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Hot when the build started.' },
+    { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a newer one.' }
+  ];
+
   const LEVELS = definitions.map((level, levelIndex) => {
     level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
     level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
@@ -151,6 +158,8 @@
     const secret = skills.reduce((highest, item) => item.y < highest.y ? item : highest);
     secret.secret = true;
     level.collectibles.forEach((c, i) => { c.id = level.id + '-pickup-' + i; c.collected = false; });
+    // The original pickup IDs remain stable for saved checkpoints.
+    level.collectibles.push({ ...bonusItems[levelIndex], kind: 'bonus', collected: false });
     level.checkpoints.forEach((c, i) => { c.id = 'checkpoint-' + i; c.active = false; });
     level.springs.forEach((s, i) => { s.id = 'spring-' + i; });
     level.boosts.forEach((b, i) => { b.id = 'boost-' + i; });

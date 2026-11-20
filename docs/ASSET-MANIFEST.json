@@ -4,8 +4,8 @@
     {
       "path": "assets/manifest.json",
       "role": "production-asset",
-      "bytes": 5710,
-      "sha256": "a7135b3e75f04021f6a04c096b7e99233dae4d28717ce669b131099c6da51906"
+      "bytes": 6049,
+      "sha256": "2d9336cf980e8f4eff965cf472460b058b0885cc5448b8031a0128769a6c35a2"
     },
     {
       "path": "assets/previews/world-1.jpg",
@@ -180,6 +180,12 @@
       "role": "production-asset",
       "bytes": 316612,
       "sha256": "0e73591412dfdc629fad18f3cdeea79eeb9c7b6c71d8eb3a472c06f632b21e07"
+    },
+    {
+      "path": "assets/production/story/manga-panels.webp",
+      "role": "production-asset",
+      "bytes": 350262,
+      "sha256": "4d5c42adca312feef1de3864c003017fc3de29013d71ef32c18a06227eabcd4a"
     },
     {
       "path": "assets/props/briefcase-block.png",

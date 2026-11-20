@@ -28,6 +28,7 @@ runtime_paths = {v['image'] for v in meta.values()}
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.webp'))
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/enemies/icons').glob('*.png'))
 runtime_paths.add('assets/production/characters/portrait-reference.png')
+runtime_paths.add('assets/production/story/manga-panels.webp')
 for path in runtime_paths:
     if not (ROOT/path).is_file():
         raise FileNotFoundError(path)

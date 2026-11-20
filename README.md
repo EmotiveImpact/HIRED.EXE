@@ -17,7 +17,9 @@ Open `index.html` from a complete checkout, or run `python3 -m http.server 8000`
 
 Use A/D or the arrow keys to move, Space to jump, Shift or X to dash and P to pause. Hold jump for height and press it a second time for a double jump. Down plus Jump drops through a floating platform. Touch controls support simultaneous presses. The world directory and pause menu offer Relaxed mode.
 
-Each world has two checkpoint terminals, three optional skill tokens and a portfolio field note on the highest skill route. A checkpoint restores health and saves a snapshot on this browser. After reloading, **Continue from checkpoint** restores that snapshot. Within the same run, retries also keep pickups and boss progress earned since the checkpoint. **Restart this world** begins the level again. When storage is unavailable the run still works in memory.
+An opening comic and four short interludes follow the making of the application. Use **Next panel**, **Previous** or **Skip cutscene** to read at your own pace. The world directory takes you straight to gameplay.
+
+Each world has two checkpoint terminals, three optional skill tokens, a hidden portfolio field note and a bonus collectible. The bonus items include in-game ChatGPT and Claude subscription cards. A checkpoint restores health and saves a snapshot on this browser. After reloading, **Continue from checkpoint** restores that snapshot. Within the same run, retries also keep pickups and boss progress earned since the checkpoint. **Restart this world** begins the level again. When storage is unavailable the run still works in memory.
 
 The interview ending records the visitor's chosen topics, links to the selected project when a public page is configured, and opens a pre-filled email draft. The employer receives nothing through gameplay. This is an independent application.
 

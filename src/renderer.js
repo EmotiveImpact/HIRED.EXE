@@ -330,6 +330,21 @@
         }
       }
       const ctx = this.ctx, bob = Math.sin(this.time * 4 + item.x * .017) * 4;
+      if (item.kind === 'bonus') {
+        const x = round(item.x), y = round(item.y + bob);
+        ctx.fillStyle = '#261a45';
+        ctx.fillRect(x - 18, y - 14, 36, 28);
+        ctx.fillStyle = item.colour;
+        ctx.fillRect(x - 16, y - 12, 32, 24);
+        ctx.fillStyle = '#261a45';
+        ctx.fillRect(x - 16, y - 7, 32, 3);
+        ctx.save();
+        ctx.font = 'bold 10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(item.badge, x, y + 7);
+        ctx.restore();
+        return;
+      }
       const skill = item.kind === 'skill';
       const pick = skill ? ['palette', 'bricks', 'code', 'cube'][this.levelIndex] : 'bulb';
       const height = skill ? 40 : 26, cy = item.y + bob;

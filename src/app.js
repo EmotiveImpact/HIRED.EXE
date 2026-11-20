@@ -52,6 +52,7 @@
     : 'A / D move · Space jump / double jump · Shift dash';
   let renderer, uiMode='boot', ready=false, previousTime=0, toastTimeout, ribbonTimeout;
   let interviewIndex=0, interviewChoice=null;
+  let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
@@ -111,7 +112,62 @@
     const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
     $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRED<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button></div></div></div>`;
-    bindActions({'start-game':()=>hasRun?resume():progress.results[3]&&!progress.checkpoint?beginInterview():startLevel(hasProgress?progress.lastLevel:0,progress.checkpoint),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+    bindActions({'start-game':()=>hasRun?resume():progress.results[3]&&!progress.checkpoint?beginInterview():hasProgress?startLevel(progress.lastLevel,progress.checkpoint):beginScene(0),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+  }
+  function beginScene(index) {
+    sceneIndex=index; sceneBeat=0; showScene();
+  }
+  function finishScene() {
+    if(sceneIndex===H.LEVELS.length)beginInterview();
+    else startLevel(sceneIndex);
+  }
+  function comicSprite(atlasName, frameName, className) {
+    const atlas=globalThis.HIRED_ASSET_META[atlasName];
+    const frame=atlas.frames[frameName];
+    const [width,height]=atlas.size;
+    const style=[
+      `background-image:url('${asset(atlas.image)}')`,
+      `background-size:${width/frame.w*100}% ${height/frame.h*100}%`,
+      `background-position:${frame.x/(width-frame.w)*100}% ${frame.y/(height-frame.h)*100}%`,
+      `aspect-ratio:${frame.w}/${frame.h}`
+    ].join(';');
+    return `<div class="comic-sprite ${className}" style="${esc(style)}"></div>`;
+  }
+  function showScene() {
+    setMode('scene');
+    const scene=H.SCENES[sceneIndex], beat=scene.beats[sceneBeat];
+    const last=sceneBeat===scene.beats.length-1;
+    const nextLabel=last?(sceneIndex===H.LEVELS.length?'Enter the interview':'Play '+H.LEVELS[sceneIndex].name):'Next panel';
+    const illustrated=Number.isInteger(beat.art);
+    const panel=illustrated
+      ? `<div class="comic-illustration" style="${esc(`background-image:url('${asset('assets/production/story/manga-panels.webp')}');background-position:${beat.art%2*100}% ${Math.floor(beat.art/2)*50}%`)}"></div>`
+      : `<div class="comic-frame"><img src="${asset('assets/production/backgrounds/'+scene.backdrop+'.webp')}" alt=""><div class="comic-rays"></div></div>
+        <div class="comic-inset">${comicSprite('enemies',beat.prop,'comic-prop')}</div>
+        ${comicSprite('hero',beat.pose,'comic-hero')}`;
+    const overlay=$('overlay');
+    overlay.className='overlay comic-overlay';
+    overlay.setAttribute('aria-label',scene.title);
+    $('status').textContent=scene.title;
+    overlay.innerHTML=`<section class="comic" aria-labelledby="comic-title">
+      <header class="comic-header"><h2 id="comic-title">${esc(scene.title)}</h2><span>${sceneBeat+1} / ${scene.beats.length}</span></header>
+      <div class="comic-art ${illustrated?'comic-illustrated':''} ${beat.burst?'comic-burst':''}" aria-hidden="true">
+        ${panel}
+        <span class="comic-effect">${esc(beat.effect)}</span>
+      </div>
+      <div class="comic-dialogue" id="comic-dialogue"><strong>${esc(beat.speaker)}</strong><p>${esc(beat.line)}</p></div>
+      <footer class="comic-actions">
+        <button class="btn primary" id="scene-next" aria-describedby="comic-dialogue">${esc(nextLabel)}</button>
+        <button class="btn" id="scene-prev" ${sceneBeat===0?'disabled':''}>Previous</button>
+        <button class="comic-skip" id="scene-skip">Skip cutscene</button>
+      </footer>
+    </section>`;
+    bindActions({
+      'scene-next':()=>{if(last)finishScene();else{sceneBeat++;showScene();}},
+      'scene-prev':()=>{sceneBeat--;showScene();},
+      'scene-skip':finishScene
+    });
+    if(beat.burst)audio.effect('scene');
+    focusDialog();
   }
   function assistRow() {return `<label class="toggle-row"><input id="assist-toggle" type="checkbox" ${progress.assist?'checked':''}><span>Relaxed mode<small>Keep the platforming. Contact damage is switched off.</small></span></label>`;}
   function bindAssist() {$('assist-toggle')?.addEventListener('change',e=>{progress.assist=e.target.checked;game.setAssist(progress.assist);save();});}
@@ -152,6 +208,7 @@
     if(mode==='playing'||mode==='pause')showPause();
     else if(mode==='worlds')showWorlds(worldsBack);
     else if(mode==='complete')showComplete();
+    else if(mode==='scene')showScene();
     else if(mode==='interview')showInterview();
     else if(mode==='finish')showFinish();
     else showHome();
@@ -179,7 +236,7 @@
     const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
     const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
       `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
-    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
+    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
     $('portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
@@ -199,8 +256,9 @@
     setMode('complete');const s=game.state;
     $('status').textContent=storageAvailable?'World complete. Progress saved on this browser.':'World complete. Progress kept for this session.';
     const last=s.levelIndex===3;
-    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':'Good work. Onwards.'}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div><div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button><button class="btn" id="complete-portfolio">View portfolio</button></div>`,false,showWorlds);
-    bindActions({'next-world':()=>{if(last)beginInterview();else startLevel(s.levelIndex+1);},'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
+    const bonus=s.world.collectibles.find(item=>item.kind==='bonus'&&item.collected);
+    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':'Good work. Onwards.'}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div>${bonus?`<p class="bonus-result">Found · ${esc(bonus.title)}</p>`:''}<div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button><button class="btn" id="complete-portfolio">View portfolio</button></div>`,false,showWorlds);
+    bindActions({'next-world':()=>beginScene(s.levelIndex+1),'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
   }
   function beginInterview() {
     interviewIndex=0; interviewChoice=null; interviewAnswers=[]; showInterview();
@@ -235,7 +293,7 @@
     async start(){try{this.ctx ||= new (window.AudioContext||window.webkitAudioContext)();await this.ctx.resume();if(!this.timer)this.timer=setInterval(()=>this.music(),155);}catch(_){this.enabled=false;updateSound();}},
     tone(freq,duration=.09,type='square',volume=.025,slide=0){if(!this.enabled||!this.ctx||this.ctx.state!=='running')return;const t=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+duration);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(volume,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(this.ctx.destination);o.onended=()=>{o.disconnect();g.disconnect();};o.start(t);o.stop(t+duration+.015);},
     music(){if(uiMode!=='playing'||!this.enabled)return;const seq=[659,0,784,880,0,784,659,523,587,0,659,784,659,523,587,0];const n=this.beat++%seq.length;this.tone(seq[n]||130,.11,'triangle',seq[n]?.027:.009);if(n%4===0)this.tone([131,165,147,175][Math.floor(n/4)],.28,'triangle',.04);},
-    effect(type){const fx={jump:[400,.11,'square',.02,760],dash:[880,.1,'sawtooth',.012,220],coin:[1046,.09,'square',.018,1568],skill:[784,.22,'triangle',.06,1568],hurt:[220,.18,'sawtooth',.025,85],checkpoint:[523,.25,'triangle',.05,1046],stomp:[260,.1,'square',.03,120],bossHit:[140,.19,'square',.025,450],complete:[523,.45,'triangle',.06,1046],spring:[240,.2,'square',.02,980]};if(fx[type])this.tone(...fx[type]);}
+    effect(type){const fx={jump:[400,.11,'square',.02,760],dash:[880,.1,'sawtooth',.012,220],coin:[1046,.09,'square',.018,1568],skill:[784,.22,'triangle',.06,1568],hurt:[220,.18,'sawtooth',.025,85],checkpoint:[523,.25,'triangle',.05,1046],stomp:[260,.1,'square',.03,120],bossHit:[140,.19,'square',.025,450],complete:[523,.45,'triangle',.06,1046],spring:[240,.2,'square',.02,980],bonus:[660,.28,'triangle',.05,1320],scene:[180,.32,'triangle',.04,540]};if(fx[type])this.tone(...fx[type]);}
   };
   function updateSound() {$('sound-button').textContent=audio.enabled?'Sound on':'Sound off';$('sound-button').setAttribute('aria-pressed',String(audio.enabled));}
   function updateHud() {
@@ -262,6 +320,7 @@
         const note = e.item.secret && E.fieldNotes?.[e.skill.id];
         toast(note ? 'Field note · ' + note : [e.skill.title,E.skillProjects?.[e.skill.id]].filter(Boolean).join(' · '),note?6000:3700);
       }
+      if(e.type==='bonus')toast(e.item.title+' · '+e.item.line,3800);
       if(e.type==='checkpoint'){
         progress.checkpoint=game.checkpointRecord();
         toast(save()?'Checkpoint saved. You can return here later.':'Checkpoint reached for this session.',2300);
@@ -292,7 +351,7 @@
       const focusable=[...$('overlay').querySelectorAll('button:not([disabled]),a[href],input')];
       if(focusable.length){const first=focusable[0],last=focusable.at(-1);if(!$('overlay').contains(document.activeElement)){e.preventDefault();(e.shiftKey?last:first).focus();}else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
     }
-    if(['Escape','KeyP'].includes(e.code)&&!e.repeat){e.preventDefault();if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();else if(e.code==='Escape')$('dialog-close')?.click();return;}
+    if(['Escape','KeyP'].includes(e.code)&&!e.repeat){e.preventDefault();if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();else if(e.code==='Escape')(uiMode==='scene'?$('scene-skip'):$('dialog-close'))?.click();return;}
     if(uiMode!=='playing')return;
     if(e.target?.closest?.('button,a,input,select,textarea,[contenteditable="true"]'))return;
     const relevant=['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','KeyA','KeyD','KeyW','KeyS','Space','ShiftLeft','ShiftRight','KeyX'];

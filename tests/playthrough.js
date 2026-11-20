@@ -52,6 +52,7 @@ async function run() {
   // A fresh iframe also ensures handlers and the frame clock are per run.
   const saveKey = 'hired-exe:v04:portfolio';
   const prior = localStorage.getItem(saveKey);
+  localStorage.removeItem(saveKey);
   const loaded = new Promise(resolve => frame.addEventListener('load',resolve,{once:true}));
   frame.src = '../index.html?edition=portfolio';
   await loaded;
@@ -75,7 +76,18 @@ async function run() {
     click('skip-portfolio');
     check(byId('overlay').querySelector('a[href="https://vlumeaudio.com/"]'),'Verified portfolio link missing');
     check(byId('overlay').querySelector('a[href^="mailto:"]'),'Contact action missing');
-    click('portfolio-back'); click('choose-world'); click('world-0');
+    check(byId('overlay').textContent.includes('OMNi Digital Media'),'Experience missing from portfolio');
+    click('portfolio-back'); click('start-game');
+    check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
+    click('scene-next');
+    check(byId('overlay').textContent.includes('250 characters'),'Missing opening dialogue');
+    click('portfolio-button'); click('portfolio-back');
+    check(app().mode==='scene' && byId('overlay').textContent.includes('250 characters'),'Portfolio lost current comic panel');
+    click('scene-prev'); click('scene-next'); click('scene-next');
+    check(byId('overlay').querySelector('.comic-burst'),'Opening did not reach action panel');
+    click('scene-next');
+    check(app().mode==='playing' && app().state.tick===0,'Opening did not hand off to world one');
+    notes('PASS opening, previous panel, portfolio return and comic breakout');
     if(app().state.assist){click('pause-button');byId('assist-toggle').click();click('resume-game');}
     click('pause-button'); const pausedTick=app().state.tick;
     await nextFrame(); await nextFrame(); check(app().state.tick===pausedTick,'Pause advanced simulation');
@@ -126,8 +138,17 @@ async function run() {
       check(s.coins>0 && s.world.checkpoints.every(cp=>cp.active),'Missing ideas or checkpoints');
       check(index===3 ? phases.has('welcome') : phases.has('attack'),'Encounter did not run');
       notes('PASS '+s.world.name+' | '+s.coins+' ideas, '+s.skills.length+' skills, '+s.deaths+' retries, '+s.time.toFixed(1)+' s');
+      check(s.world.collectibles.some(item=>item.kind==='bonus'&&item.collected),'Missing bonus pickup in world '+(index+1));
       click('next-world');
+      check(app().mode==='scene' && app().state===s,'Transition cutscene did not open');
+      if(index===1)click('scene-skip');
+      else {
+        const beatCount=win.Hired.SCENES[index+1].beats.length;
+        for(let beat=0;beat<beatCount;beat++)click('scene-next');
+      }
+      check(app().mode===(index===3?'interview':'playing'),'Scene did not hand off to its destination');
     }
+    notes('PASS all four transition scenes, skip and four bonus pickups');
     for (const i of [0,0,1]) { click('answer-'+i); check(byId('interview-next'),'Missing interview response');click('interview-next'); }
     check(app().mode==='finish','Ending did not open');
     const ending=byId('overlay').textContent;

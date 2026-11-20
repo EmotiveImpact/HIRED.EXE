@@ -43,7 +43,7 @@
       for (const item of s.world.collectibles) {
         item.collected = picked.has(item.id);
         if (item.collected && item.kind === 'skill') s.skills.push(item.skill.id);
-        else if (item.collected) s.coins++;
+        else if (item.collected && item.kind === 'coin') s.coins++;
       }
       for (const enemy of s.enemies) enemy.alive = !defeated.has(enemy.id);
       for (const point of s.world.checkpoints) point.active = point.x <= cp.x;
@@ -192,8 +192,9 @@
         if (item.collected || !overlaps(p, { x: item.x - 17, y: item.y - 17, w: 34, h: 34 })) continue;
         item.collected = true;
         if (item.kind === 'skill') { s.skills.push(item.skill.id); s.score += 250; this.emit('skill', { skill: item.skill, item }); }
+        else if (item.kind === 'bonus') this.emit('bonus', { item });
         else { s.coins++; s.score += 10; this.emit('coin', { x: item.x, y: item.y }); }
-        this.burst(item.x, item.y, item.kind === 'skill' ? 'purple' : 'gold', 8);
+        this.burst(item.x, item.y, item.kind === 'coin' ? 'gold' : 'purple', 8);
       }
     }
     checkpoints() {

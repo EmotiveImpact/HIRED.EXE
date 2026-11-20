@@ -28,8 +28,15 @@ def run(profile, base):
         page.goto(base)
         page.locator('#start-game').wait_for()
         page.screenshot(path=OUT/'title.jpg')
+        activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
+        activate('#start-game')
+        assert page.locator('#comic-title').inner_text() == 'The sensible version'
+        activate('#scene-next')
+        activate('#scene-next')
+        assert page.locator('.comic-burst .comic-illustration').is_visible()
+        page.screenshot(path=OUT/'cutscene.jpg', animations='disabled')
+        activate('#scene-next')
         if mobile:
-            page.locator('#start-game').tap()
             jump = page.locator('[data-control="jump"]')
             assert jump.is_visible()
             jump.tap()
@@ -48,7 +55,6 @@ def run(profile, base):
                 cdp.send('Input.dispatchTouchEvent',{'type':'touchCancel','touchPoints':[]})
                 assert page.locator('.is-held').count() == 0
         else:
-            page.locator('#start-game').click()
             page.keyboard.down('ArrowRight')
             page.wait_for_function('HIRED_APP.state.player.x>170')
             page.keyboard.up('ArrowRight')
@@ -87,6 +93,12 @@ def run(profile, base):
         page.goto((ROOT/'dist/HIRED-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
+        activate('#start-game')
+        assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
+        activate('#scene-next')
+        assert page.locator('.comic-dialogue').inner_text().endswith('Maximum 250 characters.')
+        activate('#scene-skip')
+        assert page.evaluate("HIRED_APP.mode") == 'playing'
         page.goto((ROOT/'dist/HIRED-EXE-v0.4-ART-BOOK.html').as_uri())
         page.locator('[data-go="components"]').first.click()
         page.select_option('#animation-select','victory')

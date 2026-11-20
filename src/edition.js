@@ -21,7 +21,12 @@ const solvedEdition = {
     "collaboration": "Commune",
     "judgement": "Emotive Impact"
 },
-  profile: 'I bring over 20 years of video production, editing and creative direction to building useful digital products. I direct AI coding agents, shape the experience, test the work and take responsibility for what ships.',
+  profile: 'I’m a creative director and AI-native product builder with over 20 years in film and editing. I take software from brief to release: design the experience, trace the flow from interface to database, direct coding agents, review their changes and test what ships.',
+  experience: [
+    { role: 'Founder and Creative Director', company: 'Emotive Impact' },
+    { role: 'Video Editor and Director', company: 'OMNi Digital Media' },
+    { role: 'Head of Digital Media', company: 'Digital Smart Web' }
+  ],
   fieldNotes: {
     'product-thinking': 'Commune started with a household question. Who takes responsibility when a shared task slips?',
     building: 'In Vlume, a small delay control can matter as much as a new audio effect. Try two speakers in the same room.',
@@ -29,11 +34,16 @@ const solvedEdition = {
     collaboration: 'Editing taught me to listen to the room. Building a product asks the same thing of me.'
   },
   portfolio: [
-    {name:'Emotive Impact', description:'Video production and creative direction. The foundation of my approach to storytelling and making ideas tangible.',url:null},
-    {name:'Vlume', description:'A Mac audio mixer with per-app controls and multi-speaker output.',url:'https://vlumeaudio.com/'},
-    {name:'Commune', description:'A community product exploring how people organise shared household life.',url:null},
-    {name:'SALEANE', description:'An assistant for small service businesses, connecting customer bookings with the owner’s diary.',url:'https://saleane.vercel.app/demo'},
-    {name:'Cairn', description:'A Mac storage app built around understanding what takes up space and choosing what to clear.',url:null}
+    { name:'Emotive Impact', description:'Creative direction and client films, from concept and storyboards through production and post.',
+      work:'I led scope, schedules and budgets, mentored editors and reviewed work before delivery.', url:null },
+    { name:'Vlume', description:'A macOS mixer for turning one app up and adjusting connected speakers individually.',
+      work:'I led the experience from menu-bar controls through the site, download and one-time purchase.', url:'https://vlumeaudio.com/' },
+    { name:'Commune', description:'A shared-living product for household costs, tasks and group information.',
+      work:'I directed the homepage and journal, reviewed navigation on desktop and mobile, and used interactive examples to explain splits and repayments.', url:null },
+    { name:'SALEANE', description:'A booking assistant that connects customer requests with a small business owner’s diary.',
+      work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/demo' },
+    { name:'Cairn', description:'A Mac storage utility in development that helps people decide what to clear.',
+      work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:null }
   ],
   contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRED.EXE%20-%20Let%27s%20talk',
   interview: [
@@ -45,6 +55,7 @@ const solvedEdition = {
     {question:'Which project shall we talk through?', answers:[
       {label:'Vlume', text:'I started with a listening problem. In Vlume you can route Mac audio to multiple speakers and adjust each output. I can show you the controls and the timing trade-offs.'},
       {label:'Commune', text:'In Commune, I’m interested in the moment a shared task becomes one person’s responsibility. A household pantry makes that design problem very concrete.'},
+      {label:'SALEANE', text:'A customer asks to book. The owner needs the right appointment in their diary. I can walk through the design between those two moments and show what the demo does.'},
       {label:'Cairn', text:'Cairn asks a practical question before any cleanup: does the owner understand what they are about to remove? I can show you how that shaped the flow.'}
     ]},
     {question:'What should the next conversation focus on?', answers:[

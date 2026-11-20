@@ -146,6 +146,7 @@ def expected_images():
     for folder, pattern in [('assets/production/backgrounds', '*.webp'), ('assets/production/enemies/icons', '*.png')]:
         runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).glob(pattern))
     runtime.add('assets/production/characters/portrait-reference.png')
+    runtime.add('assets/production/story/manga-panels.webp')
     gallery = {path for path in runtime if not path.endswith('.webp')}
     gallery.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.png'))
     for folder in ('references', 'assets/previews'):

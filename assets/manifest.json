@@ -30,6 +30,15 @@
       "runtimePath": "assets/production/backgrounds/interview-hq.webp"
     }
   ],
+  "storyPanels": {
+    "path": "assets/production/story/manga-panels.webp",
+    "source": "Original generated HIRED.EXE manga storyboard from the prior conversation",
+    "sourceSha256": "c4223122a27372bd8540a92c0569392055c49eda800338b6ddef11017c1e7dfe",
+    "columns": 2,
+    "rows": 3,
+    "panelWidth": 600,
+    "panelHeight": 300
+  },
   "atlases": [
     {
       "role": "hero",
