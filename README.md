@@ -27,7 +27,7 @@ The interview ending records the visitor's chosen topics, links to the selected 
 
 The default URL selects `solved-001`. Use `?edition=portfolio` for the employer-neutral version. Add another entry to the edition map in [src/edition.js](src/edition.js) and give it a distinct ID. Set its company, role, opening, closing, projects, field notes, contact and interview questions. The same built site serves each registered edition by URL and keeps results under separate keys. Unknown IDs fall back to the default. Keep private project walkthroughs as descriptions.
 
-The portfolio currently links to [Vlume](https://vlumeaudio.com/) and the [SALEANE demo](https://saleane.vercel.app/demo). Read [the content notes](docs/CONTENT.md) for the basis of the candidate copy.
+The portfolio currently links to [Vlume](https://vlumeaudio.com/) and the [SALEANE demo](https://saleane.vercel.app/demo).
 
 ## Build and verify
 
@@ -40,4 +40,13 @@ python3 tools/package.py
 
 The two offline editions are generated in `dist/`. Open `HIRED-EXE-v0.4-PLAY.html` directly in a browser for the standalone game. Keep `HIRED-EXE-v0.4-ART-BOOK.html` beside it to follow the catalogue link offline.
 
-See [browser playtest evidence](docs/PLAYTEST.md), [the asset inventory](assets/manifest.json) and [the design decisions](docs/DECISION_LOG.md).
+## Read more
+
+| Document | What it covers |
+| --- | --- |
+| [Art bible](docs/ART-BIBLE.md) | The visual direction, palette, character, materials and the production asset kit. |
+| [Level design](docs/LEVEL-DESIGN.md) | The four worlds, the boss pattern, difficulty and accessibility. |
+| [Engine API](docs/ENGINE-API.md) | Simulation state, level data, actors and events. |
+| [Playtest report](docs/PLAYTEST.md) | Browser captures, automated routes and device coverage. |
+
+The approved concept boards are in [`references/`](references/) and the asset inventory is [`assets/manifest.json`](assets/manifest.json).
