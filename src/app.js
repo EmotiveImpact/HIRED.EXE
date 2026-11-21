@@ -6,8 +6,13 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const asset = path => globalThis.HIRED_EMBEDDED_ASSETS?.[path] || path;
   const safeLink = value => typeof value === 'string' && /^(https:\/\/|mailto:)/i.test(value) ? value : null;
+  const cvLink = (id, className='') => {
+    const offline=globalThis.HIRED_EMBEDDED_CV;
+    const props=offline?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"';
+    return `<a class="${className}" id="${id}" href="${offline || 'cv.html'}" ${props}>${offline?'Download CV (PDF)':'View CV'}</a>`;
+  };
   const SAVE_KEY = 'hired-exe:v04:' + E.id;
-  let progress = {lastLevel:0,results:{},assist:false,sound:false};
+  let progress = {lastLevel:0,results:{},assist:false,muted:false,seenIntros:[]};
   let storageAvailable = true;
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
@@ -24,11 +29,18 @@
             bestTime:Number.isFinite(result.bestTime)&&result.bestTime>0?result.bestTime:null,completed:true};
         });
       }
+      if(Number.isInteger(saved.pendingScene) && saved.pendingScene >= 1 &&
+         saved.pendingScene <= H.LEVELS.length && progress.results[saved.pendingScene-1]) {
+        progress.pendingScene = saved.pendingScene;
+      }
+      if(Array.isArray(saved.seenIntros)){
+        progress.seenIntros=H.LEVELS.map(level=>level.id).filter(id=>saved.seenIntros.includes(id));
+      }
       progress.assist = saved.assist === true;
       const record = saved.checkpoint;
       if (record?.level === progress.lastLevel && H.LEVELS[record.level].checkpoints.some(cp => cp.id === record.checkpoint))
         progress.checkpoint = record;
-      // Audio always starts off after a page reload; a fresh gesture is required.
+      progress.muted = saved.muted === true;
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
   const save = () => {try {localStorage.setItem(SAVE_KEY,JSON.stringify(progress));storageAvailable=true;return true;} catch (_) {storageAvailable=false;return false;}};
@@ -81,6 +93,7 @@
   }
   function setMode(mode) {
     uiMode=mode;
+    audio.syncMusic();
     if (renderer) renderer.canvas.width = compact.matches && mode !== 'home' ? 480 : H.WIDTH;
     game.viewWidth = compact.matches ? 480 : H.WIDTH;
     clearInputs(); previousTime=performance.now();
@@ -111,15 +124,31 @@
     $('overlay').setAttribute('aria-label','Main menu');
     const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button></div></div></div>`;
-    bindActions({'start-game':()=>hasRun?resume():progress.results[3]&&!progress.checkpoint?beginInterview():hasProgress?startLevel(progress.lastLevel,progress.checkpoint):beginScene(0),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.pendingScene?'Continue the story':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('home-cv')}${globalThis.HIRED_EMBEDDED_ASSETS||!E.interviewer?'':'<a href="cutscenes.html" target="_blank" rel="noopener">Read the cutscenes</a>'}</div></div></div>`;
+    bindActions({'start-game':()=>{
+      if(hasRun)resume();
+      else if(progress.pendingScene)beginScene(progress.pendingScene);
+      else if(progress.results[3]&&!progress.checkpoint)beginScene(H.LEVELS.length);
+      else if(progress.checkpoint)startLevel(progress.lastLevel,progress.checkpoint);
+      else if(hasProgress)beginScene(progress.lastLevel);
+      else beginScene(0);
+    },'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
   }
   function beginScene(index) {
+    if(H.LEVELS[index] && progress.seenIntros.includes(H.LEVELS[index].id)){
+      startLevel(index);
+      return;
+    }
     sceneIndex=index; sceneBeat=0; showScene();
   }
   function finishScene() {
-    if(sceneIndex===H.LEVELS.length)beginInterview();
-    else startLevel(sceneIndex);
+    if(sceneIndex>H.LEVELS.length)showFinish();
+    else if(sceneIndex===H.LEVELS.length)beginInterview();
+    else {
+      const id=H.LEVELS[sceneIndex].id;
+      if(!progress.seenIntros.includes(id))progress.seenIntros.push(id);
+      startLevel(sceneIndex);
+    }
   }
   function comicSprite(atlasName, frameName, className) {
     const atlas=globalThis.HIRED_ASSET_META[atlasName];
@@ -137,27 +166,39 @@
     setMode('scene');
     const scene=H.SCENES[sceneIndex], beat=scene.beats[sceneBeat];
     const last=sceneBeat===scene.beats.length-1;
-    const nextLabel=last?(sceneIndex===H.LEVELS.length?'Enter the interview':'Play '+H.LEVELS[sceneIndex].name):'Next panel';
-    const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel));
+    let nextLabel='Next panel';
+    if(last){
+      const nextLevel=H.LEVELS[sceneIndex];
+      nextLabel=sceneIndex===3?'Play Final Interview HQ':nextLevel?'Play '+nextLevel.name:sceneIndex===H.LEVELS.length?'Enter the interview':'See your results';
+    }
+    const speaker=beat.speaker==='interviewer'?(E.interviewer||'Interview host'):beat.speaker;
+    const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel)&&(!beat.portrait||E.interviewer));
     const illustrated=fullPanel||Number.isInteger(beat.art);
     const panel=fullPanel
-      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
+      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(beat.image || H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
       : illustrated
       ? `<div class="comic-illustration" style="${esc(`background-image:url('${asset('assets/production/story/manga-panels.webp')}');background-position:${beat.art%2*100}% ${Math.floor(beat.art/2)*50}%`)}"></div>`
       : `<div class="comic-frame"><img src="${asset('assets/production/backgrounds/'+scene.backdrop+'.webp')}" alt=""><div class="comic-rays"></div></div>
         <div class="comic-inset">${comicSprite('enemies',beat.prop,'comic-prop')}</div>
         ${comicSprite('hero',beat.pose,'comic-hero')}`;
+    const upcoming=scene.beats[sceneBeat+1];
+    if(upcoming?.panel && H.PANELS?.ready.includes(upcoming.panel) && (!upcoming.portrait||E.interviewer)) {
+      new Image().src=asset(upcoming.image || H.PANELS.folder+upcoming.panel+'.jpg');
+    }
+    const line=(!E.interviewer && beat.neutralLine) || beat.line;
+    const dialogue=beat.dialogue ? beat.dialogue.map(([who,words])=>`<strong>${esc(who)}</strong><p>${esc(words)}</p>`).join('') : line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
+    const response=beat.reply?`<strong>${esc(E.applicant.split(' ')[0])}</strong><p>${esc(beat.reply)}</p>`:'';
     const overlay=$('overlay');
     overlay.className='overlay comic-overlay';
     overlay.setAttribute('aria-label',scene.title);
     $('status').textContent=scene.title;
     overlay.innerHTML=`<section class="comic" aria-labelledby="comic-title">
-      <header class="comic-header"><h2 id="comic-title">${esc(scene.title)}</h2><span>${sceneBeat+1} / ${scene.beats.length}</span></header>
-      <div class="comic-art ${illustrated?'comic-illustrated':''} ${beat.burst?'comic-burst':''}" aria-hidden="true">
-        ${panel}
-        <span class="comic-effect">${esc(beat.effect)}</span>
+      <header class="comic-header"><h2 id="comic-title">${esc(beat.title || scene.title)}</h2><span>${sceneBeat+1} / ${scene.beats.length}</span></header>
+      <div class="comic-art ${illustrated?'comic-illustrated':''} ${beat.burst?'comic-burst':''}" ${fullPanel?`role="img" aria-label="${esc(beat.alt)}"`:'aria-hidden="true"'}>
+        ${panel}${beat.image && beat.panel==='p04-gatekeeper'?'<small class="comic-effect">(for illustrative purposes only)</small>':''}
+        ${fullPanel?'':`<span class="comic-effect">${esc(beat.effect)}</span>`}
       </div>
-      <div class="comic-dialogue" id="comic-dialogue"><strong>${esc(beat.speaker)}</strong><p>${esc(beat.line)}</p></div>
+      <div class="comic-dialogue" id="comic-dialogue">${dialogue}${response}${beat.after?`<p class="comic-after">${esc(beat.after)}</p>`:''}</div>
       <footer class="comic-actions">
         <button class="btn primary" id="scene-next" aria-describedby="comic-dialogue">${esc(nextLabel)}</button>
         <button class="btn" id="scene-prev" ${sceneBeat===0?'disabled':''}>Previous</button>
@@ -170,7 +211,7 @@
       'scene-skip':finishScene
     });
     if(beat.burst)audio.effect('scene');
-    focusDialog();
+    requestAnimationFrame(()=>$('scene-next')?.focus({preventScroll:true}));
   }
   function assistRow() {return `<label class="toggle-row"><input id="assist-toggle" type="checkbox" ${progress.assist?'checked':''}><span>Relaxed mode<small>For hiring managers with a two o’clock. Contact damage is switched off.</small></span></label>`;}
   function bindAssist() {$('assist-toggle')?.addEventListener('change',e=>{progress.assist=e.target.checked;game.setAssist(progress.assist);save();});}
@@ -180,19 +221,21 @@
     setMode('worlds');
     const ids=['application-alley','ship-it-city','growth-run','interview-hq'];
     modal('World directory',`<p class="eyebrow">CHOOSE YOUR STARTING POINT</p><h2>Four stages. One story.</h2><p class="muted">Start at the beginning or take a look around. Every world is open.</p><div class="world-grid">${H.LEVELS.map((l,i)=>`<button class="world-card" id="world-${i}"><img src="${asset(`assets/production/backgrounds/${ids[i]}.webp`)}" alt="">${progress.results[i]?'<span class="clear-badge">CLEARED</span>':''}<span>${String(i+1).padStart(2,'0')} / ${esc(l.name)}</span><small>${esc(l.subtitle)}</small></button>`).join('')}</div>${assistRow()}`,true,back);
-    H.LEVELS.forEach((_,i)=>$('world-'+i).addEventListener('click',()=>startLevel(i)));bindAssist();
+    H.LEVELS.forEach((_,i)=>$('world-'+i).addEventListener('click',()=>beginScene(i)));bindAssist();
   }
   function startLevel(index, checkpoint=null) {
     if(!ready)return;
+    audio.beat=0;
     game.start(index,{assist:progress.assist});
     if (!game.restoreCheckpoint(checkpoint)) delete progress.checkpoint;
+    delete progress.pendingScene;
     progress.lastLevel=index;save();
     setMode('playing');$('game').focus({preventScroll:true});
     $('status').textContent=movementHelp();
     $('level-ribbon').textContent=`${String(index+1).padStart(2,'0')} / ${H.LEVELS[index].name.toUpperCase()}`;
     $('level-ribbon').classList.remove('hidden');
     clearTimeout(ribbonTimeout);ribbonTimeout=setTimeout(()=>$('level-ribbon').classList.add('hidden'),3200);
-    if(audio.enabled)audio.start();
+    if(audio.enabled && audio.ctx?.state!=='running')audio.start();
     updateHud();
   }
   function resume() {
@@ -239,7 +282,7 @@
     const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
     const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
       `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
-    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
+    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
     $('portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
@@ -252,7 +295,9 @@
       completed:true
     };
     delete progress.checkpoint;
-    progress.lastLevel=Math.min(3,event.levelIndex+1);save();showComplete();
+    progress.pendingScene=event.levelIndex+1;
+    progress.lastLevel=Math.min(H.LEVELS.length-1,progress.pendingScene);
+    save();showComplete();
   }
   function showComplete() {
     if(!game.state){showHome();return;}
@@ -264,6 +309,7 @@
     bindActions({'next-world':()=>beginScene(s.levelIndex+1),'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
   }
   function beginInterview() {
+    if(progress.pendingScene===H.LEVELS.length){delete progress.pendingScene;save();}
     interviewIndex=0; interviewChoice=null; interviewAnswers=[]; showInterview();
   }
   function showInterview() {
@@ -271,7 +317,7 @@
     const q=E.interview[interviewIndex];
     modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There are no wrong answers. Those are my job.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,game.state?.mode==='complete'?showComplete:showHome);
     q.answers.forEach((_,i)=>$('answer-'+i).addEventListener('click',()=>{interviewChoice=i;showInterview();}));
-    $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex>=E.interview.length)showFinish();else showInterview();});
+    $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex<E.interview.length)showInterview();else if(E.interviewer)beginScene(H.LEVELS.length+1);else showFinish();});
     if(interviewChoice!==null)requestAnimationFrame(()=>$('interview-next')?.focus({preventScroll:true}));
   }
   function showFinish() {
@@ -287,22 +333,49 @@
       draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
   // Small original synthesised score and effects. No audio files or network requests.
-  const audio={enabled:false,ctx:null,timer:null,beat:0,
-    async start(){try{this.ctx ||= new (window.AudioContext||window.webkitAudioContext)();await this.ctx.resume();if(!this.timer)this.timer=setInterval(()=>this.music(),155);}catch(_){this.enabled=false;updateSound();}},
+  // Each phrase uses MIDI pitches, with zero marking a rest. Bass changes every four steps.
+  const scores=[
+    {bpm:116,voice:'triangle',lead:[72,0,76,79,0,76,74,72,71,0,74,77,0,74,71,67,69,72,0,76,79,0,77,76,74,0,71,67,0,71,74,0],bass:[48,55,43,50,45,52,43,55]},
+    {bpm:96,voice:'square',lead:[0,62,0,65,67,0,69,0,0,67,65,0,62,60,0,0,0,65,0,69,72,0,70,69,67,0,65,62,0,60,62,0],bass:[38,45,43,41,41,48,43,45]},
+    {bpm:150,voice:'sawtooth',lead:[64,67,71,76,71,67,64,67,62,66,69,74,69,66,62,66,60,64,67,72,76,72,67,64,59,63,66,71,78,75,71,0],bass:[40,47,38,45,36,43,35,42]},
+    {bpm:84,voice:'sine',lead:[67,0,0,71,74,0,69,0,66,0,69,0,73,0,0,0,67,0,71,74,78,0,76,0,74,0,71,0,67,0,0,0],bass:[43,50,42,49,40,47,43,50]}
+  ];
+  const hz = note => 440 * 2 ** ((note-69)/12);
+  const audio={enabled:!progress.muted,ctx:null,timer:null,beat:0,
+    async start(){
+      if(!this.enabled)return;
+      try{
+        this.ctx ||= new (window.AudioContext||window.webkitAudioContext)();
+        await this.ctx.resume();
+        this.syncMusic();
+      }catch(_){this.enabled=false;updateSound();}
+    },
+    syncMusic(){
+      clearTimeout(this.timer);
+      if(this.enabled && this.ctx?.state==='running' && uiMode==='playing')this.music();
+    },
     tone(freq,duration=.09,type='square',volume=.025,slide=0){if(!this.enabled||!this.ctx||this.ctx.state!=='running')return;const t=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+duration);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(volume,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(this.ctx.destination);o.onended=()=>{o.disconnect();g.disconnect();};o.start(t);o.stop(t+duration+.015);},
-    music(){if(uiMode!=='playing'||!this.enabled)return;const seq=[659,0,784,880,0,784,659,523,587,0,659,784,659,523,587,0];const n=this.beat++%seq.length;this.tone(seq[n]||130,.11,'triangle',seq[n]?.027:.009);if(n%4===0)this.tone([131,165,147,175][Math.floor(n/4)],.28,'triangle',.04);},
+    music(){
+      const score=scores[game.state.levelIndex], step=this.beat++ % score.lead.length;
+      const seconds=30/score.bpm, note=score.lead[step];
+      if(note)this.tone(hz(note),seconds*.82,score.voice,score.voice==='square'||score.voice==='sawtooth'?.011:.033);
+      if(step%4===0)this.tone(hz(score.bass[step/4]),seconds*2.5,'triangle',.047);
+      if(step%4===2)this.tone(90,.055,'sine',.035,38);
+      this.timer=setTimeout(()=>this.music(),seconds*1000);
+    },
     effect(type){const fx={jump:[400,.11,'square',.02,760],dash:[880,.1,'sawtooth',.012,220],coin:[1046,.09,'square',.018,1568],skill:[784,.22,'triangle',.06,1568],hurt:[220,.18,'sawtooth',.025,85],checkpoint:[523,.25,'triangle',.05,1046],stomp:[260,.1,'square',.03,120],bossHit:[140,.19,'square',.025,450],complete:[523,.45,'triangle',.06,1046],spring:[240,.2,'square',.02,980],bonus:[660,.28,'triangle',.05,1320],scene:[180,.32,'triangle',.04,540]};if(fx[type])this.tone(...fx[type]);}
   };
   function updateSound() {$('sound-button').textContent=audio.enabled?'Sound on':'Sound off';$('sound-button').setAttribute('aria-pressed',String(audio.enabled));}
   function updateHud() {
     const s=game.state;if(!s)return;
     $('world-count').textContent=`WORLD ${String(s.levelIndex+1).padStart(2,'0')} / 04`;
-    $('world-name').textContent=s.world.name;
+    const room = s.world.floorScenes?.[s.floor];
+    $('world-name').textContent=room ? 'Floor '+(s.floor+1)+' · '+room.title : s.world.name;
     $('coin-count').textContent=String(s.coins).padStart(2,'0');
     $('skill-count').textContent=s.skills.length+'/3';
     const lives=s.assist?'RELAXED':'×'+s.lives;
@@ -335,19 +408,17 @@
       }
       if(e.type==='respawn'){const b=game.state.boss;const why=e.reason==='feed'?'The Feed scrolled past you.':b?.active&&bark(b.type)?.lose?bark(b.type).lose:e.reason==='fall'?'You fell into a gap in your CV.':'Unfortunately, on this occasion.';toast(why+(game.state.assist?' Back to the checkpoint.':` ${e.lives} ${e.lives===1?'life':'lives'} left.`),3400);}
       if(e.type==='gameOver'){toast('Game over. We’ve decided to start the process again from the beginning.',4200);gameOver=e.levelIndex;break;}
-      if(e.type==='extraLife')toast(e.coins===50?'50 ideas. Extra life. Don’t tell Scope Creep.':`${e.coins} ideas. Another extra life.`,2800);
+      if(e.type==='extraLife')toast(e.coins===50?'50 ideas. Extra life. Don’t tell While I’m Here.':`${e.coins} ideas. Another extra life.`,2800);
       if(e.type==='hurt'&&e.health>0&&!game.state.boss?.active)toast('Feedback received.',1300);
       if(e.type==='bossStart'){taunts=0;const b=bark(game.state.boss.type);if(b?.start)toast(b.start,3000);}
       if(e.type==='bossTelegraph'){const b=bark(e.type);if(b?.taunts&&taunts++%2===1)toast(b.taunts[(taunts>>1)%b.taunts.length],3000);}
       if(e.type==='bossHit'&&e.health>0){const b=bark(game.state.boss.type);const i=e.maxHealth-e.health-1;if(b?.hits)toast(b.hits[i%b.hits.length],2400);}
       if(e.type==='signoff')toast(bark(game.state.boss.type)?.signoffs?.[e.label]||e.label+' signed off.',3000);
       if(e.type==='welcome')toast('Your interview is through the doors.',3000);
-      if(e.type==='bossOpening' && !game.state.boss.signoffs)toast(bark(game.state.boss.type)?.opening||'Shield down! Stomp or dash now.',2000);
+      if(e.type==='bossOpening')toast(game.state.boss.type==='scopecreep'?'He’s stopped. Dash into him or jump on top.':bark(game.state.boss.type)?.opening||'Shield down! Stomp or dash now.',2400);
       if(e.type==='key'&&e.bell){toast('Ding. Somebody will see you now.',2600);continue;}
       if(e.type==='secret')toast('Secret room found · '+e.name,3200);
       if(e.type==='crash')toast('All-time high! Hold on…',2000);
-      if(e.type==='liftFloor')toast(`Floor ${e.floor} of ${e.total}. Somebody is getting on.`,2400);
-      if(e.type==='liftDone')toast('Your floor. The doors are open.',2400);
       if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter now believes you are qualified.`,2400);
       if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
       if(e.type==='chaseStart')toast('The Feed is behind you. Run!',2600);
@@ -387,6 +458,7 @@
   document.addEventListener('keyup',e=>keys.delete(e.code));
   window.addEventListener('blur',()=>{clearInputs();if(uiMode==='playing')showPause();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInputs();if(uiMode==='playing')showPause();}});
+  $('desktop').addEventListener('dragstart', event => event.preventDefault());
   document.querySelectorAll('[data-control]').forEach(button=>{
     const control=button.dataset.control;
     const release=e=>{if(pointers.get(e.pointerId)!==control)return;pointers.delete(e.pointerId);if(![...pointers.values()].includes(control)){touch.delete(control);button.classList.remove('is-held');}if(e.cancelable)e.preventDefault();};
@@ -399,7 +471,13 @@
   $('help-button').addEventListener('click',()=>ready&&showHelp());
   $('home').addEventListener('click',()=>{if(ready){if(uiMode==='playing')showPause();else showHome();}});
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
-  $('sound-button').addEventListener('click',async()=>{audio.enabled=!audio.enabled;if(audio.enabled)await audio.start();updateSound();if(uiMode==='playing')$('game').focus({preventScroll:true});});
+  updateSound();
+  const unlockAudio=event=>{
+    if(audio.enabled && audio.ctx?.state!=='running' && !event.target.closest?.('#sound-button'))audio.start();
+  };
+  document.addEventListener('click',unlockAudio,true);
+  document.addEventListener('keydown',unlockAudio,true);
+  $('sound-button').addEventListener('click',async()=>{audio.enabled=!audio.enabled;progress.muted=!audio.enabled;save();if(audio.enabled)await audio.start();else audio.syncMusic();updateSound();if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('title-edition').textContent=E.editionLabel;
   $('art-book-link').search = globalThis.location.search;

@@ -26,15 +26,6 @@ function controller(game) {
     if (b.phase === 'vulnerable' && !p.grounded && p.vy > 0 && Math.abs(diff) < 160 && p.dashCooldown <= 0) input.dashPressed = true;
     return input;
   }
-  // Lift: hold the middle of the car and hop over whoever boards.
-  const lift = s.lift;
-  if (lift && lift.stage === 'riding' && c > lift.x0) {
-    const middle = (lift.x0 + lift.x1) / 2;
-    input.right = middle - c > 40; input.left = middle - c < -40;
-    const close = s.enemies.some(e => e.alive && e.type !== 'plane' && Math.abs(e.x + e.w / 2 - c) < 105 && Math.abs(e.y + e.h - (p.y + p.h)) < 45);
-    if (p.grounded && close) input.jumpPressed = true;
-    return input;
-  }
   // Crane ride: wait for the platform, step on, ride, step off.
   const ride = s.world.platforms.find(pl => pl.ride);
   if (ride) {

@@ -40,6 +40,7 @@
         props: this.meta.props?.image || 'assets/production/environment/props-atlas.png'
       };
       BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
+      for (let i = 2; i <= 4; i++) specs['hqFloor' + i] = 'assets/production/backgrounds/interview-floor-' + i + '.webp';
       const results = await Promise.allSettled(Object.entries(specs).map(([key, path]) => new Promise((resolve, reject) => {
         const im = new root.Image();
         im.onload = () => {
@@ -72,17 +73,19 @@
       ctx.globalAlpha = 1;
       ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, W, HGT);
-      this.background();
+      const room = state?.world.floorScenes?.[state.floor];
+      this.background(state?.floor ?? 0, room?.start ?? 0);
       if (!state) return;
       this.ambient();
       ctx.save();
       ctx.translate(-round(this.camera), 0);
+      if (room) { ctx.beginPath(); ctx.rect(room.start, 0, room.end - room.start, HGT); ctx.clip(); }
       this.decor(state.world, false);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w)) continue;
         if (p.type === 'ground') { this.ground(p); if (p.belt) this.belt(p); }
       }
-      this.lift(state);
+      this.floorDoors(state);
       this.decor(state.world, true);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
@@ -111,12 +114,13 @@
       const shade = ctx.createLinearGradient(0, 512, 0, HGT);
       shade.addColorStop(0, 'rgba(19,15,48,0)'); shade.addColorStop(1, 'rgba(19,15,48,.12)');
       ctx.fillStyle = shade; ctx.fillRect(0, 512, W, 28);
+      if (state.floorTransition) this.roomFade(state);
     }
 
     visible(x, width = 0) { return x + width > this.camera - 220 && x < this.camera + W + 220; }
 
-    background() {
-      const ctx = this.ctx, im = this.images['background' + this.levelIndex];
+    background(floor, start) {
+      const ctx = this.ctx, im = this.images[floor ? 'hqFloor' + (floor + 1) : 'background' + this.levelIndex];
       if (!im) {
         ctx.fillStyle = ['#88c7ff', '#e5abc4', '#7773dc', '#a3ceec'][this.levelIndex];
         ctx.fillRect(0, 0, W, HGT); return;
@@ -124,7 +128,7 @@
       // One painted plate drifts slowly behind the physical world. Alternating
       // mirrored copies share an edge without pretending it is a layered source.
       const width = Math.ceil(HGT * im.width / im.height);
-      const offset = this.camera * 0.12;
+      const offset = (this.camera - start) * 0.12;
       const first = Math.floor(offset / width);
       for (let i = first; i <= first + 2; i++) {
         const x = round(i * width - offset);
@@ -276,26 +280,25 @@
       }
     }
 
-    lift(state) {
-      const l = state.lift;
-      if (!l || !this.visible(l.x0, l.x1 - l.x0)) return;
-      const ctx = this.ctx, top = l.floor - 250, width = l.x1 - l.x0;
-      ctx.fillStyle = 'rgba(31,25,68,.34)'; ctx.fillRect(l.x0, top, width, 250);
-      if (l.stage === 'riding') {
-        // Shaft lights streaming downwards sell the ascent.
-        ctx.save(); ctx.beginPath(); ctx.rect(l.x0, top, width, 250); ctx.clip();
-        ctx.fillStyle = 'rgba(255,233,162,.35)';
-        for (let i = 0; i < 9; i++) {
-          const y = top + ((this.time * 190 + i * 61) % 290) - 20;
-          ctx.fillRect(l.x0 + 30 + (i * 137) % (width - 60), y, 3, 26);
-        }
-        ctx.restore();
+    roomFade(state) {
+      const ctx = this.ctx, tick = state.floorTransition.tick;
+      ctx.fillStyle = `rgba(25,20,46,${Math.min(tick, 12 - tick) / 6})`;
+      ctx.fillRect(0, 0, this.canvas.width, HGT);
+    }
+
+    floorDoors(state) {
+      const ctx = this.ctx;
+      const entrance = state.world.floorDoors?.[state.floor - 1]?.landing;
+      if (entrance && this.visible(entrance.x - 44, 55)) {
+        ctx.fillStyle = '#32285a'; ctx.fillRect(entrance.x - 44, entrance.y - 108, 55, 108);
+        ctx.fillStyle = '#ffe19b'; ctx.fillRect(entrance.x - 42, entrance.y - 108, 51, 4);
       }
-      ctx.strokeStyle = '#ffd36c'; ctx.lineWidth = 4; ctx.strokeRect(l.x0, top, width, 250);
-      ctx.fillStyle = '#261a45'; ctx.fillRect(l.x0 - 2, top - 8, width + 4, 10);
-      const text = l.stage === 'riding' ? 'FLOOR ' + (l.wave + 1) + ' OF ' + l.waves.length + ' · GOING UP'
-        : l.stage === 'done' ? 'YOUR FLOOR. DOORS OPEN' : 'LIFT TO INTERVIEW FLOORS';
-      this.label(text, l.x0 + width / 2, top + 26, '#ffe8ae', 11);
+      for (const door of state.world.floorDoors || []) {
+        if (state.bossIndex <= door.round || !this.visible(door.x - 55, 120)) continue;
+        ctx.fillStyle = '#32285a'; ctx.fillRect(door.x - 32, door.y - 115, 80, 115);
+        ctx.fillStyle = '#ffe19b'; ctx.fillRect(door.x - 28, door.y - 111, 72, 4);
+        this.label('DOOR · FLOOR ' + (door.round + 2), door.x + 8, door.y - 130, '#ffe8ae', 11);
+      }
     }
 
     decor(world, front) {
@@ -486,7 +489,7 @@
       if (g.needs === 'keys') {
         const keys = state.world.collectibles.filter(item => item.kind === 'key');
         this.label(keys[0].bell ? 'RING FOR ATTENTION' : keys.filter(k => k.collected).length + ' / ' + keys.length + ' KEYWORDS', x + g.w / 2, top + 66, '#d4f5e3', 10);
-      } else this.label(g.needs === 'lift' ? 'WAIT FOR YOUR FLOOR' : 'CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
+      } else this.label('CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
     }
 
     fakeExit(state) {
@@ -586,8 +589,8 @@
           const wx = cx + b.facing * (b.w / 2 + 36), wy = feet - 60;
           ctx.fillStyle = '#ffdc73'; ctx.beginPath(); ctx.moveTo(wx, wy - 22); ctx.lineTo(wx - 18, wy + 10); ctx.lineTo(wx + 18, wy + 10); ctx.closePath(); ctx.fill();
           ctx.fillStyle = ink; ctx.font = 'bold 25px monospace'; ctx.textAlign = 'center'; ctx.fillText('!', wx, wy + 6); ctx.textAlign = 'left';
-        } else if (b.type === 'scopecreep') {
-          this.label(b.phase === 'attack' ? 'CHARGE!' : 'FILE THE LIT BRIEF', cx, feet + 23, '#ffdf9a', 10);
+        } else if (b.type === 'scopecreep' && !open) {
+          this.label(b.phase === 'attack' ? 'JUMP OVER THE CHARGE' : 'WAIT FOR THE STOP', cx, feet + 23, '#ffdf9a', 10);
         } else if (open) {
           this.label('OPEN · STOMP OR DASH', cx, feet + 23, '#b4ffcb', 10);
           const bounce = Math.sin(this.time * 8) * 3;
