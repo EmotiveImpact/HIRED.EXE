@@ -11,7 +11,7 @@ const tick = (game, input = {}, count = 1) => { for (let i = 0; i < count; i++) 
 const gameAtStart = (index = 0, options = {}) => { const game = new Game(); game.start(index, options); tick(game, {}, 2); game.drainEvents(); return game; };
 
 test('four level layouts have distinct topology, regular checkpoints and three skills', () => {
-  assert.deepEqual(LEVELS.map(l => l.width), [9350, 12880, 12920, 10150]);
+  assert.deepEqual(LEVELS.map(l => l.width), [9350, 12880, 12920, 10500]);
   for (const l of LEVELS) {
     assert.ok(l.checkpoints.length >= 3);
     // No stretch between saves is longer than about ten seconds of running.
@@ -175,7 +175,7 @@ test('bosses accept a stomp only during their opening', () => {
     Object.assign(p, { x: b.x + 20, y: b.y - p.h - 3, vy: 6, grounded: false, coyote: 0, jumps: 1 });
     g.step({ jumpHeld: true });
     assert.equal(b.health, vulnerable ? b.maxHealth - 1 : b.maxHealth);
-    assert.equal(p.health, vulnerable ? 3 : 2);
+    assert.equal(p.health, 3);
   }
 });
 
@@ -348,7 +348,7 @@ test('resuming at a late checkpoint skips the rounds already cleared', () => {
   const record = { level: 3, checkpoint: before.id, collected: [], defeated: [], score: 0, time: 60, deaths: 0 };
   assert.equal(g.restoreCheckpoint(record), true);
   assert.equal(g.state.bossIndex, 2); assert.equal(g.state.boss.type, 'algorithm');
-  assert.equal(g.state.lift.stage, 'done');
+  assert.equal(g.state.floor, 2);
   const gates = g.state.world.platforms.filter(pl => pl.type === 'gate');
   assert.deepEqual(gates.map(gate => gate.needs), [2]);
 });
@@ -366,20 +366,12 @@ test('conveyors carry a standing player and presses hurt only when they slam', (
   phase(0.62); g.step({}); assert.equal(p.health, 2);
 });
 
-test('a dash opens each world\'s secret room and a walk does not', () => {
-  for (let level = 0; level < LEVELS.length; level++) {
-    const g = gameAtStart(level), p = g.state.player;
-    const panel = g.state.world.platforms.find(pl => pl.type === 'breakable');
-    assert.ok(panel, 'World ' + (level + 1) + ' has a secret room');
-    const floor = panel.y + panel.h;
-    Object.assign(p, { x: panel.x - 90, y: floor - p.h, vx: 0, vy: 0, facing: 1 });
-    tick(g, { right: true }, 40);
-    assert.ok(p.x + p.w <= panel.x, 'the panel is solid to a walk');
-    Object.assign(p, { x: panel.x - 90, dashCooldown: 0 });
-    g.step({ right: true, dashPressed: true }); tick(g, { right: true }, 40);
-    assert.ok(g.drainEvents().some(e => e.type === 'secret' && e.name === panel.name));
-    assert.ok(p.x > panel.x + 60 && Math.abs(p.y + p.h - floor) < 1, 'the player is inside the room');
-    assert.ok(g.state.coins >= 4);
+test('each world has an open ledge beneath its two rows of bonus coins', () => {
+  for (const level of LEVELS) {
+    assert.ok(!level.platforms.some(p => p.type === 'wall' || p.type === 'breakable'));
+    const terrace = level.platforms.find(p => p.w === 220 && level.collectibles.some(c =>
+      c.x === p.x + 56 && c.y === p.y - 30));
+    assert.ok(terrace && terrace.oneWay);
   }
 });
 
@@ -398,18 +390,37 @@ test('the crane platform docks level with both banks and the all-time high gives
   assert.ok(p.y + p.h <= 440);
 });
 
-test('the lift runs three floors, boards passengers and then opens its doors', () => {
-  const g = gameAtStart(3, { assist: true }), p = g.state.player, l = g.state.lift;
-  Object.assign(p, { x: l.x0 + 200, y: l.floor - p.h });
-  g.step({}); assert.equal(l.stage, 'riding');
-  assert.equal(g.state.enemies.filter(e => e.lift && e.alive).length, l.waves[0].length);
-  assert.ok(g.state.world.platforms.some(pl => pl.needs === 'lift'));
-  tick(g, {}, l.waveTicks * l.waves.length + 2);
-  assert.equal(l.stage, 'done');
-  assert.ok(!g.state.enemies.some(e => e.lift && e.alive));
-  assert.ok(!g.state.world.platforms.some(pl => pl.needs === 'lift'));
-  const events = g.drainEvents();
-  assert.equal(events.filter(e => e.type === 'liftFloor').length, 3);
+test('the charging boss can be defeated directly by dashing into its opening', () => {
+  const g = gameAtStart(1), { boss, player } = g.state;
+  Object.assign(boss, { active: true, phase: 'attack', timer: 1, facing: 1 });
+  Object.assign(player, { x: boss.x - 100, y: boss.floor - player.h });
+  g.step({});
+  assert.ok(boss.timer >= 180);
+  Object.assign(player, { x: boss.x - player.w - 4, y: boss.floor - player.h, facing: 1 });
+  g.step({ dashPressed: true, right: true });
+  assert.equal(boss.health, boss.maxHealth - 1);
+});
+
+test('clearing each interview round opens a door to a distinct, saved floor', () => {
+  const g = gameAtStart(3, { assist: true }), p = g.state.player;
+  for (const door of g.state.world.floorDoors) {
+    Object.assign(p, { x: door.x - p.w + 2, y: door.y - p.h, vx: 0, vy: 0 });
+    g.setPieces();
+    assert.equal(g.state.floorTransition, null);
+    g.clearBoss(g.state.boss);
+    g.setPieces();
+    assert.equal(g.state.floorTransition.door, door);
+    tick(g, { right: true }, 5);
+    assert.equal(g.state.floor, door.round);
+    tick(g, {}, 1);
+    assert.equal(g.state.floor, door.round + 1);
+    assert.equal(p.x, door.landing.x + 8);
+    assert.ok(g.state.camera.x >= g.state.world.floorScenes[g.state.floor].start);
+    tick(g, {}, 6);
+    assert.equal(g.state.floorTransition, null);
+    assert.ok(p.y + p.h < door.y);
+    assert.equal(g.state.checkpoint.id, door.landing.id);
+  }
 });
 
 test('cutscene panels: every ready panel exists and is used, and every beat id is well formed', () => {
@@ -419,7 +430,8 @@ test('cutscene panels: every ready panel exists and is used, and every beat id i
   const { SCENES, PANELS } = globalThis.Hired;
   const used = new Set(SCENES.flatMap(s => s.beats.map(b => b.panel).filter(Boolean)));
   for (const id of used) assert.match(id, /^p\d\d-[a-z0-9-]+$/, id);
-  assert.equal(used.size, 11);
+  assert.equal(used.size, 20);
+  assert.equal(SCENES.flatMap(scene => scene.beats).length, used.size);
   for (const id of PANELS.ready) {
     assert.ok(used.has(id), `${id} is ready but no beat uses it`);
     assert.ok(fs.existsSync(path.join(__dirname, '..', PANELS.folder, id + '.jpg')), `${id}.jpg is missing`);

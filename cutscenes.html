@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HIRE.EXE | Cutscenes</title>
+<style>
+*{box-sizing:border-box}html{scroll-padding-top:1rem}body{margin:0;background:#171326;color:#fff8e7;font:1rem/1.5 system-ui,sans-serif}main{max-width:63rem;margin:auto;padding:clamp(1rem,4vw,3rem)}h1,h2,p{margin:0}h1{font-size:clamp(2rem,6vw,4rem);letter-spacing:-.06em}h2{color:#ffdc6c;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:-.04em;margin:2.5rem 0 .7rem}a{color:#93ece3;text-underline-offset:.2em}nav{display:flex;gap:.5rem 1.2rem;flex-wrap:wrap}figure{margin:0 0 1.25rem;background:#fff8e7;color:#241b36;border-radius:4px;overflow:hidden}img{display:block;width:100%;height:auto;background:#241a34}figcaption{padding:.65rem 1rem 1rem}small{color:#61506d}figcaption b{color:#553873}figcaption p{margin:.2rem 0}section footer{border-bottom:1px solid #584868;padding-bottom:1rem;color:#e1d3ee}a:focus-visible{outline:3px solid #ffdc6c}
+</style>
+</head>
+<body><main><a href="index.html">Play HIRE.EXE</a><a href="director.html">Review the new world cut</a><h1>The cutscenes</h1><nav aria-label="Jump to a scene"></nav><div id="story"></div><noscript>Enable JavaScript to read the illustrated sequence.</noscript></main>
+<script src="src/director-scenes.js"></script><script>
+let count=0;
+for(const scene of directorScenes){
+ const section=document.createElement('section');section.id='scene-'+(directorScenes.indexOf(scene)+1);
+ const title=document.createElement('h2');title.textContent=scene.title;section.append(title);
+ const link=document.createElement('a');link.href='#'+section.id;link.textContent=scene.title;document.querySelector('nav').append(link);
+ for(const [id,shot,...lines] of scene.shots){
+  const figure=document.createElement('figure'),img=document.createElement('img'),caption=document.createElement('figcaption');
+  img.src=directorPanel(id);img.alt=shot;img.loading='lazy';caption.textContent='Shot '+(++count)+' / 28 · '+shot;
+  for(const line of lines.filter(Boolean)){const p=document.createElement('p');p.textContent=line.replace('|',' · ');caption.append(p);}
+  if(id==='p04-gatekeeper')caption.append('(for illustrative purposes only)');
+  figure.append(img,caption);section.append(figure);
+ }
+ document.getElementById('story').append(section);
+}
+</script></body></html>

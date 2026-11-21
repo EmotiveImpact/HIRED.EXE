@@ -10,7 +10,7 @@
   const enemy = (type, x, floor, min, max, speed = 1.15) => ({
     type, x, y: floor - ({ cv: 44, inbox: 38, plane: 32 }[type]),
     w: type === 'plane' ? 46 : 42, h: { cv: 44, inbox: 38, plane: 32 }[type],
-    minX: min, maxX: max, speed, facing: -1
+    minX: min, maxX: max, speed: speed * .85, facing: -1
   });
   const key = (x, y, word) => ({ x, y, kind: 'key', word });
   const gate = (x, floor, needs, label) => ({ x, y: floor - 420, w: 40, h: 420, needs, label });
@@ -19,16 +19,13 @@
     x: x + i * step, y: y - Math.sin(i / Math.max(1, count - 1) * Math.PI) * 48, kind: 'coin'
   }));
 
-  const wall = (x, y, w, h, extra = {}) => ({ x, y, w, h, type: 'wall', oneWay: false, ...extra });
-
   // ---- Inserted stretches. Each builder receives the x where it starts and returns
   // its pieces plus its width; everything authored after that point moves right.
-  const secretStretch = (name, floor) => x0 => {
+  const coinTerrace = floor => x0 => {
     const top = floor - 232, x = x0 + 340, w = 220;
     return { width: 850,
       platforms: [ground(x0, 700, floor), ledge(x0 + 60, floor - 122), ledge(x0 + 200, top, 140),
-        wall(x, top, w, 24), wall(x, top - 134, w, 24), wall(x + w - 24, top - 110, 24, 110),
-        wall(x, top - 110, 24, 110, { type: 'breakable', name })],
+        ledge(x, top, w)],
       collectibles: [0, 1, 2, 3].flatMap(i => [{ x: x + 56 + i * 38, y: top - 30, kind: 'coin' }, { x: x + 56 + i * 38, y: top - 72, kind: 'coin' }]),
       checkpoints: [{ x: x0 + 30, y: floor }],
       enemies: [enemy('inbox', x0 + 420, floor, x0 + 380, x0 + 640)] };
@@ -84,17 +81,11 @@
     checkpoints: [{ x: x0 + 40, y: 400 }],
     decor: [{ type: 'sign', x: x0 + 110, y: 400, text: 'WE WILL BE WITH YOU SHORTLY' }, { type: 'tree', x: x0 + 470, y: 400 }],
     hints: [{ x: x0 + 20, text: 'The waiting room. Nobody is coming. There must be a bell somewhere.' }] });
-  const liftRide = x0 => ({ width: 970,
-    platforms: [ground(x0, 820, 360)],
-    gates: [gate(x0 + 730, 360, 'lift', 'LIFT DOORS')],
-    lift: { x0: x0 + 90, x1: x0 + 730, floor: 360, waveTicks: 230, waves: [['cv', 'inbox'], ['plane', 'cv'], ['inbox', 'plane', 'cv']] },
-    checkpoints: [{ x: x0 + 30, y: 360 }],
-    hints: [{ x: x0 + 10, text: 'The lift stops at three floors. Someone gets on at every one. Hold out until the doors open.' }] });
   const INSERTS = [
-    [{ at: 1780, build: secretStretch('The Spam Folder', 440) }, { at: 4360, build: coverLetterClimb }],
-    [{ at: 2530, build: secretStretch('The Backlog', 384) }, { at: 5160, build: beltsAndPresses }, { at: 6700, build: craneRide }],
-    [{ at: 1560, build: secretStretch('The Vanity Metrics Vault', 440) }, { at: 2420, build: abTest }, { at: 3210, build: barChart }],
-    [{ at: 720, build: secretStretch('The Stationery Cupboard', 400) }, { at: 2040, build: waitingRoom }, { at: 3340, build: liftRide }]
+    [{ at: 1780, build: coinTerrace(440) }, { at: 4360, build: coverLetterClimb }],
+    [{ at: 2530, build: coinTerrace(384) }, { at: 5160, build: beltsAndPresses }, { at: 6700, build: craneRide }],
+    [{ at: 1560, build: coinTerrace(440) }, { at: 2420, build: abTest }, { at: 3210, build: barChart }],
+    [{ at: 720, build: coinTerrace(400) }, { at: 2040, build: waitingRoom }]
   ];
   const LISTS = ['platforms', 'enemies', 'collectibles', 'checkpoints', 'springs', 'boosts', 'decor', 'hints', 'gates', 'crushers', 'signoffs', 'rounds'];
   function shiftRight(level, from, dx) {
@@ -108,7 +99,6 @@
     if (level.boss.x >= from) level.boss.x += dx;
     if (level.fakeExit && level.fakeExit.x >= from) level.fakeExit.x += dx;
     if (level.chase) for (const field of ['startX', 'endX']) if (level.chase[field] >= from) level.chase[field] += dx;
-    if (level.lift && level.lift.x0 >= from) { level.lift.x0 += dx; level.lift.x1 += dx; }
     level.width += dx;
   }
   function applyInserts(level, inserts) {
@@ -116,7 +106,6 @@
       const part = insert.build(insert.at);
       shiftRight(level, insert.at, part.width);
       for (const name of LISTS) if (part[name]) level[name] = [...(level[name] || []), ...part[name]];
-      if (part.lift) level.lift = part.lift;
     }
     level.checkpoints.sort((a, b) => a.x - b.x);
     level.hints.sort((a, b) => a.x - b.x);
@@ -163,7 +152,7 @@
     },
     {
       id: 'ship-it-city', name: 'Ship It City', subtitle: 'Ideas are good. Finished work is better.',
-      objective: 'Ride the lifts, cross the works and stop Scope Creep.',
+      objective: 'Ride the lifts, cross the works and stop While I’m Here.',
       theme: 'works', width: 8780, height: 540, spawn: { x: 96, y: 382 },
       platforms: [ground(0, 690), ground(820, 660, 400), ground(1610, 770), ground(2530, 500, 384),
         ground(3170, 430), ground(3710, 1290), ground(5160, 560, 400), ground(5880, 640, 384),
@@ -194,7 +183,7 @@
         { x: 7965, label: 'BRIEF' }, { x: 8125, label: 'BUILD' }, { x: 8285, label: 'SHIP' },
         { x: 8445, label: 'SHIP AGAIN' }
       ],
-      boss: { type: 'scopecreep', name: 'Scope Creep', x: 8130, floor: 440, w: 94, h: 88, health: 4 },
+      boss: { type: 'scopecreep', name: 'While I’m Here', x: 8130, floor: 440, w: 94, h: 88, health: 4 },
       decor: [{ type: 'sign', x: 100, y: 440, text: 'SHIP IT CITY' }, { type: 'crate', x: 340, y: 440 },
         { type: 'crane', x: 900, y: 400 }, { type: 'terminal', x: 1110, y: 400 },
         { type: 'crate', x: 1700, y: 440 }, { type: 'banner', x: 2280, y: 440 },
@@ -206,7 +195,7 @@
         { type: 'sign', x: 7640, y: 440, text: 'DASH THROUGH LIT TERMINALS' }],
       hints: [{ x: 100, text: 'The lifts carry you. The lower route is always available.' },
         { x: 1680, text: 'Springs reveal higher routes and optional skill tokens.' },
-        { x: 7560, text: 'Scope Creep keeps adding work. Dodge its charge and dash through each lit terminal to sign off the brief.' }]
+        { x: 7560, text: 'Jump over the charge. Once it stops, stomp or dash into it. Dashing through lit terminals works too.' }]
     },
     {
       id: 'growth-run', name: 'Growth Run', subtitle: 'Keep the momentum. Keep learning.',
@@ -259,7 +248,7 @@
         ground(6520, 900, 320), ledge(370, 338, 192),
         ledge(850, 290), moving(1210, 250, 144, 80, 0, 0.02), ledge(1640, 222, 192),
         ledge(2160, 292), moving(2460, 270, 144, 0, 65, 0.02), ledge(2910, 242, 192),
-        ledge(6570, 210, 144)],
+        ledge(6790, 210, 144)],
       enemies: [enemy('cv', 850, 400, 770, 1030), enemy('plane', 1180, 266, 1010, 1320, 1.6),
         enemy('inbox', 1570, 360, 1470, 1830), enemy('cv', 2270, 400, 2100, 2440, 1.3),
         enemy('plane', 2790, 246, 2690, 3030, 1.6), enemy('inbox', 3000, 360, 2820, 3100)],
@@ -269,23 +258,23 @@
         ...arc(575, 300, 6, 36), ...arc(1240, 270, 6, 38), ...arc(1850, 260, 7, 38),
         ...arc(2450, 280, 7, 38), ...arc(3120, 250, 7, 38), ...arc(4240, 250, 5, 36), ...arc(5300, 240, 5, 36),
         ...arc(6360, 230, 5, 36)],
-      checkpoints: [{ x: 1100, y: 400 }, { x: 3400, y: 350 }, { x: 4450, y: 340 }, { x: 5510, y: 330 }, { x: 6590, y: 320 }],
+      checkpoints: [{ x: 1100, y: 400 }, { x: 3358, y: 350 }, { x: 3400, y: 350 }, { x: 4450, y: 340 }, { x: 5510, y: 330 }, { x: 6590, y: 320 }],
       springs: [{ x: 1450, y: 360, w: 44, h: 16 }], boosts: [],
       rounds: [
-        { type: 'recruitmentbot', name: 'Round 1 · Phone screen', x: 3840, floor: 350, w: 82, h: 82, health: 1, enraged: true },
-        { type: 'scopecreep', name: 'Round 2 · Take-home task', x: 4860, floor: 340, w: 94, h: 88, health: 1, enraged: true,
-          arena: [4560, 5220], signoffs: [{ x: 5100, label: 'SUBMIT' }] },
-        { type: 'algorithm', name: 'Round 3 · The panel', x: 5950, floor: 295, w: 88, h: 76, health: 1, enraged: true }
+        { type: 'recruitmentbot', name: 'Round 1 · Phone screen', x: 3840, floor: 350, w: 82, h: 82, health: 2, interviewRound: true },
+        { type: 'scopecreep', name: 'Round 2 · Take-home task', x: 4860, floor: 340, w: 94, h: 88, health: 3, interviewRound: true,
+          arena: [4560, 5220] },
+        { type: 'algorithm', name: 'Round 3 · The panel', x: 5950, floor: 295, w: 88, h: 76, health: 3, interviewRound: true }
       ],
-      gates: [gate(4190, 350, 0, 'ROUND 1 OF 3'), gate(5250, 340, 1, 'ROUND 2 OF 3'), gate(6310, 330, 2, 'ROUND 3 OF 3')],
-      boss: { type: 'finalreview', name: 'Interview host', x: 6770, floor: 320, w: 84, h: 88, health: 3 },
+      gates: [gate(4190, 350, 0, 'DOOR TO FLOOR 2'), gate(5250, 340, 1, 'DOOR TO FLOOR 3'), gate(6310, 330, 2, 'DOOR TO FLOOR 4')],
+      boss: { type: 'finalreview', name: 'Interview host', x: 6950, floor: 320, w: 84, h: 88, health: 3 },
       decor: [{ type: 'sign', x: 90, y: 440, text: 'FINAL INTERVIEW HQ' }, { type: 'tree', x: 520, y: 440 },
         { type: 'terminal', x: 1110, y: 400 }, { type: 'banner', x: 1460, y: 360 },
         { type: 'satellite', x: 2180, y: 400 }, { type: 'terminal', x: 2860, y: 360 },
         { type: 'sign', x: 3160 - 180, y: 360, text: 'JUST THREE MORE ROUNDS' },
         { type: 'sign', x: 6550, y: 320, text: 'BRING YOUR STORY' }, { type: 'banner', x: 7150, y: 320 }],
       hints: [{ x: 100, text: 'The final climb. Checkpoints keep your progress safe.' },
-        { x: 3300, text: 'Three interview rounds stand between you and the room. You have met them all before.' },
+        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then enter the door on the right.' },
         { x: 6540, text: 'The interview host has your file. Head through the doors and choose what to talk about.' }]
     }
   ];
@@ -293,20 +282,76 @@
   const bonusItems = [
     { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'Finally, someone who thinks you’re absolutely right. £20 a month.' },
     { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'Brilliant find. You’ve hit your usage limit. Try again at 4pm.' },
-    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Made at nine. Found at four. Drunk anyway.' },
+    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Still technically a drink.' },
     { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
   ];
 
+  function configureInterviewDoors(level) {
+    level.floorDoors = level.gates.filter(g => typeof g.needs === 'number').map(g => ({
+      x: g.x, y: g.y + g.h, landing: level.checkpoints.find(cp => cp.x > g.x), round: g.needs
+    }));
+    const titles = ['Phone screen', 'Take-home task', 'The panel', 'Interview reception'];
+    const starts = [0, ...level.floorDoors.map(door => level.platforms.find(p =>
+      p.type === 'ground' && p.x <= door.landing.x && p.x + p.w > door.landing.x).x)];
+    level.floorScenes = titles.map((title, i) => ({
+      title, start: starts[i], end: level.floorDoors[i] ? level.floorDoors[i].x + 48 : level.width
+    }));
+  }
+
   const LEVELS = definitions.map((level, levelIndex) => {
+    if (level.id === 'final-interview') {
+      const upperFloors = [4400, 5460, 6520];
+      const rooms = ['Take-home task', 'The panel', 'Interview'];
+      upperFloors.forEach((start, index) => {
+        const rise = (index + 1) * 40;
+        const end = upperFloors[index + 1] ?? level.width;
+        for (const name of LISTS) for (const item of level[name] || []) {
+          if (item.x < start || item.x >= end) continue;
+          if ('y' in item) item.y -= rise;
+          if (name === 'rounds') item.floor -= rise;
+        }
+        const x = start + 12;
+        level.hints.push({ x, text: 'Floor ' + (index + 2) + ' of 4 · ' + rooms[index] });
+      });
+      level.boss.floor -= 120;
+    }
     applyInserts(level, INSERTS[levelIndex]);
-    level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
-    level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
+    if (level.id === 'final-interview') configureInterviewDoors(level);
     // The regular trail stays on solid ground; extra arcs describe the jumps across gaps.
     for (const p of level.platforms.filter(p => p.type === 'ground')) {
       for (let x = Math.max(240, p.x + 90); x < Math.min(p.x + p.w - 60, level.boss.x - 140); x += 118) {
         level.collectibles.push({ x, y: p.y - 44, kind: 'coin' });
       }
     }
+    if (level.id === 'final-interview') {
+      // Extend the upper rooms from right to left so earlier door coordinates stay stable.
+      const floorStarts = level.floorScenes.slice(1).map(room => room.start);
+      floorStarts.reverse().forEach((start, index) => {
+        const approach = level.platforms.find(p => p.type === 'ground' && p.x === start);
+        const split = start + 305;
+        const remaining = approach.w - (split - start);
+        const y = approach.y;
+        shiftRight(level, split, 440);
+        if (index === 0) {
+          approach.w += 440;
+          level.platforms.push(ledge(split + 100, y - 64, 180), ledge(split + 302, y - 80, 124));
+          level.collectibles.push(...arc(split + 92, y - 105, 7, 42));
+          return;
+        }
+        const rise = 42;
+        approach.w = split - start;
+        level.platforms.push(
+          ground(split + 118, 220, y - rise),
+          ground(split + 440, remaining, y)
+        );
+        level.enemies.push(enemy(index === 1 ? 'inbox' : 'cv', split + 210, y - rise,
+          split + 134, split + 325, 1.05));
+        level.collectibles.push(...arc(split + 15, y - 104, 5, 42));
+      });
+      configureInterviewDoors(level);
+    }
+    level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
+    level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
     // Each level's highest skill ledge carries an optional portfolio field note.
     const skills = level.collectibles.filter(item => item.kind === 'skill');
     const secret = skills.reduce((highest, item) => item.y < highest.y ? item : highest);

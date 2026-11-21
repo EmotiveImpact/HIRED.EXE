@@ -72,18 +72,20 @@ async function run() {
     await until(()=>win.location.search === '?edition=portfolio' && app()?.mode === 'home','Title did not load');
     // The runner uses session-specific storage, including across the reload assertion.
     check(win.HIRED_EDITION.id === 'portfolio','Playtest storage must be isolated');
-    check(!app().assets.failed.length && app().assets.loaded.length===8,'Missing runtime art');
+    check(!app().assets.failed.length && app().assets.loaded.length===11,'Missing runtime art');
+    check(byId('home-cv').getAttribute('href')==='cv.html','CV is missing from the title');
     click('skip-portfolio');
     check(byId('overlay').querySelector('a[href="https://vlumeaudio.com/"]'),'Verified portfolio link missing');
     check(byId('overlay').querySelector('a[href^="mailto:"]'),'Contact action missing');
     check(byId('overlay').textContent.includes('OMNi Digital Media'),'Experience missing from portfolio');
+    check(byId('portfolio-cv').getAttribute('href')==='cv.html','CV is missing from the portfolio');
     click('portfolio-back'); click('start-game');
     check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
     click('scene-next');
-    check(byId('overlay').textContent.includes('The dropdown stops at five'),'Missing opening dialogue');
+    check(byId('overlay').textContent.includes('copy to mark mine against'),'Missing opening dialogue');
     click('portfolio-button'); click('portfolio-back');
-    check(app().mode==='scene' && byId('overlay').textContent.includes('The dropdown stops at five'),'Portfolio lost current comic panel');
-    click('scene-prev'); for(let i=0;i<7;i++)click('scene-next');
+    check(app().mode==='scene' && byId('overlay').textContent.includes('copy to mark mine against'),'Portfolio lost current comic panel');
+    click('scene-prev'); for(let i=0;i<4;i++)click('scene-next');
     check(byId('overlay').querySelector('.comic-burst'),'Opening did not reach action panel');
     click('scene-next');
     check(app().mode==='playing' && app().state.tick===0,'Opening did not hand off to world one');
@@ -155,6 +157,7 @@ async function run() {
     for(const label of ['The creative background','Vlume','A project walkthrough'])check(ending.includes(label),'Ending lost '+label);
     const email=byId('overlay').querySelector('a[href^="mailto:"]');
     check(new URL(email.href).searchParams.get('body').includes('Vlume'),'Email lost interview topic');
+    check(byId('final-cv').getAttribute('href')==='cv.html','CV is missing from the results');
     click('final-portfolio');click('portfolio-back');check(app().mode==='finish','Portfolio did not return to ending');
     notes('PASS three interview answers, matching project, contextual email and portfolio return');
     const before=app().progress;
@@ -163,7 +166,8 @@ async function run() {
     await until(()=>app()?.mode==='home','Reload did not return to title');
     check(Object.keys(app().progress.results).length===4 && JSON.stringify(before.results)===JSON.stringify(app().progress.results),'Results did not survive reload ('+win.HIRED_EDITION.id+', '+Object.keys(app().progress.results).length+' saved worlds)');
     notes('PASS saved results after reload');
-    click('start-game'); check(app().mode==='interview','Completed interview could not be reopened');
+    click('start-game'); check(app().mode==='scene' && byId('comic-title').textContent==='You’re up','Revisiting the interview skipped its cutscene');
+    click('scene-skip'); check(app().mode==='interview','Completed interview could not be reopened');
     for(const i of [0,0,1]){click('answer-'+i);click('interview-next');}
     check(app().mode==='finish','Revisited ending missing');
     statusLine.textContent='PASS · '+layout.selectedOptions[0].text+' · four worlds and interview';
