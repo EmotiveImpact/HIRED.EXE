@@ -6,7 +6,7 @@ const directorScenes = [
       ['p01-upload','Upload','Portal|Please upload your CV.','Augustus|There you go.'],
       ['p02-form','The receipt','Portal|Thank you. Now enter your employment history.','Augustus|What did you do with the PDF?'],
       ['p03-the-limit','Five years maximum','Portal|Please enter a number between one and five.','Augustus|I’ll let the other fifteen know.'],
-      ['p04-gatekeeper','An idea','', 'Augustus|I wonder what you look like.'],
+      ['p04-gatekeeper','An idea','', 'Augustus|Psych! I didn’t draw anything. I used my imagination!'],
       ['p05-play','Press Play','Augustus|Right. Your turn to apply for something.']
     ]
   },
@@ -22,7 +22,7 @@ const directorScenes = [
   {
     title:'A quick addition',place:'World 2 · Ship It City',cue:'On entering the dock level, the workshop trolley offers to help finish one small job. It embodies the familiar person who says “while you’re here”. The player ships the fish and leaves the extra work at the dock.',
     shots:[
-      ['city-1','One fish','Augustus|One fish. Dab of orange. Then we ship.'],
+      ['city-1','One fish','Augustus|Last job before we ship the level. Paint one fish for the canal.'],
       ['city-2','The reveal','Workshop trolley|While you’re here, could you do the inside?','Augustus|Of the fish?'],
       ['city-3','The estimate','Workshop trolley|Of the submarine. We’ve bought the propeller.'],
       ['city-4','Delivery','Augustus|Lovely. Keep the receipt.']
