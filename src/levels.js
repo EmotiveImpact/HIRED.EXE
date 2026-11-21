@@ -248,7 +248,7 @@
         ground(6520, 900, 320), ledge(370, 338, 192),
         ledge(850, 290), moving(1210, 250, 144, 80, 0, 0.02), ledge(1640, 222, 192),
         ledge(2160, 292), moving(2460, 270, 144, 0, 65, 0.02), ledge(2910, 242, 192),
-        ledge(6570, 210, 144)],
+        ledge(6790, 210, 144)],
       enemies: [enemy('cv', 850, 400, 770, 1030), enemy('plane', 1180, 266, 1010, 1320, 1.6),
         enemy('inbox', 1570, 360, 1470, 1830), enemy('cv', 2270, 400, 2100, 2440, 1.3),
         enemy('plane', 2790, 246, 2690, 3030, 1.6), enemy('inbox', 3000, 360, 2820, 3100)],
@@ -261,20 +261,20 @@
       checkpoints: [{ x: 1100, y: 400 }, { x: 3358, y: 350 }, { x: 3400, y: 350 }, { x: 4450, y: 340 }, { x: 5510, y: 330 }, { x: 6590, y: 320 }],
       springs: [{ x: 1450, y: 360, w: 44, h: 16 }], boosts: [],
       rounds: [
-        { type: 'recruitmentbot', name: 'Round 1 · Phone screen', x: 3840, floor: 350, w: 82, h: 82, health: 1, enraged: true },
-        { type: 'scopecreep', name: 'Round 2 · Take-home task', x: 4860, floor: 340, w: 94, h: 88, health: 1, enraged: true,
-          arena: [4560, 5220], signoffs: [{ x: 5100, label: 'SUBMIT' }] },
-        { type: 'algorithm', name: 'Round 3 · The panel', x: 5950, floor: 295, w: 88, h: 76, health: 1, enraged: true }
+        { type: 'recruitmentbot', name: 'Round 1 · Phone screen', x: 3840, floor: 350, w: 82, h: 82, health: 2, interviewRound: true },
+        { type: 'scopecreep', name: 'Round 2 · Take-home task', x: 4860, floor: 340, w: 94, h: 88, health: 3, interviewRound: true,
+          arena: [4560, 5220] },
+        { type: 'algorithm', name: 'Round 3 · The panel', x: 5950, floor: 295, w: 88, h: 76, health: 3, interviewRound: true }
       ],
-      gates: [gate(4190, 350, 0, 'LIFT TO FLOOR 2'), gate(5250, 340, 1, 'LIFT TO FLOOR 3'), gate(6310, 330, 2, 'LIFT TO FLOOR 4')],
-      boss: { type: 'finalreview', name: 'Interview host', x: 6770, floor: 320, w: 84, h: 88, health: 3 },
+      gates: [gate(4190, 350, 0, 'DOOR TO FLOOR 2'), gate(5250, 340, 1, 'DOOR TO FLOOR 3'), gate(6310, 330, 2, 'DOOR TO FLOOR 4')],
+      boss: { type: 'finalreview', name: 'Interview host', x: 6950, floor: 320, w: 84, h: 88, health: 3 },
       decor: [{ type: 'sign', x: 90, y: 440, text: 'FINAL INTERVIEW HQ' }, { type: 'tree', x: 520, y: 440 },
         { type: 'terminal', x: 1110, y: 400 }, { type: 'banner', x: 1460, y: 360 },
         { type: 'satellite', x: 2180, y: 400 }, { type: 'terminal', x: 2860, y: 360 },
         { type: 'sign', x: 3160 - 180, y: 360, text: 'JUST THREE MORE ROUNDS' },
         { type: 'sign', x: 6550, y: 320, text: 'BRING YOUR STORY' }, { type: 'banner', x: 7150, y: 320 }],
       hints: [{ x: 100, text: 'The final climb. Checkpoints keep your progress safe.' },
-        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then walk into the lift on the right.' },
+        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then enter the door on the right.' },
         { x: 6540, text: 'The interview host has your file. Head through the doors and choose what to talk about.' }]
     }
   ];
@@ -285,6 +285,18 @@
     { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Still technically a drink.' },
     { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
   ];
+
+  function configureInterviewDoors(level) {
+    level.floorDoors = level.gates.filter(g => typeof g.needs === 'number').map(g => ({
+      x: g.x, y: g.y + g.h, landing: level.checkpoints.find(cp => cp.x > g.x), round: g.needs
+    }));
+    const titles = ['Phone screen', 'Take-home task', 'The panel', 'Interview reception'];
+    const starts = [0, ...level.floorDoors.map(door => level.platforms.find(p =>
+      p.type === 'ground' && p.x <= door.landing.x && p.x + p.w > door.landing.x).x)];
+    level.floorScenes = titles.map((title, i) => ({
+      title, start: starts[i], end: level.floorDoors[i] ? level.floorDoors[i].x + 48 : level.width
+    }));
+  }
 
   const LEVELS = definitions.map((level, levelIndex) => {
     if (level.id === 'final-interview') {
@@ -304,28 +316,42 @@
       level.boss.floor -= 120;
     }
     applyInserts(level, INSERTS[levelIndex]);
-    if (level.id === 'final-interview') {
-      level.floorLifts = level.gates.filter(g => typeof g.needs === 'number').map(g => {
-        const landing = level.checkpoints.find(cp => cp.x > g.x);
-        return { x: g.x, y: g.y + g.h, landing, round: g.needs };
-      });
-    }
-    if (level.floorLifts) {
-      const titles = ['Phone screen', 'Take-home task', 'The panel', 'Interview reception'];
-      const starts = [0, ...level.floorLifts.map(lift => level.platforms.find(p =>
-        p.type === 'ground' && p.x <= lift.landing.x && p.x + p.w > lift.landing.x).x)];
-      level.floorScenes = titles.map((title, i) => ({
-        title, start: starts[i], end: level.floorLifts[i] ? level.floorLifts[i].x + 48 : level.width
-      }));
-    }
-    level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
-    level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
+    if (level.id === 'final-interview') configureInterviewDoors(level);
     // The regular trail stays on solid ground; extra arcs describe the jumps across gaps.
     for (const p of level.platforms.filter(p => p.type === 'ground')) {
       for (let x = Math.max(240, p.x + 90); x < Math.min(p.x + p.w - 60, level.boss.x - 140); x += 118) {
         level.collectibles.push({ x, y: p.y - 44, kind: 'coin' });
       }
     }
+    if (level.id === 'final-interview') {
+      // Extend the upper rooms from right to left so earlier door coordinates stay stable.
+      const floorStarts = level.floorScenes.slice(1).map(room => room.start);
+      floorStarts.reverse().forEach((start, index) => {
+        const approach = level.platforms.find(p => p.type === 'ground' && p.x === start);
+        const split = start + 305;
+        const remaining = approach.w - (split - start);
+        const y = approach.y;
+        shiftRight(level, split, 440);
+        if (index === 0) {
+          approach.w += 440;
+          level.platforms.push(ledge(split + 100, y - 64, 180), ledge(split + 302, y - 80, 124));
+          level.collectibles.push(...arc(split + 92, y - 105, 7, 42));
+          return;
+        }
+        const rise = 42;
+        approach.w = split - start;
+        level.platforms.push(
+          ground(split + 118, 220, y - rise),
+          ground(split + 440, remaining, y)
+        );
+        level.enemies.push(enemy(index === 1 ? 'inbox' : 'cv', split + 210, y - rise,
+          split + 134, split + 325, 1.05));
+        level.collectibles.push(...arc(split + 15, y - 104, 5, 42));
+      });
+      configureInterviewDoors(level);
+    }
+    level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
+    level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
     // Each level's highest skill ledge carries an optional portfolio field note.
     const skills = level.collectibles.filter(item => item.kind === 'skill');
     const secret = skills.reduce((highest, item) => item.y < highest.y ? item : highest);

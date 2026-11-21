@@ -419,7 +419,6 @@
       if(e.type==='key'&&e.bell){toast('Ding. Somebody will see you now.',2600);continue;}
       if(e.type==='secret')toast('Secret room found · '+e.name,3200);
       if(e.type==='crash')toast('All-time high! Hold on…',2000);
-      if(e.type==='floorLift')toast('Lift going up · Floor '+e.floor+' of 4',1500);
       if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter now believes you are qualified.`,2400);
       if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
       if(e.type==='chaseStart')toast('The Feed is behind you. Run!',2600);

@@ -11,7 +11,7 @@ const tick = (game, input = {}, count = 1) => { for (let i = 0; i < count; i++) 
 const gameAtStart = (index = 0, options = {}) => { const game = new Game(); game.start(index, options); tick(game, {}, 2); game.drainEvents(); return game; };
 
 test('four level layouts have distinct topology, regular checkpoints and three skills', () => {
-  assert.deepEqual(LEVELS.map(l => l.width), [9350, 12880, 12920, 9180]);
+  assert.deepEqual(LEVELS.map(l => l.width), [9350, 12880, 12920, 10500]);
   for (const l of LEVELS) {
     assert.ok(l.checkpoints.length >= 3);
     // No stretch between saves is longer than about ten seconds of running.
@@ -401,25 +401,25 @@ test('the charging boss can be defeated directly by dashing into its opening', (
   assert.equal(boss.health, boss.maxHealth - 1);
 });
 
-test('clearing each interview round unlocks a lift to a higher, saved floor', () => {
+test('clearing each interview round opens a door to a distinct, saved floor', () => {
   const g = gameAtStart(3, { assist: true }), p = g.state.player;
-  for (const lift of g.state.world.floorLifts) {
-    Object.assign(p, { x: lift.x - p.w + 2, y: lift.y - p.h, vx: 0, vy: 0 });
+  for (const door of g.state.world.floorDoors) {
+    Object.assign(p, { x: door.x - p.w + 2, y: door.y - p.h, vx: 0, vy: 0 });
     g.setPieces();
-    assert.equal(g.state.floorRide, null);
+    assert.equal(g.state.floorTransition, null);
     g.clearBoss(g.state.boss);
     g.setPieces();
-    assert.equal(g.state.floorRide.lift, lift);
-    tick(g, { right: true }, 32);
-    assert.equal(g.state.floor, lift.round);
+    assert.equal(g.state.floorTransition.door, door);
+    tick(g, { right: true }, 5);
+    assert.equal(g.state.floor, door.round);
     tick(g, {}, 1);
-    assert.equal(g.state.floor, lift.round + 1);
-    assert.equal(p.x, lift.landing.x + 8);
+    assert.equal(g.state.floor, door.round + 1);
+    assert.equal(p.x, door.landing.x + 8);
     assert.ok(g.state.camera.x >= g.state.world.floorScenes[g.state.floor].start);
-    tick(g, {}, 33);
-    assert.equal(g.state.floorRide, null);
-    assert.ok(p.y + p.h < lift.y);
-    assert.equal(g.state.checkpoint.id, lift.landing.id);
+    tick(g, {}, 6);
+    assert.equal(g.state.floorTransition, null);
+    assert.ok(p.y + p.h < door.y);
+    assert.equal(g.state.checkpoint.id, door.landing.id);
   }
 });
 

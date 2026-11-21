@@ -25,7 +25,7 @@
       const fakeExit = world.fakeExit ? { ...world.fakeExit, triggered: false, timer: 0 } : null;
       this.state = { mode: 'playing', levelIndex: world.levelIndex, world, player: this.makePlayer(world.spawn),
         camera: { x: 0, y: 0 }, score: 0, coins: 0, skills: [], checkpoint: { ...world.spawn, id: 'start' },
-        enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, floor: 0, floorRide: null, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
+        enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, floor: 0, floorTransition: null, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
         lives: PHYSICS.lives,
         assist: Boolean(options.assist), hintsShown: [], completed: false };
       this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
@@ -69,7 +69,7 @@
       s.checkpoint = { id: cp.id, x: cp.x + 8, y: cp.y - s.player.h };
       s.player = this.makePlayer(s.checkpoint);
       s.player.invulnerable = 75;
-      s.floor = s.world.floorLifts?.filter(lift => cp.x >= lift.landing.x).length ?? 0;
+      s.floor = s.world.floorDoors?.filter(door => cp.x >= door.landing.x).length ?? 0;
       s.camera.x = this.cameraTarget();
       s.hintsShown = s.world.hints.flatMap((hint,i) => hint.x < cp.x ? [i] : []);
       return true;
@@ -97,8 +97,8 @@
     tick(input) {
       const s = this.state, p = s.player, world = s.world;
       s.tick++; s.time += STEP;
-      if (s.floorRide) {
-        this.rideToFloor();
+      if (s.floorTransition) {
+        this.advanceFloorTransition();
         return;
       }
       for (const field of ['invulnerable', 'hurtFrames', 'dashCooldown', 'coyote', 'jumpBuffer', 'boostTime', 'dropTime', 'springCooldown']) {
@@ -141,7 +141,7 @@
       const room = world.floorScenes?.[s.floor];
       p.x = clamp(p.x, room?.start ?? 0, (room?.end ?? world.width) - p.w);
       this.pickups(); this.checkpoints(); this.environmentEffects(); this.openGates(); this.setPieces();
-      if (s.player !== p || s.floorRide) return;
+      if (s.player !== p || s.floorTransition) return;
       this.moveEnemies(previousBottom);
       if (s.player !== p) return;
       this.moveBoss(previousBottom);
@@ -279,12 +279,11 @@
         // Scope Creep drags the finish line away to the real end of the level.
         if (f.triggered && f.timer < 150) { f.timer++; f.x += 3 + f.timer * 0.16; }
       }
-      const lift = s.world.floorLifts?.[s.floor];
-      if (lift && s.bossIndex > lift.round && p.x + p.w >= lift.x) {
-        s.floorRide = { lift, tick: 0 };
+      const door = s.world.floorDoors?.[s.floor];
+      if (door && s.bossIndex > door.round && p.x + p.w >= door.x) {
+        s.floorTransition = { door, tick: 0 };
         p.vx = 0; p.vy = 0; p.dashTime = 0; p.animation = 'idle';
         s.projectiles = [];
-        this.emit('floorLift', { floor: lift.round + 2 });
       }
       if (c && !c.done) {
         if (!c.active && p.x > c.startX) { c.active = true; c.x = c.startX - c.lead; this.emit('chaseStart'); }
@@ -304,12 +303,12 @@
       const lookBehind = s.chase?.active ? .5 : .35;
       return clamp(p.x + p.w / 2 - this.viewWidth * lookBehind, start, Math.max(start, end - this.viewWidth));
     }
-    rideToFloor() {
-      const s = this.state, p = s.player, ride = s.floorRide;
-      const { landing, round } = ride.lift;
-      ride.tick++;
-      // Swap scenes behind closed doors. The next floor always starts at its entrance.
-      if (ride.tick === 33) {
+    advanceFloorTransition() {
+      const s = this.state, p = s.player, transition = s.floorTransition;
+      const { landing, round } = transition.door;
+      transition.tick++;
+      // Swap scenes at the darkest point of the doorway fade.
+      if (transition.tick === 6) {
         s.floor = round + 1;
         p.x = landing.x + 8;
         p.y = landing.y - p.h;
@@ -318,8 +317,8 @@
         s.camera.x = this.cameraTarget();
         this.checkpoints();
       }
-      if (ride.tick >= 66) {
-        s.floorRide = null;
+      if (transition.tick >= 12) {
+        s.floorTransition = null;
         p.invulnerable = Math.max(p.invulnerable, 60);
       }
     }
@@ -378,7 +377,7 @@
         return;
       }
       if (!b.active && p.x > b.originX - 430) {
-        b.active = true; b.phase = 'patrol'; b.timer = 70; this.emit('bossStart', { name: b.name });
+        b.active = true; b.phase = 'patrol'; b.timer = b.interviewRound ? 36 : 70; this.emit('bossStart', { name: b.name });
       }
       if (!b.active) return;
       if (b.hitCooldown > 0) b.hitCooldown--;
@@ -431,7 +430,7 @@
         this.burst(b.x + b.w / 2, b.y + b.h / 2, 'gold', 18);
         if (b.health <= 0) {
           this.clearBoss(b);
-        } else { b.phase = 'patrol'; b.timer = 65; }
+        } else { b.phase = 'patrol'; b.timer = b.interviewRound ? 34 : 65; }
       } else if (b.phase === 'attack' && !attack) this.hurt(b.x + b.w / 2);
     }
     clearBoss(boss) {

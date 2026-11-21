@@ -85,7 +85,7 @@
         if (!this.visible(p.x, p.w)) continue;
         if (p.type === 'ground') { this.ground(p); if (p.belt) this.belt(p); }
       }
-      this.floorLifts(state);
+      this.floorDoors(state);
       this.decor(state.world, true);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
@@ -114,7 +114,7 @@
       const shade = ctx.createLinearGradient(0, 512, 0, HGT);
       shade.addColorStop(0, 'rgba(19,15,48,0)'); shade.addColorStop(1, 'rgba(19,15,48,.12)');
       ctx.fillStyle = shade; ctx.fillRect(0, 512, W, 28);
-      if (state.floorRide) this.liftTransition(state);
+      if (state.floorTransition) this.roomFade(state);
     }
 
     visible(x, width = 0) { return x + width > this.camera - 220 && x < this.camera + W + 220; }
@@ -280,32 +280,24 @@
       }
     }
 
-    liftTransition(state) {
-      const ctx = this.ctx, ride = state.floorRide, floor = ride.lift.round + 2;
-      const width = this.canvas.width;
-      const closed = Math.min(1, ride.tick / 16, (66 - ride.tick) / 16);
-      const leaf = Math.ceil(width * closed / 2);
-      ctx.fillStyle = '#19142e';
-      ctx.fillRect(0, 0, leaf, HGT);
-      ctx.fillRect(width - leaf, 0, leaf, HGT);
-      if (closed === 1) {
-        this.label('LIFT  ↑  FLOOR ' + floor, width / 2, 236, '#ffe19b', 14);
-        this.label(state.world.floorScenes[floor - 1].title, width / 2, 268, '#fff5de', 18);
-      }
+    roomFade(state) {
+      const ctx = this.ctx, tick = state.floorTransition.tick;
+      ctx.fillStyle = `rgba(25,20,46,${Math.min(tick, 12 - tick) / 6})`;
+      ctx.fillRect(0, 0, this.canvas.width, HGT);
     }
 
-    floorLifts(state) {
+    floorDoors(state) {
       const ctx = this.ctx;
-      const entrance = state.world.floorLifts?.[state.floor - 1]?.landing;
+      const entrance = state.world.floorDoors?.[state.floor - 1]?.landing;
       if (entrance && this.visible(entrance.x - 44, 55)) {
         ctx.fillStyle = '#32285a'; ctx.fillRect(entrance.x - 44, entrance.y - 108, 55, 108);
         ctx.fillStyle = '#ffe19b'; ctx.fillRect(entrance.x - 42, entrance.y - 108, 51, 4);
       }
-      for (const lift of state.world.floorLifts || []) {
-        if (state.bossIndex <= lift.round || !this.visible(lift.x - 55, 120)) continue;
-        ctx.fillStyle = '#32285a'; ctx.fillRect(lift.x - 32, lift.y - 115, 80, 115);
-        ctx.fillStyle = '#ffe19b'; ctx.fillRect(lift.x - 28, lift.y - 111, 72, 4);
-        this.label('LIFT ↑ FLOOR ' + (lift.round + 2), lift.x + 8, lift.y - 130, '#ffe8ae', 11);
+      for (const door of state.world.floorDoors || []) {
+        if (state.bossIndex <= door.round || !this.visible(door.x - 55, 120)) continue;
+        ctx.fillStyle = '#32285a'; ctx.fillRect(door.x - 32, door.y - 115, 80, 115);
+        ctx.fillStyle = '#ffe19b'; ctx.fillRect(door.x - 28, door.y - 111, 72, 4);
+        this.label('DOOR · FLOOR ' + (door.round + 2), door.x + 8, door.y - 130, '#ffe8ae', 11);
       }
     }
 
