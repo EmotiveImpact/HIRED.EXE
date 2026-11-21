@@ -182,6 +182,156 @@
       "sha256": "1feb1e5ce565a249b681490fa228431ccec331f1e1dd74f9b338a88fa30fb8c1"
     },
     {
+      "path": "assets/directors-board/v3/alley-1.webp",
+      "role": "production-asset",
+      "bytes": 166278,
+      "sha256": "b172c303fe2f428e15710442a1b7a0f5ebf91195a4b43453412b7899ae139734"
+    },
+    {
+      "path": "assets/directors-board/v3/alley-2.webp",
+      "role": "production-asset",
+      "bytes": 134384,
+      "sha256": "b96d44cbc697460c75174f44e7eb2ac8f77fe7189683358c324e4c8579c61949"
+    },
+    {
+      "path": "assets/directors-board/v3/alley-3.webp",
+      "role": "production-asset",
+      "bytes": 153682,
+      "sha256": "3203b5e1a92946bea25cae8cbedde6cd8c9c920222d945d8579f3e8bc761f491"
+    },
+    {
+      "path": "assets/directors-board/v3/alley-4.webp",
+      "role": "production-asset",
+      "bytes": 161918,
+      "sha256": "edd37b46ddb6de8b55f2e5fa294eb1ac6682a04a122b132b26932684ff53fa2b"
+    },
+    {
+      "path": "assets/directors-board/v3/city-1.webp",
+      "role": "production-asset",
+      "bytes": 177818,
+      "sha256": "64e0510df395c1cb99cffd87c9bce5759d9548febc7e4b63c5ad2e48d30263e7"
+    },
+    {
+      "path": "assets/directors-board/v3/city-2.webp",
+      "role": "production-asset",
+      "bytes": 170012,
+      "sha256": "82c4cc2ef66daa36c2f795829574dd0b7bdb887a4b85a21f065b710a87f7921e"
+    },
+    {
+      "path": "assets/directors-board/v3/city-3.webp",
+      "role": "production-asset",
+      "bytes": 147940,
+      "sha256": "74655095113df56a66b2e3eada62e60d2e6c5a7af9c67a1dd3b8f440b0735b06"
+    },
+    {
+      "path": "assets/directors-board/v3/city-4.webp",
+      "role": "production-asset",
+      "bytes": 166172,
+      "sha256": "8c4c193e87d1476d694f8d3885b24d2c0f06ae515ba1bd16620dec4e01358f1c"
+    },
+    {
+      "path": "assets/directors-board/v3/growth-1.webp",
+      "role": "production-asset",
+      "bytes": 197632,
+      "sha256": "38a5ae122de38eb58b7f5faa749fbbea06fddfb705880ceae0adf8f68bc3af44"
+    },
+    {
+      "path": "assets/directors-board/v3/growth-2.webp",
+      "role": "production-asset",
+      "bytes": 151392,
+      "sha256": "247ff0d69f86e3148030e649f3726523b624b0ac3b443c94bd8ed20caf38652f"
+    },
+    {
+      "path": "assets/directors-board/v3/growth-3.webp",
+      "role": "production-asset",
+      "bytes": 171294,
+      "sha256": "0c222c6033667ab9ed93a77817f483aa4eccc57242955fa852fca07e179315cb"
+    },
+    {
+      "path": "assets/directors-board/v3/growth-4.webp",
+      "role": "production-asset",
+      "bytes": 131606,
+      "sha256": "e96858ad2d5a506e86e787323e1d7fc04ed76f8c3de63ce117b2f6f9c1991d09"
+    },
+    {
+      "path": "assets/directors-board/v3/hq-1.webp",
+      "role": "production-asset",
+      "bytes": 248718,
+      "sha256": "18b5585bcbaac0b65739c85d75bc9fb3158ca1a8ea4b1fb0962900293739c58d"
+    },
+    {
+      "path": "assets/directors-board/v3/hq-2.webp",
+      "role": "production-asset",
+      "bytes": 184498,
+      "sha256": "3d8f49f9c8dc2a303b0de9812913cce4549696a6b2d42bc382d51144927cbed8"
+    },
+    {
+      "path": "assets/directors-board/v3/hq-3.webp",
+      "role": "production-asset",
+      "bytes": 200816,
+      "sha256": "79b526199ed9d4f76d9d87ab1f60a612825de0aed8ea743083d93bec02df301f"
+    },
+    {
+      "path": "assets/directors-board/v3/hq-4.webp",
+      "role": "production-asset",
+      "bytes": 183370,
+      "sha256": "5e05a9e26556459d061a702fb074a21e2d6e219ba82276f04541d1e50a8b5880"
+    },
+    {
+      "path": "assets/directors-board/v3/office-1.webp",
+      "role": "production-asset",
+      "bytes": 150246,
+      "sha256": "541d86a1e31de090606ce3fe660e63b922e9c083199a593f6e010c613f16e56e"
+    },
+    {
+      "path": "assets/directors-board/v3/office-2.webp",
+      "role": "production-asset",
+      "bytes": 151242,
+      "sha256": "37db945a8b9f9d94e09d31b8762dec4b5f10be25507e38e9c7810671f1bb7ec4"
+    },
+    {
+      "path": "assets/directors-board/v3/office-4.webp",
+      "role": "production-asset",
+      "bytes": 154152,
+      "sha256": "a1602e7e4deda758766520f9bc2341aa049ed799294981bb3fb03ee5f90df14e"
+    },
+    {
+      "path": "assets/directors-board/v3/p01-upload.webp",
+      "role": "production-asset",
+      "bytes": 201616,
+      "sha256": "5e90bfe52b83d493b5d9db9c2ad7a9fe8c2de9c5f82160dcebbca3495dcacf21"
+    },
+    {
+      "path": "assets/directors-board/v3/p02-form.webp",
+      "role": "production-asset",
+      "bytes": 101110,
+      "sha256": "d8f9b58bd2e2c7e2a2f985fe7c992fbe71f557d9010ab91d712458f3c4361ef0"
+    },
+    {
+      "path": "assets/directors-board/v3/p03-the-limit.webp",
+      "role": "production-asset",
+      "bytes": 173020,
+      "sha256": "1dadd7d24c32c1a49558020259716f8ba3c89b46f7ab65369d07a56d41857566"
+    },
+    {
+      "path": "assets/directors-board/v3/p05-play.webp",
+      "role": "production-asset",
+      "bytes": 143438,
+      "sha256": "2fa9393d65df7fb2ae135b18c11efd925d3b772c3b034612ec6515a1c54cd53a"
+    },
+    {
+      "path": "assets/directors-board/v3/p13-draft.webp",
+      "role": "production-asset",
+      "bytes": 189490,
+      "sha256": "a169b9238b3b838813e9aef79d2c51fe8a5e41bd86d17d58ca408093ccf832c4"
+    },
+    {
+      "path": "assets/directors-board/v3/p14-just-sent.webp",
+      "role": "production-asset",
+      "bytes": 193756,
+      "sha256": "3cefd0d6caabeef66d046704aa329af780d8f0f627ad5fe638e604d41a2eaefc"
+    },
+    {
       "path": "assets/manifest.json",
       "role": "production-asset",
       "bytes": 5989,

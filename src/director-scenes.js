@@ -22,7 +22,7 @@ const directorScenes = [
   {
     title:'A quick addition',place:'World 2 · Ship It City',cue:'On entering the dock level, the workshop trolley offers to help finish one small job. It embodies the familiar person who says “while you’re here”. The player ships the fish and leaves the extra work at the dock.',
     shots:[
-      ['city-1','One fish','Augustus|Last job before we ship the level. Paint one fish for the canal.'],
+      ['city-1','One fish','Augustus|Canal looks a bit empty. Stick a fish in there.'],
       ['city-2','The reveal','Workshop trolley|While you’re here, could you do the inside?','Augustus|Of the fish?'],
       ['city-3','The estimate','Workshop trolley|Of the submarine. We’ve bought the propeller.'],
       ['city-4','Delivery','Augustus|Lovely. Keep the receipt.']
