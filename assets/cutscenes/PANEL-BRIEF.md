@@ -26,8 +26,8 @@ Both sheets are built only from art already in the game. `tools/cutscene-model-s
 
 1. **Draw `p01` first.** Use its prompt below, word for word, with the three reference files attached. Check it against the checklist. Redo it until it passes.
 2. **Lock `p01` as the style anchor.** From now on attach it as a fourth reference to every other panel.
-3. **Draw `p02` to `p11` in order**, each with its full prompt pasted word for word. The shared blocks (style, characters, room) are repeated inside every prompt on purpose. Never shorten them.
-4. **Compare them side by side.** Make one contact sheet of all eleven, cropped to 2:1, and check every one against the checklist and against each other. Redo any panel that drifts.
+3. **Draw `p02` to `p09` in order**, each with its full studio prompt. Use the finished James panels as references for any interview-room revisions. The shared blocks (style, characters, room) are repeated inside every prompt on purpose. Never shorten them.
+4. **Compare them side by side.** Make one contact sheet of the twelve panels at their original framing and check them side by side. Redo any panel that drifts.
 5. **Show Edem the contact sheet** before anything goes into the game. Nothing is wired in without Edem's yes.
 6. **Save, wire in, test and push**, as described at the end.
 
@@ -35,9 +35,8 @@ On Edem's Mac: use the `gpt-image-bridge` skill with the model `gpt-5.6-terra`, 
 
 ## Size and framing
 
-- Generate each panel at **1536 x 1024** (landscape 3:2).
-- The game shows the panel in a **2:1 frame**, so it crops the top and bottom eighth (128 pixels off each, leaving the middle 768). Heads, hands and key props stay in the middle band.
-- The game puts a tilted sound-effect sticker over the **top-left corner** (about the left third and top quarter of the visible frame). Keep faces out of it.
+- Generate studio panels at **1536 x 1024** (landscape 3:2). The handshake panel is **2:1**.
+- Keep heads, hands and important props in the middle band. The game preserves the original framing on the finished illustrations.
 - The dialogue sits below the picture, so panels never need speech bubbles or text.
 
 ## The checklist (every panel)
@@ -48,7 +47,7 @@ On Edem's Mac: use the `gpt-image-bridge` skill with the model `gpt-5.6-terra`, 
 - [ ] Only the window light changes between scenes: night (1), sunset (2), twilight (3), dawn (4). Scene 5 is the interview room in morning daylight.
 - [ ] Same ink and halftone as the existing panels. Deep plum outlines. No brown or beige sepia cast.
 - [ ] No words, letters, numbers, logos or speech bubbles anywhere. Screens show shapes only.
-- [ ] Faces are out of the top-left corner. Nothing important sits in the top or bottom eighth.
+- [ ] Faces and key props read at game size.
 
 ## Where each panel appears
 
@@ -73,7 +72,7 @@ The existing manga atlas supplies the remaining beats in scenes 1, 2 and 4. See 
 
 ## The nine studio prompts
 
-Each prompt is complete. Paste the whole block, attach the references, and generate at 1536 x 1024.
+Use these prompts as the composition record for the studio panels. They were written for the original cropped display and preserve the safe area for faces and props.
 
 ### `p01-forty-boxes`
 
