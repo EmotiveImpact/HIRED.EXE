@@ -44,7 +44,7 @@ const solvedEdition = {
     { name:'SALEANE', description:'A booking assistant that connects customer requests with a small business owner’s diary.',
       work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/demo' },
     { name:'Cairn', description:'A Mac storage utility in development that helps people decide what to clear.',
-      work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:null }
+      work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:'https://cairnmac.com/' }
   ],
   contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRE.EXE%20-%20Let%27s%20talk',
   interview: [
