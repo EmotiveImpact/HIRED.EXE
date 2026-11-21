@@ -4,8 +4,8 @@
     {
       "path": "assets/cutscenes/PANEL-BRIEF.md",
       "role": "production-asset",
-      "bytes": 35388,
-      "sha256": "f7ec050ed37aea13a2b7f4243d40643cd047a0ae4e9d9bd5ca685542acb70179"
+      "bytes": 35819,
+      "sha256": "3e2d66c7f840bf918620fde4efc8530c9283060b1ee3c8dc56f230cc379c23c9"
     },
     {
       "path": "assets/cutscenes/locations-sheet.png",
@@ -282,6 +282,126 @@
       "role": "production-asset",
       "bytes": 221998,
       "sha256": "5124730f471f51032f8142a1fe5dc65615149f71e191938d15fa1a6c883072cf"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p01-upload.jpg",
+      "role": "production-asset",
+      "bytes": 330776,
+      "sha256": "d5868d0d7ff1aa0d5e17084d4c57cd835f2f08734f814f770915aae51deb5cf5"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p02-form.jpg",
+      "role": "production-asset",
+      "bytes": 335279,
+      "sha256": "e0189a31b8f81d3f43810595162dc2628fa58388387b09447fc133ae74c50eb1"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p03-the-limit.jpg",
+      "role": "production-asset",
+      "bytes": 306970,
+      "sha256": "5e66ae283ffe8c96a2edeb5b21abc80d9a8e460ca3ee8af45ea65dbd8c9eef13"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p04-gatekeeper.jpg",
+      "role": "production-asset",
+      "bytes": 323860,
+      "sha256": "a0c31aa9ec843ede7def43fdf432260068d47efb3b6f79c1c685ddc004180c2d"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p05-play.jpg",
+      "role": "production-asset",
+      "bytes": 336282,
+      "sha256": "89feea699c79a98b31ffff94b2ba17296aec8b20f51269ade680f4a4690a9c61"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p06-fish.jpg",
+      "role": "production-asset",
+      "bytes": 306912,
+      "sha256": "e83b1ddb0be84d612df8b5194fcdaa71e2cf6d287f3cfd430eb078b9d07d9ecd"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p07-submarine.jpg",
+      "role": "production-asset",
+      "bytes": 366589,
+      "sha256": "bcc2e07c93346ff1c0f570f16929300db7855556942e952c2d10cc5d01238eda"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p08-rubber.jpg",
+      "role": "production-asset",
+      "bytes": 342287,
+      "sha256": "ccbf92709483bcbdd229b9d3919ecba4d532effb378b65ce465794b3dda2e2bc"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p09-laptop-test.jpg",
+      "role": "production-asset",
+      "bytes": 325955,
+      "sha256": "f126a703c2f17f1c4a659c842171d8eca52b9b59612a1f4ed9053178b3c2a0ef"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p10-phone-test.jpg",
+      "role": "production-asset",
+      "bytes": 283016,
+      "sha256": "0e59a5717874e25f9054d5e0a20dbb006cd66e2ac03fda19dae470726021ee13"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p11-two-players.jpg",
+      "role": "production-asset",
+      "bytes": 326126,
+      "sha256": "c95db95b10b27885eba13f58b7b4b32cde40a3523e43e171a89328e12e187e1c"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p12-loyal-fans.jpg",
+      "role": "production-asset",
+      "bytes": 328049,
+      "sha256": "14dc2de35432f2ebee4f8f8232a8c6d80a4b9dd27f8aac0030734397d1cddb2a"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p13-draft.jpg",
+      "role": "production-asset",
+      "bytes": 315540,
+      "sha256": "466b3c5c2130b1ea906f72e0578293cfaf5e7f7bdc8eb0a4a2a9b6099f46e86b"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p14-just-sent.jpg",
+      "role": "production-asset",
+      "bytes": 321433,
+      "sha256": "b01a79feae66331495dae7a4661651e7824446f6bd1312c3ede8cbc68912c667"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p15-attachment.jpg",
+      "role": "production-asset",
+      "bytes": 329901,
+      "sha256": "9b903c166d7026cb3bf1900511170a5aa478a33e0148e7d1da8c0a9044788151"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p16-interview.jpg",
+      "role": "production-asset",
+      "bytes": 339021,
+      "sha256": "0b6f079cca365586ea1251e0a911235062e5d8ab94747107f7d8bcff28e47608"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p17-weakness.jpg",
+      "role": "production-asset",
+      "bytes": 324481,
+      "sha256": "ee3b3085216477fed0bf50910f8598cdb4b57e22603748bdfaebd72d3d27c287"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p18-strength.jpg",
+      "role": "production-asset",
+      "bytes": 332502,
+      "sha256": "cd2c9031ffeadf1a979913b53c00cb8470f646f99718dedf0420392143d8ec75"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p19-offer.jpg",
+      "role": "production-asset",
+      "bytes": 307256,
+      "sha256": "937e2864d9e94e30a2988c14ae302c437b67c77642be1feee0f37299d285a14d"
+    },
+    {
+      "path": "assets/production/story/panels-v2/p20-handshake.jpg",
+      "role": "production-asset",
+      "bytes": 335302,
+      "sha256": "39abe3ee3478350c34e6f4722bf4a82858fa1e12646c5d3e839fd2279465d15a"
     },
     {
       "path": "assets/props/briefcase-block.png",

@@ -163,7 +163,7 @@
     },
     {
       id: 'ship-it-city', name: 'Ship It City', subtitle: 'Ideas are good. Finished work is better.',
-      objective: 'Ride the lifts, cross the works and stop Scope Creep.',
+      objective: 'Ride the lifts, cross the works and stop While I’m Here.',
       theme: 'works', width: 8780, height: 540, spawn: { x: 96, y: 382 },
       platforms: [ground(0, 690), ground(820, 660, 400), ground(1610, 770), ground(2530, 500, 384),
         ground(3170, 430), ground(3710, 1290), ground(5160, 560, 400), ground(5880, 640, 384),
@@ -194,7 +194,7 @@
         { x: 7965, label: 'BRIEF' }, { x: 8125, label: 'BUILD' }, { x: 8285, label: 'SHIP' },
         { x: 8445, label: 'SHIP AGAIN' }
       ],
-      boss: { type: 'scopecreep', name: 'Scope Creep', x: 8130, floor: 440, w: 94, h: 88, health: 4 },
+      boss: { type: 'scopecreep', name: 'While I’m Here', x: 8130, floor: 440, w: 94, h: 88, health: 4 },
       decor: [{ type: 'sign', x: 100, y: 440, text: 'SHIP IT CITY' }, { type: 'crate', x: 340, y: 440 },
         { type: 'crane', x: 900, y: 400 }, { type: 'terminal', x: 1110, y: 400 },
         { type: 'crate', x: 1700, y: 440 }, { type: 'banner', x: 2280, y: 440 },
@@ -206,7 +206,7 @@
         { type: 'sign', x: 7640, y: 440, text: 'DASH THROUGH LIT TERMINALS' }],
       hints: [{ x: 100, text: 'The lifts carry you. The lower route is always available.' },
         { x: 1680, text: 'Springs reveal higher routes and optional skill tokens.' },
-        { x: 7560, text: 'Scope Creep keeps adding work. Dodge its charge and dash through each lit terminal to sign off the brief.' }]
+        { x: 7560, text: 'While I’m Here keeps adding work. Dodge its charge and dash through each lit terminal to sign off the brief.' }]
     },
     {
       id: 'growth-run', name: 'Growth Run', subtitle: 'Keep the momentum. Keep learning.',
@@ -293,7 +293,7 @@
   const bonusItems = [
     { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'Finally, someone who thinks you’re absolutely right. £20 a month.' },
     { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'Brilliant find. You’ve hit your usage limit. Try again at 4pm.' },
-    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Made at nine. Found at four. Drunk anyway.' },
+    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Still technically a drink.' },
     { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
   ];
 

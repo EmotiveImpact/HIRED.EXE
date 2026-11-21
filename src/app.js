@@ -120,7 +120,7 @@
     $('overlay').setAttribute('aria-label','Main menu');
     const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.pendingScene?'Continue the story':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('home-cv')}</div></div></div>`;
+    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.pendingScene?'Continue the story':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('home-cv')}${globalThis.HIRED_EMBEDDED_ASSETS||!E.interviewer?'':'<a href="cutscenes.html" target="_blank" rel="noopener">Read the cutscenes</a>'}</div></div></div>`;
     bindActions({'start-game':()=>{
       if(hasRun)resume();
       else if(progress.pendingScene)beginScene(progress.pendingScene);
@@ -156,7 +156,7 @@
     let nextLabel='Next panel';
     if(last){
       const nextLevel=H.LEVELS[sceneIndex];
-      nextLabel=nextLevel?'Play '+nextLevel.name:sceneIndex===H.LEVELS.length?'Enter the interview':'See your results';
+      nextLabel=sceneIndex===3?'Accept the interview invitation':nextLevel?'Play '+nextLevel.name:sceneIndex===H.LEVELS.length?'Enter the interview':'See your results';
     }
     const speaker=beat.speaker==='interviewer'?(E.interviewer||'Interview host'):beat.speaker;
     const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel)&&(!beat.portrait||E.interviewer));
@@ -172,17 +172,20 @@
     if(upcoming?.panel && H.PANELS?.ready.includes(upcoming.panel) && (!upcoming.portrait||E.interviewer)) {
       new Image().src=asset(H.PANELS.folder+upcoming.panel+'.jpg');
     }
+    const line=(!E.interviewer && beat.neutralLine) || beat.line;
+    const dialogue=line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
+    const response=beat.reply?`<strong>${esc(E.applicant.split(' ')[0])}</strong><p>${esc(beat.reply)}</p>`:'';
     const overlay=$('overlay');
     overlay.className='overlay comic-overlay';
     overlay.setAttribute('aria-label',scene.title);
     $('status').textContent=scene.title;
     overlay.innerHTML=`<section class="comic" aria-labelledby="comic-title">
       <header class="comic-header"><h2 id="comic-title">${esc(scene.title)}</h2><span>${sceneBeat+1} / ${scene.beats.length}</span></header>
-      <div class="comic-art ${illustrated?'comic-illustrated':''} ${beat.burst?'comic-burst':''}" aria-hidden="true">
+      <div class="comic-art ${illustrated?'comic-illustrated':''} ${beat.burst?'comic-burst':''}" ${fullPanel?`role="img" aria-label="${esc(beat.alt)}"`:'aria-hidden="true"'}>
         ${panel}
         ${fullPanel?'':`<span class="comic-effect">${esc(beat.effect)}</span>`}
       </div>
-      <div class="comic-dialogue" id="comic-dialogue"><strong>${esc(speaker)}</strong><p>${esc(beat.line)}</p></div>
+      <div class="comic-dialogue" id="comic-dialogue">${dialogue}${response}${beat.after?`<p class="comic-after">${esc(beat.after)}</p>`:''}</div>
       <footer class="comic-actions">
         <button class="btn primary" id="scene-next" aria-describedby="comic-dialogue">${esc(nextLabel)}</button>
         <button class="btn" id="scene-prev" ${sceneBeat===0?'disabled':''}>Previous</button>
@@ -364,7 +367,7 @@
       }
       if(e.type==='respawn'){const b=game.state.boss;const why=e.reason==='feed'?'The Feed scrolled past you.':b?.active&&bark(b.type)?.lose?bark(b.type).lose:e.reason==='fall'?'You fell into a gap in your CV.':'Unfortunately, on this occasion.';toast(why+(game.state.assist?' Back to the checkpoint.':` ${e.lives} ${e.lives===1?'life':'lives'} left.`),3400);}
       if(e.type==='gameOver'){toast('Game over. We’ve decided to start the process again from the beginning.',4200);gameOver=e.levelIndex;break;}
-      if(e.type==='extraLife')toast(e.coins===50?'50 ideas. Extra life. Don’t tell Scope Creep.':`${e.coins} ideas. Another extra life.`,2800);
+      if(e.type==='extraLife')toast(e.coins===50?'50 ideas. Extra life. Don’t tell While I’m Here.':`${e.coins} ideas. Another extra life.`,2800);
       if(e.type==='hurt'&&e.health>0&&!game.state.boss?.active)toast('Feedback received.',1300);
       if(e.type==='bossStart'){taunts=0;const b=bark(game.state.boss.type);if(b?.start)toast(b.start,3000);}
       if(e.type==='bossTelegraph'){const b=bark(e.type);if(b?.taunts&&taunts++%2===1)toast(b.taunts[(taunts>>1)%b.taunts.length],3000);}

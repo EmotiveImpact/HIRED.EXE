@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HIRE.EXE | Cutscenes</title>
+<style>
+*{box-sizing:border-box}html{scroll-padding-top:1rem}body{margin:0;background:#171326;color:#fff8e7;font:1rem/1.5 system-ui,sans-serif}main{max-width:63rem;margin:auto;padding:clamp(1rem,4vw,3rem)}h1,h2,p{margin:0}h1{font-size:clamp(2rem,6vw,4rem);letter-spacing:-.06em}h2{color:#ffdc6c;font-size:clamp(1.5rem,4vw,2rem);letter-spacing:-.04em;margin:2.5rem 0 .7rem}a{color:#93ece3;text-underline-offset:.2em}nav{display:flex;gap:.5rem 1.2rem;flex-wrap:wrap}figure{margin:0 0 1.25rem;background:#fff8e7;color:#241b36;border-radius:4px;overflow:hidden}img{display:block;width:100%;height:auto;background:#241a34}figcaption{padding:.65rem 1rem 1rem}small{color:#61506d}figcaption b{color:#553873}figcaption p{margin:.2rem 0}section footer{border-bottom:1px solid #584868;padding-bottom:1rem;color:#e1d3ee}a:focus-visible{outline:3px solid #ffdc6c}
+</style>
+</head>
+<body><main><a href="index.html">Play HIRE.EXE</a><h1>The cutscenes</h1><nav aria-label="Jump to a scene"></nav><div id="story"></div><noscript>Enable JavaScript to read the illustrated sequence.</noscript></main>
+<script src="src/scenes.js"></script>
+<script>
+const {SCENES,PANELS}=globalThis.Hired;
+const transitions=['Next in the game · Application Alley','Next in the game · Ship It City','Next in the game · Growth Run','James replies with an invitation. Next in the game · Final Interview HQ','In the game, choose three conversation topics before the offer.','The fictional hiring story ends here.'];
+const make=(tag,text)=>{const node=document.createElement(tag);if(text)node.textContent=text;return node;};
+function dialogue(caption,speaker,line){
+  const p=make('p');p.append(make('b',speaker+' '),document.createTextNode(line));caption.append(p);
+}
+let frame=0;
+SCENES.forEach((scene,i)=>{
+  const section=make('section');section.id='scene-'+(i+1);
+  const link=make('a',scene.title);link.href='#'+section.id;document.querySelector('nav').append(link);
+  section.append(make('h2',scene.title));
+  for(const beat of scene.beats){
+    const figure=make('figure'),pic=make('img'),caption=make('figcaption');
+    pic.src=PANELS.folder+beat.panel+'.jpg';pic.width=1200;pic.height=800;pic.loading=frame?'lazy':'eager';pic.alt=beat.alt;
+    caption.append(make('small','Shot '+String(++frame).padStart(2,'0')+' / 20'));
+    if(beat.line)dialogue(caption,beat.speaker==='interviewer'?'James':beat.speaker,beat.line);
+    if(beat.reply)dialogue(caption,'Augustus',beat.reply);
+    figure.append(pic,caption);section.append(figure);
+  }
+  section.append(make('footer',transitions[i]));document.getElementById('story').append(section);
+});
+</script></body></html>

@@ -202,3 +202,7 @@
 }
 
 .player-hud .lives{color:#ffd35a;margin-left:4px;font-variant-numeric:tabular-nums}
+
+.comic-dialogue p + strong { display:block; margin-top:.45rem; }
+.comic-dialogue .comic-after { margin-top:.4em; font-style:italic; font-size:.9em; }
+.comic-dialogue:empty { display:none; }

@@ -1,3 +1,7 @@
+## Current illustrated cut
+
+The twenty-shot edition follows Augustus making and sending a playable application. Bosses appear in his sketches and on screens. James is the human interviewer. The complete current dialogue and running order are in `src/scenes.js`, the review page is `cutscenes.html`, and the runtime illustrations are in `assets/production/story/panels-v2/`. The earlier art brief below is retained for provenance.
+
 # HIRE.EXE cutscene panels: the brief
 
 This file is everything needed to draw the cutscene panels and put them in the game. It is written for whoever draws them: the ChatGPT image model on Edem's Mac (through the `gpt-image-bridge` skill) or ChatGPT used directly.

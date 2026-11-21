@@ -29,9 +29,21 @@ def run(profile, base):
         page.locator('#start-game').wait_for()
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
+        expect(page.get_by_role('link', name='Read the cutscenes')).to_have_attribute('href', 'cutscenes.html')
+        page.goto(base+'/cutscenes.html')
+        shots = page.locator('figure img')
+        expect(shots).to_have_count(20)
+        decoded = shots.evaluate_all("""async images => {
+            await Promise.all(images.map(img => { img.loading = 'eager'; return img.decode(); }));
+            return images.map(img => [img.currentSrc, img.naturalWidth]);
+        }""")
+        assert len({url for url, _ in decoded}) == 20
+        assert all(width >= 960 for _, width in decoded)
+        expect(page.locator('figure').nth(17)).to_contain_text('Same answer.')
+        page.get_by_role('link', name='Play HIRE.EXE').click()
         activate('#start-game')
         assert page.locator('#comic-title').inner_text() == 'Forty boxes'
-        for _ in range(7):
+        for _ in range(4):
             activate('#scene-next')
         assert page.locator('.comic-burst .comic-illustration').is_visible()
         page.screenshot(path=OUT/'cutscene.jpg', animations='disabled')
@@ -87,8 +99,8 @@ def run(profile, base):
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
         activate('#start-game')
-        expect(page.locator('#comic-title')).to_have_text('A few changes')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p03-few-changes\.jpg'))
+        expect(page.locator('#comic-title')).to_have_text('While I’m here')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p06-fish\.jpg'))
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
@@ -100,10 +112,10 @@ def run(profile, base):
         activate('#start-game')
         expect(page.locator('#comic-title')).to_have_text('You’re up')
         expect(page.locator('#comic-dialogue strong')).to_have_text('James Morgenstern')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p10-traffic\.jpg'))
-        for _ in range(3):
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p16-interview\.jpg'))
+        for _ in range(2):
             activate('#scene-next')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p11-same-answer\.jpg'))
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p18-strength\.jpg'))
         page.screenshot(path=OUT/'james.jpg', animations='disabled')
         activate('#scene-skip')
         for answer in (0, 0, 1):
@@ -111,7 +123,7 @@ def run(profile, base):
             activate('#interview-next')
         expect(page.locator('#comic-title')).to_have_text('The offer')
         activate('#scene-next')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p12-the-offer\.jpg'))
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p20-handshake\.jpg'))
         page.screenshot(path=OUT/'offer.jpg', animations='disabled')
         activate('#scene-next')
         expect(page.locator('#final-cv')).to_have_attribute('href', 'cv.html')
@@ -146,7 +158,7 @@ def run(profile, base):
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/jpeg')")
         activate('#scene-next')
         expect(page.locator('#comic-dialogue p')).to_have_text(
-            'Box seven. Years of experience. I’ve got twenty. The dropdown stops at five.'
+            'Now type it all in again. Lovely. They’ve got a copy to mark mine against.'
         )
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode") == 'playing'

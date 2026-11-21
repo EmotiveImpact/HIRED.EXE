@@ -11,13 +11,13 @@ Open `index.html` from a complete checkout, or run `python3 -m http.server 8000`
 | World | What to do |
 | --- | --- |
 | Application Alley | Learn the double jump, dodge the CV Filter's scan, then stomp or dash when its shield opens. |
-| Ship It City | Ride the lifts, avoid Scope Creep's charge and dash through the lit Brief, Build and Ship terminals in order. |
+| Ship It City | Ride the lifts, avoid While I’m Here's charge and dash through the lit Brief, Build and Ship terminals in order. |
 | Growth Run | Carry speed across the rooftops. Dodge the Algorithm's spread of shots and strike during its cooldown. |
 | Final Interview HQ | Climb the garden terraces, pass the reception robot and enter the room. Pick the three topics you want to discuss with Augustus. |
 
 Use A/D or the arrow keys to move, Space to jump, Shift or X to dash and P to pause. Hold jump for height and press it a second time for a double jump. Down plus Jump drops through a floating platform. Touch controls support simultaneous presses. The world directory and pause menu offer Relaxed mode.
 
-An opening comic and four interludes follow the making of the application. In the Solved Studio edition, James Morgenstern appears in the interview and the fictional offer scene. Use **Next panel**, **Previous** or **Skip cutscene** to read at your own pace. After clearing a world, **Continue the story** brings you back to the next cutscene. The world directory takes you straight to gameplay.
+Twenty illustrated shots follow Augustus from the application form to the fictional job offer. Read the complete sequence in [Cutscenes](cutscenes.html) or play each chapter during the campaign. In the Solved Studio edition, James Morgenstern appears in the interview and the fictional offer scene. Use **Next panel**, **Previous** or **Skip cutscene** to read at your own pace. After clearing a world, **Continue the story** brings you back to the next cutscene. The world directory takes you straight to gameplay.
 
 Each world has two checkpoint terminals, three optional skill tokens, a hidden portfolio field note and a bonus collectible. The bonus items include in-game ChatGPT and Claude subscription cards. A checkpoint restores health and saves a snapshot on this browser. After reloading, **Continue from checkpoint** restores that snapshot. Within the same run, retries also keep pickups and boss progress earned since the checkpoint. **Restart this world** begins the level again. When storage is unavailable the run still works in memory.
 

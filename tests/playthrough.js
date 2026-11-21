@@ -82,10 +82,10 @@ async function run() {
     click('portfolio-back'); click('start-game');
     check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
     click('scene-next');
-    check(byId('overlay').textContent.includes('The dropdown stops at five'),'Missing opening dialogue');
+    check(byId('overlay').textContent.includes('copy to mark mine against'),'Missing opening dialogue');
     click('portfolio-button'); click('portfolio-back');
-    check(app().mode==='scene' && byId('overlay').textContent.includes('The dropdown stops at five'),'Portfolio lost current comic panel');
-    click('scene-prev'); for(let i=0;i<7;i++)click('scene-next');
+    check(app().mode==='scene' && byId('overlay').textContent.includes('copy to mark mine against'),'Portfolio lost current comic panel');
+    click('scene-prev'); for(let i=0;i<4;i++)click('scene-next');
     check(byId('overlay').querySelector('.comic-burst'),'Opening did not reach action panel');
     click('scene-next');
     check(app().mode==='playing' && app().state.tick===0,'Opening did not hand off to world one');
