@@ -40,6 +40,7 @@
         props: this.meta.props?.image || 'assets/production/environment/props-atlas.png'
       };
       BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
+      for (let i = 2; i <= 4; i++) specs['hqFloor' + i] = 'assets/production/backgrounds/interview-floor-' + i + '.webp';
       const results = await Promise.allSettled(Object.entries(specs).map(([key, path]) => new Promise((resolve, reject) => {
         const im = new root.Image();
         im.onload = () => {
@@ -72,11 +73,13 @@
       ctx.globalAlpha = 1;
       ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, W, HGT);
-      this.background();
+      const room = state?.world.floorScenes?.[state.floor];
+      this.background(state?.floor ?? 0, room?.start ?? 0);
       if (!state) return;
       this.ambient();
       ctx.save();
       ctx.translate(-round(this.camera), 0);
+      if (room) { ctx.beginPath(); ctx.rect(room.start, 0, room.end - room.start, HGT); ctx.clip(); }
       this.decor(state.world, false);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w)) continue;
@@ -111,12 +114,13 @@
       const shade = ctx.createLinearGradient(0, 512, 0, HGT);
       shade.addColorStop(0, 'rgba(19,15,48,0)'); shade.addColorStop(1, 'rgba(19,15,48,.12)');
       ctx.fillStyle = shade; ctx.fillRect(0, 512, W, 28);
+      if (state.floorRide) this.liftTransition(state);
     }
 
     visible(x, width = 0) { return x + width > this.camera - 220 && x < this.camera + W + 220; }
 
-    background() {
-      const ctx = this.ctx, im = this.images['background' + this.levelIndex];
+    background(floor, start) {
+      const ctx = this.ctx, im = this.images[floor ? 'hqFloor' + (floor + 1) : 'background' + this.levelIndex];
       if (!im) {
         ctx.fillStyle = ['#88c7ff', '#e5abc4', '#7773dc', '#a3ceec'][this.levelIndex];
         ctx.fillRect(0, 0, W, HGT); return;
@@ -124,7 +128,7 @@
       // One painted plate drifts slowly behind the physical world. Alternating
       // mirrored copies share an edge without pretending it is a layered source.
       const width = Math.ceil(HGT * im.width / im.height);
-      const offset = this.camera * 0.12;
+      const offset = (this.camera - start) * 0.12;
       const first = Math.floor(offset / width);
       for (let i = first; i <= first + 2; i++) {
         const x = round(i * width - offset);
@@ -276,19 +280,32 @@
       }
     }
 
+    liftTransition(state) {
+      const ctx = this.ctx, ride = state.floorRide, floor = ride.lift.round + 2;
+      const width = this.canvas.width;
+      const closed = Math.min(1, ride.tick / 16, (66 - ride.tick) / 16);
+      const leaf = Math.ceil(width * closed / 2);
+      ctx.fillStyle = '#19142e';
+      ctx.fillRect(0, 0, leaf, HGT);
+      ctx.fillRect(width - leaf, 0, leaf, HGT);
+      if (closed === 1) {
+        this.label('LIFT  ↑  FLOOR ' + floor, width / 2, 236, '#ffe19b', 14);
+        this.label(state.world.floorScenes[floor - 1].title, width / 2, 268, '#fff5de', 18);
+      }
+    }
+
     floorLifts(state) {
-      const ctx = this.ctx, ride = state.floorRide;
+      const ctx = this.ctx;
+      const entrance = state.world.floorLifts?.[state.floor - 1]?.landing;
+      if (entrance && this.visible(entrance.x - 44, 55)) {
+        ctx.fillStyle = '#32285a'; ctx.fillRect(entrance.x - 44, entrance.y - 108, 55, 108);
+        ctx.fillStyle = '#ffe19b'; ctx.fillRect(entrance.x - 42, entrance.y - 108, 51, 4);
+      }
       for (const lift of state.world.floorLifts || []) {
         if (state.bossIndex <= lift.round || !this.visible(lift.x - 55, 120)) continue;
         ctx.fillStyle = '#32285a'; ctx.fillRect(lift.x - 32, lift.y - 115, 80, 115);
         ctx.fillStyle = '#ffe19b'; ctx.fillRect(lift.x - 28, lift.y - 111, 72, 4);
         this.label('LIFT ↑ FLOOR ' + (lift.round + 2), lift.x + 8, lift.y - 130, '#ffe8ae', 11);
-      }
-      if (ride) {
-        const p = state.player;
-        ctx.fillStyle = 'rgba(71,44,129,.8)'; ctx.fillRect(p.x - 21, p.y - 37, p.w + 42, p.h + 44);
-        ctx.fillStyle = '#ffe19b'; ctx.fillRect(p.x - 21, p.y + p.h, p.w + 42, 7);
-        this.label('↑ FLOOR ' + (ride.lift.round + 2), p.x + p.w / 2, p.y - 21, '#ffe8ae', 11);
       }
     }
 

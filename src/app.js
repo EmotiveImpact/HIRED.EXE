@@ -374,8 +374,8 @@
   function updateHud() {
     const s=game.state;if(!s)return;
     $('world-count').textContent=`WORLD ${String(s.levelIndex+1).padStart(2,'0')} / 04`;
-    const floor = s.world.floorLifts?.filter(lift => s.player.x >= lift.landing.x).length;
-    $('world-name').textContent=s.world.name+(floor === undefined ? '' : ' · Floor '+(floor+1));
+    const room = s.world.floorScenes?.[s.floor];
+    $('world-name').textContent=room ? 'Floor '+(s.floor+1)+' · '+room.title : s.world.name;
     $('coin-count').textContent=String(s.coins).padStart(2,'0');
     $('skill-count').textContent=s.skills.length+'/3';
     const lives=s.assist?'RELAXED':'×'+s.lives;

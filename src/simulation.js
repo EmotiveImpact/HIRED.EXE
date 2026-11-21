@@ -25,7 +25,7 @@
       const fakeExit = world.fakeExit ? { ...world.fakeExit, triggered: false, timer: 0 } : null;
       this.state = { mode: 'playing', levelIndex: world.levelIndex, world, player: this.makePlayer(world.spawn),
         camera: { x: 0, y: 0 }, score: 0, coins: 0, skills: [], checkpoint: { ...world.spawn, id: 'start' },
-        enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, floorRide: null, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
+        enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, floor: 0, floorRide: null, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
         lives: PHYSICS.lives,
         assist: Boolean(options.assist), hintsShown: [], completed: false };
       this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
@@ -69,7 +69,8 @@
       s.checkpoint = { id: cp.id, x: cp.x + 8, y: cp.y - s.player.h };
       s.player = this.makePlayer(s.checkpoint);
       s.player.invulnerable = 75;
-      s.camera.x = clamp(s.player.x - this.viewWidth * .35, 0, s.world.width - this.viewWidth);
+      s.floor = s.world.floorLifts?.filter(lift => cp.x >= lift.landing.x).length ?? 0;
+      s.camera.x = this.cameraTarget();
       s.hintsShown = s.world.hints.flatMap((hint,i) => hint.x < cp.x ? [i] : []);
       return true;
     }
@@ -137,7 +138,8 @@
       const previousBottom = p.y + p.h;
       this.movePlayerX(p.vx);
       this.movePlayerY(p.vy);
-      p.x = clamp(p.x, 0, world.width - p.w);
+      const room = world.floorScenes?.[s.floor];
+      p.x = clamp(p.x, room?.start ?? 0, (room?.end ?? world.width) - p.w);
       this.pickups(); this.checkpoints(); this.environmentEffects(); this.openGates(); this.setPieces();
       if (s.player !== p || s.floorRide) return;
       this.moveEnemies(previousBottom);
@@ -149,9 +151,7 @@
       if (p.y > 650) { this.respawn('fall'); return; }
       this.moveParticles();
       // During the chase the camera eases back so the Feed stays in view behind the player.
-      const lookBehind = s.chase && s.chase.active ? 0.5 : 0.35;
-      const desired = clamp(p.x + p.w / 2 - this.viewWidth * lookBehind, 0, world.width - this.viewWidth);
-      s.camera.x += (desired - s.camera.x) * 0.12;
+      s.camera.x += (this.cameraTarget() - s.camera.x) * 0.12;
       const animation = p.hurtFrames > 0 ? 'hurt' : p.dashTime > 0 ? 'dash'
         : !p.grounded ? (p.vy < 0 ? 'jump' : 'fall') : input.down ? 'crouch' : Math.abs(p.vx) > 0.5 ? 'run' : 'idle';
       if (animation !== p.animation) { p.animation = animation; p.animationTime = 0; }
@@ -279,10 +279,9 @@
         // Scope Creep drags the finish line away to the real end of the level.
         if (f.triggered && f.timer < 150) { f.timer++; f.x += 3 + f.timer * 0.16; }
       }
-      const lift = s.world.floorLifts?.find(l => s.bossIndex > l.round && p.x + p.w >= l.x &&
-        p.x < l.x + 85);
-      if (lift) {
-        s.floorRide = { lift, x: p.x, y: p.y, tick: 0 };
+      const lift = s.world.floorLifts?.[s.floor];
+      if (lift && s.bossIndex > lift.round && p.x + p.w >= lift.x) {
+        s.floorRide = { lift, tick: 0 };
         p.vx = 0; p.vy = 0; p.dashTime = 0; p.animation = 'idle';
         s.projectiles = [];
         this.emit('floorLift', { floor: lift.round + 2 });
@@ -297,19 +296,32 @@
         }
       }
     }
+    cameraTarget() {
+      const s = this.state, p = s.player;
+      const room = s.world.floorScenes?.[s.floor];
+      const start = room?.start ?? 0;
+      const end = room?.end ?? s.world.width;
+      const lookBehind = s.chase?.active ? .5 : .35;
+      return clamp(p.x + p.w / 2 - this.viewWidth * lookBehind, start, Math.max(start, end - this.viewWidth));
+    }
     rideToFloor() {
       const s = this.state, p = s.player, ride = s.floorRide;
-      const landing = ride.lift.landing;
-      const progress = ++ride.tick / 66;
-      const eased = progress * progress * (3 - 2 * progress);
-      p.x = ride.x + (landing.x + 8 - ride.x) * eased;
-      p.y = ride.y + (landing.y - p.h - ride.y) * eased - Math.sin(progress * Math.PI) * 24;
-      const target = clamp(p.x + p.w / 2 - this.viewWidth * .35, 0, s.world.width - this.viewWidth);
-      s.camera.x += (target - s.camera.x) * .16;
-      if (progress < 1) return;
-      s.floorRide = null;
-      p.invulnerable = Math.max(p.invulnerable, 60);
-      this.checkpoints();
+      const { landing, round } = ride.lift;
+      ride.tick++;
+      // Swap scenes behind closed doors. The next floor always starts at its entrance.
+      if (ride.tick === 33) {
+        s.floor = round + 1;
+        p.x = landing.x + 8;
+        p.y = landing.y - p.h;
+        p.grounded = false; p.groundId = null; p.jumpBuffer = 0; p.coyote = 0;
+        s.particles = [];
+        s.camera.x = this.cameraTarget();
+        this.checkpoints();
+      }
+      if (ride.tick >= 66) {
+        s.floorRide = null;
+        p.invulnerable = Math.max(p.invulnerable, 60);
+      }
     }
     environmentEffects() {
       const s = this.state, p = s.player;
@@ -469,7 +481,7 @@
       const s = this.state;
       s.deaths++; if (!s.assist) s.lives = Math.max(0, s.lives - 1);
       s.player = this.makePlayer(s.checkpoint); s.player.invulnerable = 100;
-      s.camera.x = clamp(s.player.x + s.player.w / 2 - this.viewWidth * 0.35, 0, s.world.width - this.viewWidth);
+      s.camera.x = this.cameraTarget();
       if (s.chase && !s.chase.done) { s.chase.active = false; s.chase.x = s.chase.startX - s.chase.lead; }
       s.projectiles = [];
       // A boss mid-charge does not carry on while the player walks back from the checkpoint.

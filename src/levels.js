@@ -310,6 +310,14 @@
         return { x: g.x, y: g.y + g.h, landing, round: g.needs };
       });
     }
+    if (level.floorLifts) {
+      const titles = ['Phone screen', 'Take-home task', 'The panel', 'Interview reception'];
+      const starts = [0, ...level.floorLifts.map(lift => level.platforms.find(p =>
+        p.type === 'ground' && p.x <= lift.landing.x && p.x + p.w > lift.landing.x).x)];
+      level.floorScenes = titles.map((title, i) => ({
+        title, start: starts[i], end: level.floorLifts[i] ? level.floorLifts[i].x + 48 : level.width
+      }));
+    }
     level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
     level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
     // The regular trail stays on solid ground; extra arcs describe the jumps across gaps.

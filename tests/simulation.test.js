@@ -348,6 +348,7 @@ test('resuming at a late checkpoint skips the rounds already cleared', () => {
   const record = { level: 3, checkpoint: before.id, collected: [], defeated: [], score: 0, time: 60, deaths: 0 };
   assert.equal(g.restoreCheckpoint(record), true);
   assert.equal(g.state.bossIndex, 2); assert.equal(g.state.boss.type, 'algorithm');
+  assert.equal(g.state.floor, 2);
   const gates = g.state.world.platforms.filter(pl => pl.type === 'gate');
   assert.deepEqual(gates.map(gate => gate.needs), [2]);
 });
@@ -409,7 +410,13 @@ test('clearing each interview round unlocks a lift to a higher, saved floor', ()
     g.clearBoss(g.state.boss);
     g.setPieces();
     assert.equal(g.state.floorRide.lift, lift);
-    tick(g, {}, 66);
+    tick(g, { right: true }, 32);
+    assert.equal(g.state.floor, lift.round);
+    tick(g, {}, 1);
+    assert.equal(g.state.floor, lift.round + 1);
+    assert.equal(p.x, lift.landing.x + 8);
+    assert.ok(g.state.camera.x >= g.state.world.floorScenes[g.state.floor].start);
+    tick(g, {}, 33);
     assert.equal(g.state.floorRide, null);
     assert.ok(p.y + p.h < lift.y);
     assert.equal(g.state.checkpoint.id, lift.landing.id);
