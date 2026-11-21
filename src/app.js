@@ -12,7 +12,7 @@
     return `<a class="${className}" id="${id}" href="${offline || 'cv.html'}" ${props}>${offline?'Download CV (PDF)':'View CV'}</a>`;
   };
   const SAVE_KEY = 'hired-exe:v04:' + E.id;
-  let progress = {lastLevel:0,results:{},assist:false,muted:false};
+  let progress = {lastLevel:0,results:{},assist:false,muted:false,seenIntros:[]};
   let storageAvailable = true;
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
@@ -32,6 +32,9 @@
       if(Number.isInteger(saved.pendingScene) && saved.pendingScene >= 1 &&
          saved.pendingScene <= H.LEVELS.length && progress.results[saved.pendingScene-1]) {
         progress.pendingScene = saved.pendingScene;
+      }
+      if(Array.isArray(saved.seenIntros)){
+        progress.seenIntros=H.LEVELS.map(level=>level.id).filter(id=>saved.seenIntros.includes(id));
       }
       progress.assist = saved.assist === true;
       const record = saved.checkpoint;
@@ -126,17 +129,26 @@
       if(hasRun)resume();
       else if(progress.pendingScene)beginScene(progress.pendingScene);
       else if(progress.results[3]&&!progress.checkpoint)beginScene(H.LEVELS.length);
-      else if(hasProgress)startLevel(progress.lastLevel,progress.checkpoint);
+      else if(progress.checkpoint)startLevel(progress.lastLevel,progress.checkpoint);
+      else if(hasProgress)beginScene(progress.lastLevel);
       else beginScene(0);
     },'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
   }
   function beginScene(index) {
+    if(H.LEVELS[index] && progress.seenIntros.includes(H.LEVELS[index].id)){
+      startLevel(index);
+      return;
+    }
     sceneIndex=index; sceneBeat=0; showScene();
   }
   function finishScene() {
     if(sceneIndex>H.LEVELS.length)showFinish();
     else if(sceneIndex===H.LEVELS.length)beginInterview();
-    else startLevel(sceneIndex);
+    else {
+      const id=H.LEVELS[sceneIndex].id;
+      if(!progress.seenIntros.includes(id))progress.seenIntros.push(id);
+      startLevel(sceneIndex);
+    }
   }
   function comicSprite(atlasName, frameName, className) {
     const atlas=globalThis.HIRED_ASSET_META[atlasName];
@@ -209,7 +221,7 @@
     setMode('worlds');
     const ids=['application-alley','ship-it-city','growth-run','interview-hq'];
     modal('World directory',`<p class="eyebrow">CHOOSE YOUR STARTING POINT</p><h2>Four stages. One story.</h2><p class="muted">Start at the beginning or take a look around. Every world is open.</p><div class="world-grid">${H.LEVELS.map((l,i)=>`<button class="world-card" id="world-${i}"><img src="${asset(`assets/production/backgrounds/${ids[i]}.webp`)}" alt="">${progress.results[i]?'<span class="clear-badge">CLEARED</span>':''}<span>${String(i+1).padStart(2,'0')} / ${esc(l.name)}</span><small>${esc(l.subtitle)}</small></button>`).join('')}</div>${assistRow()}`,true,back);
-    H.LEVELS.forEach((_,i)=>$('world-'+i).addEventListener('click',()=>startLevel(i)));bindAssist();
+    H.LEVELS.forEach((_,i)=>$('world-'+i).addEventListener('click',()=>beginScene(i)));bindAssist();
   }
   function startLevel(index, checkpoint=null) {
     if(!ready)return;

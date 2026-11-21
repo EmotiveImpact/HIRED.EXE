@@ -120,6 +120,18 @@ def run(profile, base):
         assert download.value.path().read_bytes().startswith(b'%PDF-')
         page.screenshot(path=OUT/'cv.jpg', full_page=True)
 
+        # Picking a later world must offer its intro once, including after reload.
+        page.goto(base)
+        activate('#choose-world')
+        activate('#world-2')
+        expect(page.locator('#comic-title')).to_have_text('Both of them')
+        activate('#scene-skip')
+        assert page.evaluate('HIRED_APP.state.levelIndex === 2')
+        page.reload()
+        activate('#choose-world')
+        activate('#world-2')
+        assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 2")
+
         # Phase-specific checks use completed checkpoints so the four-world run
         # below can still use its own isolated portfolio save.
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
