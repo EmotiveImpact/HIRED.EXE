@@ -366,20 +366,12 @@ test('conveyors carry a standing player and presses hurt only when they slam', (
   phase(0.62); g.step({}); assert.equal(p.health, 2);
 });
 
-test('a dash opens each world\'s secret room and a walk does not', () => {
-  for (let level = 0; level < LEVELS.length; level++) {
-    const g = gameAtStart(level), p = g.state.player;
-    const panel = g.state.world.platforms.find(pl => pl.type === 'breakable');
-    assert.ok(panel, 'World ' + (level + 1) + ' has a secret room');
-    const floor = panel.y + panel.h;
-    Object.assign(p, { x: panel.x - 90, y: floor - p.h, vx: 0, vy: 0, facing: 1 });
-    tick(g, { right: true }, 40);
-    assert.ok(p.x + p.w <= panel.x, 'the panel is solid to a walk');
-    Object.assign(p, { x: panel.x - 90, dashCooldown: 0 });
-    g.step({ right: true, dashPressed: true }); tick(g, { right: true }, 40);
-    assert.ok(g.drainEvents().some(e => e.type === 'secret' && e.name === panel.name));
-    assert.ok(p.x > panel.x + 60 && Math.abs(p.y + p.h - floor) < 1, 'the player is inside the room');
-    assert.ok(g.state.coins >= 4);
+test('each world has an open ledge beneath its two rows of bonus coins', () => {
+  for (const level of LEVELS) {
+    assert.ok(!level.platforms.some(p => p.type === 'wall' || p.type === 'breakable'));
+    const terrace = level.platforms.find(p => p.w === 220 && level.collectibles.some(c =>
+      c.x === p.x + 56 && c.y === p.y - 30));
+    assert.ok(terrace && terrace.oneWay);
   }
 });
 

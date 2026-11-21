@@ -19,16 +19,13 @@
     x: x + i * step, y: y - Math.sin(i / Math.max(1, count - 1) * Math.PI) * 48, kind: 'coin'
   }));
 
-  const wall = (x, y, w, h, extra = {}) => ({ x, y, w, h, type: 'wall', oneWay: false, ...extra });
-
   // ---- Inserted stretches. Each builder receives the x where it starts and returns
   // its pieces plus its width; everything authored after that point moves right.
-  const secretStretch = (name, floor) => x0 => {
+  const coinTerrace = floor => x0 => {
     const top = floor - 232, x = x0 + 340, w = 220;
     return { width: 850,
       platforms: [ground(x0, 700, floor), ledge(x0 + 60, floor - 122), ledge(x0 + 200, top, 140),
-        wall(x, top, w, 24), wall(x, top - 134, w, 24), wall(x + w - 24, top - 110, 24, 110),
-        wall(x, top - 110, 24, 110, { type: 'breakable', name })],
+        ledge(x, top, w)],
       collectibles: [0, 1, 2, 3].flatMap(i => [{ x: x + 56 + i * 38, y: top - 30, kind: 'coin' }, { x: x + 56 + i * 38, y: top - 72, kind: 'coin' }]),
       checkpoints: [{ x: x0 + 30, y: floor }],
       enemies: [enemy('inbox', x0 + 420, floor, x0 + 380, x0 + 640)] };
@@ -91,10 +88,10 @@
     checkpoints: [{ x: x0 + 30, y: 360 }],
     hints: [{ x: x0 + 10, text: 'The lift stops at three floors. Someone gets on at every one. Hold out until the doors open.' }] });
   const INSERTS = [
-    [{ at: 1780, build: secretStretch('The Spam Folder', 440) }, { at: 4360, build: coverLetterClimb }],
-    [{ at: 2530, build: secretStretch('The Backlog', 384) }, { at: 5160, build: beltsAndPresses }, { at: 6700, build: craneRide }],
-    [{ at: 1560, build: secretStretch('The Vanity Metrics Vault', 440) }, { at: 2420, build: abTest }, { at: 3210, build: barChart }],
-    [{ at: 720, build: secretStretch('The Stationery Cupboard', 400) }, { at: 2040, build: waitingRoom }, { at: 3340, build: liftRide }]
+    [{ at: 1780, build: coinTerrace(440) }, { at: 4360, build: coverLetterClimb }],
+    [{ at: 2530, build: coinTerrace(384) }, { at: 5160, build: beltsAndPresses }, { at: 6700, build: craneRide }],
+    [{ at: 1560, build: coinTerrace(440) }, { at: 2420, build: abTest }, { at: 3210, build: barChart }],
+    [{ at: 720, build: coinTerrace(400) }, { at: 2040, build: waitingRoom }, { at: 3340, build: liftRide }]
   ];
   const LISTS = ['platforms', 'enemies', 'collectibles', 'checkpoints', 'springs', 'boosts', 'decor', 'hints', 'gates', 'crushers', 'signoffs', 'rounds'];
   function shiftRight(level, from, dx) {
