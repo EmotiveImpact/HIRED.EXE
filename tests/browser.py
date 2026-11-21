@@ -101,7 +101,7 @@ def run(profile, base):
         page.locator('#pause-button').click()
         page.locator('#resume-game').wait_for()
         page.locator('#sound-button').click()
-        assert page.locator('#sound-button').get_attribute('aria-pressed') == 'true'
+        assert page.locator('#sound-button').get_attribute('aria-pressed') == 'false'
         page.locator('#sound-button').click()
         if mobile:
             page.set_viewport_size({'width':844,'height':390})

@@ -12,7 +12,7 @@
     return `<a class="${className}" id="${id}" href="${offline || 'cv.html'}" ${props}>${offline?'Download CV (PDF)':'View CV'}</a>`;
   };
   const SAVE_KEY = 'hired-exe:v04:' + E.id;
-  let progress = {lastLevel:0,results:{},assist:false,sound:false};
+  let progress = {lastLevel:0,results:{},assist:false,muted:false};
   let storageAvailable = true;
   try {
     const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
@@ -37,7 +37,7 @@
       const record = saved.checkpoint;
       if (record?.level === progress.lastLevel && H.LEVELS[record.level].checkpoints.some(cp => cp.id === record.checkpoint))
         progress.checkpoint = record;
-      // Audio always starts off after a page reload; a fresh gesture is required.
+      progress.muted = saved.muted === true;
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
   const save = () => {try {localStorage.setItem(SAVE_KEY,JSON.stringify(progress));storageAvailable=true;return true;} catch (_) {storageAvailable=false;return false;}};
@@ -90,6 +90,7 @@
   }
   function setMode(mode) {
     uiMode=mode;
+    audio.syncMusic();
     if (renderer) renderer.canvas.width = compact.matches && mode !== 'home' ? 480 : H.WIDTH;
     game.viewWidth = compact.matches ? 480 : H.WIDTH;
     clearInputs(); previousTime=performance.now();
@@ -212,6 +213,7 @@
   }
   function startLevel(index, checkpoint=null) {
     if(!ready)return;
+    audio.beat=0;
     game.start(index,{assist:progress.assist});
     if (!game.restoreCheckpoint(checkpoint)) delete progress.checkpoint;
     delete progress.pendingScene;
@@ -221,7 +223,7 @@
     $('level-ribbon').textContent=`${String(index+1).padStart(2,'0')} / ${H.LEVELS[index].name.toUpperCase()}`;
     $('level-ribbon').classList.remove('hidden');
     clearTimeout(ribbonTimeout);ribbonTimeout=setTimeout(()=>$('level-ribbon').classList.add('hidden'),3200);
-    if(audio.enabled)audio.start();
+    if(audio.enabled && audio.ctx?.state!=='running')audio.start();
     updateHud();
   }
   function resume() {
@@ -324,10 +326,36 @@
   }
 
   // Small original synthesised score and effects. No audio files or network requests.
-  const audio={enabled:false,ctx:null,timer:null,beat:0,
-    async start(){try{this.ctx ||= new (window.AudioContext||window.webkitAudioContext)();await this.ctx.resume();if(!this.timer)this.timer=setInterval(()=>this.music(),155);}catch(_){this.enabled=false;updateSound();}},
+  // Each phrase uses MIDI pitches, with zero marking a rest. Bass changes every four steps.
+  const scores=[
+    {bpm:116,voice:'triangle',lead:[72,0,76,79,0,76,74,72,71,0,74,77,0,74,71,67,69,72,0,76,79,0,77,76,74,0,71,67,0,71,74,0],bass:[48,55,43,50,45,52,43,55]},
+    {bpm:96,voice:'square',lead:[0,62,0,65,67,0,69,0,0,67,65,0,62,60,0,0,0,65,0,69,72,0,70,69,67,0,65,62,0,60,62,0],bass:[38,45,43,41,41,48,43,45]},
+    {bpm:150,voice:'sawtooth',lead:[64,67,71,76,71,67,64,67,62,66,69,74,69,66,62,66,60,64,67,72,76,72,67,64,59,63,66,71,78,75,71,0],bass:[40,47,38,45,36,43,35,42]},
+    {bpm:84,voice:'sine',lead:[67,0,0,71,74,0,69,0,66,0,69,0,73,0,0,0,67,0,71,74,78,0,76,0,74,0,71,0,67,0,0,0],bass:[43,50,42,49,40,47,43,50]}
+  ];
+  const hz = note => 440 * 2 ** ((note-69)/12);
+  const audio={enabled:!progress.muted,ctx:null,timer:null,beat:0,
+    async start(){
+      if(!this.enabled)return;
+      try{
+        this.ctx ||= new (window.AudioContext||window.webkitAudioContext)();
+        await this.ctx.resume();
+        this.syncMusic();
+      }catch(_){this.enabled=false;updateSound();}
+    },
+    syncMusic(){
+      clearTimeout(this.timer);
+      if(this.enabled && this.ctx?.state==='running' && uiMode==='playing')this.music();
+    },
     tone(freq,duration=.09,type='square',volume=.025,slide=0){if(!this.enabled||!this.ctx||this.ctx.state!=='running')return;const t=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+duration);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(volume,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(this.ctx.destination);o.onended=()=>{o.disconnect();g.disconnect();};o.start(t);o.stop(t+duration+.015);},
-    music(){if(uiMode!=='playing'||!this.enabled)return;const seq=[659,0,784,880,0,784,659,523,587,0,659,784,659,523,587,0];const n=this.beat++%seq.length;this.tone(seq[n]||130,.11,'triangle',seq[n]?.027:.009);if(n%4===0)this.tone([131,165,147,175][Math.floor(n/4)],.28,'triangle',.04);},
+    music(){
+      const score=scores[game.state.levelIndex], step=this.beat++ % score.lead.length;
+      const seconds=30/score.bpm, note=score.lead[step];
+      if(note)this.tone(hz(note),seconds*.82,score.voice,score.voice==='square'||score.voice==='sawtooth'?.011:.033);
+      if(step%4===0)this.tone(hz(score.bass[step/4]),seconds*2.5,'triangle',.047);
+      if(step%4===2)this.tone(90,.055,'sine',.035,38);
+      this.timer=setTimeout(()=>this.music(),seconds*1000);
+    },
     effect(type){const fx={jump:[400,.11,'square',.02,760],dash:[880,.1,'sawtooth',.012,220],coin:[1046,.09,'square',.018,1568],skill:[784,.22,'triangle',.06,1568],hurt:[220,.18,'sawtooth',.025,85],checkpoint:[523,.25,'triangle',.05,1046],stomp:[260,.1,'square',.03,120],bossHit:[140,.19,'square',.025,450],complete:[523,.45,'triangle',.06,1046],spring:[240,.2,'square',.02,980],bonus:[660,.28,'triangle',.05,1320],scene:[180,.32,'triangle',.04,540]};if(fx[type])this.tone(...fx[type]);}
   };
   function updateSound() {$('sound-button').textContent=audio.enabled?'Sound on':'Sound off';$('sound-button').setAttribute('aria-pressed',String(audio.enabled));}
@@ -432,7 +460,13 @@
   $('help-button').addEventListener('click',()=>ready&&showHelp());
   $('home').addEventListener('click',()=>{if(ready){if(uiMode==='playing')showPause();else showHome();}});
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
-  $('sound-button').addEventListener('click',async()=>{audio.enabled=!audio.enabled;if(audio.enabled)await audio.start();updateSound();if(uiMode==='playing')$('game').focus({preventScroll:true});});
+  updateSound();
+  const unlockAudio=event=>{
+    if(audio.enabled && audio.ctx?.state!=='running' && !event.target.closest?.('#sound-button'))audio.start();
+  };
+  document.addEventListener('click',unlockAudio,true);
+  document.addEventListener('keydown',unlockAudio,true);
+  $('sound-button').addEventListener('click',async()=>{audio.enabled=!audio.enabled;progress.muted=!audio.enabled;save();if(audio.enabled)await audio.start();else audio.syncMusic();updateSound();if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('title-edition').textContent=E.editionLabel;
   $('art-book-link').search = globalThis.location.search;
