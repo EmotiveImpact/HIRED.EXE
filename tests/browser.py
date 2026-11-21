@@ -30,6 +30,22 @@ def run(profile, base):
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
         expect(page.get_by_role('link', name='Read the cutscenes')).to_have_attribute('href', 'cutscenes.html')
+        page.goto(base+'/director.html')
+        frames = page.locator('article img')
+        expect(frames).to_have_count(28)
+        assert frames.evaluate_all('async imgs => {await Promise.all(imgs.map(i => {i.loading="eager"; return i.decode()})); return imgs.every(i => i.naturalWidth > 0)}')
+        page.get_by_role('button', name='Disapprove / rerender').first.click()
+        page.locator('textarea').first.fill('Hold the reaction')
+        page.reload()
+        page.locator('#filter').select_option('Rerender')
+        expect(page.locator('article:visible')).to_have_count(1)
+        expect(page.locator('textarea:visible')).to_have_value('Hold the reaction')
+        with page.expect_download() as review_download:
+            page.get_by_role('button', name='Download review notes').click()
+        import json
+        with open(review_download.value.path()) as review_file:
+            review = json.load(review_file)
+        assert len(review['shots']) == 28 and review['shots'][0]['direction'] == 'Hold the reaction'
         page.goto(base+'/cutscenes.html')
         shots = page.locator('figure img')
         expect(shots).to_have_count(20)

@@ -87,7 +87,7 @@ art_html=re.sub(r'href="((?:docs/[^"<>]+)|(?:assets/[^"<>]+\.json))"',local_down
 (DIST/'HIRE-EXE-v0.4-ART-BOOK.html').write_text(art_html)
 
 # The multi-file site is deliberately also kept: it is easier to edit and review.
-for name in ['index.html','styles.css','art-book.html','cv.html','cutscenes.html']:
+for name in ['index.html','styles.css','art-book.html','cv.html','cutscenes.html','director.html']:
     shutil.copy2(ROOT/name,DIST/name)
 for name in ['src','assets','docs','references']:
     shutil.copytree(ROOT/name,DIST/name,dirs_exist_ok=True)
