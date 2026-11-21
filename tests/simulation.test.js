@@ -11,7 +11,7 @@ const tick = (game, input = {}, count = 1) => { for (let i = 0; i < count; i++) 
 const gameAtStart = (index = 0, options = {}) => { const game = new Game(); game.start(index, options); tick(game, {}, 2); game.drainEvents(); return game; };
 
 test('four level layouts have distinct topology, regular checkpoints and three skills', () => {
-  assert.deepEqual(LEVELS.map(l => l.width), [9350, 12880, 12920, 10150]);
+  assert.deepEqual(LEVELS.map(l => l.width), [9350, 12880, 12920, 9180]);
   for (const l of LEVELS) {
     assert.ok(l.checkpoints.length >= 3);
     // No stretch between saves is longer than about ten seconds of running.
@@ -175,7 +175,7 @@ test('bosses accept a stomp only during their opening', () => {
     Object.assign(p, { x: b.x + 20, y: b.y - p.h - 3, vy: 6, grounded: false, coyote: 0, jumps: 1 });
     g.step({ jumpHeld: true });
     assert.equal(b.health, vulnerable ? b.maxHealth - 1 : b.maxHealth);
-    assert.equal(p.health, vulnerable ? 3 : 2);
+    assert.equal(p.health, 3);
   }
 });
 
@@ -348,7 +348,6 @@ test('resuming at a late checkpoint skips the rounds already cleared', () => {
   const record = { level: 3, checkpoint: before.id, collected: [], defeated: [], score: 0, time: 60, deaths: 0 };
   assert.equal(g.restoreCheckpoint(record), true);
   assert.equal(g.state.bossIndex, 2); assert.equal(g.state.boss.type, 'algorithm');
-  assert.equal(g.state.lift.stage, 'done');
   const gates = g.state.world.platforms.filter(pl => pl.type === 'gate');
   assert.deepEqual(gates.map(gate => gate.needs), [2]);
 });
@@ -390,18 +389,31 @@ test('the crane platform docks level with both banks and the all-time high gives
   assert.ok(p.y + p.h <= 440);
 });
 
-test('the lift runs three floors, boards passengers and then opens its doors', () => {
-  const g = gameAtStart(3, { assist: true }), p = g.state.player, l = g.state.lift;
-  Object.assign(p, { x: l.x0 + 200, y: l.floor - p.h });
-  g.step({}); assert.equal(l.stage, 'riding');
-  assert.equal(g.state.enemies.filter(e => e.lift && e.alive).length, l.waves[0].length);
-  assert.ok(g.state.world.platforms.some(pl => pl.needs === 'lift'));
-  tick(g, {}, l.waveTicks * l.waves.length + 2);
-  assert.equal(l.stage, 'done');
-  assert.ok(!g.state.enemies.some(e => e.lift && e.alive));
-  assert.ok(!g.state.world.platforms.some(pl => pl.needs === 'lift'));
-  const events = g.drainEvents();
-  assert.equal(events.filter(e => e.type === 'liftFloor').length, 3);
+test('the charging boss can be defeated directly by dashing into its opening', () => {
+  const g = gameAtStart(1), { boss, player } = g.state;
+  Object.assign(boss, { active: true, phase: 'attack', timer: 1, facing: 1 });
+  Object.assign(player, { x: boss.x - 100, y: boss.floor - player.h });
+  g.step({});
+  assert.ok(boss.timer >= 180);
+  Object.assign(player, { x: boss.x - player.w - 4, y: boss.floor - player.h, facing: 1 });
+  g.step({ dashPressed: true, right: true });
+  assert.equal(boss.health, boss.maxHealth - 1);
+});
+
+test('clearing each interview round unlocks a lift to a higher, saved floor', () => {
+  const g = gameAtStart(3, { assist: true }), p = g.state.player;
+  for (const lift of g.state.world.floorLifts) {
+    Object.assign(p, { x: lift.x - p.w + 2, y: lift.y - p.h, vx: 0, vy: 0 });
+    g.setPieces();
+    assert.equal(g.state.floorRide, null);
+    g.clearBoss(g.state.boss);
+    g.setPieces();
+    assert.equal(g.state.floorRide.lift, lift);
+    tick(g, {}, 66);
+    assert.equal(g.state.floorRide, null);
+    assert.ok(p.y + p.h < lift.y);
+    assert.equal(g.state.checkpoint.id, lift.landing.id);
+  }
 });
 
 test('cutscene panels: every ready panel exists and is used, and every beat id is well formed', () => {

@@ -82,7 +82,7 @@
         if (!this.visible(p.x, p.w)) continue;
         if (p.type === 'ground') { this.ground(p); if (p.belt) this.belt(p); }
       }
-      this.lift(state);
+      this.floorLifts(state);
       this.decor(state.world, true);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
@@ -276,26 +276,20 @@
       }
     }
 
-    lift(state) {
-      const l = state.lift;
-      if (!l || !this.visible(l.x0, l.x1 - l.x0)) return;
-      const ctx = this.ctx, top = l.floor - 250, width = l.x1 - l.x0;
-      ctx.fillStyle = 'rgba(31,25,68,.34)'; ctx.fillRect(l.x0, top, width, 250);
-      if (l.stage === 'riding') {
-        // Shaft lights streaming downwards sell the ascent.
-        ctx.save(); ctx.beginPath(); ctx.rect(l.x0, top, width, 250); ctx.clip();
-        ctx.fillStyle = 'rgba(255,233,162,.35)';
-        for (let i = 0; i < 9; i++) {
-          const y = top + ((this.time * 190 + i * 61) % 290) - 20;
-          ctx.fillRect(l.x0 + 30 + (i * 137) % (width - 60), y, 3, 26);
-        }
-        ctx.restore();
+    floorLifts(state) {
+      const ctx = this.ctx, ride = state.floorRide;
+      for (const lift of state.world.floorLifts || []) {
+        if (state.bossIndex <= lift.round || !this.visible(lift.x - 55, 120)) continue;
+        ctx.fillStyle = '#32285a'; ctx.fillRect(lift.x - 32, lift.y - 115, 80, 115);
+        ctx.fillStyle = '#ffe19b'; ctx.fillRect(lift.x - 28, lift.y - 111, 72, 4);
+        this.label('LIFT ↑ FLOOR ' + (lift.round + 2), lift.x + 8, lift.y - 130, '#ffe8ae', 11);
       }
-      ctx.strokeStyle = '#ffd36c'; ctx.lineWidth = 4; ctx.strokeRect(l.x0, top, width, 250);
-      ctx.fillStyle = '#261a45'; ctx.fillRect(l.x0 - 2, top - 8, width + 4, 10);
-      const text = l.stage === 'riding' ? 'FLOOR ' + (l.wave + 1) + ' OF ' + l.waves.length + ' · GOING UP'
-        : l.stage === 'done' ? 'YOUR FLOOR. DOORS OPEN' : 'LIFT TO INTERVIEW FLOORS';
-      this.label(text, l.x0 + width / 2, top + 26, '#ffe8ae', 11);
+      if (ride) {
+        const p = state.player;
+        ctx.fillStyle = 'rgba(71,44,129,.8)'; ctx.fillRect(p.x - 21, p.y - 37, p.w + 42, p.h + 44);
+        ctx.fillStyle = '#ffe19b'; ctx.fillRect(p.x - 21, p.y + p.h, p.w + 42, 7);
+        this.label('↑ FLOOR ' + (ride.lift.round + 2), p.x + p.w / 2, p.y - 21, '#ffe8ae', 11);
+      }
     }
 
     decor(world, front) {
@@ -486,7 +480,7 @@
       if (g.needs === 'keys') {
         const keys = state.world.collectibles.filter(item => item.kind === 'key');
         this.label(keys[0].bell ? 'RING FOR ATTENTION' : keys.filter(k => k.collected).length + ' / ' + keys.length + ' KEYWORDS', x + g.w / 2, top + 66, '#d4f5e3', 10);
-      } else this.label(g.needs === 'lift' ? 'WAIT FOR YOUR FLOOR' : 'CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
+      } else this.label('CLEAR THE ROUND', x + g.w / 2, top + 66, '#d4f5e3', 10);
     }
 
     fakeExit(state) {
@@ -586,8 +580,8 @@
           const wx = cx + b.facing * (b.w / 2 + 36), wy = feet - 60;
           ctx.fillStyle = '#ffdc73'; ctx.beginPath(); ctx.moveTo(wx, wy - 22); ctx.lineTo(wx - 18, wy + 10); ctx.lineTo(wx + 18, wy + 10); ctx.closePath(); ctx.fill();
           ctx.fillStyle = ink; ctx.font = 'bold 25px monospace'; ctx.textAlign = 'center'; ctx.fillText('!', wx, wy + 6); ctx.textAlign = 'left';
-        } else if (b.type === 'scopecreep') {
-          this.label(b.phase === 'attack' ? 'CHARGE!' : 'FILE THE LIT BRIEF', cx, feet + 23, '#ffdf9a', 10);
+        } else if (b.type === 'scopecreep' && !open) {
+          this.label(b.phase === 'attack' ? 'JUMP OVER THE CHARGE' : 'WAIT FOR THE STOP', cx, feet + 23, '#ffdf9a', 10);
         } else if (open) {
           this.label('OPEN · STOMP OR DASH', cx, feet + 23, '#b4ffcb', 10);
           const bounce = Math.sin(this.time * 8) * 3;

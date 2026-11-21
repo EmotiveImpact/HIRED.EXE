@@ -22,10 +22,10 @@ const directorScenes = [
   {
     title:'A quick addition',place:'World 2 · Ship It City',cue:'On entering the dock level, the workshop trolley offers to help finish one small job. It embodies the familiar person who says “while you’re here”. The player ships the fish and leaves the extra work at the dock.',
     shots:[
-      ['city-1','One fish','Augustus|One more stripe and this fish is ready to ship.'],
-      ['city-2','The reveal','Workshop trolley|While you’re here, could you do the inside?','Augustus|Of the fish?'],
-      ['city-3','The estimate','Workshop trolley|Of the submarine. We’ve bought the propeller.'],
-      ['city-4','Delivery','Augustus|Lovely. Keep the receipt.']
+      ['city-1','One fish','Augustus|One wooden fish. Paint it orange and ship it.'],
+      ['city-2','The reveal','Workshop trolley|You said ship. I’ve ordered a submarine.','Augustus|I meant finish the fish.'],
+      ['city-3','The estimate','Workshop trolley|Can we at least keep the propeller? Its box is open.'],
+      ['city-4','Delivery','Augustus|Send the fish. Put the submarine down as a sunk cost.']
     ]
   },
   {
@@ -38,10 +38,10 @@ const directorScenes = [
     ]
   },
   {
-    title:'The attachment',place:'Back in Augustus’s home studio',cue:'Cut out of the game for the actual email. Claude is proposed as a text chat in a neighbouring tab. Its line appears in the dialogue strip. James’s reply is the invitation that motivates the next level.',
+    title:'The attachment',place:'Back in Augustus’s home studio',cue:'Cut out of the game for the actual email. Charlie Dots appears as a text chat in a neighbouring tab. Its line appears in the dialogue strip. James’s reply is the invitation that motivates the next level.',
     shots:[
-      ['p13-draft','The salutation','Augustus|“Hi James” or “Dear James”?','Claude, in chat|You’ve been on this bit longer than the water level.'],
-      ['p14-just-sent','Sent','Augustus|Please find attached.','Claude, in chat|Was that an instruction for me?'],
+      ['p13-draft','The salutation','Augustus|“Hi James” or “Dear James”?','Charlie Dots, in chat|We shipped a game in less time than this greeting.'],
+      ['p14-just-sent','Sent','Augustus|Please find attached.','Charlie Dots, in chat|Strong email. Shy attachment.'],
       ['p15-attachment','Second email','Augustus|And, in a surprise development, my CV.','James, later by email|I played it. Come in on Thursday?']
     ]
   },

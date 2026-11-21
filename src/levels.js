@@ -10,7 +10,7 @@
   const enemy = (type, x, floor, min, max, speed = 1.15) => ({
     type, x, y: floor - ({ cv: 44, inbox: 38, plane: 32 }[type]),
     w: type === 'plane' ? 46 : 42, h: { cv: 44, inbox: 38, plane: 32 }[type],
-    minX: min, maxX: max, speed, facing: -1
+    minX: min, maxX: max, speed: speed * .85, facing: -1
   });
   const key = (x, y, word) => ({ x, y, kind: 'key', word });
   const gate = (x, floor, needs, label) => ({ x, y: floor - 420, w: 40, h: 420, needs, label });
@@ -81,17 +81,11 @@
     checkpoints: [{ x: x0 + 40, y: 400 }],
     decor: [{ type: 'sign', x: x0 + 110, y: 400, text: 'WE WILL BE WITH YOU SHORTLY' }, { type: 'tree', x: x0 + 470, y: 400 }],
     hints: [{ x: x0 + 20, text: 'The waiting room. Nobody is coming. There must be a bell somewhere.' }] });
-  const liftRide = x0 => ({ width: 970,
-    platforms: [ground(x0, 820, 360)],
-    gates: [gate(x0 + 730, 360, 'lift', 'LIFT DOORS')],
-    lift: { x0: x0 + 90, x1: x0 + 730, floor: 360, waveTicks: 230, waves: [['cv', 'inbox'], ['plane', 'cv'], ['inbox', 'plane', 'cv']] },
-    checkpoints: [{ x: x0 + 30, y: 360 }],
-    hints: [{ x: x0 + 10, text: 'The lift stops at three floors. Someone gets on at every one. Hold out until the doors open.' }] });
   const INSERTS = [
     [{ at: 1780, build: coinTerrace(440) }, { at: 4360, build: coverLetterClimb }],
     [{ at: 2530, build: coinTerrace(384) }, { at: 5160, build: beltsAndPresses }, { at: 6700, build: craneRide }],
     [{ at: 1560, build: coinTerrace(440) }, { at: 2420, build: abTest }, { at: 3210, build: barChart }],
-    [{ at: 720, build: coinTerrace(400) }, { at: 2040, build: waitingRoom }, { at: 3340, build: liftRide }]
+    [{ at: 720, build: coinTerrace(400) }, { at: 2040, build: waitingRoom }]
   ];
   const LISTS = ['platforms', 'enemies', 'collectibles', 'checkpoints', 'springs', 'boosts', 'decor', 'hints', 'gates', 'crushers', 'signoffs', 'rounds'];
   function shiftRight(level, from, dx) {
@@ -105,7 +99,6 @@
     if (level.boss.x >= from) level.boss.x += dx;
     if (level.fakeExit && level.fakeExit.x >= from) level.fakeExit.x += dx;
     if (level.chase) for (const field of ['startX', 'endX']) if (level.chase[field] >= from) level.chase[field] += dx;
-    if (level.lift && level.lift.x0 >= from) { level.lift.x0 += dx; level.lift.x1 += dx; }
     level.width += dx;
   }
   function applyInserts(level, inserts) {
@@ -113,7 +106,6 @@
       const part = insert.build(insert.at);
       shiftRight(level, insert.at, part.width);
       for (const name of LISTS) if (part[name]) level[name] = [...(level[name] || []), ...part[name]];
-      if (part.lift) level.lift = part.lift;
     }
     level.checkpoints.sort((a, b) => a.x - b.x);
     level.hints.sort((a, b) => a.x - b.x);
@@ -203,7 +195,7 @@
         { type: 'sign', x: 7640, y: 440, text: 'DASH THROUGH LIT TERMINALS' }],
       hints: [{ x: 100, text: 'The lifts carry you. The lower route is always available.' },
         { x: 1680, text: 'Springs reveal higher routes and optional skill tokens.' },
-        { x: 7560, text: 'While I’m Here keeps adding work. Dodge its charge and dash through each lit terminal to sign off the brief.' }]
+        { x: 7560, text: 'Jump over the charge. Once it stops, stomp or dash into it. Dashing through lit terminals works too.' }]
     },
     {
       id: 'growth-run', name: 'Growth Run', subtitle: 'Keep the momentum. Keep learning.',
@@ -266,7 +258,7 @@
         ...arc(575, 300, 6, 36), ...arc(1240, 270, 6, 38), ...arc(1850, 260, 7, 38),
         ...arc(2450, 280, 7, 38), ...arc(3120, 250, 7, 38), ...arc(4240, 250, 5, 36), ...arc(5300, 240, 5, 36),
         ...arc(6360, 230, 5, 36)],
-      checkpoints: [{ x: 1100, y: 400 }, { x: 3400, y: 350 }, { x: 4450, y: 340 }, { x: 5510, y: 330 }, { x: 6590, y: 320 }],
+      checkpoints: [{ x: 1100, y: 400 }, { x: 3358, y: 350 }, { x: 3400, y: 350 }, { x: 4450, y: 340 }, { x: 5510, y: 330 }, { x: 6590, y: 320 }],
       springs: [{ x: 1450, y: 360, w: 44, h: 16 }], boosts: [],
       rounds: [
         { type: 'recruitmentbot', name: 'Round 1 · Phone screen', x: 3840, floor: 350, w: 82, h: 82, health: 1, enraged: true },
@@ -274,7 +266,7 @@
           arena: [4560, 5220], signoffs: [{ x: 5100, label: 'SUBMIT' }] },
         { type: 'algorithm', name: 'Round 3 · The panel', x: 5950, floor: 295, w: 88, h: 76, health: 1, enraged: true }
       ],
-      gates: [gate(4190, 350, 0, 'ROUND 1 OF 3'), gate(5250, 340, 1, 'ROUND 2 OF 3'), gate(6310, 330, 2, 'ROUND 3 OF 3')],
+      gates: [gate(4190, 350, 0, 'LIFT TO FLOOR 2'), gate(5250, 340, 1, 'LIFT TO FLOOR 3'), gate(6310, 330, 2, 'LIFT TO FLOOR 4')],
       boss: { type: 'finalreview', name: 'Interview host', x: 6770, floor: 320, w: 84, h: 88, health: 3 },
       decor: [{ type: 'sign', x: 90, y: 440, text: 'FINAL INTERVIEW HQ' }, { type: 'tree', x: 520, y: 440 },
         { type: 'terminal', x: 1110, y: 400 }, { type: 'banner', x: 1460, y: 360 },
@@ -282,7 +274,7 @@
         { type: 'sign', x: 3160 - 180, y: 360, text: 'JUST THREE MORE ROUNDS' },
         { type: 'sign', x: 6550, y: 320, text: 'BRING YOUR STORY' }, { type: 'banner', x: 7150, y: 320 }],
       hints: [{ x: 100, text: 'The final climb. Checkpoints keep your progress safe.' },
-        { x: 3300, text: 'Three interview rounds stand between you and the room. You have met them all before.' },
+        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then walk into the lift on the right.' },
         { x: 6540, text: 'The interview host has your file. Head through the doors and choose what to talk about.' }]
     }
   ];
@@ -295,7 +287,29 @@
   ];
 
   const LEVELS = definitions.map((level, levelIndex) => {
+    if (level.id === 'final-interview') {
+      const upperFloors = [4400, 5460, 6520];
+      const rooms = ['Take-home task', 'The panel', 'Interview'];
+      upperFloors.forEach((start, index) => {
+        const rise = (index + 1) * 40;
+        const end = upperFloors[index + 1] ?? level.width;
+        for (const name of LISTS) for (const item of level[name] || []) {
+          if (item.x < start || item.x >= end) continue;
+          if ('y' in item) item.y -= rise;
+          if (name === 'rounds') item.floor -= rise;
+        }
+        const x = start + 12;
+        level.hints.push({ x, text: 'Floor ' + (index + 2) + ' of 4 · ' + rooms[index] });
+      });
+      level.boss.floor -= 120;
+    }
     applyInserts(level, INSERTS[levelIndex]);
+    if (level.id === 'final-interview') {
+      level.floorLifts = level.gates.filter(g => typeof g.needs === 'number').map(g => {
+        const landing = level.checkpoints.find(cp => cp.x > g.x);
+        return { x: g.x, y: g.y + g.h, landing, round: g.needs };
+      });
+    }
     level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
     level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
     // The regular trail stays on solid ground; extra arcs describe the jumps across gaps.

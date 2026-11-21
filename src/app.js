@@ -374,7 +374,8 @@
   function updateHud() {
     const s=game.state;if(!s)return;
     $('world-count').textContent=`WORLD ${String(s.levelIndex+1).padStart(2,'0')} / 04`;
-    $('world-name').textContent=s.world.name;
+    const floor = s.world.floorLifts?.filter(lift => s.player.x >= lift.landing.x).length;
+    $('world-name').textContent=s.world.name+(floor === undefined ? '' : ' · Floor '+(floor+1));
     $('coin-count').textContent=String(s.coins).padStart(2,'0');
     $('skill-count').textContent=s.skills.length+'/3';
     const lives=s.assist?'RELAXED':'×'+s.lives;
@@ -414,12 +415,11 @@
       if(e.type==='bossHit'&&e.health>0){const b=bark(game.state.boss.type);const i=e.maxHealth-e.health-1;if(b?.hits)toast(b.hits[i%b.hits.length],2400);}
       if(e.type==='signoff')toast(bark(game.state.boss.type)?.signoffs?.[e.label]||e.label+' signed off.',3000);
       if(e.type==='welcome')toast('Your interview is through the doors.',3000);
-      if(e.type==='bossOpening' && !game.state.boss.signoffs)toast(bark(game.state.boss.type)?.opening||'Shield down! Stomp or dash now.',2000);
+      if(e.type==='bossOpening')toast(game.state.boss.type==='scopecreep'?'He’s stopped. Dash into him or jump on top.':bark(game.state.boss.type)?.opening||'Shield down! Stomp or dash now.',2400);
       if(e.type==='key'&&e.bell){toast('Ding. Somebody will see you now.',2600);continue;}
       if(e.type==='secret')toast('Secret room found · '+e.name,3200);
       if(e.type==='crash')toast('All-time high! Hold on…',2000);
-      if(e.type==='liftFloor')toast(`Floor ${e.floor} of ${e.total}. Somebody is getting on.`,2400);
-      if(e.type==='liftDone')toast('Your floor. The doors are open.',2400);
+      if(e.type==='floorLift')toast('Lift going up · Floor '+e.floor+' of 4',1500);
       if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter now believes you are qualified.`,2400);
       if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
       if(e.type==='chaseStart')toast('The Feed is behind you. Run!',2600);
