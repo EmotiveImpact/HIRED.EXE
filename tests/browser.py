@@ -27,6 +27,16 @@ def run(profile, base):
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
         page.goto(base)
         page.locator('#start-game').wait_for()
+        assert page.locator('#desktop').evaluate("el => (getComputedStyle(el).userSelect || getComputedStyle(el).webkitUserSelect) === 'none'")
+        assert page.locator('.window-title img').evaluate("img => !img.dispatchEvent(new Event('dragstart', {bubbles:true, cancelable:true}))")
+        if not mobile:
+            label = page.locator('.window-title strong').bounding_box()
+            x, y = label['x'], label['y'] + label['height'] / 2
+            page.mouse.move(x+1,y)
+            page.mouse.down()
+            page.mouse.move(x+label['width']-1,y,steps=8)
+            page.mouse.up()
+            assert page.evaluate("window.getSelection().toString()") == ''
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
         expect(page.get_by_role('link', name='Read the cutscenes')).to_have_attribute('href', 'cutscenes.html')

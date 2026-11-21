@@ -206,3 +206,15 @@
 .comic-dialogue p + strong { display:block; margin-top:.45rem; }
 .comic-dialogue .comic-after { margin-top:.4em; font-style:italic; font-size:.9em; }
 .comic-dialogue:empty { display:none; }
+
+#desktop {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+#desktop img, #desktop a {
+  -webkit-user-drag: none;
+}
+#game {
+  touch-action: none;
+}

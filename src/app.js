@@ -419,6 +419,7 @@
   document.addEventListener('keyup',e=>keys.delete(e.code));
   window.addEventListener('blur',()=>{clearInputs();if(uiMode==='playing')showPause();});
   document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInputs();if(uiMode==='playing')showPause();}});
+  $('desktop').addEventListener('dragstart', event => event.preventDefault());
   document.querySelectorAll('[data-control]').forEach(button=>{
     const control=button.dataset.control;
     const release=e=>{if(pointers.get(e.pointerId)!==control)return;pointers.delete(e.pointerId);if(![...pointers.values()].includes(control)){touch.delete(control);button.classList.remove('is-held');}if(e.cancelable)e.preventDefault();};
