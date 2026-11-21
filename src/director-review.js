@@ -1,5 +1,5 @@
 'use strict';
-const key='hire-exe-director-worlds-v3', choices=['Approved','Rerender','Unreviewed'];
+const key='hire-exe-director-worlds-v4', choices=['Approved','Rerender','Unreviewed'];
 const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
 const byId=id=>document.getElementById(id);
 const revised=new Set(['p02-form', 'p04-gatekeeper', 'p05-play', 'alley-1', 'city-1', 'p15-attachment']);
@@ -29,8 +29,8 @@ directorScenes.forEach(({title,place,cue,shots},s)=>{
   section.append(label,el('h2',title),direction,grid);byId('board').append(section);
   shots.forEach(([id,shot,...lines])=>{
     const num=String(records.length+1).padStart(2,'0'),card=el('article'),pic=el('img'),details=el('div'),buttons=[],actions=el('div');
-    card.className='frame';pic.alt=place+' · '+shot;pic.loading='lazy';
-    pic.src=!['p04-gatekeeper','p15-attachment','office-3'].includes(id)?'assets/directors-board/v3/'+id+'.webp':revised.has(id)?'assets/directors-board/v2/'+id+'.webp':/^p\d/.test(id)?'assets/production/story/panels-v2/'+id+'.jpg':'assets/directors-board/'+id+'.webp';
+    card.id='shot-'+num;card.className='frame';pic.alt=place+' · '+shot;pic.loading='lazy';
+    pic.src=['p05-play','city-1'].includes(id)?'assets/directors-board/v4/'+id+'.webp':!['p04-gatekeeper','p15-attachment','office-3'].includes(id)?'assets/directors-board/v3/'+id+'.webp':revised.has(id)?'assets/directors-board/v2/'+id+'.webp':/^p\d/.test(id)?'assets/production/story/panels-v2/'+id+'.jpg':'assets/directors-board/'+id+'.webp';
     const full=el('a');if(id==='p04-gatekeeper'){full.className='illustration';full.dataset.caption='(for illustrative purposes only)';}full.href=pic.src;full.target='_blank';full.rel='noopener';full.append(pic);
     details.className='details';details.append(el('small','SHOT '+num),el('h3',shot));
     for(const line of lines.filter(Boolean)){const [speaker,words]=line.split('|');const p=el('p');p.append(el('strong',speaker+' '),document.createTextNode(words));details.append(p);}
@@ -43,6 +43,6 @@ directorScenes.forEach(({title,place,cue,shots},s)=>{
 });
 byId('filter').onchange=refresh;
 byId('download').onclick=()=>{
-  const report={edition:'HIRE.EXE director review · worlds v3',shots:records.map(({num,id,place,shot})=>({number:num,id,place,shot,decision:votes[id]?.vote||'Unreviewed',direction:votes[id]?.note||''}))};
+  const report={edition:'HIRE.EXE director review · worlds v4',shots:records.map(({num,id,place,shot})=>({number:num,id,place,shot,decision:votes[id]?.vote||'Unreviewed',direction:votes[id]?.note||''}))};
   const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'})),a=el('a');a.href=url;a.download='HIRE-EXE-director-notes.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
 };refresh();
