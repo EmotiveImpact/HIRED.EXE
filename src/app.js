@@ -156,13 +156,13 @@
     let nextLabel='Next panel';
     if(last){
       const nextLevel=H.LEVELS[sceneIndex];
-      nextLabel=sceneIndex===3?'Accept the interview invitation':nextLevel?'Play '+nextLevel.name:sceneIndex===H.LEVELS.length?'Enter the interview':'See your results';
+      nextLabel=sceneIndex===3?'Play Final Interview HQ':nextLevel?'Play '+nextLevel.name:sceneIndex===H.LEVELS.length?'Enter the interview':'See your results';
     }
     const speaker=beat.speaker==='interviewer'?(E.interviewer||'Interview host'):beat.speaker;
     const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel)&&(!beat.portrait||E.interviewer));
     const illustrated=fullPanel||Number.isInteger(beat.art);
     const panel=fullPanel
-      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
+      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(beat.image || H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
       : illustrated
       ? `<div class="comic-illustration" style="${esc(`background-image:url('${asset('assets/production/story/manga-panels.webp')}');background-position:${beat.art%2*100}% ${Math.floor(beat.art/2)*50}%`)}"></div>`
       : `<div class="comic-frame"><img src="${asset('assets/production/backgrounds/'+scene.backdrop+'.webp')}" alt=""><div class="comic-rays"></div></div>
@@ -170,19 +170,19 @@
         ${comicSprite('hero',beat.pose,'comic-hero')}`;
     const upcoming=scene.beats[sceneBeat+1];
     if(upcoming?.panel && H.PANELS?.ready.includes(upcoming.panel) && (!upcoming.portrait||E.interviewer)) {
-      new Image().src=asset(H.PANELS.folder+upcoming.panel+'.jpg');
+      new Image().src=asset(upcoming.image || H.PANELS.folder+upcoming.panel+'.jpg');
     }
     const line=(!E.interviewer && beat.neutralLine) || beat.line;
-    const dialogue=line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
+    const dialogue=beat.dialogue ? beat.dialogue.map(([who,words])=>`<strong>${esc(who)}</strong><p>${esc(words)}</p>`).join('') : line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
     const response=beat.reply?`<strong>${esc(E.applicant.split(' ')[0])}</strong><p>${esc(beat.reply)}</p>`:'';
     const overlay=$('overlay');
     overlay.className='overlay comic-overlay';
     overlay.setAttribute('aria-label',scene.title);
     $('status').textContent=scene.title;
     overlay.innerHTML=`<section class="comic" aria-labelledby="comic-title">
-      <header class="comic-header"><h2 id="comic-title">${esc(scene.title)}</h2><span>${sceneBeat+1} / ${scene.beats.length}</span></header>
+      <header class="comic-header"><h2 id="comic-title">${esc(beat.title || scene.title)}</h2><span>${sceneBeat+1} / ${scene.beats.length}</span></header>
       <div class="comic-art ${illustrated?'comic-illustrated':''} ${beat.burst?'comic-burst':''}" ${fullPanel?`role="img" aria-label="${esc(beat.alt)}"`:'aria-hidden="true"'}>
-        ${panel}
+        ${panel}${beat.image && beat.panel==='p04-gatekeeper'?'<small class="comic-effect">(for illustrative purposes only)</small>':''}
         ${fullPanel?'':`<span class="comic-effect">${esc(beat.effect)}</span>`}
       </div>
       <div class="comic-dialogue" id="comic-dialogue">${dialogue}${response}${beat.after?`<p class="comic-after">${esc(beat.after)}</p>`:''}</div>

@@ -8,27 +8,19 @@
 </style>
 </head>
 <body><main><a href="index.html">Play HIRE.EXE</a><a href="director.html">Review the new world cut</a><h1>The cutscenes</h1><nav aria-label="Jump to a scene"></nav><div id="story"></div><noscript>Enable JavaScript to read the illustrated sequence.</noscript></main>
-<script src="src/scenes.js"></script>
-<script>
-const {SCENES,PANELS}=globalThis.Hired;
-const transitions=['Next in the game · Application Alley','Next in the game · Ship It City','Next in the game · Growth Run','James replies with an invitation. Next in the game · Final Interview HQ','In the game, choose three conversation topics before the offer.','The fictional hiring story ends here.'];
-const make=(tag,text)=>{const node=document.createElement(tag);if(text)node.textContent=text;return node;};
-function dialogue(caption,speaker,line){
-  const p=make('p');p.append(make('b',speaker+' '),document.createTextNode(line));caption.append(p);
+<script src="src/director-scenes.js"></script><script>
+let count=0;
+for(const scene of directorScenes){
+ const section=document.createElement('section');section.id='scene-'+(directorScenes.indexOf(scene)+1);
+ const title=document.createElement('h2');title.textContent=scene.title;section.append(title);
+ const link=document.createElement('a');link.href='#'+section.id;link.textContent=scene.title;document.querySelector('nav').append(link);
+ for(const [id,shot,...lines] of scene.shots){
+  const figure=document.createElement('figure'),img=document.createElement('img'),caption=document.createElement('figcaption');
+  img.src=directorPanel(id);img.alt=shot;img.loading='lazy';caption.textContent='Shot '+(++count)+' / 28 · '+shot;
+  for(const line of lines.filter(Boolean)){const p=document.createElement('p');p.textContent=line.replace('|',' · ');caption.append(p);}
+  if(id==='p04-gatekeeper')caption.append('(for illustrative purposes only)');
+  figure.append(img,caption);section.append(figure);
+ }
+ document.getElementById('story').append(section);
 }
-let frame=0;
-SCENES.forEach((scene,i)=>{
-  const section=make('section');section.id='scene-'+(i+1);
-  const link=make('a',scene.title);link.href='#'+section.id;document.querySelector('nav').append(link);
-  section.append(make('h2',scene.title));
-  for(const beat of scene.beats){
-    const figure=make('figure'),pic=make('img'),caption=make('figcaption');
-    pic.src=PANELS.folder+beat.panel+'.jpg';pic.width=1200;pic.height=800;pic.loading=frame?'lazy':'eager';pic.alt=beat.alt;
-    caption.append(make('small','Shot '+String(++frame).padStart(2,'0')+' / 20'));
-    if(beat.line)dialogue(caption,beat.speaker==='interviewer'?'James':beat.speaker,beat.line);
-    if(beat.reply)dialogue(caption,'Augustus',beat.reply);
-    figure.append(pic,caption);section.append(figure);
-  }
-  section.append(make('footer',transitions[i]));document.getElementById('story').append(section);
-});
 </script></body></html>

@@ -64,3 +64,22 @@ const directorScenes = [
     ]
   }
 ];
+
+function directorPanel(id) {
+  const revision = ['city-1','p05-play'].includes(id) ? 'v4/' :
+    ['p04-gatekeeper','p15-attachment'].includes(id) ? 'v2/' :
+    id === 'office-3' ? '' : 'v3/';
+  return 'assets/directors-board/' + revision + id + '.webp';
+}
+
+if (globalThis.HIRED_EDITION?.id === 'solved-001' && globalThis.Hired?.SCENES) {
+  const chapters = directorScenes.map(scene => scene.shots.map(([panel, alt, ...lines]) => ({
+    panel, alt, title: scene.title, image: directorPanel(panel),
+    dialogue: lines.filter(Boolean).map(line => line.split('|')),
+    burst: panel === 'p05-play'
+  })));
+  const [studio, alley, city, growth, email, hq, office] = chapters;
+  const groups = [[...studio,...alley],city,growth,[...email,...hq],office.slice(0,2),office.slice(2)];
+  globalThis.Hired.SCENES = groups.map((beats,i) => ({title:beats[0].title,beats}));
+  globalThis.Hired.PANELS.ready = groups.flat().map(beat => beat.panel);
+}

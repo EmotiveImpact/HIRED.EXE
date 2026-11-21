@@ -48,21 +48,22 @@ def run(profile, base):
         assert len(review['shots']) == 28 and review['shots'][0]['direction'] == 'Hold the reaction'
         page.goto(base+'/cutscenes.html')
         shots = page.locator('figure img')
-        expect(shots).to_have_count(20)
+        expect(shots).to_have_count(28)
         decoded = shots.evaluate_all("""async images => {
             await Promise.all(images.map(img => { img.loading = 'eager'; return img.decode(); }));
             return images.map(img => [img.currentSrc, img.naturalWidth]);
         }""")
-        assert len({url for url, _ in decoded}) == 20
-        assert all(width >= 960 for _, width in decoded)
-        expect(page.locator('figure').nth(17)).to_contain_text('Same answer.')
+        assert len({url for url, _ in decoded}) == 28
+        assert all(width >= 640 for _, width in decoded)
+        expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
         page.get_by_role('link', name='Play HIRE.EXE').click()
         activate('#start-game')
-        assert page.locator('#comic-title').inner_text() == 'Forty boxes'
+        assert page.locator('#comic-title').inner_text() == 'One PDF'
         for _ in range(4):
             activate('#scene-next')
         assert page.locator('.comic-burst .comic-illustration').is_visible()
         page.screenshot(path=OUT/'cutscene.jpg', animations='disabled')
+        for _ in range(4): activate('#scene-next')
         activate('#scene-next')
         if mobile:
             jump = page.locator('[data-control="jump"]')
@@ -115,8 +116,8 @@ def run(profile, base):
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
         activate('#start-game')
-        expect(page.locator('#comic-title')).to_have_text('While I’m here')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p06-fish\.jpg'))
+        expect(page.locator('#comic-title')).to_have_text('A quick addition')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v4/city-1\.webp'))
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
@@ -126,20 +127,19 @@ def run(profile, base):
             }}))''')
         page.reload()
         activate('#start-game')
-        expect(page.locator('#comic-title')).to_have_text('You’re up')
-        expect(page.locator('#comic-dialogue strong')).to_have_text('James Morgenstern')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p16-interview\.jpg'))
-        for _ in range(2):
-            activate('#scene-next')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p18-strength\.jpg'))
+        expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
+        expect(page.locator('#comic-dialogue strong').first).to_have_text('James')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-1\.webp'))
+        activate('#scene-next')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-2\.webp'))
         page.screenshot(path=OUT/'james.jpg', animations='disabled')
         activate('#scene-skip')
         for answer in (0, 0, 1):
             activate(f'#answer-{answer}')
             activate('#interview-next')
-        expect(page.locator('#comic-title')).to_have_text('The offer')
+        expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
         activate('#scene-next')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p20-handshake\.jpg'))
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-4\.webp'))
         page.screenshot(path=OUT/'offer.jpg', animations='disabled')
         activate('#scene-next')
         expect(page.locator('#final-cv')).to_have_attribute('href', 'cv.html')
@@ -171,10 +171,10 @@ def run(profile, base):
         assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         activate('#start-game')
-        assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/jpeg')")
+        assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')
-        expect(page.locator('#comic-dialogue p')).to_have_text(
-            'Now type it all in again. Lovely. They’ve got a copy to mark mine against.'
+        expect(page.locator('#comic-dialogue p').last).to_have_text(
+            'What did you do with the PDF?'
         )
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode") == 'playing'

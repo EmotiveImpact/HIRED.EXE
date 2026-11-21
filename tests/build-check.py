@@ -149,6 +149,7 @@ def expected_images():
         runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).glob(pattern))
     runtime.add('assets/production/characters/portrait-reference.png')
     runtime.add('assets/production/story/manga-panels.webp')
+    runtime.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/directors-board').rglob('*.webp'))
     runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / 'assets/production/story/panels-v2').glob('*.jpg'))
     gallery = {path for path in runtime if not path.endswith('.webp') and '/story/panels-v2/' not in path}
     gallery.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.png'))
