@@ -2,11 +2,12 @@
 const solvedEdition = {
   id: 'solved-001',
   company: 'Solved Studio',
+  interviewer: 'James Morgenstern',
   role: 'Builder',
   applicant: 'Augustus Edem',
   editionLabel: 'SOLVED STUDIO EDITION',
   intro: 'I’m Augustus Edem. Most people attach a CV. I got carried away and made Solved Studio a four-world adventure. Play through my application or go straight to the work.',
-  finish: 'Thank you for playing, Solved Studio. Unfortunately, on this occasion... sorry, force of habit. I’d love to sit down with your team and walk through the work you picked.',
+  finish: 'Thanks for playing, Solved Studio. I’d love to walk you through the work you picked and hear what you’re building next.',
   skillProjects: {
     "creative-direction": "Emotive Impact",
     "product-thinking": "Commune",
@@ -69,7 +70,7 @@ const solvedEdition = {
 // Register another edition here. Each ID has its own saved results.
 const editions = new Map([
   [solvedEdition.id, solvedEdition],
-  ['portfolio', { ...solvedEdition, id: 'portfolio', company: '', role: 'Product builder',
+  ['portfolio', { ...solvedEdition, id: 'portfolio', company: '', interviewer: null, role: 'Product builder',
     editionLabel: 'PORTFOLIO EDITION',
     intro: 'I’m Augustus Edem. Play through four stages of my work in creative direction and product building, or open the portfolio.',
     finish: 'Thanks for playing. I’d love to show you how the work came together.' }]

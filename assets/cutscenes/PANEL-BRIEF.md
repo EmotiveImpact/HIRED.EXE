@@ -4,6 +4,12 @@ This file is everything needed to draw the cutscene panels and put them in the g
 
 The first batch of ten panels was rejected because it looked like ten different comics: Augustus's face and outfit changed, the rooms changed and the finish changed. This brief fixes that by locking the characters, the rooms and the look before anything is drawn. Do not improvise on any of them.
 
+## Implemented Solved Studio ending
+
+The game uses the nine studio panels and three interview-room panels. James Morgenstern is the interviewer in the Solved Studio edition. Use the finished `p10-traffic.jpg`, `p11-same-answer.jpg` and `p12-the-offer.jpg` as the character and room references for this edition. The neutral portfolio edition uses the original sprites for the interview beats and ends after the three questions.
+
+The runtime JPEGs are up to 1200 pixels wide. The game fits each full illustration into its frame so the composition is visible, and prints dialogue below the illustration. The prompts below retain the original studio compositions.
+
 ## Reference files
 
 Attach all three of these to every single generation, plus `p01` once it is approved (see the process).
@@ -58,13 +64,14 @@ Beats in `src/scenes.js` already name their panel. Beats not listed here keep th
 | `p06-every-day` | 3. Your numbers are in | The Algorithm: “To grow your audience, you need to post every single day.” / Augustus: “About what?” / The Algorithm: “About how you post every single day.” |
 | `p07-pester` | 3. Your numbers are in | Augustus: “I’ll do it the old-fashioned way. Make something good, then pester people until they look.” |
 | `p08-draft-nineteen` | 4. Please find attached | Augustus: “I built the game quicker than this. I’ve been on the word ‘Hi’ since Tuesday.” / Augustus: “‘Dear Sir or Madam’ sounds like I’m complaining about the bins. ‘Hey’ sounds like I’m selling them a gym membership.” / Augustus: “Read it nineteen times. Not one typo. Send.” |
-| `p09-nothing-attached` | 4. Please find attached | Augustus: “‘Please find attached.’ I haven’t attached anything.” / Augustus: “Second email. ‘Now with attachment.’ Call it version two. Nobody ships a perfect version one.” |
-| `p10-traffic` | 5. You’re up | Augustus: “Not bad. Four worlds, three bosses. Bit of traffic round the Algorithm.” / Augustus: “In my defence, she has known me the longest.” / Augustus: “You asked for a CV and I built you a video game.” |
-| `p11-same-answer` | 5. You’re up | Augustus: “Same answer.” |
+| `p09-nothing-attached` | 4. Please find attached | Augustus notices the missing attachment and resends the email. |
+| `p10-traffic` | 5. You’re up and 6. The offer | James welcomes Augustus, asks about strengths and weaknesses, and makes the fictional offer. |
+| `p11-same-answer` | 5. You’re up | Augustus explains why he made the game and delivers “Same answer.” |
+| `p12-the-offer` | 6. The offer | Augustus and James shake hands. The callback returns to the forty boxes. |
 
-Existing panels stay where they are: panel 0 (Augustus at the desk, scene 1), panel 1 (the button press, scene 1), panel 3 (the film edit, scene 2), panel 4 (the glowing cube, scene 4) and panel 5 (the interview host, scene 5). Panel 2, the scanner with film cans, stops being used once `p01` and `p04` are in, because the CV Filter is the robot, not a scanner.
+The existing manga atlas supplies the remaining beats in scenes 1, 2 and 4. See `src/scenes.js` for the complete running order.
 
-## The eleven prompts
+## The nine studio prompts
 
 Each prompt is complete. Paste the whole block, attach the references, and generate at 1536 x 1024.
 
@@ -224,45 +231,21 @@ Window light for this scene: dawn. A pale pink and gold sunrise; the desk lamp i
 The moment: Comedy reaction shot. The big window is pushed open and a white paper plane, the sent email, is shooting away into the sunrise, leaving a thin cyan trail. Left behind on the desk sits a chunky teal folder that was clearly meant to go with it. Augustus is half out of his chair, both hands on his head, eyes wide, mouth open in a silent oh no.
 ```
 
-### `p10-traffic`
+## Interview-room panels
 
-Scene 5, *You’re up*. Room: interview room. Save as `assets/production/story/panels/p10-traffic.jpg`.
+- `p10-traffic` is the establishing panel with James and Augustus on opposite sides of the desk.
+- `p11-same-answer` is the closer reaction shot with the same character designs and room.
+- `p12-the-offer` is the wide handshake panel in the same room, with the game visible on the monitor.
 
-```text
-Style: one comic-book panel that matches the attached existing panels exactly. Bold deep-plum ink outlines (never pure black), flat colour with halftone dot shading, a light printed texture, expressive faces and clean, readable shapes. Palette: teal, cyan, warm orange, gold, coral and lilac, with deep navy and plum shadows and cream highlights. No brown or beige sepia cast over the image. Landscape 3:2. The top and bottom eighth of the image will be cropped away, so keep every head, hand and key prop inside the middle three-quarters of the height. Keep faces out of the top-left corner, where the game places a sound-effect sticker. No words, letters, numbers, speech bubbles, captions, signatures or logos anywhere; screens show simple shapes only. No panel border.
-
-Augustus: an adult man with warm medium-brown skin, short dense dark curly hair, a close full beard and big expressive brown eyes. He wears a teal jacket worn open with the sleeves pushed up, a cream T-shirt, charcoal trousers, white and teal trainers, and a teal backpack with an orange strap over his left shoulder. No glasses, no hat, no jewellery. He must look exactly like the man on the attached model sheet and in the attached existing panels: same face, same build, same head size.
-
-The interview host: a warm, sharp woman with dark curly hair tied up, gold hoop earrings, a cream blouse with rolled sleeves, black trousers and a black belt, exactly as in the attached existing interview panel.
-
-Setting, the interview room at Solved Studio (match the attached locations sheet and floor plan exactly): a bright, airy studio office in clear morning daylight. A tall multi-pane window on the left looks out on sunny red-brick buildings and trees. Big leafy plants stand either side of the window. On the right, a white desk with a monitor showing a simple pixel-art level (a tree, a green hill, blue sky), a pen pot and a white mug. Augustus sits in a teal office chair facing the desk. The host stands or sits behind it. Warm white walls and one framed picture with no readable text. No company logo anywhere.
-
-The moment: Medium shot across the desk. Augustus sits upright in the teal chair with his backpack on his lap, a little worse for wear after four worlds: a leaf in his hair, a scuff on one jacket sleeve and a small plaster on his cheek, but smiling politely. The interview host sits behind her desk opposite him, pen in hand, one eyebrow raised, amused.
-```
-
-### `p11-same-answer`
-
-Scene 5, *You’re up*. Room: interview room. Action panel. Save as `assets/production/story/panels/p11-same-answer.jpg`.
-
-```text
-Style: one comic-book panel that matches the attached existing panels exactly. Bold deep-plum ink outlines (never pure black), flat colour with halftone dot shading, a light printed texture, expressive faces and clean, readable shapes. Palette: teal, cyan, warm orange, gold, coral and lilac, with deep navy and plum shadows and cream highlights. No brown or beige sepia cast over the image. Landscape 3:2. The top and bottom eighth of the image will be cropped away, so keep every head, hand and key prop inside the middle three-quarters of the height. Keep faces out of the top-left corner, where the game places a sound-effect sticker. No words, letters, numbers, speech bubbles, captions, signatures or logos anywhere; screens show simple shapes only. No panel border.
-
-Augustus: an adult man with warm medium-brown skin, short dense dark curly hair, a close full beard and big expressive brown eyes. He wears a teal jacket worn open with the sleeves pushed up, a cream T-shirt, charcoal trousers, white and teal trainers, and a teal backpack with an orange strap over his left shoulder. No glasses, no hat, no jewellery. He must look exactly like the man on the attached model sheet and in the attached existing panels: same face, same build, same head size.
-
-The interview host: a warm, sharp woman with dark curly hair tied up, gold hoop earrings, a cream blouse with rolled sleeves, black trousers and a black belt, exactly as in the attached existing interview panel.
-
-Setting, the interview room at Solved Studio (match the attached locations sheet and floor plan exactly): a bright, airy studio office in clear morning daylight. A tall multi-pane window on the left looks out on sunny red-brick buildings and trees. Big leafy plants stand either side of the window. On the right, a white desk with a monitor showing a simple pixel-art level (a tree, a green hill, blue sky), a pen pot and a white mug. Augustus sits in a teal office chair facing the desk. The host stands or sits behind it. Warm white walls and one framed picture with no readable text. No company logo anywhere.
-
-The moment: The host has just asked for his biggest strength, straight after his biggest weakness. Closer, celebratory shot. Augustus leans forward in the teal chair with a confident grin and a thumbs-up. On the desk behind him the monitor shows the pixel-art level (a tree, a green hill, blue sky). The host is laughing behind her hand. A soft teal and gold burst radiates behind them, like the existing button-press panel, with the room still clearly visible.
-```
+Keep James’s short brown hair, beard and charcoal T-shirt consistent across these panels. Keep both characters in the same comic style as the studio scenes and leave the images text-free.
 
 ## Putting them in the game
 
-1. Convert each approved PNG to JPEG at the same size and save it under its id. On a Mac:
+1. Keep the approved source PNG and export a JPEG copy up to 1200 pixels wide and save it under its id. On a Mac:
 
    ```bash
    mkdir -p assets/production/story/panels
-   sips -s format jpeg -s formatOptions 82 ~/imagetemp/hire-exe/panels-v2/p01-forty-boxes.png --out assets/production/story/panels/p01-forty-boxes.jpg
+   sips --resampleWidth 1200 -s format jpeg -s formatOptions 83 ~/imagetemp/hire-exe/panels-v2/p01-forty-boxes.png --out assets/production/story/panels/p01-forty-boxes.jpg
    ```
 
 2. In `src/scenes.js`, add each finished id to `H.PANELS.ready`, for example `ready: ['p01-forty-boxes', 'p02-four-of-me']`. A beat shows its panel only once its id is listed, so panels can go in one at a time.
@@ -274,7 +257,6 @@ The moment: The host has just asked for his biggest strength, straight after his
    python3 tests/build-check.py
    ```
 
-4. Commit on a branch, open a pull request to `main` and merge it.
-5. Redeploy production from `main`. The Vercel project is not linked to GitHub, so merging alone does not update hireexe.me.
+4. Commit on a branch, open a pull request to `main` and verify the game preview.
 
 The cutscene frame crops each panel to 2:1 with `background-size: cover` (`.comic-panel` in `styles.css`). The offline edition embeds every JPEG in `assets/production/story/panels/` automatically.

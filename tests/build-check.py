@@ -75,6 +75,8 @@ def unpack_data(value: str) -> tuple[str, bytes]:
     }
     if mime.startswith('image/'):
         assert signatures.get(mime, False), f'Invalid {mime} magic bytes'
+    elif mime == 'application/pdf':
+        assert raw.startswith(b'%PDF-'), 'Invalid PDF magic bytes'
     elif mime == 'application/json':
         json.loads(raw)
     else:
@@ -204,6 +206,10 @@ def main():
         'game': check_bundle(play, 'HIRED_EMBEDDED_ASSETS', runtime),
         'art_book': check_bundle(art, 'HIRED_ART_ASSETS', gallery),
     }
+    pdf = 'assets/cv/Augustus-Edem-CV.pdf'
+    cv_mime, cv_bytes = unpack_data(extract_assignment(play, 'HIRED_EMBEDDED_CV'))
+    assert cv_mime == 'application/pdf' and cv_bytes == (ROOT / pdf).read_bytes(), 'Embedded CV is stale'
+    assert (DIST / pdf).read_bytes() == cv_bytes, 'Published CV differs from the standalone download'
     assert extract_assignment(play, 'HIRED_ASSET_META') == metadata, 'Embedded atlas metadata is stale'
 
     # Check literal runtime image URLs and the complete enumerated background set.
@@ -227,7 +233,7 @@ def main():
 
     sources = []
     checked_references = 0
-    for path in (ROOT / 'index.html', ROOT / 'art-book.html', DIST / 'index.html', DIST / 'art-book.html'):
+    for path in (folder / name for folder in (ROOT, DIST) for name in ('index.html', 'art-book.html', 'cv.html')):
         page = Page(path)
         checked_references += check_local_references(page)
         check_styles(page, standalone=False)

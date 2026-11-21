@@ -20,6 +20,12 @@
       "sha256": "288d95fed40924798fb130b8a253f381fb26c949ec673d0111a8a20ab4ad87f1"
     },
     {
+      "path": "assets/cv/Augustus-Edem-CV.pdf",
+      "role": "production-asset",
+      "bytes": 46264,
+      "sha256": "fb12ba1f667e12cea4dd99343c06273588a02df7381fa272a68ac55241dbf624"
+    },
+    {
       "path": "assets/manifest.json",
       "role": "production-asset",
       "bytes": 5989,
@@ -204,6 +210,78 @@
       "role": "production-asset",
       "bytes": 350262,
       "sha256": "4d5c42adca312feef1de3864c003017fc3de29013d71ef32c18a06227eabcd4a"
+    },
+    {
+      "path": "assets/production/story/panels/p01-forty-boxes.jpg",
+      "role": "production-asset",
+      "bytes": 323596,
+      "sha256": "687ea72c38b63d0a7f103ccc23edc4fd5b17dc9abb69261798b04e3b936b1564"
+    },
+    {
+      "path": "assets/production/story/panels/p02-four-of-me.jpg",
+      "role": "production-asset",
+      "bytes": 312467,
+      "sha256": "656da2f0dda907d5b187ed97593f1210807832f8741479bd447c11d7aeb51641"
+    },
+    {
+      "path": "assets/production/story/panels/p03-few-changes.jpg",
+      "role": "production-asset",
+      "bytes": 333583,
+      "sha256": "f5109ba2e4e91731d1967a742585506ef96c860ea5b3942b5d3e840b8cb9802c"
+    },
+    {
+      "path": "assets/production/story/panels/p04-small-ocean.jpg",
+      "role": "production-asset",
+      "bytes": 345324,
+      "sha256": "4963c28063c87399100874f612202540bfed611e35bfae50ac3d020ec04c6720"
+    },
+    {
+      "path": "assets/production/story/panels/p05-two-players.jpg",
+      "role": "production-asset",
+      "bytes": 313061,
+      "sha256": "e53cc93582578c401f407c9cacf703be9a58f80e038678939f8fe0625a44533d"
+    },
+    {
+      "path": "assets/production/story/panels/p06-every-day.jpg",
+      "role": "production-asset",
+      "bytes": 325319,
+      "sha256": "f5361aae7ec525e3ae82ae9ee7b8a7d3a0779f8d9accf082d64c071c07a5afa3"
+    },
+    {
+      "path": "assets/production/story/panels/p07-pester.jpg",
+      "role": "production-asset",
+      "bytes": 353690,
+      "sha256": "b0ffa87bda1cecd6def14d753ac902233147b4996ec7adc874d26452d351b5b4"
+    },
+    {
+      "path": "assets/production/story/panels/p08-draft-nineteen.jpg",
+      "role": "production-asset",
+      "bytes": 333185,
+      "sha256": "e55717aac16e55cb5a540da184af36db8741652a896757fe3769709e36f05046"
+    },
+    {
+      "path": "assets/production/story/panels/p09-nothing-attached.jpg",
+      "role": "production-asset",
+      "bytes": 324697,
+      "sha256": "f12d7d7cbb84f652b7e1f3b2cae88629fdff09d127f08713b939df80db834d87"
+    },
+    {
+      "path": "assets/production/story/panels/p10-traffic.jpg",
+      "role": "production-asset",
+      "bytes": 327603,
+      "sha256": "08577f2e0fcf85d7d2df72b8b85f51b993b803fe3e44fe5bfd4e7e3ff03b2924"
+    },
+    {
+      "path": "assets/production/story/panels/p11-same-answer.jpg",
+      "role": "production-asset",
+      "bytes": 330197,
+      "sha256": "0d4237aa889bff7bd6f3471fca2930bb37b7f875cbf299055c8ef1eac16284f0"
+    },
+    {
+      "path": "assets/production/story/panels/p12-the-offer.jpg",
+      "role": "production-asset",
+      "bytes": 221998,
+      "sha256": "5124730f471f51032f8142a1fe5dc65615149f71e191938d15fa1a6c883072cf"
     },
     {
       "path": "assets/props/briefcase-block.png",

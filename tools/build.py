@@ -56,7 +56,12 @@ document.querySelectorAll('a[href^="assets/"]').forEach(el=>{el.href=globalThis.
 
 game_html=(ROOT/'index.html').read_text()
 game_html=game_html.replace('<link rel="stylesheet" href="styles.css">','<style>\n'+(ROOT/'styles.css').read_text()+'\n</style>')
+cv_pdf = ROOT/'assets/cv/Augustus-Edem-CV.pdf'
+cv_uri = data_uri(cv_pdf)
 game_html=bind_static_images(game_html,runtime_map,'HIRED_EMBEDDED_ASSETS')
+game_html=game_html.replace('globalThis.HIRED_EMBEDDED_ASSETS =', f'globalThis.HIRED_EMBEDDED_CV = "{cv_uri}";\nglobalThis.HIRED_EMBEDDED_ASSETS =', 1)
+game_html=re.sub(r'href="cv.html"(?: target="_blank" rel="noopener")?>View CV',
+                 f'href="{cv_uri}" download="{cv_pdf.name}">Download CV (PDF)', game_html)
 game_html=re.sub(r'<script src="([^"]+)"></script>',lambda m:'<script>\n'+(ROOT/m.group(1)).read_text().replace('</script','<\\/script')+'\n</script>',game_html)
 game_html=game_html.replace('href="art-book.html"','href="HIRE-EXE-v0.4-ART-BOOK.html"')
 (DIST/'HIRE-EXE-v0.4-PLAY.html').write_text(game_html)
@@ -82,7 +87,7 @@ art_html=re.sub(r'href="((?:docs/[^"<>]+)|(?:assets/[^"<>]+\.json))"',local_down
 (DIST/'HIRE-EXE-v0.4-ART-BOOK.html').write_text(art_html)
 
 # The multi-file site is deliberately also kept: it is easier to edit and review.
-for name in ['index.html','styles.css','art-book.html']:
+for name in ['index.html','styles.css','art-book.html','cv.html']:
     shutil.copy2(ROOT/name,DIST/name)
 for name in ['src','assets','docs','references']:
     shutil.copytree(ROOT/name,DIST/name,dirs_exist_ok=True)

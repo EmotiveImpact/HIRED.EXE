@@ -9,7 +9,7 @@
      Until then it falls back to its old art or sprites. See assets/cutscenes/PANEL-BRIEF.md. */
   H.PANELS = {
     folder: 'assets/production/story/panels/',
-    ready: []
+    ready: ['p01-forty-boxes', 'p02-four-of-me', 'p03-few-changes', 'p04-small-ocean', 'p05-two-players', 'p06-every-day', 'p07-pester', 'p08-draft-nineteen', 'p09-nothing-attached', 'p10-traffic', 'p11-same-answer', 'p12-the-offer']
   };
 
   H.SCENES = [
@@ -82,7 +82,7 @@
       backdrop: 'interview-hq',
       beats: [
         { art: 4, effect: 'ONE EMAIL', speaker: 'Augustus',
-          line: 'Four worlds and three bosses, done. Now the hard part. A two-line email.' },
+          line: 'The game’s ready. Now the hard part. A two-line email.' },
         { panel: 'p08-draft-nineteen', pose: 'crouch_0', prop: 'envelope_0', effect: 'DRAFT 19', speaker: 'Augustus',
           line: 'I built the game quicker than this. I’ve been on the word ‘Hi’ since Tuesday.' },
         { panel: 'p08-draft-nineteen', pose: 'idle_1', prop: 'envelope_0', effect: 'TONE', speaker: 'Augustus',
@@ -92,29 +92,37 @@
         { panel: 'p09-nothing-attached', pose: 'hurt_0', prop: 'briefcase', effect: 'OH NO', speaker: 'Augustus',
           line: '‘Please find attached.’ I haven’t attached anything.' },
         { panel: 'p09-nothing-attached', pose: 'dash_1', prop: 'plane_1', effect: 'VERSION 2', speaker: 'Augustus', burst: true,
-          line: 'Second email. ‘Now with attachment.’ Call it version two. Nobody ships a perfect version one.' }
+          line: 'Second email sent. Attachment actually attached this time.' },
+        { panel: 'p08-draft-nineteen', pose: 'idle_1', prop: 'envelope_0', effect: 'REPLY RECEIVED', speaker: 'Augustus',
+          line: 'They’ve played it. Three rounds before I get in the room. I should’ve made them a skip button.' }
       ]
     },
     {
       title: 'You’re up',
       backdrop: 'interview-hq',
       beats: [
-        { art: 5, effect: 'COME IN', speaker: 'Interview host',
-          line: 'Come in, come in. Did you find us all right?' },
-        { panel: 'p10-traffic', pose: 'idle_1', prop: 'briefcase', effect: 'TRAFFIC', speaker: 'Augustus',
-          line: 'Not bad. Four worlds, three bosses. Bit of traffic round the Algorithm.' },
-        { art: 5, effect: 'REFERENCE', speaker: 'Interview host',
-          line: 'We rang your reference. She says you’re talented, hard-working and not eating properly.' },
-        { panel: 'p10-traffic', pose: 'hurt_0', prop: 'envelope_0', effect: 'AH.', speaker: 'Augustus',
-          line: 'In my defence, she has known me the longest.' },
-        { art: 5, effect: 'WEAKNESS?', speaker: 'Interview host',
-          line: 'So. What would you say is your biggest weakness?' },
-        { panel: 'p10-traffic', pose: 'idle_1', prop: 'briefcase', effect: 'HONESTLY', speaker: 'Augustus',
+        { panel: 'p10-traffic', portrait: true, pose: 'idle_1', prop: 'finalreview', effect: 'COME IN', speaker: 'interviewer',
+          line: 'Augustus. Did you find us all right?' },
+        { panel: 'p10-traffic', portrait: true, pose: 'idle_1', prop: 'briefcase', effect: 'TRAFFIC', speaker: 'Augustus',
+          line: 'Not bad. Bit of traffic round the Algorithm.' },
+        { panel: 'p10-traffic', portrait: true, pose: 'idle_1', prop: 'finalreview', effect: 'WEAKNESS?', speaker: 'interviewer',
+          line: 'What would you say is your biggest weakness?' },
+        { panel: 'p11-same-answer', portrait: true, pose: 'idle_1', prop: 'briefcase', effect: 'HONESTLY', speaker: 'Augustus',
           line: 'You asked for a CV and I built you a video game.' },
-        { art: 5, effect: 'STRENGTH?', speaker: 'Interview host',
+        { panel: 'p10-traffic', portrait: true, pose: 'idle_1', prop: 'finalreview', effect: 'STRENGTH?', speaker: 'interviewer',
           line: 'And your biggest strength?' },
-        { panel: 'p11-same-answer', pose: 'victory_1', prop: 'briefcase', effect: 'SAME.', speaker: 'Augustus', burst: true,
+        { panel: 'p11-same-answer', portrait: true, pose: 'victory_1', prop: 'briefcase', effect: 'SAME.', speaker: 'Augustus', burst: true,
           line: 'Same answer.' }
+      ]
+    },
+    {
+      title: 'The offer',
+      backdrop: 'interview-hq',
+      beats: [
+        { panel: 'p10-traffic', portrait: true, pose: 'idle_1', prop: 'finalreview', effect: 'ONE MORE THING', speaker: 'interviewer',
+          line: 'I asked how you build. You sent me something I could play. Fancy being our first builder?' },
+        { panel: 'p12-the-offer', portrait: true, pose: 'victory_1', prop: 'briefcase', effect: 'HIRED.', speaker: 'Augustus',
+          line: 'I’m in. Can I leave the forty boxes blank now?' }
       ]
     }
   ];

@@ -72,6 +72,53 @@ def run(profile, base):
                 assert box and box['x'] >= 0 and box['y'] + box['height'] <= 391
             page.screenshot(path=OUT/'landscape.jpg')
             page.set_viewport_size(options['viewport'])
+        page.goto(base+'/cv.html')
+        expect(page.locator('h1')).to_have_text('Augustus Edem')
+        expect(page.get_by_role('heading', name='Selected products')).to_be_visible()
+        with page.expect_download() as download:
+            activate('a[download]')
+        assert download.value.suggested_filename == 'Augustus-Edem-CV.pdf'
+        assert download.value.path().read_bytes().startswith(b'%PDF-')
+        page.screenshot(path=OUT/'cv.jpg', full_page=True)
+
+        # Phase-specific checks use completed checkpoints so the four-world run
+        # below can still use its own isolated portfolio save.
+        page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
+            JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
+        page.goto(base)
+        activate('#start-game')
+        expect(page.locator('#comic-title')).to_have_text('A few changes')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p03-few-changes\.jpg'))
+        activate('#scene-skip')
+        assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
+        assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
+        page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
+            JSON.stringify({lastLevel:3,pendingScene:4,results:{
+                0:{completed:true},1:{completed:true},2:{completed:true},3:{completed:true}
+            }}))''')
+        page.reload()
+        activate('#start-game')
+        expect(page.locator('#comic-title')).to_have_text('You’re up')
+        expect(page.locator('#comic-dialogue strong')).to_have_text('James Morgenstern')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p10-traffic\.jpg'))
+        for _ in range(3):
+            activate('#scene-next')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p11-same-answer\.jpg'))
+        page.screenshot(path=OUT/'james.jpg', animations='disabled')
+        activate('#scene-skip')
+        for answer in (0, 0, 1):
+            activate(f'#answer-{answer}')
+            activate('#interview-next')
+        expect(page.locator('#comic-title')).to_have_text('The offer')
+        activate('#scene-next')
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'p12-the-offer\.jpg'))
+        page.screenshot(path=OUT/'offer.jpg', animations='disabled')
+        activate('#scene-next')
+        expect(page.locator('#final-cv')).to_have_attribute('href', 'cv.html')
+        expect(page.locator('#overlay')).to_contain_text('fictional hiring journey')
+        page.evaluate("localStorage.removeItem('hired-exe:v04:solved-001')")
+        print('PASS CV download, saved chapter and cartoon interview ending', flush=True)
+
         page.goto(base+'/tests/playthrough.html')
         page.select_option('#layout','touch' if mobile else 'keyboard')
         page.click('#run')
@@ -93,8 +140,10 @@ def run(profile, base):
         page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
+        assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
+        assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         activate('#start-game')
-        assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
+        assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/jpeg')")
         activate('#scene-next')
         expect(page.locator('#comic-dialogue p')).to_have_text(
             'Box seven. Years of experience. I’ve got twenty. The dropdown stops at five.'

@@ -419,7 +419,7 @@ test('cutscene panels: every ready panel exists and is used, and every beat id i
   const { SCENES, PANELS } = globalThis.Hired;
   const used = new Set(SCENES.flatMap(s => s.beats.map(b => b.panel).filter(Boolean)));
   for (const id of used) assert.match(id, /^p\d\d-[a-z0-9-]+$/, id);
-  assert.equal(used.size, 11);
+  assert.equal(used.size, 12);
   for (const id of PANELS.ready) {
     assert.ok(used.has(id), `${id} is ready but no beat uses it`);
     assert.ok(fs.existsSync(path.join(__dirname, '..', PANELS.folder, id + '.jpg')), `${id}.jpg is missing`);

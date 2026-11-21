@@ -6,6 +6,11 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const asset = path => globalThis.HIRED_EMBEDDED_ASSETS?.[path] || path;
   const safeLink = value => typeof value === 'string' && /^(https:\/\/|mailto:)/i.test(value) ? value : null;
+  const cvLink = (id, className='') => {
+    const offline=globalThis.HIRED_EMBEDDED_CV;
+    const props=offline?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"';
+    return `<a class="${className}" id="${id}" href="${offline || 'cv.html'}" ${props}>${offline?'Download CV (PDF)':'View CV'}</a>`;
+  };
   const SAVE_KEY = 'hired-exe:v04:' + E.id;
   let progress = {lastLevel:0,results:{},assist:false,sound:false};
   let storageAvailable = true;
@@ -23,6 +28,10 @@
             skills:[...new Set((Array.isArray(result.skills)?result.skills:[]).filter(id=>validSkills.has(id)))],
             bestTime:Number.isFinite(result.bestTime)&&result.bestTime>0?result.bestTime:null,completed:true};
         });
+      }
+      if(Number.isInteger(saved.pendingScene) && saved.pendingScene >= 1 &&
+         saved.pendingScene <= H.LEVELS.length && progress.results[saved.pendingScene-1]) {
+        progress.pendingScene = saved.pendingScene;
       }
       progress.assist = saved.assist === true;
       const record = saved.checkpoint;
@@ -111,14 +120,21 @@
     $('overlay').setAttribute('aria-label','Main menu');
     const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button></div></div></div>`;
-    bindActions({'start-game':()=>hasRun?resume():progress.results[3]&&!progress.checkpoint?beginInterview():hasProgress?startLevel(progress.lastLevel,progress.checkpoint):beginScene(0),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.pendingScene?'Continue the story':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('home-cv')}</div></div></div>`;
+    bindActions({'start-game':()=>{
+      if(hasRun)resume();
+      else if(progress.pendingScene)beginScene(progress.pendingScene);
+      else if(progress.results[3]&&!progress.checkpoint)beginScene(H.LEVELS.length);
+      else if(hasProgress)startLevel(progress.lastLevel,progress.checkpoint);
+      else beginScene(0);
+    },'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
   }
   function beginScene(index) {
     sceneIndex=index; sceneBeat=0; showScene();
   }
   function finishScene() {
-    if(sceneIndex===H.LEVELS.length)beginInterview();
+    if(sceneIndex>H.LEVELS.length)showFinish();
+    else if(sceneIndex===H.LEVELS.length)beginInterview();
     else startLevel(sceneIndex);
   }
   function comicSprite(atlasName, frameName, className) {
@@ -137,8 +153,13 @@
     setMode('scene');
     const scene=H.SCENES[sceneIndex], beat=scene.beats[sceneBeat];
     const last=sceneBeat===scene.beats.length-1;
-    const nextLabel=last?(sceneIndex===H.LEVELS.length?'Enter the interview':'Play '+H.LEVELS[sceneIndex].name):'Next panel';
-    const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel));
+    let nextLabel='Next panel';
+    if(last){
+      const nextLevel=H.LEVELS[sceneIndex];
+      nextLabel=nextLevel?'Play '+nextLevel.name:sceneIndex===H.LEVELS.length?'Enter the interview':'See your results';
+    }
+    const speaker=beat.speaker==='interviewer'?(E.interviewer||'Interview host'):beat.speaker;
+    const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel)&&(!beat.portrait||E.interviewer));
     const illustrated=fullPanel||Number.isInteger(beat.art);
     const panel=fullPanel
       ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
@@ -147,6 +168,10 @@
       : `<div class="comic-frame"><img src="${asset('assets/production/backgrounds/'+scene.backdrop+'.webp')}" alt=""><div class="comic-rays"></div></div>
         <div class="comic-inset">${comicSprite('enemies',beat.prop,'comic-prop')}</div>
         ${comicSprite('hero',beat.pose,'comic-hero')}`;
+    const upcoming=scene.beats[sceneBeat+1];
+    if(upcoming?.panel && H.PANELS?.ready.includes(upcoming.panel) && (!upcoming.portrait||E.interviewer)) {
+      new Image().src=asset(H.PANELS.folder+upcoming.panel+'.jpg');
+    }
     const overlay=$('overlay');
     overlay.className='overlay comic-overlay';
     overlay.setAttribute('aria-label',scene.title);
@@ -155,9 +180,9 @@
       <header class="comic-header"><h2 id="comic-title">${esc(scene.title)}</h2><span>${sceneBeat+1} / ${scene.beats.length}</span></header>
       <div class="comic-art ${illustrated?'comic-illustrated':''} ${beat.burst?'comic-burst':''}" aria-hidden="true">
         ${panel}
-        <span class="comic-effect">${esc(beat.effect)}</span>
+        ${fullPanel?'':`<span class="comic-effect">${esc(beat.effect)}</span>`}
       </div>
-      <div class="comic-dialogue" id="comic-dialogue"><strong>${esc(beat.speaker)}</strong><p>${esc(beat.line)}</p></div>
+      <div class="comic-dialogue" id="comic-dialogue"><strong>${esc(speaker)}</strong><p>${esc(beat.line)}</p></div>
       <footer class="comic-actions">
         <button class="btn primary" id="scene-next" aria-describedby="comic-dialogue">${esc(nextLabel)}</button>
         <button class="btn" id="scene-prev" ${sceneBeat===0?'disabled':''}>Previous</button>
@@ -170,7 +195,7 @@
       'scene-skip':finishScene
     });
     if(beat.burst)audio.effect('scene');
-    focusDialog();
+    requestAnimationFrame(()=>$('scene-next')?.focus({preventScroll:true}));
   }
   function assistRow() {return `<label class="toggle-row"><input id="assist-toggle" type="checkbox" ${progress.assist?'checked':''}><span>Relaxed mode<small>For hiring managers with a two o’clock. Contact damage is switched off.</small></span></label>`;}
   function bindAssist() {$('assist-toggle')?.addEventListener('change',e=>{progress.assist=e.target.checked;game.setAssist(progress.assist);save();});}
@@ -186,6 +211,7 @@
     if(!ready)return;
     game.start(index,{assist:progress.assist});
     if (!game.restoreCheckpoint(checkpoint)) delete progress.checkpoint;
+    delete progress.pendingScene;
     progress.lastLevel=index;save();
     setMode('playing');$('game').focus({preventScroll:true});
     $('status').textContent=movementHelp();
@@ -239,7 +265,7 @@
     const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
     const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
       `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
-    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
+    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
     $('portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
@@ -252,7 +278,9 @@
       completed:true
     };
     delete progress.checkpoint;
-    progress.lastLevel=Math.min(3,event.levelIndex+1);save();showComplete();
+    progress.pendingScene=event.levelIndex+1;
+    progress.lastLevel=Math.min(H.LEVELS.length-1,progress.pendingScene);
+    save();showComplete();
   }
   function showComplete() {
     if(!game.state){showHome();return;}
@@ -264,6 +292,7 @@
     bindActions({'next-world':()=>beginScene(s.levelIndex+1),'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
   }
   function beginInterview() {
+    if(progress.pendingScene===H.LEVELS.length){delete progress.pendingScene;save();}
     interviewIndex=0; interviewChoice=null; interviewAnswers=[]; showInterview();
   }
   function showInterview() {
@@ -271,7 +300,7 @@
     const q=E.interview[interviewIndex];
     modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There are no wrong answers. Those are my job.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,game.state?.mode==='complete'?showComplete:showHome);
     q.answers.forEach((_,i)=>$('answer-'+i).addEventListener('click',()=>{interviewChoice=i;showInterview();}));
-    $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex>=E.interview.length)showFinish();else showInterview();});
+    $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex<E.interview.length)showInterview();else if(E.interviewer)beginScene(H.LEVELS.length+1);else showFinish();});
     if(interviewChoice!==null)requestAnimationFrame(()=>$('interview-next')?.focus({preventScroll:true}));
   }
   function showFinish() {
@@ -287,7 +316,7 @@
       draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
