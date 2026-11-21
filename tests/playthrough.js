@@ -72,7 +72,7 @@ async function run() {
     await until(()=>win.location.search === '?edition=portfolio' && app()?.mode === 'home','Title did not load');
     // The runner uses session-specific storage, including across the reload assertion.
     check(win.HIRED_EDITION.id === 'portfolio','Playtest storage must be isolated');
-    check(!app().assets.failed.length && app().assets.loaded.length===8,'Missing runtime art');
+    check(!app().assets.failed.length && app().assets.loaded.length===11,'Missing runtime art');
     check(byId('home-cv').getAttribute('href')==='cv.html','CV is missing from the title');
     click('skip-portfolio');
     check(byId('overlay').querySelector('a[href="https://vlumeaudio.com/"]'),'Verified portfolio link missing');
