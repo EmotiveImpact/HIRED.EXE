@@ -634,7 +634,7 @@
         document.removeEventListener('keydown',shortcut);
         skip.onclick=null;
         prompt.textContent='C:\\>WIN';
-        state.textContent='Starting Windows 3.11…';
+        state.textContent='Starting Windows…';
         skip.hidden=true;
         resolve();
       }
@@ -645,9 +645,13 @@
       ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
         timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
       });
-      timers.push(setTimeout(()=>{state.textContent='Starting Windows 3.11…';},1300));
-      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1500));
-      timers.push(setTimeout(finish,2800));
+      // As in 1992: WIN clears the screen to black, the splash holds while
+      // Windows loads, then the screen blanks again before Program Manager.
+      timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-blank');},1500));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1850));
+      timers.push(setTimeout(()=>{$('dos-start').classList.remove('windows-splash');},4350));
+      timers.push(setTimeout(finish,4600));
     });
   }
 
@@ -656,18 +660,16 @@
     $('desktop').inert=false;
   }
 
-  // The DOS and Windows 3.11 startup opens every new visit (a new tab or window).
-  // A reload, or coming back from the game, goes straight to the desktop.
   async function runStartup(force=false){
     let seen=false;
-    try{seen=sessionStorage.getItem(bootKey)==='1';}catch{}
+    try{seen=localStorage.getItem(bootKey)==='1';}catch{}
     if(force||!seen){
       const screen=$('dos-start');
-      screen.hidden=false;screen.classList.remove('windows-splash');
+      screen.hidden=false;screen.classList.remove('windows-splash','windows-blank');
       $('dos-skip').hidden=false;$('dos-state').textContent='';$('dos-prompt').textContent='';
       $('desktop').inert=true;
       await dosStartup();
-      try{sessionStorage.setItem(bootKey,'1');}catch{}
+      try{localStorage.setItem(bootKey,'1');}catch{}
     }
     revealDesktop();
   }

@@ -288,13 +288,15 @@
 @media(max-width:600px){.pm-workspace{grid-template-columns:1fr;padding:10px;gap:10px;min-height:0}.pm-group .desk-files{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .pm-workspace.stacked{grid-template-columns:1fr}
 .windows-brand{display:none}
-#dos-start.windows-splash{background:#efeee5;color:#141414}
+/* Windows 3.1 start-up: the screen goes black when WIN starts, then the splash panel
+   sits in the middle of a black screen, sized like the original (89% of the height). */
+#dos-start.windows-blank .dos-log{visibility:hidden}
+#dos-start.windows-splash{background:#000;cursor:wait}
 .windows-splash .dos-log{display:none}
-.windows-splash .windows-brand{margin:auto;display:flex;align-items:center;gap:22px;font-family:Georgia,serif}
-.windows-brand strong,.windows-brand small,.windows-brand span{display:block}.windows-brand strong{font-size:clamp(40px,8vw,86px);line-height:1}.windows-brand small{font:14px Arial,sans-serif;margin:4px 0}
-.windows-brand .window-mark{display:grid;grid-template:1fr 1fr / 1fr 1fr;width:70px;height:60px;gap:4px;background:black;padding:5px;transform:skewY(-12deg)}
-.window-mark i:nth-child(1){background:#ef4522}.window-mark i:nth-child(2){background:#5fa442}.window-mark i:nth-child(3){background:#2489c4}.window-mark i:nth-child(4){background:#edc548}
-.windows-splash #dos-skip{color:#222}
+.windows-splash .windows-brand{--splash-h:min(89vh,calc(92vw * 695 / 581));display:block;position:absolute;inset:0;margin:auto;height:var(--splash-h);width:calc(var(--splash-h) * 581 / 695)}
+@supports (height:1dvh){.windows-splash .windows-brand{--splash-h:min(89dvh,calc(92vw * 695 / 581))}}
+.windows-brand svg{display:block;width:100%;height:100%}
+.windows-splash #dos-skip{position:relative;z-index:1;margin-top:auto;color:#888;border-color:#444}
 .pm-workspace{display:block}.pm-group .desk-files{display:flex;flex-wrap:wrap}.pm-group .desk-files>*{width:104px}
 .pm-folders{display:flex;align-items:flex-start;gap:16px;margin-top:16px;color:#111}.pm-folders details{min-width:100px}.pm-folders summary{display:grid;justify-items:center;cursor:pointer;font-size:13px;list-style:none}.pm-folders summary:before{content:'';width:32px;height:23px;margin:6px;border:2px outset #eee;background:linear-gradient(navy 0 22%,white 22%);box-shadow:2px 2px black}
 .pm-folders details[open] .desk-files{padding:5px;background:white;border:2px ridge silver}.pm-folders .desk-files :is(a,button){color:black}
@@ -351,3 +353,10 @@
 .pm-child .desk-files :is(button,a):is(:hover,:focus-visible){background:navy;color:#fff;border-color:transparent}
 #os-dialog .modal-window.is-floating{position:absolute;margin:0}
 @media (pointer:fine){.pm-caption,.pm-child h3,#os-dialog .small-title{cursor:move}.program-manager.is-max .pm-caption{cursor:default}}
+@media (min-width:900px) and (min-height:620px){
+  .program-manager{width:min(780px,calc(100% - 48px));margin:clamp(24px,7vh,72px) auto 0}
+  .pm-workspace{min-height:min(46vh,380px);display:flex;flex-direction:column;align-items:flex-start;padding:16px}
+  .pm-folders{margin-top:auto;padding-top:16px}
+  .pm-child{top:16px;right:16px}
+  #internet-group .pm-child{top:50px;right:42px}
+}
