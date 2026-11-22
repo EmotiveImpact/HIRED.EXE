@@ -40,6 +40,7 @@
       const record = saved.checkpoint;
       if (record?.level === progress.lastLevel && H.LEVELS[record.level].checkpoints.some(cp => cp.id === record.checkpoint))
         progress.checkpoint = record;
+      progress.delivered = saved.delivered === true;
       progress.muted = saved.muted === true;
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
@@ -124,7 +125,18 @@
     $('overlay').setAttribute('aria-label','Main menu');
     const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.pendingScene?'Continue the story':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('home-cv')}${globalThis.HIRED_EMBEDDED_ASSETS||!E.interviewer?'':'<a href="cutscenes.html" target="_blank" rel="noopener">Read the cutscenes</a>'}</div></div></div>`;
+    const unlocked=progress.seenIntros.includes(H.LEVELS[1].id)||Boolean(progress.results[1]);
+    const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
+    $('overlay').innerHTML=`<section class="desk-surface"><div class="desk-files">
+      <button id="start-game"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIRE.EXE</strong><small>${launchLabel}</small></button>
+      <button id="desk-calc"><span class="desk-glyph" aria-hidden="true">±</span>Calculator</button>
+      ${cvLink('home-cv','desk-doc')}
+      ${unlocked?'<button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>':''}
+      </div><aside class="attachment"><div class="small-title">Application form</div><p>Please attach your CV.</p><button id="attachment-launch" class="btn">▣ HIRE.EXE ↗</button></aside>
+      <div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Portfolio</button>${globalThis.HIRED_EMBEDDED_ASSETS||!E.interviewer?'':'<a href="cutscenes.html" target="_blank" rel="noopener">Read the cutscenes</a>'}</div></section>`;
+    $('attachment-launch').onclick=()=>$('start-game').click();
+    $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
+    if(unlocked)$('desk-sub').onclick=()=>{setMode('sea-trial');H.seaTrial(modal,()=>{progress.delivered=true;save();});};
     bindActions({'start-game':()=>{
       if(hasRun)resume();
       else if(progress.pendingScene)beginScene(progress.pendingScene);
@@ -186,7 +198,7 @@
       new Image().src=asset(upcoming.image || H.PANELS.folder+upcoming.panel+'.jpg');
     }
     const line=(!E.interviewer && beat.neutralLine) || beat.line;
-    const dialogue=beat.dialogue ? beat.dialogue.map(([who,words])=>`<strong>${esc(who)}</strong><p>${esc(words)}</p>`).join('') : line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
+    const dialogue=beat.dialogue ? beat.dialogue.map(([who,words])=>`<strong>${esc(who)}</strong><p>${esc(progress.delivered && beat.panel==='office-1' && words==='Still in beta.' ? 'Yes. The calculator’s collection only now.' : words)}</p>`).join('') : line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
     const response=beat.reply?`<strong>${esc(E.applicant.split(' ')[0])}</strong><p>${esc(beat.reply)}</p>`:'';
     const overlay=$('overlay');
     overlay.className='overlay comic-overlay';
@@ -246,7 +258,7 @@
   function showPause() {
     if(!game.state||game.state.mode!=='playing'){showHome();return;}
     setMode('pause');$('status').textContent='Paused. Take your time.';
-    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>Paused.</h2><p class="muted">Everything’s where you left it. Including the enemies.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Main menu</button><button class="btn" id="pause-portfolio">Portfolio</button></div>`,false,resume);
+    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>Paused.</h2><p class="muted">Everything’s where you left it. Including the enemies.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Back to desktop</button><button class="btn" id="pause-portfolio">Portfolio</button></div>`,false,resume);
     bindActions({'resume-game':resume,'restart-level':()=>startLevel(game.state.levelIndex),'pause-worlds':showWorlds,'pause-help':()=>showHelp('pause'),'pause-home':showHome,'pause-portfolio':()=>showPortfolio('pause')});bindAssist();
   }
   function returnTo(mode) {

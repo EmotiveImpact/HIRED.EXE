@@ -39,6 +39,12 @@ def run(profile, base):
             assert page.evaluate("window.getSelection().toString()") == ''
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
+        expect(page.locator('#desk-sub')).to_have_count(0)
+        activate('#desk-calc')
+        for key in ('2', '+', '2', '='):
+            page.get_by_role('button', name=key, exact=True).click()
+        expect(page.locator('.calc-display')).to_have_text('4')
+        activate('#dialog-close')
         expect(page.get_by_role('link', name='Read the cutscenes')).to_have_attribute('href', 'cutscenes.html')
         page.goto(base+'/director.html')
         frames = page.locator('article img')
@@ -143,6 +149,15 @@ def run(profile, base):
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
+        activate('#pause-button')
+        activate('#pause-home')
+        activate('#desk-sub')
+        activate('#sea-start')
+        expect(page.locator('#sea-status')).to_have_text('Clipped a harbour gate. Have another go.', timeout=12000)
+        activate('#dialog-close')
+        activate('#start-game')
+        assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
+
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
             JSON.stringify({lastLevel:3,pendingScene:4,results:{
                 0:{completed:true},1:{completed:true},2:{completed:true},3:{completed:true}

@@ -218,3 +218,21 @@
 #game {
   touch-action: none;
 }
+
+.overlay.home-overlay {padding:0;display:block;background:#255c74}
+.desk-surface {min-height:100%;padding:clamp(14px,4vw,42px);display:grid;grid-template-columns:1fr minmax(150px,40%);align-content:start;align-items:start;gap:22px;background:radial-gradient(ellipse at top right,#368e91,transparent 75%);color:white}
+.desk-files {display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:12px}
+.desk-files :is(button,a) {display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;color:white;background:transparent;border:1px solid transparent;padding:6px;text-decoration:none;font:inherit;font-size:13px}
+.desk-files :is(button,a):hover {background:#154776;border:1px dotted white}
+.desk-files img,.desk-glyph,.desk-doc:before {width:44px;height:44px;object-fit:contain;image-rendering:pixelated}
+.desk-glyph,.desk-doc:before {display:grid;place-items:center;font:bold 26px monospace;color:#162348;background:#f3d98f;border:3px outset #d2cee0}
+.desk-doc:before {content:'CV';background:#fff9e4}
+.attachment {color:#191832;background:#d6d2df;border:3px outset #ddd8ed;padding:3px 3px 12px;box-shadow:4px 4px #173a51}
+.attachment p,.attachment .btn {margin:12px;font-size:14px}
+.desk-surface .home-links {grid-column:1/-1}
+.calc-display {display:block;background:#dee8ce;color:#172a24;text-align:right;padding:10px;font:bold 23px monospace}
+.calc-keys {display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
+.calc-keys button {min-height:34px}
+.sea-view {width:100%;display:block;image-rendering:pixelated;touch-action:none}
+.sea-dive {touch-action:none}
+@media(max-width:540px){.desk-surface{gap:12px;grid-template-columns:1fr}.desk-files{grid-template-columns:repeat(3,1fr)}.attachment{max-width:250px}.desk-surface .home-links{justify-content:flex-start}}
