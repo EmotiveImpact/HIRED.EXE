@@ -187,6 +187,29 @@ def run(profile, base):
         activate('#pause-home')
         activate('#desk-sub')
         activate('#sea-start')
+        # Fire is a separate control, so the submarine can dive and shoot together.
+        sea = page.locator('.sea-view')
+        if profile == 'desktop':
+            page.keyboard.down('Space')
+            page.wait_for_timeout(150)
+            page.keyboard.down('x')
+            page.wait_for_timeout(600)
+            page.keyboard.up('x')
+            page.keyboard.up('Space')
+        elif profile == 'android':
+            boxes = [page.locator(s).bounding_box() for s in ('.sea-dive', '#sea-fire')]
+            points = [{'x':b['x']+b['width']/2, 'y':b['y']+b['height']/2, 'id':i} for i, b in enumerate(boxes, 1)]
+            cdp = context.new_cdp_session(page)
+            cdp.send('Input.dispatchTouchEvent', {'type':'touchStart', 'touchPoints':points[:1]})
+            page.wait_for_timeout(150)
+            cdp.send('Input.dispatchTouchEvent', {'type':'touchStart', 'touchPoints':points})
+            page.wait_for_timeout(600)
+            cdp.send('Input.dispatchTouchEvent', {'type':'touchEnd', 'touchPoints':[]})
+        else:
+            activate('#sea-fire')
+        expect(sea).to_have_attribute('data-shots', re.compile(r'^[1-9]'))
+        if profile != 'iphone':
+            expect(sea).to_have_attribute('data-hits', '1')
         expect(page.locator('#sea-status')).to_have_text('Clipped a harbour gate. Have another go.', timeout=12000)
         activate('#dialog-close')
         launch()
