@@ -20,12 +20,12 @@ const directorScenes = [
     ]
   },
   {
-    title:'A quick addition',place:'World 2 · Ship It City',cue:'On entering the dock level, the workshop trolley offers to help finish one small job. It embodies the familiar person who says “while you’re here”. The player ships the fish and leaves the extra work at the dock.',
+    title:'A quick addition',place:'World 2 · Ship It City',cue:'Augustus vibe-codes a calculator. The trolley takes “ship it” literally and orders a submarine. The calculator gets one last job before launch.',
     shots:[
-      ['city-1','One fish','Augustus|One wooden fish. Paint it orange and ship it.'],
-      ['city-2','The reveal','Workshop trolley|You said ship. I’ve ordered a submarine.','Augustus|I meant finish the fish.'],
-      ['city-3','The estimate','Workshop trolley|Can we at least keep the propeller? Its box is open.'],
-      ['city-4','Delivery','Augustus|Send the fish. Put the submarine down as a sunk cost.']
+      ['city-1','One calculator','Augustus|I vibe-coded a calculator. Two plus two makes four. Let’s ship it.'],
+      ['city-2','The submarine'],
+      ['city-3','The bill','Augustus|How much did that cost?','Workshop trolley|Hang on. I’ll open the calculator.'],
+      ['city-4','Ship it','Workshop trolley|Four.','Augustus|Pounds?','Workshop trolley|Million.','Augustus|Right. Ship the app.']
     ]
   },
   {
@@ -57,7 +57,7 @@ const directorScenes = [
   {
     title:'Thursday at James’s',place:'James’s office · fictionalised Solved Studio meeting',cue:'After the fourth world, cut to Thursday in a working design studio. The orange visitor’s chair, blue partition and print proofs establish a new room. James has actually played the game within this story.',
     shots:[
-      ['office-1','The visitor’s chair','James|I got as far as the submarine.','Augustus|Further than the submarine did.'],
+      ['office-1','The visitor’s chair','James|Did the submarine ever ship?','Augustus|Still in beta.'],
       ['office-2','The interview','James|What would you say is your biggest weakness?','Augustus|You asked for a CV and I built you a video game.'],
       ['office-3','The diary','James|Biggest strength?','Augustus|Same answer.','James|Can you do Monday?'],
       ['office-4','The handshake']
@@ -66,13 +66,13 @@ const directorScenes = [
 ];
 
 function directorPanel(id) {
-  const revision = ['city-1','p05-play'].includes(id) ? 'v4/' :
+  const revision = /^city-[24]$/.test(id) ? 'v6/' : /^city-[13]$/.test(id) ? 'v5/' : id === 'p05-play' ? 'v4/' :
     ['p04-gatekeeper','p15-attachment'].includes(id) ? 'v2/' :
     id === 'office-3' ? '' : 'v3/';
   return 'assets/directors-board/' + revision + id + '.webp';
 }
 
-if (globalThis.HIRED_EDITION?.id === 'solved-001' && globalThis.Hired?.SCENES) {
+if (globalThis.HIRED_EDITION && globalThis.Hired?.SCENES) {
   const chapters = directorScenes.map(scene => scene.shots.map(([panel, alt, ...lines]) => ({
     panel, alt, title: scene.title, image: directorPanel(panel),
     dialogue: lines.filter(Boolean).map(line => line.split('|')),
@@ -80,6 +80,11 @@ if (globalThis.HIRED_EDITION?.id === 'solved-001' && globalThis.Hired?.SCENES) {
   })));
   const [studio, alley, city, growth, email, hq, office] = chapters;
   const groups = [[...studio,...alley],city,growth,[...email,...hq],office.slice(0,2),office.slice(2)];
-  globalThis.Hired.SCENES = groups.map((beats,i) => ({title:beats[0].title,beats}));
-  globalThis.Hired.PANELS.ready = groups.flat().map(beat => beat.panel);
+  const game = globalThis.Hired;
+  if (globalThis.HIRED_EDITION.id === 'solved-001') {
+    game.SCENES = groups.map(beats => ({title:beats[0].title,beats}));
+  } else {
+    game.SCENES[1] = {title:city[0].title, beats:city};
+  }
+  game.PANELS.ready = game.SCENES.flatMap(scene => scene.beats.map(beat => beat.panel));
 }

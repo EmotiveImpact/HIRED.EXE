@@ -344,6 +344,42 @@
       "sha256": "e7c3c0ed0df2cdc9bc8870abe5baf51fe5b94f83930dca38767da27bae819274"
     },
     {
+      "path": "assets/directors-board/v5/city-1.webp",
+      "role": "production-asset",
+      "bytes": 133222,
+      "sha256": "c95c1e8f2f2f1ebe933bcc5c67eacc9509e126ff5f36a8619c21389945c56f75"
+    },
+    {
+      "path": "assets/directors-board/v5/city-2.webp",
+      "role": "production-asset",
+      "bytes": 143230,
+      "sha256": "92cf4298e75a4499f7d70f4d5e23c0b580484e6f37b0ddcdefc88a262b98608e"
+    },
+    {
+      "path": "assets/directors-board/v5/city-3.webp",
+      "role": "production-asset",
+      "bytes": 112818,
+      "sha256": "c17322f39132e64c478873478f921ca320185a2ac2b8e7c6eabb3abc332b5a43"
+    },
+    {
+      "path": "assets/directors-board/v5/city-4.webp",
+      "role": "production-asset",
+      "bytes": 133320,
+      "sha256": "f81b86aa3816a390833a2fa302344e67f6900f3af441b91d3b7292c964e59b47"
+    },
+    {
+      "path": "assets/directors-board/v6/city-2.webp",
+      "role": "production-asset",
+      "bytes": 144974,
+      "sha256": "171d3133648c674113e965f08cded89b62db7638730f82f6e578d81b127fc378"
+    },
+    {
+      "path": "assets/directors-board/v6/city-4.webp",
+      "role": "production-asset",
+      "bytes": 133526,
+      "sha256": "eeca5d1ac11f06ae0c270d8eb8836f422c8706c1d12fdef12b0b2affe2f3b2de"
+    },
+    {
       "path": "assets/manifest.json",
       "role": "production-asset",
       "bytes": 5989,

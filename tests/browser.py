@@ -139,7 +139,7 @@ def run(profile, base):
         page.goto(base)
         activate('#start-game')
         expect(page.locator('#comic-title')).to_have_text('A quick addition')
-        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v4/city-1\.webp'))
+        expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v5/city-1\.webp'))
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
