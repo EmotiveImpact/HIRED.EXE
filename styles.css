@@ -236,3 +236,11 @@
 .sea-view {width:100%;display:block;image-rendering:pixelated;touch-action:none}
 .sea-dive {touch-action:none}
 @media(max-width:540px){.desk-surface{gap:12px;grid-template-columns:1fr}.desk-files{grid-template-columns:repeat(3,1fr)}.attachment{max-width:250px}.desk-surface .home-links{justify-content:flex-start}}
+
+#desktop [hidden] {display:none!important}
+#os-shell {position:relative;width:min(1280px,100%);flex:1;align-self:center;background:#226874;color:white}
+#desktop:has(#os-shell:not([hidden])) {background:#226874;justify-content:flex-start}
+#os-shell .desk-surface {background:transparent}
+#os-shell .desk-glyph.navigator {background:#123e50;color:#fbf6d9;font:bold italic 35px Georgia,serif}
+#os-dialog {position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#173a5140}
+#desktop:has(#os-shell:not([hidden])) .desktop-hint {display:none}

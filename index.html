@@ -11,13 +11,17 @@
 </head>
 <body>
   <main id="desktop">
-    <div class="desktop-label" aria-hidden="true"><span class="mini-square">▦</span> AUGUSTUS / APPLICATIONS <span class="version">HIRE.EXE 0.4</span></div>
-    <section id="game-window" aria-label="HIRE.EXE game">
+    <div class="desktop-label" aria-hidden="true"><span class="mini-square">▦</span> AUGUSTUS / DESKTOP <span class="version">HIRE.EXE 0.4</span></div>
+    <section id="os-shell" aria-label="Augustus’s desktop">
+      <div id="os-files" aria-label="Desktop shortcuts">Opening desktop…</div>
+      <div id="os-dialog" class="overlay" role="dialog" aria-modal="true" hidden></div>
+    </section>
+    <section hidden id="game-window" aria-label="HIRE.EXE game">
       <header class="titlebar">
         <div class="window-title"><img src="assets/production/enemies/icons/terminal.png" alt=""> <strong>HIRE.EXE</strong><span class="title-edition" id="title-edition"></span></div>
         <div class="window-actions">
           <button id="fullscreen" class="chrome-button" aria-label="Toggle full screen" title="Full screen">□</button>
-          <button id="home" class="chrome-button" aria-label="Open main menu" title="Main menu">×</button>
+          <button id="home" class="chrome-button" aria-label="Close HIRE.EXE" title="Back to desktop">×</button>
         </div>
       </header>
       <nav class="menubar" aria-label="Game options">

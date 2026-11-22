@@ -67,6 +67,7 @@
   let interviewIndex=0, interviewChoice=null;
   let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
+  let desktopReturn=null;
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
   let helpBack=showHome, portfolioBack=showHome, worldsBack=showHome;
@@ -94,6 +95,16 @@
   }
   function setMode(mode) {
     uiMode=mode;
+    if(!['boot','home','calculator','sea-trial'].includes(mode))desktopReturn=null;
+    const utility=mode==='calculator'||mode==='sea-trial';
+    const desktop=mode==='home'||utility||mode==='boot';
+    $('os-shell').hidden=!desktop;
+    $('game-window').hidden=desktop;
+    $('os-dialog').hidden=!utility;
+    $('os-files').inert=utility;
+    if(!utility)$('os-dialog').replaceChildren();
+    if(desktop && document.fullscreenElement===$('game-window'))document.exitFullscreen().catch(()=>{});
+
     audio.syncMusic();
     if (renderer) renderer.canvas.width = compact.matches && mode !== 'home' ? 480 : H.WIDTH;
     game.viewWidth = compact.matches ? 480 : H.WIDTH;
@@ -111,26 +122,29 @@
   function bindActions(actions) {
     for (const [id,fn] of Object.entries(actions)) {const el=$(id); if(el)el.addEventListener('click',fn);}
   }
-  function focusDialog() { requestAnimationFrame(()=>$('overlay').querySelector('button,a,input')?.focus({preventScroll:true})); }
+  function activeSurface(){
+    if(uiMode==='home')return $('os-files');
+    return $('os-dialog').hidden ? $('overlay') : $('os-dialog');
+  }
+  function focusDialog() { requestAnimationFrame(()=>activeSurface().querySelector('button,a,input')?.focus({preventScroll:true})); }
   function modal(title,body,wide=false,onClose=showHome) {
-    $('overlay').className='overlay';
-    $('overlay').setAttribute('aria-label',title);
-    $('overlay').innerHTML=`<section class="modal-window ${wide?'wide':''}"><header class="small-title"><span>${esc(title)}</span><button id="dialog-close" aria-label="Close this window">×</button></header><div class="modal-body">${body}</div></section>`;
+    activeSurface().className='overlay';
+    activeSurface().setAttribute('aria-label',title);
+    activeSurface().innerHTML=`<section class="modal-window ${wide?'wide':''}"><header class="small-title"><span>${esc(title)}</span><button id="dialog-close" aria-label="Close this window">×</button></header><div class="modal-body">${body}</div></section>`;
     $('dialog-close').addEventListener('click',onClose);focusDialog();
   }
   function showHome() {
     setMode('home');
     $('status').textContent='Ready to play';
-    $('overlay').className='overlay home-overlay';
-    $('overlay').setAttribute('aria-label','Main menu');
     const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
     const unlocked=progress.seenIntros.includes(H.LEVELS[1].id)||Boolean(progress.results[1]);
     const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
-    $('overlay').innerHTML=`<section class="desk-surface"><div class="desk-files">
+    $('os-files').innerHTML=`<section class="desk-surface"><div class="desk-files">
       <button id="start-game"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIRE.EXE</strong><small>${launchLabel}</small></button>
       <button id="desk-calc"><span class="desk-glyph" aria-hidden="true">±</span>Calculator</button>
       ${cvLink('home-cv','desk-doc')}
+      ${E.id==='solved-001'?'<a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator<small>Solved Studio ↗</small></a>':''}
       ${unlocked?'<button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>':''}
       </div><aside class="attachment"><div class="small-title">Application form</div><p>Please attach your CV.</p><button id="attachment-launch" class="btn">▣ HIRE.EXE ↗</button></aside>
       <div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Portfolio</button>${globalThis.HIRED_EMBEDDED_ASSETS||!E.interviewer?'':'<a href="cutscenes.html" target="_blank" rel="noopener">Read the cutscenes</a>'}</div></section>`;
@@ -138,7 +152,8 @@
     $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
     if(unlocked)$('desk-sub').onclick=()=>{setMode('sea-trial');H.seaTrial(modal,()=>{progress.delivered=true;save();});};
     bindActions({'start-game':()=>{
-      if(hasRun)resume();
+      if(desktopReturn){const reopen=desktopReturn;desktopReturn=null;reopen();}
+      else if(hasRun)resume();
       else if(progress.pendingScene)beginScene(progress.pendingScene);
       else if(progress.results[3]&&!progress.checkpoint)beginScene(H.LEVELS.length);
       else if(progress.checkpoint)startLevel(progress.lastLevel,progress.checkpoint);
@@ -445,7 +460,7 @@
   }
   function frame(now) {
     const dt=previousTime?Math.min(.1,(now-previousTime)/1000):0;previousTime=now;
-    if(ready){
+    if(ready && !$('game-window').hidden){
       if(uiMode==='playing'){game.step(inputs(),dt);events();updateHud();}
       const s=uiMode==='home'||!game.state?preview.state:game.state;
       if(s===preview.state)s.player.animationTime=now/16.6667;
@@ -457,9 +472,9 @@
   document.addEventListener('keydown',e=>{
     if(uiMode==='boot'||e.ctrlKey||e.metaKey||e.altKey)return;
     // Keep keyboard focus inside the current modal.
-    if(e.code==='Tab'&&uiMode!=='playing'){
-      const focusable=[...$('overlay').querySelectorAll('button:not([disabled]),a[href],input')];
-      if(focusable.length){const first=focusable[0],last=focusable.at(-1);if(!$('overlay').contains(document.activeElement)){e.preventDefault();(e.shiftKey?last:first).focus();}else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
+    if(e.code==='Tab'&&uiMode!=='playing'&&uiMode!=='home'){
+      const focusable=[...activeSurface().querySelectorAll('button:not([disabled]),a[href],input')];
+      if(focusable.length){const first=focusable[0],last=focusable.at(-1);if(!activeSurface().contains(document.activeElement)){e.preventDefault();(e.shiftKey?last:first).focus();}else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
     }
     if(['Escape','KeyP'].includes(e.code)&&!e.repeat){e.preventDefault();if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();else if(e.code==='Escape')(uiMode==='scene'?$('scene-skip'):$('dialog-close'))?.click();return;}
     if(uiMode!=='playing')return;
@@ -481,7 +496,7 @@
   $('worlds-button').addEventListener('click',()=>ready&&showWorlds());
   $('portfolio-button').addEventListener('click',()=>ready&&showPortfolio());
   $('help-button').addEventListener('click',()=>ready&&showHelp());
-  $('home').addEventListener('click',()=>{if(ready){if(uiMode==='playing')showPause();else showHome();}});
+  $('home').addEventListener('click',()=>{if(ready){desktopReturn=captureReturn(uiMode);showHome();}});
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
   updateSound();
   const unlockAudio=event=>{
@@ -504,6 +519,7 @@
       globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return report;},get progress(){return JSON.parse(JSON.stringify(progress));}};
       requestAnimationFrame(frame);
     } catch(error) {
+      $('os-shell').hidden=true;$('game-window').hidden=false;
       $('loading-text').textContent='The game assets could not be opened.';
       $('loading').querySelector('.loading-track').style.display='none';
       const small=$('loading').querySelector('small');

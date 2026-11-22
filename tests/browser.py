@@ -28,9 +28,9 @@ def run(profile, base):
         page.goto(base)
         page.locator('#start-game').wait_for()
         assert page.locator('#desktop').evaluate("el => (getComputedStyle(el).userSelect || getComputedStyle(el).webkitUserSelect) === 'none'")
-        assert page.locator('.window-title img').evaluate("img => !img.dispatchEvent(new Event('dragstart', {bubbles:true, cancelable:true}))")
+        assert page.locator('#start-game img').evaluate("img => !img.dispatchEvent(new Event('dragstart', {bubbles:true, cancelable:true}))")
         if not mobile:
-            label = page.locator('.window-title strong').bounding_box()
+            label = page.locator('#start-game strong').bounding_box()
             x, y = label['x'], label['y'] + label['height'] / 2
             page.mouse.move(x+1,y)
             page.mouse.down()
@@ -39,8 +39,11 @@ def run(profile, base):
             assert page.evaluate("window.getSelection().toString()") == ''
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
+        expect(page.locator('#game-window')).to_be_hidden()
+        expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
         expect(page.locator('#desk-sub')).to_have_count(0)
         activate('#desk-calc')
+        expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
             page.get_by_role('button', name=key, exact=True).click()
         expect(page.locator('.calc-display')).to_have_text('4')
