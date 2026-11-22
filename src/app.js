@@ -68,7 +68,6 @@
   let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
   let desktopReturn=null, titleBack=null, artworkLoad=null, assetReport=null;
-  const bootKey='hire.exe:windows311:started';
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
   let helpBack=showHome, portfolioBack=showHome, worldsBack=showHome;
@@ -205,7 +204,7 @@
     $('home-cv').textContent=E.applicant+'’s CV';
     setupMenus($('os-files').querySelector('.pm-menu'));
     function closeMenus(){ $('os-files').querySelectorAll('nav details').forEach(menu=>menu.open=false); }
-    $('pm-reboot').onclick=async()=>{closeMenus();await runStartup(true);$('start-game').focus();};
+    $('pm-reboot').onclick=async()=>{closeMenus();await runStartup();$('start-game').focus();};
     $('pm-apps').onclick=()=>{closeMenus();$('start-game').focus();};
     function showGroup(id,shortcut){closeMenus();$(id).open=true;H.desktopWindows?.raiseGroup?.(id);$(shortcut).focus();}
     $('pm-accessories').onclick=()=>showGroup('accessories-group','desk-calc');
@@ -660,17 +659,14 @@
     $('desktop').inert=false;
   }
 
-  async function runStartup(force=false){
-    let seen=false;
-    try{seen=localStorage.getItem(bootKey)==='1';}catch{}
-    if(force||!seen){
-      const screen=$('dos-start');
-      screen.hidden=false;screen.classList.remove('windows-splash','windows-blank');
-      $('dos-skip').hidden=false;$('dos-state').textContent='';$('dos-prompt').textContent='';
-      $('desktop').inert=true;
-      await dosStartup();
-      try{localStorage.setItem(bootKey,'1');}catch{}
-    }
+  // Windows boots on every page load, as a real PC did. Skip startup, Enter or
+  // Escape cut it short, and Options > Replay startup runs it again.
+  async function runStartup(){
+    const screen=$('dos-start');
+    screen.hidden=false;screen.classList.remove('windows-splash','windows-blank');
+    $('dos-skip').hidden=false;$('dos-state').textContent='';$('dos-prompt').textContent='';
+    $('desktop').inert=true;
+    await dosStartup();
     revealDesktop();
   }
   async function boot(){
