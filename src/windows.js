@@ -6,7 +6,6 @@
   // moved by their title bars. State lives here so it survives the desktop
   // being re-rendered each time the player returns from the game.
   const state = { pm: { min: false, max: false, x: null, y: null }, groups: {}, front: '' };
-  const fine = () => matchMedia('(pointer:fine)').matches;
   let layer = 10;
 
   function clamp(win, area, x, y) {
@@ -21,18 +20,26 @@
   }
 
   // Mouse and pen drag a window by its title bar. Touch keeps scrolling the page.
+  // A plain click on the title bar leaves the window where it is: it only lifts
+  // out of the layout once the pointer has moved a few pixels.
   function draggable(win, handle, area, { before, after } = {}) {
     handle.addEventListener('pointerdown', e => {
-      if (e.button !== 0 || e.pointerType === 'touch' || !fine()) return;
+      if (e.button !== 0 || e.pointerType === 'touch') return;
       if (e.target.closest('button,a,input,summary,.pm-popup') || win.classList.contains('is-max')) return;
       e.preventDefault();
-      const from = win.getBoundingClientRect(), box = area.getBoundingClientRect();
-      const offsetX = e.clientX - from.left, offsetY = e.clientY - from.top;
-      before?.(from);
-      place(win, area, from.left - box.left, from.top - box.top);
-      win.classList.add('is-dragging');
+      const startX = e.clientX, startY = e.clientY;
+      let offsetX = 0, offsetY = 0, moving = false;
       handle.setPointerCapture(e.pointerId);
       const move = ev => {
+        if (!moving) {
+          if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 4) return;
+          const from = win.getBoundingClientRect(), box = area.getBoundingClientRect();
+          offsetX = startX - from.left; offsetY = startY - from.top;
+          before?.(from);
+          place(win, area, from.left - box.left, from.top - box.top);
+          win.classList.add('is-dragging');
+          moving = true;
+        }
         const now = area.getBoundingClientRect();
         place(win, area, ev.clientX - now.left - offsetX, ev.clientY - now.top - offsetY);
       };
@@ -40,6 +47,7 @@
         handle.removeEventListener('pointermove', move);
         handle.removeEventListener('pointerup', end);
         handle.removeEventListener('pointercancel', end);
+        if (!moving) return;
         win.classList.remove('is-dragging');
         after?.(parseFloat(win.style.left), parseFloat(win.style.top));
       };
@@ -76,9 +84,28 @@
       control.querySelector('[data-window="max"]').disabled = s.max;
       const floating = !s.max && s.x !== null;
       pm.classList.toggle('is-floating', floating);
-      if (floating) { pm.style.width = s.width ? s.width + 'px' : ''; [s.x, s.y] = place(pm, shell, s.x, s.y); }
+      if (floating) { pm.style.width = s.width ? s.width + 'px' : ''; place(pm, shell, s.x, s.y); }
       else for (const side of ['left', 'top', 'right', 'bottom', 'width']) pm.style[side] = '';
+      placeChildren();
     }
+    // Saved positions are where the player left each window; what is shown is
+    // that position clamped to the current workspace, so a smaller layout
+    // never pushes a window out of reach and a larger one gets it back.
+    function placeChildren() {
+      for (const group of pm.querySelectorAll('.pm-folders details[open]')) {
+        const saved = state.groups[group.id];
+        if (saved && saved.x !== null) place(group.querySelector('.pm-child'), workspace, saved.x, saved.y);
+      }
+    }
+    H.desktopWindows.refresh = () => {
+      if (!pm.isConnected || !pm.getClientRects().length) return;
+      if (pm.classList.contains('is-floating')) place(pm, shell, state.pm.x, state.pm.y);
+      placeChildren();
+    };
+    H.desktopWindows.raiseGroup = id => {
+      const child = pm.querySelector('#' + id + ' .pm-child');
+      if (child) { raise(child); state.front = id; }
+    };
     function minimise() { state.pm.min = true; control.open = false; apply(); icon.focus({ preventScroll: true }); }
     function maximise(on = !state.pm.max) { state.pm.max = on; state.pm.min = false; control.open = false; apply(); }
     function restore() {
@@ -107,11 +134,15 @@
     for (const group of pm.querySelectorAll('.pm-folders details')) {
       const child = group.querySelector('.pm-child'), id = group.id;
       const saved = state.groups[id] || (state.groups[id] = { open: false, x: null, y: null });
+      // Reopening a saved group fires one toggle event of its own; that one
+      // puts the window back without changing which window is in front.
+      let restoring = saved.open;
       group.open = saved.open;
-      const restorePlace = () => { if (saved.x !== null) [saved.x, saved.y] = place(child, workspace, saved.x, saved.y); };
+      const restorePlace = () => { if (saved.x !== null) place(child, workspace, saved.x, saved.y); };
       if (group.open) requestAnimationFrame(restorePlace);
       group.addEventListener('toggle', () => {
         saved.open = group.open;
+        if (restoring) { restoring = false; if (group.open) return; }
         if (group.open) { restorePlace(); raise(child); state.front = id; }
       });
       child.querySelector('.pm-child-min').onclick = () => { group.open = false; group.querySelector('summary').focus({ preventScroll: true }); };
@@ -130,10 +161,7 @@
   document.addEventListener('pointerdown', e => {
     for (const menu of document.querySelectorAll('.pm-control[open]')) if (!menu.contains(e.target)) menu.open = false;
   });
-  addEventListener('resize', () => {
-    const current = document.querySelector('.program-manager.is-floating');
-    if (current) [state.pm.x, state.pm.y] = place(current, current.closest('#os-shell') || current.parentElement, state.pm.x, state.pm.y);
-  });
+  addEventListener('resize', () => H.desktopWindows.refresh?.());
 
   // Utility windows (Calculator, Portfolio, About, Sea Trial) open in the
   // desktop dialog layer. Let the mouse move them by their title bars.

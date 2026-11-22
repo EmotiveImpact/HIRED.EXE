@@ -207,8 +207,9 @@
     function closeMenus(){ $('os-files').querySelectorAll('nav details').forEach(menu=>menu.open=false); }
     $('pm-reboot').onclick=async()=>{closeMenus();await runStartup(true);$('start-game').focus();};
     $('pm-apps').onclick=()=>{closeMenus();$('start-game').focus();};
-    $('pm-accessories').onclick=()=>{closeMenus();$('accessories-group').open=true;$('desk-calc').focus();};
-    if($('pm-internet'))$('pm-internet').onclick=()=>{closeMenus();$('internet-group').open=true;$('desk-netscape').focus();};
+    function showGroup(id,shortcut){closeMenus();$(id).open=true;H.desktopWindows?.raiseGroup?.(id);$(shortcut).focus();}
+    $('pm-accessories').onclick=()=>showGroup('accessories-group','desk-calc');
+    if($('pm-internet'))$('pm-internet').onclick=()=>showGroup('internet-group','desk-netscape');
     $('pm-about').onclick=()=>{closeMenus();setMode('calculator');modal('About Program Manager','<p>Windows for Workgroups 3.11 desktop recreation.</p>');};
     $('attachment-launch').onclick=()=>{closeMenus();launch();};
     $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
@@ -633,7 +634,7 @@
         document.removeEventListener('keydown',shortcut);
         skip.onclick=null;
         prompt.textContent='C:\\>WIN';
-        state.textContent='Starting Windows 3.11…';
+        state.textContent='Starting Windows…';
         skip.hidden=true;
         resolve();
       }
@@ -644,9 +645,13 @@
       ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
         timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
       });
-      timers.push(setTimeout(()=>{state.textContent='Starting Windows 3.11…';},1300));
-      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1500));
-      timers.push(setTimeout(finish,2800));
+      // As in 1992: WIN clears the screen to black, the splash holds while
+      // Windows loads, then the screen blanks again before Program Manager.
+      timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-blank');},1500));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1850));
+      timers.push(setTimeout(()=>{$('dos-start').classList.remove('windows-splash');},4350));
+      timers.push(setTimeout(finish,4600));
     });
   }
 
@@ -660,7 +665,7 @@
     try{seen=localStorage.getItem(bootKey)==='1';}catch{}
     if(force||!seen){
       const screen=$('dos-start');
-      screen.hidden=false;screen.classList.remove('windows-splash');
+      screen.hidden=false;screen.classList.remove('windows-splash','windows-blank');
       $('dos-skip').hidden=false;$('dos-state').textContent='';$('dos-prompt').textContent='';
       $('desktop').inert=true;
       await dosStartup();
