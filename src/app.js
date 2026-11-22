@@ -104,6 +104,7 @@
     $('os-dialog').hidden=!utility;
     $('os-files').inert=utility;
     if(!utility)$('os-dialog').replaceChildren();
+    if(desktop)$('overlay').replaceChildren();
     if(desktop && document.fullscreenElement===$('game-window'))document.exitFullscreen().catch(()=>{});
 
     audio.syncMusic();
