@@ -45,6 +45,17 @@ def run(profile, base):
         expect(page.locator('#game-window')).to_be_hidden()
         expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
         expect(page.locator('#desk-sub')).to_have_count(0)
+        group = page.locator('.pm-group')
+        before = group.bounding_box()
+        activate('.pm-menu details:nth-child(1) summary')
+        expect(page.locator('#attachment-launch')).to_be_visible()
+        assert group.bounding_box() == before
+        activate('.pm-menu details:nth-child(3) summary')
+        expect(page.locator('#attachment-launch')).to_be_hidden()
+        expect(page.locator('#pm-apps')).to_be_visible()
+        activate('#pm-apps')
+        expect(page.locator('#pm-apps')).to_be_hidden()
+        expect(page.locator('#start-game strong')).to_have_text('HIREME.EXE')
         activate('#accessories-group summary')
         activate('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
@@ -91,7 +102,7 @@ def run(profile, base):
         assert len({url for url, _ in decoded}) == 28
         assert all(width >= 640 for _, width in decoded)
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
-        page.get_by_role('link', name='Play HIRE.EXE').click()
+        page.get_by_role('link', name='Play HIREME.EXE').click()
         launch()
         activate('#title-play')
         assert page.locator('#comic-title').inner_text() == 'One PDF'

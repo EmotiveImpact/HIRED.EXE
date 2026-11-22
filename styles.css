@@ -266,7 +266,10 @@
 .pm-caption span{float:left;background:silver;border:1px outset white;color:black;width:20px;line-height:14px}
 .pm-menu{display:flex;background:white;border-bottom:1px solid black;position:relative;z-index:2}
 .pm-menu details{position:relative}.pm-menu summary{list-style:none;cursor:pointer;padding:4px 10px}.pm-menu summary::first-letter{text-decoration:underline}
-.pm-menu details[open]{background:#000080;color:white}.pm-menu details[open] button{position:relative;display:block;background:white;color:black;white-space:nowrap;text-align:left;width:100%;border:0;padding:5px}
+.pm-menu details[open]{background:#000080;color:white}.pm-popup{position:absolute;left:0;top:100%;min-width:max-content;background:#fff;color:#111;border:1px solid #111;box-shadow:2px 2px #555;padding:2px;z-index:5}
+.pm-popup button{display:block;width:100%;white-space:nowrap;text-align:left;border:0;padding:7px 15px;background:white;color:black;font:inherit}
+.pm-popup button:is(:hover,:focus-visible){background:navy;color:white;outline:none}
+.pm-menu summary{list-style:none}.pm-menu summary::-webkit-details-marker{display:none}
 .pm-workspace{padding:18px;display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start;min-height:260px}
 .pm-group{background:white;border:3px ridge #ccc;box-shadow:1px 1px black}.pm-group h2{background:#686878}
 .pm-group:focus-within h2{background:navy}.pm-group .desk-files{padding:12px 6px;gap:4px}
@@ -298,3 +301,13 @@
 .title-hero{position:absolute;right:3%;bottom:12%;width:35%;height:70%;display:flex;align-items:flex-end;justify-content:center}.title-hero .title-actor{position:static;width:100%;max-height:100%;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(4px 4px 0 #1a173b88)}
 .title-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.title-links button{background:#161934c9;color:white;border:1px solid #a7a5ce;padding:7px}.replay-frame{display:block;width:100%;max-height:37vh;object-fit:contain}
 @media(max-width:540px){.game-title .title-copy{width:73%}.title-hero{right:0;bottom:18%}.pm-group .desk-files>*{width:86px}}
+
+.program-manager{width:max-content;min-width:min(100%,334px);max-width:calc(100% - 12px)}
+.pm-workspace{min-height:0;padding:12px}
+.pm-group{width:max-content;max-width:100%}
+.pm-group .desk-files{display:grid;grid-template-columns:repeat(3,minmax(0,98px));padding:8px;gap:4px}
+.pm-group:has(#desk-sub) .desk-files{grid-template-columns:repeat(4,minmax(0,98px))}
+.pm-group .desk-files>*{width:auto}
+.pm-folders{margin:12px 0 0}
+.game-title .title-copy h1{font-size:clamp(35px,7vw,88px)}
+@media(max-width:500px){.pm-workspace{padding:8px}.pm-group:has(#desk-sub) .desk-files{grid-template-columns:repeat(3,minmax(0,98px))}.pm-group .desk-files>*{width:auto}.pm-menu summary{padding:7px 10px}.pm-popup button{min-height:38px}}

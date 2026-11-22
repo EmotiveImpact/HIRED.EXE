@@ -1,4 +1,4 @@
-# HIRE.EXE
+# HIREME.EXE
 
 An original four-world platformer and playable job application by Augustus Edem. The default edition introduces Augustus to Solved Studio. Use **Meet Augustus** for the portfolio or **View CV** for a one-page CV with a downloadable PDF. Both are available on the title screen.
 
