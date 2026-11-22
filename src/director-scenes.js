@@ -20,12 +20,12 @@ const directorScenes = [
     ]
   },
   {
-    title:'A quick addition',place:'World 2 · Ship It City',cue:'Augustus vibe-codes a calculator. The workshop trolley adds servers, a login and a subscription. Augustus strips it back to a calculator and ships it.',
+    title:'A quick addition',place:'World 2 · Ship It City',cue:'Augustus vibe-codes a calculator. The trolley takes “ship it” literally and orders a submarine. The calculator gets one last job before launch.',
     shots:[
-      ['city-1','One calculator','Augustus|One calculator. Vibe-code it, ship it. No accounts.'],
-      ['city-2','The upgrade','Workshop trolley|Done. You can now log in to add.'],
-      ['city-3','The paywall','Augustus|What’s two plus two?','Workshop trolley|Your free trial has ended.'],
-      ['city-4','Ship it','Augustus|What if I unplug all that?','Workshop trolley|Four.','Augustus|Ship that.']
+      ['city-1','One calculator','Augustus|I vibe-coded a calculator. Two plus two makes four. Let’s ship it.'],
+      ['city-2','The submarine'],
+      ['city-3','The bill','Augustus|How much did that cost?','Workshop trolley|Hang on. I’ll open the calculator.'],
+      ['city-4','Ship it','Workshop trolley|Four.','Augustus|Pounds?','Workshop trolley|Million.','Augustus|Right. Ship the app.']
     ]
   },
   {
@@ -57,7 +57,7 @@ const directorScenes = [
   {
     title:'Thursday at James’s',place:'James’s office · fictionalised Solved Studio meeting',cue:'After the fourth world, cut to Thursday in a working design studio. The orange visitor’s chair, blue partition and print proofs establish a new room. James has actually played the game within this story.',
     shots:[
-      ['office-1','The visitor’s chair','James|Your calculator didn’t ask for my email.','Augustus|It wanted to. We had a word.'],
+      ['office-1','The visitor’s chair','James|Did the submarine ever ship?','Augustus|Still in beta.'],
       ['office-2','The interview','James|What would you say is your biggest weakness?','Augustus|You asked for a CV and I built you a video game.'],
       ['office-3','The diary','James|Biggest strength?','Augustus|Same answer.','James|Can you do Monday?'],
       ['office-4','The handshake']
@@ -66,7 +66,7 @@ const directorScenes = [
 ];
 
 function directorPanel(id) {
-  const revision = /^city-[1-4]$/.test(id) ? 'v5/' : id === 'p05-play' ? 'v4/' :
+  const revision = /^city-[24]$/.test(id) ? 'v6/' : /^city-[13]$/.test(id) ? 'v5/' : id === 'p05-play' ? 'v4/' :
     ['p04-gatekeeper','p15-attachment'].includes(id) ? 'v2/' :
     id === 'office-3' ? '' : 'v3/';
   return 'assets/directors-board/' + revision + id + '.webp';

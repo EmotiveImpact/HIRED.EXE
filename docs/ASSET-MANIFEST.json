@@ -368,6 +368,18 @@
       "sha256": "f81b86aa3816a390833a2fa302344e67f6900f3af441b91d3b7292c964e59b47"
     },
     {
+      "path": "assets/directors-board/v6/city-2.webp",
+      "role": "production-asset",
+      "bytes": 144974,
+      "sha256": "171d3133648c674113e965f08cded89b62db7638730f82f6e578d81b127fc378"
+    },
+    {
+      "path": "assets/directors-board/v6/city-4.webp",
+      "role": "production-asset",
+      "bytes": 133526,
+      "sha256": "eeca5d1ac11f06ae0c270d8eb8836f422c8706c1d12fdef12b0b2affe2f3b2de"
+    },
+    {
       "path": "assets/manifest.json",
       "role": "production-asset",
       "bytes": 5989,
