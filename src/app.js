@@ -312,7 +312,7 @@
     const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel)&&(!beat.portrait||E.interviewer));
     const illustrated=fullPanel||Number.isInteger(beat.art);
     const panel=fullPanel
-      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(beat.image || H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
+      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(beat.image || H.PANELS.folder+beat.panel+'.jpg')}')`)}"><span class="comic-panel-fill"></span><span class="comic-panel-art"></span></div>`
       : illustrated
       ? `<div class="comic-illustration" style="${esc(`background-image:url('${asset('assets/production/story/manga-panels.webp')}');background-position:${beat.art%2*100}% ${Math.floor(beat.art/2)*50}%`)}"></div>`
       : `<div class="comic-frame"><img src="${asset('assets/production/backgrounds/'+scene.backdrop+'.webp')}" alt=""><div class="comic-rays"></div></div>

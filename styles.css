@@ -185,8 +185,14 @@
   background-repeat:no-repeat;
   box-shadow:0 0 0 4px #251a43;
 }
-/* Keep the original panel framing at all viewport sizes. */
-.comic-panel {background-size:contain;background-position:center}
+/* Keep the original panel framing at all viewport sizes: the whole picture always shows.
+   Any spare space (wide strips, or 16:9 art in the 2:1 frame) is filled with a soft,
+   darkened blow-up of the same picture instead of empty bars. Both layers inherit the
+   panel's inline background-image. */
+.comic-panel {position:relative;overflow:hidden;background-size:cover;background-position:center}
+.comic-panel > span {position:absolute;inset:0;background-image:inherit;background-repeat:no-repeat;background-position:center}
+.comic-panel-fill {background-size:cover;filter:blur(14px) brightness(.6);transform:scale(1.15)}
+.comic-panel-art {background-size:contain}
 .comic-illustrated .comic-effect {left:7%;top:12%}
 .comic-illustrated.comic-burst .comic-illustration {animation:comic-print .24s ease-out both}
 @keyframes comic-print {from{transform:scale(.96)}to{transform:scale(1)}}
