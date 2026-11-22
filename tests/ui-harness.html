@@ -1,9 +1,9 @@
-<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HIREME.EXE responsive review</title>
+<!doctype html><html lang="en-GB"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HIRE.EXE responsive review</title>
 <style>body{font:14px monospace;background:#171b3e;color:#fff;margin:0;padding:18px}button{font:inherit;background:#d4ceeb;border:2px outset white;padding:9px;margin:3px;cursor:pointer}iframe{display:block;border:3px solid #aca1c7;margin:18px 0;background:#171b3e}label{margin-right:10px}#readout{color:#a8dce7;line-height:1.5;white-space:pre-wrap}</style>
 <h1>Responsive review</h1><p>This frame uses the real game with a different viewport. It does not emulate a physical phone.</p>
 <button data-size="390,844">Portrait 390 × 844</button><button data-size="844,390">Landscape 844 × 390</button><button data-size="1280,720">Desktop 1280 × 720</button><button id="reset">Reload game</button>
 <div id="readout" aria-live="off">Loading...</div>
-<iframe id="review" title="HIREME.EXE responsive test" src="../index.html" width="390" height="844"></iframe>
+<iframe id="review" title="HIRE.EXE responsive test" src="../index.html" width="390" height="844"></iframe>
 <script>
 const frame=document.getElementById('review');
 document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{const [w,h]=b.dataset.size.split(',');frame.width=w;frame.height=h;});

@@ -46,7 +46,7 @@ const solvedEdition = {
     { name:'Cairn', description:'A Mac storage utility in development that helps people decide what to clear.',
       work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:'https://cairnmac.com/' }
   ],
-  contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIREME.EXE%20-%20Let%27s%20talk',
+  contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRE.EXE%20-%20Let%27s%20talk',
   interview: [
     {question:'What would you like to explore first?', answers:[
       {label:'The creative background', text:'Over 20 years of video production, editing and creative direction. I care about how an idea feels, how clearly it communicates and whether it works for the people using it.'},

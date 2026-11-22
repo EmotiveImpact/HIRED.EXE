@@ -189,12 +189,12 @@
     // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
     $('os-files').innerHTML=`<section class="program-manager"><header class="pm-caption"><span aria-hidden="true">−</span>Program Manager</header>
       <nav class="pm-menu" aria-label="Program Manager menus">
-      <details><summary>File</summary><div class="pm-popup"><button id="attachment-launch">Open HIREME.EXE</button></div></details>
+      <details><summary>File</summary><div class="pm-popup"><button id="attachment-launch">Open HIRE.EXE</button></div></details>
       <details><summary>Options</summary><div class="pm-popup"><button id="pm-reboot">Replay startup</button></div></details>
       <details><summary>Window</summary><div class="pm-popup"><button id="pm-apps">${esc(E.applicant)}</button><button id="pm-accessories">Accessories</button></div></details>
       <details><summary>Help</summary><div class="pm-popup"><button id="pm-about">About Program Manager</button></div></details></nav>
       <div class="pm-workspace"><section class="pm-group"><h2>${esc(E.applicant)}</h2><div class="desk-files">
-      <button id="start-game" title="Double-click to open, or press Enter"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIREME.EXE</strong><small>${launchLabel}</small></button>
+      <button id="start-game" title="Double-click to open, or press Enter"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIRE.EXE</strong><small>${launchLabel}</small></button>
       ${cvLink('home-cv','desk-doc')}<button id="skip-portfolio" class="pm-document">Portfolio</button>
       ${unlocked?'<button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>':''}
       </div></section><div class="pm-folders">
@@ -240,11 +240,11 @@
     setMode('game-load');
     const layer=$('overlay');
     layer.className='overlay game-launch';
-    layer.setAttribute('aria-label','Loading HIREME.EXE');
-    layer.innerHTML='<section class="load-card"><strong>Loading HIREME.EXE</strong><progress aria-label="Loading game artwork"></progress></section>';
+    layer.setAttribute('aria-label','Loading HIRE.EXE');
+    layer.innerHTML='<section class="load-card"><strong>Loading HIRE.EXE</strong><progress aria-label="Loading game artwork"></progress></section>';
     try{await loadArtwork();}catch{
       if(launch===launchNumber&&uiMode==='game-load'){
-        modal('HIREME.EXE','<p>The game artwork could not load.</p><button class="btn" id="retry-launch">Try again</button>');
+        modal('HIRE.EXE','<p>The game artwork could not load.</p><button class="btn" id="retry-launch">Try again</button>');
         $('retry-launch').onclick=()=>launchTitle(play,continuing);
       }
       return;
@@ -254,8 +254,8 @@
       setMode('title');titleBack=title;
       layer.className='overlay game-title';
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
-      layer.setAttribute('aria-label','HIREME.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIREME<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.setAttribute('aria-label','HIRE.EXE title screen');
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
       $('title-play').onclick=play;
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
@@ -467,11 +467,11 @@
     let contact = safeLink(E.contactUrl);
     if (contact?.startsWith('mailto:')) {
       const draft = new URL(contact);
-      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIREME.EXE'].filter(Boolean).join(' / '));
-      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIREME.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
+      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIRE.EXE'].filter(Boolean).join(' / '));
+      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIREME.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -619,7 +619,7 @@
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('title-edition').textContent=E.editionLabel;
   $('art-book-link').search = globalThis.location.search;
-  document.title='HIREME.EXE | '+E.applicant;
+  document.title='HIRE.EXE | '+E.applicant;
 
   function dosStartup(){
     return new Promise(resolve=>{
