@@ -240,7 +240,11 @@
 .calc-keys {display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
 .calc-keys button {min-height:34px}
 .sea-view {width:100%;display:block;image-rendering:pixelated;touch-action:none}
-.sea-dive {touch-action:none}
+.sea-dive,.sea-fire {touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.sea-controls {display:flex;gap:8px;flex-wrap:wrap}
+.sea-controls .sea-fire {margin-left:auto}
+.sea-fire.is-held {border-style:inset;box-shadow:1px 1px #11132e}
+@media(pointer:coarse){.sea-controls .btn{min-width:92px;min-height:52px;font-size:15px}}
 @media(max-width:540px){.desk-surface{gap:12px;grid-template-columns:1fr}.desk-files{grid-template-columns:repeat(3,1fr)}.attachment{max-width:250px}.desk-surface .home-links{justify-content:flex-start}}
 
 #desktop [hidden] {display:none!important}
