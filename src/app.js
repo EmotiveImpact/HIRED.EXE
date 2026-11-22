@@ -134,6 +134,7 @@
     activeSurface().setAttribute('aria-label',title);
     activeSurface().innerHTML=`<section class="modal-window ${wide?'wide':''}"><header class="small-title"><span>${esc(title)}</span><button id="dialog-close" aria-label="Close this window">×</button></header><div class="modal-body">${body}</div></section>`;
     activeSurface().querySelector('#dialog-close').addEventListener('click',onClose);focusDialog();
+    if(activeSurface().id==='os-dialog')H.desktopDialog?.(activeSurface());
   }
   function openMenu(menu){
     for(const item of menu.parentElement.children)item.open=item===menu;
@@ -187,19 +188,19 @@
     const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
     // CALC001.PNG, archived Windows 3.x Calculator resource:
     // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
-    $('os-files').innerHTML=`<section class="program-manager"><header class="pm-caption"><span aria-hidden="true">−</span>Program Manager</header>
+    $('os-files').innerHTML=`<section class="program-manager" aria-label="Program Manager"><header class="pm-caption"><details class="pm-control"><summary aria-label="Program Manager window menu" title="Window menu">−</summary><div class="pm-popup"><button data-window="restore">Restore</button><button data-window="min">Minimise</button><button data-window="max">Maximise</button></div></details><span class="pm-title">Program Manager</span><button class="pm-min" aria-label="Minimise Program Manager" title="Minimise">▼</button><button class="pm-max" aria-label="Maximise Program Manager" title="Maximise">▲</button></header>
       <nav class="pm-menu" aria-label="Program Manager menus">
-      <details><summary>File</summary><div class="pm-popup"><button id="attachment-launch">Open HIREME.EXE</button></div></details>
+      <details><summary>File</summary><div class="pm-popup"><button id="attachment-launch">Open HIRE.EXE</button></div></details>
       <details><summary>Options</summary><div class="pm-popup"><button id="pm-reboot">Replay startup</button></div></details>
-      <details><summary>Window</summary><div class="pm-popup"><button id="pm-apps">${esc(E.applicant)}</button><button id="pm-accessories">Accessories</button></div></details>
+      <details><summary>Window</summary><div class="pm-popup"><button id="pm-apps">${esc(E.applicant)}</button><button id="pm-accessories">Accessories</button>${E.id==='solved-001'?'<button id="pm-internet">Internet</button>':''}</div></details>
       <details><summary>Help</summary><div class="pm-popup"><button id="pm-about">About Program Manager</button></div></details></nav>
       <div class="pm-workspace"><section class="pm-group"><h2>${esc(E.applicant)}</h2><div class="desk-files">
-      <button id="start-game" title="Double-click to open, or press Enter"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIREME.EXE</strong><small>${launchLabel}</small></button>
+      <button id="start-game" title="Double-click to open, or press Enter"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIRE.EXE</strong><small>${launchLabel}</small></button>
       ${cvLink('home-cv','desk-doc')}<button id="skip-portfolio" class="pm-document">Portfolio</button>
       ${unlocked?'<button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>':''}
       </div></section><div class="pm-folders">
-      <details id="accessories-group"><summary>Accessories</summary><div class="desk-files"><button id="desk-calc"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">Calculator</button></div></details>
-      ${E.id==='solved-001'?'<details id="internet-group"><summary>Internet</summary><div class="desk-files"><a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator</a></div></details>':''}
+      <details id="accessories-group"><summary>Accessories</summary><section class="pm-child" aria-label="Accessories"><h3><span>Accessories</span><button class="pm-child-min" aria-label="Minimise Accessories" title="Minimise">▼</button></h3><div class="desk-files"><button id="desk-calc"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">Calculator</button></div></section></details>
+      ${E.id==='solved-001'?'<details id="internet-group"><summary>Internet</summary><section class="pm-child" aria-label="Internet"><h3><span>Internet</span><button class="pm-child-min" aria-label="Minimise Internet" title="Minimise">▼</button></h3><div class="desk-files"><a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator</a></div></section></details>':''}
       </div></div></section>`;
     $('home-cv').textContent=E.applicant+'’s CV';
     setupMenus($('os-files').querySelector('.pm-menu'));
@@ -207,6 +208,7 @@
     $('pm-reboot').onclick=async()=>{closeMenus();await runStartup(true);$('start-game').focus();};
     $('pm-apps').onclick=()=>{closeMenus();$('start-game').focus();};
     $('pm-accessories').onclick=()=>{closeMenus();$('accessories-group').open=true;$('desk-calc').focus();};
+    if($('pm-internet'))$('pm-internet').onclick=()=>{closeMenus();$('internet-group').open=true;$('desk-netscape').focus();};
     $('pm-about').onclick=()=>{closeMenus();setMode('calculator');modal('About Program Manager','<p>Windows for Workgroups 3.11 desktop recreation.</p>');};
     $('attachment-launch').onclick=()=>{closeMenus();launch();};
     $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
@@ -228,7 +230,8 @@
     icon.onclick=e=>{if(e.detail===0||touchLaunch)launch();};
     icon.ondblclick=()=>{if(uiMode==='home')launch();};
     $('skip-portfolio').onclick=()=>showPortfolio('home');
-    requestAnimationFrame(()=>{if(uiMode==='home')icon.focus({preventScroll:true});});
+    H.desktopWindows?.($('os-files'));
+    requestAnimationFrame(()=>{if(uiMode==='home')($('pm-icon')?.hidden===false?$('pm-icon'):icon).focus({preventScroll:true});});
   }
   let launchNumber=0;
   function loadArtwork(){
@@ -240,11 +243,11 @@
     setMode('game-load');
     const layer=$('overlay');
     layer.className='overlay game-launch';
-    layer.setAttribute('aria-label','Loading HIREME.EXE');
-    layer.innerHTML='<section class="load-card"><strong>Loading HIREME.EXE</strong><progress aria-label="Loading game artwork"></progress></section>';
+    layer.setAttribute('aria-label','Loading HIRE.EXE');
+    layer.innerHTML='<section class="load-card"><strong>Loading HIRE.EXE</strong><progress aria-label="Loading game artwork"></progress></section>';
     try{await loadArtwork();}catch{
       if(launch===launchNumber&&uiMode==='game-load'){
-        modal('HIREME.EXE','<p>The game artwork could not load.</p><button class="btn" id="retry-launch">Try again</button>');
+        modal('HIRE.EXE','<p>The game artwork could not load.</p><button class="btn" id="retry-launch">Try again</button>');
         $('retry-launch').onclick=()=>launchTitle(play,continuing);
       }
       return;
@@ -254,8 +257,8 @@
       setMode('title');titleBack=title;
       layer.className='overlay game-title';
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
-      layer.setAttribute('aria-label','HIREME.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIREME<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.setAttribute('aria-label','HIRE.EXE title screen');
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
       $('title-play').onclick=play;
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
@@ -312,7 +315,7 @@
     const fullPanel=Boolean(beat.panel&&H.PANELS?.ready.includes(beat.panel)&&(!beat.portrait||E.interviewer));
     const illustrated=fullPanel||Number.isInteger(beat.art);
     const panel=fullPanel
-      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(beat.image || H.PANELS.folder+beat.panel+'.jpg')}')`)}"></div>`
+      ? `<div class="comic-illustration comic-panel" style="${esc(`background-image:url('${asset(beat.image || H.PANELS.folder+beat.panel+'.jpg')}')`)}"><span class="comic-panel-fill"></span><span class="comic-panel-art"></span></div>`
       : illustrated
       ? `<div class="comic-illustration" style="${esc(`background-image:url('${asset('assets/production/story/manga-panels.webp')}');background-position:${beat.art%2*100}% ${Math.floor(beat.art/2)*50}%`)}"></div>`
       : `<div class="comic-frame"><img src="${asset('assets/production/backgrounds/'+scene.backdrop+'.webp')}" alt=""><div class="comic-rays"></div></div>
@@ -467,11 +470,11 @@
     let contact = safeLink(E.contactUrl);
     if (contact?.startsWith('mailto:')) {
       const draft = new URL(contact);
-      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIREME.EXE'].filter(Boolean).join(' / '));
-      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIREME.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
+      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIRE.EXE'].filter(Boolean).join(' / '));
+      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIREME.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -619,7 +622,7 @@
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('title-edition').textContent=E.editionLabel;
   $('art-book-link').search = globalThis.location.search;
-  document.title='HIREME.EXE | '+E.applicant;
+  document.title='HIRE.EXE | '+E.applicant;
 
   function dosStartup(){
     return new Promise(resolve=>{
