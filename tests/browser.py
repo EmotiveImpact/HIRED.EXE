@@ -47,6 +47,15 @@ def run(profile, base):
         for key in ('2', '+', '2', '='):
             page.get_by_role('button', name=key, exact=True).click()
         expect(page.locator('.calc-display')).to_have_text('4')
+        page.get_by_role('button', name='MS', exact=True).click()
+        page.get_by_role('button', name='C', exact=True).click()
+        for key in ('2','0','0','+','1','0','%','Enter'):
+            page.keyboard.press(key)
+        expect(page.locator('.calc-display')).to_have_text('220')
+        page.keyboard.press('Enter')
+        expect(page.locator('.calc-display')).to_have_text('240')
+        page.get_by_role('button', name='MR', exact=True).click()
+        expect(page.locator('.calc-display')).to_have_text('4')
         activate('#dialog-close')
         expect(page.get_by_role('link', name='Read the cutscenes')).to_have_attribute('href', 'cutscenes.html')
         page.goto(base+'/director.html')

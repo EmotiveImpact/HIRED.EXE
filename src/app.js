@@ -510,16 +510,47 @@
   $('art-book-link').search = globalThis.location.search;
   document.title='HIRE.EXE | '+E.applicant;
 
+  function dosStartup(){
+    return new Promise(resolve=>{
+      const prompt=$('dos-prompt'), state=$('dos-state'), skip=$('dos-skip');
+      const timers=[];
+      function finish(){
+        timers.forEach(clearTimeout);
+        document.removeEventListener('keydown',shortcut);
+        skip.onclick=null;
+        prompt.textContent='C:\\>WIN';
+        state.textContent='Starting Windows…';
+        skip.hidden=true;
+        resolve();
+      }
+      function shortcut(e){if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();finish();}}
+      skip.onclick=finish;
+      document.addEventListener('keydown',shortcut);
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
+      ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
+        timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
+      });
+      timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
+      timers.push(setTimeout(finish,2200));
+    });
+  }
+
+  function revealDesktop(){
+    $('dos-start').hidden=true;
+    $('desktop').inert=false;
+  }
+
   async function boot() {
     try {
       renderer=new H.Renderer($('game'));
-      const report=await renderer.load();
+      const [report]=await Promise.all([renderer.load(),dosStartup()]);
+      revealDesktop();
       ready=true;$('loading').classList.add('hidden');showHome();
       // Read-only diagnostic surface for browser checks. Mutating controls live in the UI.
       globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return report;},get progress(){return JSON.parse(JSON.stringify(progress));}};
       requestAnimationFrame(frame);
     } catch(error) {
-      $('os-shell').hidden=true;$('game-window').hidden=false;
+      revealDesktop();$('os-shell').hidden=true;$('game-window').hidden=false;
       $('loading-text').textContent='The game assets could not be opened.';
       $('loading').querySelector('.loading-track').style.display='none';
       const small=$('loading').querySelector('small');
