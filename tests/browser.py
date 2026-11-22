@@ -28,9 +28,9 @@ def run(profile, base):
         page.goto(base)
         page.locator('#start-game').wait_for()
         assert page.locator('#desktop').evaluate("el => (getComputedStyle(el).userSelect || getComputedStyle(el).webkitUserSelect) === 'none'")
-        assert page.locator('.window-title img').evaluate("img => !img.dispatchEvent(new Event('dragstart', {bubbles:true, cancelable:true}))")
+        assert page.locator('#start-game img').evaluate("img => !img.dispatchEvent(new Event('dragstart', {bubbles:true, cancelable:true}))")
         if not mobile:
-            label = page.locator('.window-title strong').bounding_box()
+            label = page.locator('#start-game strong').bounding_box()
             x, y = label['x'], label['y'] + label['height'] / 2
             page.mouse.move(x+1,y)
             page.mouse.down()
@@ -39,7 +39,43 @@ def run(profile, base):
             assert page.evaluate("window.getSelection().toString()") == ''
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
-        expect(page.get_by_role('link', name='Read the cutscenes')).to_have_attribute('href', 'cutscenes.html')
+        def launch():
+            icon = page.locator('#start-game')
+            icon.tap() if mobile else icon.dblclick()
+        expect(page.locator('#game-window')).to_be_hidden()
+        expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
+        expect(page.locator('#desk-sub')).to_have_count(0)
+        group = page.locator('.pm-group')
+        before = group.bounding_box()
+        activate('.pm-menu details:nth-child(1) summary')
+        expect(page.locator('#attachment-launch')).to_be_visible()
+        assert group.bounding_box() == before
+        activate('.pm-menu details:nth-child(3) summary')
+        expect(page.locator('#attachment-launch')).to_be_hidden()
+        expect(page.locator('#pm-apps')).to_be_visible()
+        activate('#pm-apps')
+        expect(page.locator('#pm-apps')).to_be_hidden()
+        expect(page.locator('#start-game strong')).to_have_text('HIREME.EXE')
+        activate('#accessories-group summary')
+        activate('#desk-calc')
+        expect(page.locator('#game-window')).to_be_hidden()
+        for key in ('2', '+', '2', '='):
+            page.get_by_role('button', name=key, exact=True).click()
+        expect(page.locator('.calc-display')).to_have_text('4')
+        page.get_by_role('button', name='MS', exact=True).click()
+        page.get_by_role('button', name='C', exact=True).click()
+        for key in ('2','0','0','+','1','0','%','Enter'):
+            page.keyboard.press(key)
+        expect(page.locator('.calc-display')).to_have_text('220')
+        page.keyboard.press('Enter')
+        expect(page.locator('.calc-display')).to_have_text('240')
+        page.get_by_role('button', name='MR', exact=True).click()
+        expect(page.locator('.calc-display')).to_have_text('4')
+        activate('#dialog-close')
+        launch()
+        activate('#replay-scenes')
+        expect(page.locator('.replay-frame')).to_be_visible()
+        activate('#gallery-back')
         page.goto(base+'/director.html')
         frames = page.locator('article img')
         expect(frames).to_have_count(28)
@@ -66,8 +102,9 @@ def run(profile, base):
         assert len({url for url, _ in decoded}) == 28
         assert all(width >= 640 for _, width in decoded)
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
-        page.get_by_role('link', name='Play HIRE.EXE').click()
-        activate('#start-game')
+        page.get_by_role('link', name='Play HIREME.EXE').click()
+        launch()
+        activate('#title-play')
         assert page.locator('#comic-title').inner_text() == 'One PDF'
         for _ in range(4):
             activate('#scene-next')
@@ -122,12 +159,14 @@ def run(profile, base):
 
         # Picking a later world must offer its intro once, including after reload.
         page.goto(base)
+        launch()
         activate('#choose-world')
         activate('#world-2')
         expect(page.locator('#comic-title')).to_have_text('Both of them')
         activate('#scene-skip')
         assert page.evaluate('HIRED_APP.state.levelIndex === 2')
         page.reload()
+        launch()
         activate('#choose-world')
         activate('#world-2')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 2")
@@ -137,18 +176,30 @@ def run(profile, base):
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
-        activate('#start-game')
+        launch()
+        activate('#title-play')
         expect(page.locator('#comic-title')).to_have_text('A quick addition')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v5/city-1\.webp'))
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
+        activate('#pause-button')
+        activate('#pause-home')
+        activate('#desk-sub')
+        activate('#sea-start')
+        expect(page.locator('#sea-status')).to_have_text('Clipped a harbour gate. Have another go.', timeout=12000)
+        activate('#dialog-close')
+        launch()
+        activate('#title-play')
+        assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
+
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
             JSON.stringify({lastLevel:3,pendingScene:4,results:{
                 0:{completed:true},1:{completed:true},2:{completed:true},3:{completed:true}
             }}))''')
         page.reload()
-        activate('#start-game')
+        launch()
+        activate('#title-play')
         expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
         expect(page.locator('#comic-dialogue strong').first).to_have_text('James')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-1\.webp'))
@@ -189,10 +240,11 @@ def run(profile, base):
         context.route(re.compile(r'^https?://'), reject_network)
         page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
-        assert page.evaluate('HIRED_APP.assets.failed.length') == 0
         assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
-        activate('#start-game')
+        launch()
+        activate('#title-play')
+        assert page.evaluate('HIRED_APP.assets.failed.length') == 0
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')
         expect(page.locator('#comic-dialogue p').last).to_have_text(

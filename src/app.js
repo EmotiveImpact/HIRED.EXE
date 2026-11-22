@@ -40,6 +40,7 @@
       const record = saved.checkpoint;
       if (record?.level === progress.lastLevel && H.LEVELS[record.level].checkpoints.some(cp => cp.id === record.checkpoint))
         progress.checkpoint = record;
+      progress.delivered = saved.delivered === true;
       progress.muted = saved.muted === true;
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
@@ -66,6 +67,8 @@
   let interviewIndex=0, interviewChoice=null;
   let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
+  let desktopReturn=null, titleBack=null, artworkLoad=null, assetReport=null;
+  const bootKey='hire.exe:windows311:started';
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
   let helpBack=showHome, portfolioBack=showHome, worldsBack=showHome;
@@ -93,6 +96,17 @@
   }
   function setMode(mode) {
     uiMode=mode;
+    if(!['boot','home','calculator','sea-trial','desktop-portfolio'].includes(mode))desktopReturn=null;
+    const utility=mode==='calculator'||mode==='sea-trial'||mode==='desktop-portfolio';
+    const desktop=mode==='home'||utility||mode==='boot';
+    $('os-shell').hidden=!desktop;
+    $('game-window').hidden=desktop;
+    $('os-dialog').hidden=!utility;
+    $('os-files').inert=utility;
+    if(!utility)$('os-dialog').replaceChildren();
+    if(desktop)$('overlay').replaceChildren();
+    if(desktop && document.fullscreenElement===$('game-window'))document.exitFullscreen().catch(()=>{});
+
     audio.syncMusic();
     if (renderer) renderer.canvas.width = compact.matches && mode !== 'home' ? 480 : H.WIDTH;
     game.viewWidth = compact.matches ? 480 : H.WIDTH;
@@ -110,29 +124,152 @@
   function bindActions(actions) {
     for (const [id,fn] of Object.entries(actions)) {const el=$(id); if(el)el.addEventListener('click',fn);}
   }
-  function focusDialog() { requestAnimationFrame(()=>$('overlay').querySelector('button,a,input')?.focus({preventScroll:true})); }
+  function activeSurface(){
+    if(uiMode==='home')return $('os-files');
+    return $('os-dialog').hidden ? $('overlay') : $('os-dialog');
+  }
+  function focusDialog() { requestAnimationFrame(()=>activeSurface().querySelector('button,a,input')?.focus({preventScroll:true})); }
   function modal(title,body,wide=false,onClose=showHome) {
-    $('overlay').className='overlay';
-    $('overlay').setAttribute('aria-label',title);
-    $('overlay').innerHTML=`<section class="modal-window ${wide?'wide':''}"><header class="small-title"><span>${esc(title)}</span><button id="dialog-close" aria-label="Close this window">×</button></header><div class="modal-body">${body}</div></section>`;
-    $('dialog-close').addEventListener('click',onClose);focusDialog();
+    activeSurface().className='overlay';
+    activeSurface().setAttribute('aria-label',title);
+    activeSurface().innerHTML=`<section class="modal-window ${wide?'wide':''}"><header class="small-title"><span>${esc(title)}</span><button id="dialog-close" aria-label="Close this window">×</button></header><div class="modal-body">${body}</div></section>`;
+    activeSurface().querySelector('#dialog-close').addEventListener('click',onClose);focusDialog();
+  }
+  function openMenu(menu){
+    for(const item of menu.parentElement.children)item.open=item===menu;
+  }
+  document.addEventListener('pointerdown',event=>{
+    const menu=event.target.closest?.('.pm-menu details');
+    for(const item of document.querySelectorAll('.pm-menu details[open]')){
+      if(item!==menu)item.open=false;
+    }
+  });
+  document.addEventListener('focusin',event=>{
+    if(!event.target.closest?.('.pm-menu')){
+      document.querySelectorAll('.pm-menu details[open]').forEach(item=>item.open=false);
+    }
+  });
+  function setupMenus(nav){
+    nav.onkeydown=event=>{
+      const menu=event.target.closest('details');
+      if(!menu)return;
+      const summary=menu.querySelector('summary'), buttons=[...menu.querySelectorAll('button')];
+      const menus=[...nav.children], index=menus.indexOf(menu);
+      const current=buttons.indexOf(document.activeElement);
+      switch(event.key){
+        case 'Escape': menu.open=false;summary.focus();break;
+        case 'ArrowDown': case 'ArrowUp':
+          openMenu(menu);
+          buttons[current<0?(event.key==='ArrowDown'?0:buttons.length-1):(current+(event.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length].focus();break;
+        case 'ArrowLeft': case 'ArrowRight': {
+          const next=menus[(index+(event.key==='ArrowRight'?1:-1)+menus.length)%menus.length];
+          if(menu.open)openMenu(next);
+          next.querySelector('summary').focus();break;
+        }
+        default:return;
+      }
+      event.preventDefault();event.stopPropagation();
+    };
+    nav.onclick=event=>{
+      const heading=event.target.closest('summary');
+      if(!heading)return;
+      event.preventDefault();
+      const menu=heading.parentElement;
+      if(menu.open)menu.open=false;else openMenu(menu);
+    };
   }
   function showHome() {
     setMode('home');
     $('status').textContent='Ready to play';
-    $('overlay').className='overlay home-overlay';
-    $('overlay').setAttribute('aria-label','Main menu');
-    const hasProgress=Object.keys(progress.results).length>0||progress.lastLevel>0||!!progress.checkpoint;
+    const hasProgress=Object.keys(progress.results).length>0||progress.seenIntros.length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    $('overlay').innerHTML=`<div class="home-content"><div class="edition-pill">${esc(E.editionLabel)}</div><h1 class="game-logo">HIRE<em>.EXE</em></h1><h2>The application is the application.</h2><p class="home-copy">${esc(E.intro)}</p><div class="home-buttons"><button class="btn primary" id="start-game">${hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':progress.pendingScene?'Continue the story':progress.results[3]?'Revisit the interview':hasProgress?'Continue the journey':'Play the application'}</button><div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('home-cv')}${globalThis.HIRED_EMBEDDED_ASSETS||!E.interviewer?'':'<a href="cutscenes.html" target="_blank" rel="noopener">Read the cutscenes</a>'}</div></div></div>`;
-    bindActions({'start-game':()=>{
-      if(hasRun)resume();
+    const unlocked=progress.seenIntros.includes(H.LEVELS[1].id)||Boolean(progress.results[1]);
+    const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
+    // CALC001.PNG, archived Windows 3.x Calculator resource:
+    // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
+    $('os-files').innerHTML=`<section class="program-manager"><header class="pm-caption"><span aria-hidden="true">−</span>Program Manager</header>
+      <nav class="pm-menu" aria-label="Program Manager menus">
+      <details><summary>File</summary><div class="pm-popup"><button id="attachment-launch">Open HIREME.EXE</button></div></details>
+      <details><summary>Options</summary><div class="pm-popup"><button id="pm-reboot">Replay startup</button></div></details>
+      <details><summary>Window</summary><div class="pm-popup"><button id="pm-apps">${esc(E.applicant)}</button><button id="pm-accessories">Accessories</button></div></details>
+      <details><summary>Help</summary><div class="pm-popup"><button id="pm-about">About Program Manager</button></div></details></nav>
+      <div class="pm-workspace"><section class="pm-group"><h2>${esc(E.applicant)}</h2><div class="desk-files">
+      <button id="start-game" title="Double-click to open, or press Enter"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIREME.EXE</strong><small>${launchLabel}</small></button>
+      ${cvLink('home-cv','desk-doc')}<button id="skip-portfolio" class="pm-document">Portfolio</button>
+      ${unlocked?'<button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>':''}
+      </div></section><div class="pm-folders">
+      <details id="accessories-group"><summary>Accessories</summary><div class="desk-files"><button id="desk-calc"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">Calculator</button></div></details>
+      ${E.id==='solved-001'?'<details id="internet-group"><summary>Internet</summary><div class="desk-files"><a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator</a></div></details>':''}
+      </div></div></section>`;
+    $('home-cv').textContent=E.applicant+'’s CV';
+    setupMenus($('os-files').querySelector('.pm-menu'));
+    function closeMenus(){ $('os-files').querySelectorAll('nav details').forEach(menu=>menu.open=false); }
+    $('pm-reboot').onclick=async()=>{closeMenus();await runStartup(true);$('start-game').focus();};
+    $('pm-apps').onclick=()=>{closeMenus();$('start-game').focus();};
+    $('pm-accessories').onclick=()=>{closeMenus();$('accessories-group').open=true;$('desk-calc').focus();};
+    $('pm-about').onclick=()=>{closeMenus();setMode('calculator');modal('About Program Manager','<p>Windows for Workgroups 3.11 desktop recreation.</p>');};
+    $('attachment-launch').onclick=()=>{closeMenus();launch();};
+    $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
+    if(unlocked)$('desk-sub').onclick=()=>{setMode('sea-trial');H.seaTrial(modal,()=>{progress.delivered=true;save();});};
+    const reopen=desktopReturn;
+    function play(){
+      if(reopen){reopen();}
+      else if(hasRun)resume();
       else if(progress.pendingScene)beginScene(progress.pendingScene);
       else if(progress.results[3]&&!progress.checkpoint)beginScene(H.LEVELS.length);
       else if(progress.checkpoint)startLevel(progress.lastLevel,progress.checkpoint);
       else if(hasProgress)beginScene(progress.lastLevel);
       else beginScene(0);
-    },'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+    }
+    function launch(){launchTitle(play,hasRun||hasProgress||!!reopen);}
+    const icon=$('start-game');
+    let touchLaunch=false;
+    icon.onpointerdown=e=>{touchLaunch=e.pointerType!=='mouse';};
+    icon.onclick=e=>{if(e.detail===0||touchLaunch)launch();};
+    icon.ondblclick=()=>{if(uiMode==='home')launch();};
+    $('skip-portfolio').onclick=()=>showPortfolio('home');
+    requestAnimationFrame(()=>{if(uiMode==='home')icon.focus({preventScroll:true});});
+  }
+  let launchNumber=0;
+  function loadArtwork(){
+    if(!artworkLoad)artworkLoad=renderer.load().then(report=>assetReport=report).catch(error=>{artworkLoad=null;throw error;});
+    return artworkLoad;
+  }
+  async function launchTitle(play,continuing){
+    const launch=++launchNumber;
+    setMode('game-load');
+    const layer=$('overlay');
+    layer.className='overlay game-launch';
+    layer.setAttribute('aria-label','Loading HIREME.EXE');
+    layer.innerHTML='<section class="load-card"><strong>Loading HIREME.EXE</strong><progress aria-label="Loading game artwork"></progress></section>';
+    try{await loadArtwork();}catch{
+      if(launch===launchNumber&&uiMode==='game-load'){
+        modal('HIREME.EXE','<p>The game artwork could not load.</p><button class="btn" id="retry-launch">Try again</button>');
+        $('retry-launch').onclick=()=>launchTitle(play,continuing);
+      }
+      return;
+    }
+    if(launch!==launchNumber||uiMode!=='game-load')return;
+    function title(){
+      setMode('title');titleBack=title;
+      layer.className='overlay game-title';
+      layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
+      layer.setAttribute('aria-label','HIREME.EXE title screen');
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIREME<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      $('title-play').onclick=play;
+      $('choose-world').onclick=()=>showWorlds(title);
+      $('replay-scenes').onclick=()=>gallery(0);
+      focusDialog();
+    }
+    const panels=H.SCENES.flatMap(scene=>scene.beats.filter(beat=>beat.image));
+    function gallery(i){
+      setMode('gallery');
+      if(!panels.length){modal('Cutscenes','<p>No illustrated panels in this edition.</p>',false,title);return;}
+      const beat=panels[i];
+      modal('Cutscenes',`<img class="replay-frame" src="${asset(beat.image)}" alt="${esc(beat.alt)}"><p>${i+1} / ${panels.length} · ${esc(beat.alt)}</p>${(beat.dialogue||[]).map(([name,line])=>`<p><strong>${esc(name)}</strong> ${esc(line)}</p>`).join('')}<div class="modal-actions"><button class="btn" id="gallery-prev" ${i?'':'disabled'}>Previous</button><button class="btn" id="gallery-next" ${i+1===panels.length?'disabled':''}>Next</button><button class="btn" id="gallery-back">Title screen</button></div>`,true,title);
+      bindActions({'gallery-prev':()=>gallery(i-1),'gallery-next':()=>gallery(i+1),'gallery-back':title});
+    }
+    title();
   }
   function beginScene(index) {
     if(H.LEVELS[index] && progress.seenIntros.includes(H.LEVELS[index].id)){
@@ -186,7 +323,7 @@
       new Image().src=asset(upcoming.image || H.PANELS.folder+upcoming.panel+'.jpg');
     }
     const line=(!E.interviewer && beat.neutralLine) || beat.line;
-    const dialogue=beat.dialogue ? beat.dialogue.map(([who,words])=>`<strong>${esc(who)}</strong><p>${esc(words)}</p>`).join('') : line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
+    const dialogue=beat.dialogue ? beat.dialogue.map(([who,words])=>`<strong>${esc(who)}</strong><p>${esc(progress.delivered && beat.panel==='office-1' && words==='Still in beta.' ? 'Yes. The calculator’s collection only now.' : words)}</p>`).join('') : line?`<strong>${esc(speaker)}</strong><p>${esc(line)}</p>`:'';
     const response=beat.reply?`<strong>${esc(E.applicant.split(' ')[0])}</strong><p>${esc(beat.reply)}</p>`:'';
     const overlay=$('overlay');
     overlay.className='overlay comic-overlay';
@@ -224,7 +361,7 @@
     H.LEVELS.forEach((_,i)=>$('world-'+i).addEventListener('click',()=>beginScene(i)));bindAssist();
   }
   function startLevel(index, checkpoint=null) {
-    if(!ready)return;
+    if(!assetReport)return;
     audio.beat=0;
     game.start(index,{assist:progress.assist});
     if (!game.restoreCheckpoint(checkpoint)) delete progress.checkpoint;
@@ -246,12 +383,13 @@
   function showPause() {
     if(!game.state||game.state.mode!=='playing'){showHome();return;}
     setMode('pause');$('status').textContent='Paused. Take your time.';
-    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>Paused.</h2><p class="muted">Everything’s where you left it. Including the enemies.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Main menu</button><button class="btn" id="pause-portfolio">Portfolio</button></div>`,false,resume);
+    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>Paused.</h2><p class="muted">Everything’s where you left it. Including the enemies.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Back to desktop</button><button class="btn" id="pause-portfolio">Portfolio</button></div>`,false,resume);
     bindActions({'resume-game':resume,'restart-level':()=>startLevel(game.state.levelIndex),'pause-worlds':showWorlds,'pause-help':()=>showHelp('pause'),'pause-home':showHome,'pause-portfolio':()=>showPortfolio('pause')});bindAssist();
   }
   function returnTo(mode) {
     if(typeof mode==='function'){mode();return;}
     if(mode==='playing'||mode==='pause')showPause();
+    else if((mode==='title'||mode==='gallery')&&titleBack)titleBack();
     else if(mode==='worlds')showWorlds(worldsBack);
     else if(mode==='complete')showComplete();
     else if(mode==='scene')showScene();
@@ -277,7 +415,7 @@
   }
   function showPortfolio(from=uiMode) {
     const back=from==='portfolio'?portfolioBack:captureReturn(from);portfolioBack=back;
-    setMode('portfolio');
+    setMode(from==='home'?'desktop-portfolio':'portfolio');
     const contact=safeLink(E.contactUrl);
     const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
     const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
@@ -329,11 +467,11 @@
     let contact = safeLink(E.contactUrl);
     if (contact?.startsWith('mailto:')) {
       const draft = new URL(contact);
-      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIRE.EXE'].filter(Boolean).join(' / '));
-      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
+      draft.searchParams.set('subject', [E.company, E.role, project?.name || 'HIREME.EXE'].filter(Boolean).join(' / '));
+      draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIREME.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Main menu</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIREME.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -433,7 +571,7 @@
   }
   function frame(now) {
     const dt=previousTime?Math.min(.1,(now-previousTime)/1000):0;previousTime=now;
-    if(ready){
+    if(assetReport && !$('game-window').hidden){
       if(uiMode==='playing'){game.step(inputs(),dt);events();updateHud();}
       const s=uiMode==='home'||!game.state?preview.state:game.state;
       if(s===preview.state)s.player.animationTime=now/16.6667;
@@ -443,11 +581,11 @@
   }
 
   document.addEventListener('keydown',e=>{
-    if(uiMode==='boot'||e.ctrlKey||e.metaKey||e.altKey)return;
+    if(!$('dos-start').hidden||uiMode==='boot'||e.ctrlKey||e.metaKey||e.altKey)return;
     // Keep keyboard focus inside the current modal.
-    if(e.code==='Tab'&&uiMode!=='playing'){
-      const focusable=[...$('overlay').querySelectorAll('button:not([disabled]),a[href],input')];
-      if(focusable.length){const first=focusable[0],last=focusable.at(-1);if(!$('overlay').contains(document.activeElement)){e.preventDefault();(e.shiftKey?last:first).focus();}else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
+    if(e.code==='Tab'&&uiMode!=='playing'&&uiMode!=='home'){
+      const focusable=[...activeSurface().querySelectorAll('button:not([disabled]),a[href],input')];
+      if(focusable.length){const first=focusable[0],last=focusable.at(-1);if(!activeSurface().contains(document.activeElement)){e.preventDefault();(e.shiftKey?last:first).focus();}else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
     }
     if(['Escape','KeyP'].includes(e.code)&&!e.repeat){e.preventDefault();if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();else if(e.code==='Escape')(uiMode==='scene'?$('scene-skip'):$('dialog-close'))?.click();return;}
     if(uiMode!=='playing')return;
@@ -466,10 +604,10 @@
     button.addEventListener('pointerup',release);button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);
     button.addEventListener('contextmenu',e=>e.preventDefault());
   });
-  $('worlds-button').addEventListener('click',()=>ready&&showWorlds());
+  $('worlds-button').addEventListener('click',()=>assetReport&&showWorlds());
   $('portfolio-button').addEventListener('click',()=>ready&&showPortfolio());
   $('help-button').addEventListener('click',()=>ready&&showHelp());
-  $('home').addEventListener('click',()=>{if(ready){if(uiMode==='playing')showPause();else showHome();}});
+  $('home').addEventListener('click',()=>{if(ready){desktopReturn=['title','game-load'].includes(uiMode)?null:captureReturn(uiMode);showHome();}});
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
   updateSound();
   const unlockAudio=event=>{
@@ -481,25 +619,58 @@
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('title-edition').textContent=E.editionLabel;
   $('art-book-link').search = globalThis.location.search;
-  document.title='HIRE.EXE | '+E.applicant;
+  document.title='HIREME.EXE | '+E.applicant;
 
-  async function boot() {
-    try {
-      renderer=new H.Renderer($('game'));
-      const report=await renderer.load();
-      ready=true;$('loading').classList.add('hidden');showHome();
-      // Read-only diagnostic surface for browser checks. Mutating controls live in the UI.
-      globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return report;},get progress(){return JSON.parse(JSON.stringify(progress));}};
-      requestAnimationFrame(frame);
-    } catch(error) {
-      $('loading-text').textContent='The game assets could not be opened.';
-      $('loading').querySelector('.loading-track').style.display='none';
-      const small=$('loading').querySelector('small');
-      small.textContent='Open the complete folder, or use HIRE-EXE-v0.4-PLAY.html, which includes every game asset.';
-      const retry=document.createElement('button');retry.className='btn';retry.textContent='Try again';retry.addEventListener('click',()=>location.reload());small.after(retry);
-      $('status').textContent='Loading error: '+error.message;
-      console.error('HIRE.EXE loading failed',error);
+  function dosStartup(){
+    return new Promise(resolve=>{
+      const prompt=$('dos-prompt'), state=$('dos-state'), skip=$('dos-skip');
+      const timers=[];
+      function finish(){
+        timers.forEach(clearTimeout);
+        document.removeEventListener('keydown',shortcut);
+        skip.onclick=null;
+        prompt.textContent='C:\\>WIN';
+        state.textContent='Starting Windows 3.11…';
+        skip.hidden=true;
+        resolve();
+      }
+      function shortcut(e){if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();finish();}}
+      skip.onclick=finish;
+      document.addEventListener('keydown',shortcut);
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
+      ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
+        timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
+      });
+      timers.push(setTimeout(()=>{state.textContent='Starting Windows 3.11…';},1300));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1500));
+      timers.push(setTimeout(finish,2800));
+    });
+  }
+
+  function revealDesktop(){
+    $('dos-start').hidden=true;
+    $('desktop').inert=false;
+  }
+
+  async function runStartup(force=false){
+    let seen=false;
+    try{seen=localStorage.getItem(bootKey)==='1';}catch{}
+    if(force||!seen){
+      const screen=$('dos-start');
+      screen.hidden=false;screen.classList.remove('windows-splash');
+      $('dos-skip').hidden=false;$('dos-state').textContent='';$('dos-prompt').textContent='';
+      $('desktop').inert=true;
+      await dosStartup();
+      try{localStorage.setItem(bootKey,'1');}catch{}
     }
+    revealDesktop();
+  }
+  async function boot(){
+    renderer=new H.Renderer($('game'));
+    await runStartup();
+    ready=true;$('loading').classList.add('hidden');showHome();
+    globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return assetReport;},get progress(){return JSON.parse(JSON.stringify(progress));}};
+    requestAnimationFrame(frame);
   }
   boot();
 })();

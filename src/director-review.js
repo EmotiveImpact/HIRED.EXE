@@ -43,6 +43,6 @@ directorScenes.forEach(({title,place,cue,shots},s)=>{
 });
 byId('filter').onchange=refresh;
 byId('download').onclick=()=>{
-  const report={edition:'HIRE.EXE director review · worlds v4',shots:records.map(({num,id,place,shot})=>({number:num,id,place,shot,decision:votes[id]?.vote||'Unreviewed',direction:votes[id]?.note||''}))};
+  const report={edition:'HIREME.EXE director review · worlds v4',shots:records.map(({num,id,place,shot})=>({number:num,id,place,shot,decision:votes[id]?.vote||'Unreviewed',direction:votes[id]?.note||''}))};
   const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'})),a=el('a');a.href=url;a.download='HIRE-EXE-director-notes.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);
 };refresh();
