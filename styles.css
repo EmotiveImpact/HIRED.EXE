@@ -261,3 +261,21 @@
 .calc-keys [data-key="0"]{grid-column:span 2}
 .standard-calc details{font:13px monospace;margin-top:10px}
 .calc-history{max-height:80px;overflow:auto;padding-left:22px}
+.program-manager{margin:clamp(5px,3vw,38px) auto;width:min(810px,98%);background:#c0c0c0;border:3px ridge #eee;color:#000;font:15px Arial,sans-serif;box-shadow:3px 3px #111}
+.pm-caption,.pm-group h2{margin:0;background:#000080;color:white;text-align:center;font:bold 15px Arial,sans-serif;padding:4px}
+.pm-caption span{float:left;background:silver;border:1px outset white;color:black;width:20px;line-height:14px}
+.pm-menu{display:flex;background:white;border-bottom:1px solid black;position:relative;z-index:2}
+.pm-menu details{position:relative}.pm-menu summary{list-style:none;cursor:pointer;padding:4px 10px}.pm-menu summary::first-letter{text-decoration:underline}
+.pm-menu details[open]{background:#000080;color:white}.pm-menu details[open] button{position:relative;display:block;background:white;color:black;white-space:nowrap;text-align:left;width:100%;border:0;padding:5px}
+.pm-workspace{padding:18px;display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start;min-height:260px}
+.pm-group{background:white;border:3px ridge #ccc;box-shadow:1px 1px black}.pm-group h2{background:#686878}
+.pm-group:focus-within h2{background:navy}.pm-group .desk-files{padding:12px 6px;gap:4px}
+.pm-group .desk-files :is(button,a){font:13px Arial,sans-serif;color:black;min-width:0}
+.pm-group .desk-files :is(button,a):is(:hover,:focus-visible){background:navy;color:white}
+.pm-group .desk-files img{width:32px;height:32px}.pm-group small{font-size:11px}
+.program-manager .home-links{background:#ddd;padding:3px 12px;gap:14px;border-top:1px solid #888}.program-manager .home-links :is(button,a){color:black;font:13px Arial,sans-serif}
+.game-launch{display:grid;place-items:center;background:#161639}.load-card{display:grid;gap:12px;padding:18px 25px;background:silver;border:3px outset white;color:#13132c}.load-card progress{width:100%;accent-color:navy}
+.overlay.game-title{display:grid;place-items:center;text-align:center;color:white;background:linear-gradient(0deg,#171440ee,#17144066)}
+.game-title section{padding:12px}.game-title img{width:clamp(48px,9vw,90px);image-rendering:pixelated;border:3px solid white;box-shadow:4px 4px #21183b}.game-title h1{font:bold clamp(40px,9vw,112px)/1 monospace;letter-spacing:-.08em;margin:10px 0;text-shadow:4px 5px #252049}.game-title h1 span{color:#ffc956}.game-title p{margin:6px 0 15px}
+@media(max-width:600px){.pm-workspace{grid-template-columns:1fr;padding:10px;gap:10px;min-height:0}.pm-group .desk-files{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.pm-workspace.stacked{grid-template-columns:1fr}

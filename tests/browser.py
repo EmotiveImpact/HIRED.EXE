@@ -86,6 +86,7 @@ def run(profile, base):
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
         page.get_by_role('link', name='Play HIRE.EXE').click()
         activate('#start-game')
+        activate('#title-play')
         assert page.locator('#comic-title').inner_text() == 'One PDF'
         for _ in range(4):
             activate('#scene-next')
@@ -156,6 +157,7 @@ def run(profile, base):
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
         activate('#start-game')
+        activate('#title-play')
         expect(page.locator('#comic-title')).to_have_text('A quick addition')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v5/city-1\.webp'))
         activate('#scene-skip')
@@ -168,6 +170,7 @@ def run(profile, base):
         expect(page.locator('#sea-status')).to_have_text('Clipped a harbour gate. Have another go.', timeout=12000)
         activate('#dialog-close')
         activate('#start-game')
+        activate('#title-play')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
 
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
@@ -176,6 +179,7 @@ def run(profile, base):
             }}))''')
         page.reload()
         activate('#start-game')
+        activate('#title-play')
         expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
         expect(page.locator('#comic-dialogue strong').first).to_have_text('James')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-1\.webp'))
@@ -220,6 +224,7 @@ def run(profile, base):
         assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         activate('#start-game')
+        activate('#title-play')
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')
         expect(page.locator('#comic-dialogue p').last).to_have_text(

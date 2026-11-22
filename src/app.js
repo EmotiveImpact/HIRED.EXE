@@ -140,26 +140,65 @@
     const hasRun=game.state?.mode==='playing';
     const unlocked=progress.seenIntros.includes(H.LEVELS[1].id)||Boolean(progress.results[1]);
     const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
-    $('os-files').innerHTML=`<section class="desk-surface"><div class="desk-files">
+    // CALC001.PNG, archived Windows 3.x Calculator resource:
+    // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
+    $('os-files').innerHTML=`<section class="program-manager"><header class="pm-caption"><span aria-hidden="true">−</span>Program Manager</header>
+      <nav class="pm-menu" aria-label="Program Manager menus">
+      <details><summary>File</summary><button id="attachment-launch">Open HIRE.EXE</button></details>
+      <details><summary>Options</summary><button id="pm-arrange">Arrange groups</button></details>
+      <details><summary>Window</summary><button id="pm-apps">Applications</button><button id="pm-accessories">Accessories</button></details>
+      <details><summary>Help</summary><button id="pm-about">About Program Manager</button></details></nav>
+      <div class="pm-workspace"><section class="pm-group"><h2>Applications</h2><div class="desk-files">
       <button id="start-game"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIRE.EXE</strong><small>${launchLabel}</small></button>
-      <button id="desk-calc"><span class="desk-glyph" aria-hidden="true">±</span>Calculator</button>
       ${cvLink('home-cv','desk-doc')}
-      ${E.id==='solved-001'?'<a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator<small>Solved Studio ↗</small></a>':''}
+      ${E.id==='solved-001'?'<a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator</a>':''}
       ${unlocked?'<button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>':''}
-      </div><aside class="attachment"><div class="small-title">Application form</div><p>Please attach your CV.</p><button id="attachment-launch" class="btn">▣ HIRE.EXE ↗</button></aside>
+      </div></section><section class="pm-group"><h2>Accessories</h2><div class="desk-files">
+      <button id="desk-calc"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">Calculator</button></div></section></div>
       <div class="home-links"><button id="choose-world">Choose a world</button><button id="skip-portfolio">Portfolio</button>${globalThis.HIRED_EMBEDDED_ASSETS||!E.interviewer?'':'<a href="cutscenes.html" target="_blank" rel="noopener">Read the cutscenes</a>'}</div></section>`;
+    function selectGroup(id){$('os-files').querySelectorAll('details').forEach(menu=>menu.open=false);$(id).focus();}
+    $('pm-arrange').onclick=()=>{$('os-files').querySelector('.pm-workspace').classList.toggle('stacked');selectGroup('start-game');};
+    $('pm-apps').onclick=()=>selectGroup('start-game');
+    $('pm-accessories').onclick=()=>selectGroup('desk-calc');
+    $('pm-about').onclick=()=>{selectGroup('start-game');setMode('calculator');modal('About Program Manager','<p>Windows 3.11 desktop recreation for HIRE.EXE.</p>');};
     $('attachment-launch').onclick=()=>$('start-game').click();
     $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
     if(unlocked)$('desk-sub').onclick=()=>{setMode('sea-trial');H.seaTrial(modal,()=>{progress.delivered=true;save();});};
-    bindActions({'start-game':()=>{
-      if(desktopReturn){const reopen=desktopReturn;desktopReturn=null;reopen();}
+    const reopen=desktopReturn;
+    function play(){
+      if(reopen){reopen();}
       else if(hasRun)resume();
       else if(progress.pendingScene)beginScene(progress.pendingScene);
       else if(progress.results[3]&&!progress.checkpoint)beginScene(H.LEVELS.length);
       else if(progress.checkpoint)startLevel(progress.lastLevel,progress.checkpoint);
       else if(hasProgress)beginScene(progress.lastLevel);
       else beginScene(0);
-    },'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+    }
+    bindActions({'start-game':()=>launchTitle(play,hasRun||hasProgress||!!reopen),'choose-world':showWorlds,'skip-portfolio':()=>showPortfolio('home')});focusDialog();
+  }
+  let launchNumber=0;
+  async function launchTitle(play,continuing){
+    const launch=++launchNumber;
+    setMode('game-load');
+    const layer=$('overlay');
+    const scene=H.SCENES[progress.pendingScene ?? progress.lastLevel]?.beats[0];
+    const art=['assets/production/backgrounds/application-alley.webp','assets/production/characters/portrait-reference.png'];
+    if(scene?.image)art.push(scene.image);
+    layer.className='overlay game-launch';
+    layer.setAttribute('aria-label','Loading HIRE.EXE');
+    layer.innerHTML='<section class="load-card"><strong>Loading HIRE.EXE</strong><progress value="0" max="'+art.length+'"></progress><small>Opening game artwork…</small></section>';
+    const meter=layer.querySelector('progress');
+    await Promise.all([new Promise(resolve=>setTimeout(resolve,650)),...art.map(async path=>{
+      const img=new Image();img.src=asset(path);
+      try{await img.decode();}catch{/* The renderer supplies fallback artwork. */}
+      meter.value++;
+    })]);
+    if(launch!==launchNumber||uiMode!=='game-load')return;
+    setMode('title');
+    layer.className='overlay game-title';
+    layer.setAttribute('aria-label','HIRE.EXE title screen');
+    layer.innerHTML=`<section><img src="${asset(art[1])}" alt="Augustus"><h1>HIRE<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button></section>`;
+    $('title-play').onclick=play;focusDialog();
   }
   function beginScene(index) {
     if(H.LEVELS[index] && progress.seenIntros.includes(H.LEVELS[index].id)){
@@ -496,7 +535,7 @@
   $('worlds-button').addEventListener('click',()=>ready&&showWorlds());
   $('portfolio-button').addEventListener('click',()=>ready&&showPortfolio());
   $('help-button').addEventListener('click',()=>ready&&showHelp());
-  $('home').addEventListener('click',()=>{if(ready){desktopReturn=captureReturn(uiMode);showHome();}});
+  $('home').addEventListener('click',()=>{if(ready){desktopReturn=['title','game-load'].includes(uiMode)?null:captureReturn(uiMode);showHome();}});
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
   updateSound();
   const unlockAudio=event=>{
@@ -519,7 +558,7 @@
         document.removeEventListener('keydown',shortcut);
         skip.onclick=null;
         prompt.textContent='C:\\>WIN';
-        state.textContent='Starting Windows…';
+        state.textContent='Starting Windows 3.11…';
         skip.hidden=true;
         resolve();
       }
@@ -530,7 +569,7 @@
       ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
         timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
       });
-      timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
+      timers.push(setTimeout(()=>{state.textContent='Starting Windows 3.11…';},1300));
       timers.push(setTimeout(finish,2200));
     });
   }
