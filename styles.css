@@ -239,7 +239,7 @@
 .calc-display {display:block;background:#dee8ce;color:#172a24;text-align:right;padding:10px;font:bold 23px monospace}
 .calc-keys {display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
 .calc-keys button {min-height:34px}
-.sea-view {width:100%;display:block;image-rendering:pixelated;touch-action:none}
+.sea-view {width:100%;max-width:644px;margin:0 auto;display:block;image-rendering:pixelated;touch-action:none;border:2px solid #251A43;background:#0F2D52}
 .sea-dive,.sea-fire {touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .sea-controls {display:flex;gap:8px;flex-wrap:wrap}
 .sea-controls .sea-fire {margin-left:auto}
