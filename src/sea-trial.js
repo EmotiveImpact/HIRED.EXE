@@ -245,10 +245,11 @@
   })();
 
   H.seaTrial = function (modal, delivered) {
-    modal('Submarine (final).exe', '<h2>Sea Trial</h2><p>Deliver one calculator. Hold Dive or Space to descend. Release to rise through the harbour gates. Press Fire or X to shoot the targets.</p><canvas class="sea-view" width="' + W + '" height="' + VIEW + '" aria-label="Sea Trial: steer the submarine through the harbour gates"></canvas><p role="status" id="sea-status">Ready at the quay.</p><div class="sea-controls"><button class="btn primary" id="sea-start">Cast off</button><button class="btn sea-dive" disabled>Dive</button><button class="btn sea-fire" id="sea-fire" disabled>Fire</button></div>', true);
-    const canvas = document.querySelector('.sea-view'), ctx = canvas.getContext('2d');
-    const start = document.querySelector('#sea-start'), dive = document.querySelector('.sea-dive'), fire = document.querySelector('#sea-fire'), status = document.querySelector('#sea-status');
+    // The window is just the game: every control and instruction lives on the canvas.
+    modal('Submarine (final).exe', '<canvas class="sea-view" tabindex="0" width="' + W + '" height="' + VIEW + '" aria-label="Sea Trial. Deliver one calculator to the buoy. Press Space or tap to start. Hold Space or the left half to dive. Press X or tap the right half to fire."></canvas><p role="status" id="sea-status" class="sea-status">Ready at the quay.</p>', true);
+    const canvas = document.querySelector('.sea-view'), ctx = canvas.getContext('2d'), status = document.querySelector('#sea-status');
     const win = canvas.closest('.modal-window');
+    win.classList.add('sea-window');
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches, touch = matchMedia('(pointer: coarse)').matches;
     ctx.imageSmoothingEnabled = false;
     let distance = 0, depth = START_DEPTH, running = false, previous = 0, clock = 0, phase = 'title', phaseTime = 0;
@@ -281,8 +282,8 @@
       bubbles.push({x, y, vy:-25, big:false, wobble:1, world:true});
     }
 
-    function releaseControls() { diveKey = false; fireKey = false; fireQueued = false; divePointers.clear(); firePointers.clear(); fire.classList.remove('is-held'); }
-    function stop(message) { running = false; releaseControls(); shots = []; dive.disabled = true; fire.disabled = true; start.hidden = false; start.textContent = 'Try again'; status.textContent = message; }
+    function releaseControls() { diveKey = false; fireKey = false; fireQueued = false; divePointers.clear(); firePointers.clear(); }
+    function stop(message) { running = false; releaseControls(); shots = []; status.textContent = message; }
     function shoot() {
       shots.push({x: distance + SUB_X + 37, y: Math.round(depth)});
       cooldown = COOLDOWN; flash = 0.07; fireQueued = false; canvas.dataset.shots = ++fired;
@@ -329,7 +330,6 @@
         if (depth <= DEPTH_MIN + 3) {
           score += DELIVERY_POINTS; setPhase('win'); delivered();
           stop('Delivery complete. One pocket calculator. Targets hit: ' + hits + ' of ' + targets.length + '.');
-          start.textContent = 'Play again';
         } else status.textContent = 'Release Dive to surface beside the buoy.';
       }
     }
@@ -495,20 +495,31 @@
         disc(ctx, x + 3, y + 4, 3, on ? C.coral : '#5E5A8C'); disc(ctx, x + 3, y + 4, 2, on ? C.cream : '#8C86B8'); rect(x + 3, y + 4, 1, 1, on ? C.coral : '#5E5A8C');
       }
     }
+    function panel(x, y, w, h, label, hint) {
+      ctx.globalAlpha = 0.6; rect(x, y, w, h, C.outline); ctx.globalAlpha = 1;
+      rect(x, y, w, 1, C.lilac); rect(x, y + h - 1, w, 1, C.lilac); rect(x, y, 1, h, C.lilac); rect(x + w - 1, y, 1, h, C.lilac);
+      const big = text(label, 2, [C.cream, C.gold, C.gold, C.brickHi]), small = text(hint, 1, [C.cyan]);
+      at(big, x + (w - big.width) / 2, y + 10); at(small, x + (w - small.width) / 2, y + 34);
+    }
     function drawBanner() {
       const blinkOn = Math.floor(clock * 2.5) % 2 === 0;
+      const again = touch ? 'TAP TO ' : 'PRESS SPACE TO ';
       if (phase === 'title') {
-        centreText(text('SEA TRIAL', 3, [C.cream, C.gold, C.gold, C.brickHi, C.brickHi, C.brick]), 62);
-        if (blinkOn) centreText(text('CAST OFF TO START', 1, [C.cream]), 94);
-        centreText(text(touch ? 'HOLD DIVE   TAP FIRE' : 'DIVE: SPACE   FIRE: X', 1, [C.cyan]), 108);
+        // The controls stay on screen until the player starts.
+        centreText(text('SEA TRIAL', 3, [C.cream, C.gold, C.gold, C.brickHi, C.brickHi, C.brick]), 16);
+        centreText(text('STEER THROUGH THE GATES TO THE BUOY', 1, [C.cream]), 45);
+        if (blinkOn) centreText(text(again + 'START', 1, [C.gold]), 85);
+        panel(12, 96, 144, 54, 'DIVE', touch ? 'HOLD THIS SIDE' : 'HOLD SPACE');
+        panel(164, 96, 144, 54, 'FIRE', touch ? 'TAP THIS SIDE' : 'PRESS X');
       } else if (phase === 'go' && phaseTime < 1.2) {
         if (Math.floor(phaseTime * 8) % 2 === 0 || phaseTime < 0.6) centreText(text('GO!', 3, [C.cream, C.gold, C.gold, C.brickHi]), 66);
       } else if (phase === 'crash' && phaseTime > 0.4) {
         centreText(text('HULL CLIPPED', 3, [C.cream, C.coral, C.coral, C.brick]), 64);
-        if (blinkOn) centreText(text('TRY AGAIN', 1, [C.cream]), 96);
+        if (blinkOn && canStart()) centreText(text(again + 'TRY AGAIN', 1, [C.cream]), 96);
       } else if (phase === 'win' && phaseTime > 0.6) {
         centreText(text('DELIVERED!', 3, [C.cream, C.gold, C.gold, C.brickHi, C.brickHi, C.brick]), 62);
         centreText(text('TARGETS ' + hits + '/' + targets.length + '   SCORE ' + String(score).padStart(6, '0'), 1, [C.cyan]), 96);
+        if (blinkOn) centreText(text(again + 'PLAY AGAIN', 1, [C.cream]), 110);
       }
       if (running && distance >= FINISH - 40 && depth > DEPTH_MIN + 3 && blinkOn) {
         const x = BUOY - distance - 30;
@@ -532,35 +543,40 @@
       requestAnimationFrame(loop);
     }
 
-    start.onclick = () => {
+    // A crash or delivery holds the end screen briefly so a held key or thumb does not restart at once.
+    function canStart() { return !running && (phase === 'title' || phaseTime > 0.6); }
+    function begin() {
       distance = 0; depth = START_DEPTH; running = true; hits = 0; fired = 0; score = 0; cooldown = 0; flash = 0; hurt = 0;
       releaseControls(); shots = []; effects = []; pops = []; bubbles = [];
       targets = MARKS.map(t => ({...t, hit:false})); canvas.dataset.hits = 0; canvas.dataset.shots = 0; setPhase('go');
-      start.hidden = true; dive.disabled = false; fire.disabled = false; dive.focus(); status.textContent = 'Under way.';
-    };
-    for (const control of [dive, canvas]) {
-      control.onpointerdown = e => { if (running) { e.preventDefault(); dive.focus(); control.setPointerCapture(e.pointerId); divePointers.add(e.pointerId); } };
-      control.onpointerup = control.onlostpointercapture = control.onpointercancel = e => { divePointers.delete(e.pointerId); };
+      status.textContent = 'Under way.';
     }
-    // Fire is a separate control so one thumb can hold Dive while the other shoots.
-    fire.onpointerdown = e => {
-      if (!running || (e.pointerType === 'mouse' && e.button !== 0)) return;
-      e.preventDefault();
-      try { fire.setPointerCapture(e.pointerId); } catch (_) {}
-      firePointers.add(e.pointerId); fireQueued = true; fire.classList.add('is-held');
+    // On the canvas, the left half dives and the right half fires, so two thumbs can do both at once.
+    canvas.onpointerdown = e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      e.preventDefault(); canvas.focus({preventScroll:true});
+      if (!running) { if (!canStart()) return; begin(); }
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      const box = canvas.getBoundingClientRect();
+      if (e.clientX < box.left + box.width / 2) divePointers.add(e.pointerId);
+      else { firePointers.add(e.pointerId); fireQueued = true; }
     };
-    fire.onpointerup = fire.onlostpointercapture = fire.onpointercancel = e => { firePointers.delete(e.pointerId); if (!firePointers.size) fire.classList.remove('is-held'); };
-    fire.onclick = e => { if (running && e.detail === 0) fireQueued = true; };
-    fire.oncontextmenu = e => e.preventDefault();
-    dive.onkeydown = e => { if (e.code === 'Space') { e.preventDefault(); diveKey = true; } };
-    dive.onkeyup = e => { if (e.code === 'Space') { e.preventDefault(); diveKey = false; } };
-    dive.onblur = () => { diveKey = false; };
+    canvas.onpointerup = canvas.onlostpointercapture = canvas.onpointercancel = e => { divePointers.delete(e.pointerId); firePointers.delete(e.pointerId); };
+    canvas.oncontextmenu = e => e.preventDefault();
     win.addEventListener('keydown', e => {
-      if (e.code !== 'KeyX' || e.ctrlKey || e.metaKey || e.altKey || !running) return;
-      e.preventDefault(); if (!e.repeat) { fireKey = true; fireQueued = true; }
+      if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest('button')) return;
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        if (!running) { if (e.repeat || !canStart()) return; begin(); }
+        if (e.code === 'Space') diveKey = true;
+      } else if (e.code === 'KeyX' && running) {
+        e.preventDefault(); if (!e.repeat) { fireKey = true; fireQueued = true; }
+      }
     });
-    win.addEventListener('keyup', e => { if (e.code === 'KeyX') fireKey = false; });
-    win.addEventListener('focusout', e => { if (!win.contains(e.relatedTarget)) fireKey = false; });
+    win.addEventListener('keyup', e => { if (e.code === 'Space') diveKey = false; if (e.code === 'KeyX') fireKey = false; });
+    win.addEventListener('focusout', e => { if (!win.contains(e.relatedTarget)) { diveKey = false; fireKey = false; } });
+    // The dialog focuses its close button first; move focus to the game so Space works straight away.
+    requestAnimationFrame(() => canvas.focus({preventScroll:true}));
     requestAnimationFrame(loop);
   };
 })(globalThis.Hired);

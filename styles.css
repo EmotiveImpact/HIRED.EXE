@@ -239,12 +239,12 @@
 .calc-display {display:block;background:#dee8ce;color:#172a24;text-align:right;padding:10px;font:bold 23px monospace}
 .calc-keys {display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
 .calc-keys button {min-height:34px}
-.sea-view {width:100%;max-width:644px;margin:0 auto;display:block;image-rendering:pixelated;touch-action:none;border:2px solid #251A43;background:#0F2D52}
-.sea-dive,.sea-fire {touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.sea-controls {display:flex;gap:8px;flex-wrap:wrap}
-.sea-controls .sea-fire {margin-left:auto}
-.sea-fire.is-held {border-style:inset;box-shadow:1px 1px #11132e}
-@media(pointer:coarse){.sea-controls .btn{min-width:92px;min-height:52px;font-size:15px}}
+/* Sea Trial: the window hugs the 2x game canvas, and still fits a landscape phone. */
+.modal-window.sea-window {width:min(646px,100%);width:min(646px,100%,calc((100svh - 80px) * 16 / 9 + 6px))}
+.sea-window .modal-body {padding:0;overflow:hidden;position:relative;max-height:none}
+.sea-view {width:100%;display:block;image-rendering:pixelated;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;background:#0F2D52;cursor:pointer;outline:none}
+.sea-view:focus-visible {outline:3px solid #ffbe3d;outline-offset:-3px}
+.sea-status {position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(max-width:540px){.desk-surface{gap:12px;grid-template-columns:1fr}.desk-files{grid-template-columns:repeat(3,1fr)}.attachment{max-width:250px}.desk-surface .home-links{justify-content:flex-start}}
 
 #desktop [hidden] {display:none!important}
