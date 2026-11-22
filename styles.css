@@ -279,3 +279,22 @@
 .game-title section{padding:12px}.game-title img{width:clamp(48px,9vw,90px);image-rendering:pixelated;border:3px solid white;box-shadow:4px 4px #21183b}.game-title h1{font:bold clamp(40px,9vw,112px)/1 monospace;letter-spacing:-.08em;margin:10px 0;text-shadow:4px 5px #252049}.game-title h1 span{color:#ffc956}.game-title p{margin:6px 0 15px}
 @media(max-width:600px){.pm-workspace{grid-template-columns:1fr;padding:10px;gap:10px;min-height:0}.pm-group .desk-files{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .pm-workspace.stacked{grid-template-columns:1fr}
+.windows-brand{display:none}
+#dos-start.windows-splash{background:#efeee5;color:#141414}
+.windows-splash .dos-log{display:none}
+.windows-splash .windows-brand{margin:auto;display:flex;align-items:center;gap:22px;font-family:Georgia,serif}
+.windows-brand strong,.windows-brand small,.windows-brand span{display:block}.windows-brand strong{font-size:clamp(40px,8vw,86px);line-height:1}.windows-brand small{font:14px Arial,sans-serif;margin:4px 0}
+.windows-brand .window-mark{display:grid;grid-template:1fr 1fr / 1fr 1fr;width:70px;height:60px;gap:4px;background:black;padding:5px;transform:skewY(-12deg)}
+.window-mark i:nth-child(1){background:#ef4522}.window-mark i:nth-child(2){background:#5fa442}.window-mark i:nth-child(3){background:#2489c4}.window-mark i:nth-child(4){background:#edc548}
+.windows-splash #dos-skip{color:#222}
+.pm-workspace{display:block}.pm-group .desk-files{display:flex;flex-wrap:wrap}.pm-group .desk-files>*{width:104px}
+.pm-folders{display:flex;align-items:flex-start;gap:16px;margin-top:16px;color:#111}.pm-folders details{min-width:100px}.pm-folders summary{display:grid;justify-items:center;cursor:pointer;font-size:13px;list-style:none}.pm-folders summary:before{content:'';width:32px;height:23px;margin:6px;border:2px outset #eee;background:linear-gradient(navy 0 22%,white 22%);box-shadow:2px 2px black}
+.pm-folders details[open] .desk-files{padding:5px;background:white;border:2px ridge silver}.pm-folders .desk-files :is(a,button){color:black}
+.pm-document:before{content:'▤';display:grid;place-items:center;width:26px;height:32px;background:white;border:1px solid black;color:navy;font-size:23px}
+#start-game:focus strong{background:navy;color:white}
+#desktop:has(#os-shell:not([hidden])) .desktop-footer,#desktop:has(#os-shell:not([hidden])) .desktop-label{display:none}
+.overlay.game-title{position:absolute;display:flex;align-items:center;justify-content:flex-start;isolation:isolate;background:linear-gradient(90deg,#15142efa 0%,#191338c9 45%,transparent 82%),var(--title-scene) center/cover}
+.game-title .title-copy{width:65%;padding:clamp(12px,4vw,54px);text-align:left;z-index:1}.title-copy h1{white-space:nowrap;font-size:clamp(40px,8vw,100px)}.title-copy p{max-width:28ch}
+.title-hero{position:absolute;right:3%;bottom:12%;width:35%;height:70%;display:flex;align-items:flex-end;justify-content:center}.title-hero .title-actor{position:static;width:100%;max-height:100%;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(4px 4px 0 #1a173b88)}
+.title-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.title-links button{background:#161934c9;color:white;border:1px solid #a7a5ce;padding:7px}.replay-frame{display:block;width:100%;max-height:37vh;object-fit:contain}
+@media(max-width:540px){.game-title .title-copy{width:73%}.title-hero{right:0;bottom:18%}.pm-group .desk-files>*{width:86px}}
