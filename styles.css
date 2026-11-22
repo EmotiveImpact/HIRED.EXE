@@ -269,7 +269,6 @@
 .calc-history{max-height:80px;overflow:auto;padding-left:22px}
 .program-manager{margin:clamp(5px,3vw,38px) auto;width:min(810px,98%);background:#c0c0c0;border:3px ridge #eee;color:#000;font:15px Arial,sans-serif;box-shadow:3px 3px #111}
 .pm-caption,.pm-group h2{margin:0;background:#000080;color:white;text-align:center;font:bold 15px Arial,sans-serif;padding:4px}
-.pm-caption span{float:left;background:silver;border:1px outset white;color:black;width:20px;line-height:14px}
 .pm-menu{display:flex;background:white;border-bottom:1px solid black;position:relative;z-index:2}
 .pm-menu details{position:relative}.pm-menu summary{list-style:none;cursor:pointer;padding:4px 10px}.pm-menu summary::first-letter{text-decoration:underline}
 .pm-menu details[open]{background:#000080;color:white}.pm-popup{position:absolute;left:0;top:100%;min-width:max-content;background:#fff;color:#111;border:1px solid #111;box-shadow:2px 2px #555;padding:2px;z-index:5}
@@ -317,3 +316,45 @@
 .pm-folders{margin:12px 0 0}
 .game-title .title-copy h1{font-size:clamp(35px,7vw,88px)}
 @media(max-width:500px){.pm-workspace{padding:8px}.pm-group:has(#desk-sub) .desk-files{grid-template-columns:repeat(3,minmax(0,98px))}.pm-group .desk-files>*{width:auto}.pm-menu summary{padding:7px 10px}.pm-popup button{min-height:38px}}
+
+/* Working desktop: Program Manager moves, minimises to a desktop icon and
+   maximises; program groups open as child windows; utility windows move. */
+.program-manager{position:relative}
+.pm-caption{display:flex;align-items:center;gap:3px;padding:2px;position:relative;z-index:3}
+.pm-title{flex:1;text-align:center}
+.pm-caption>button,.pm-control>summary{flex:none;width:22px;height:20px;display:grid;place-items:center;padding:0;background:silver;border:2px outset #fff;color:#000;font:bold 11px/1 Arial,sans-serif;cursor:pointer}
+.pm-caption>button:active,.pm-control[open]>summary{border-style:inset}
+.pm-control{position:relative}
+.pm-control>summary{list-style:none;font-size:17px}
+.pm-control>summary::-webkit-details-marker{display:none}
+.pm-control .pm-popup{text-align:left;font-weight:normal}
+.pm-popup button:disabled{opacity:1;color:#8a8a8a;background:white;cursor:default}
+.program-manager.is-floating{position:absolute;margin:0;z-index:4;max-width:100%}
+.program-manager.is-max{position:absolute;inset:0;width:auto;min-width:0;max-width:none;margin:0;display:flex;flex-direction:column;z-index:4;box-shadow:none}
+.program-manager.is-max .pm-workspace{flex:1;overflow:auto}
+.program-manager.is-dragging{opacity:.94}
+.desk-min-icon{position:absolute;left:18px;bottom:18px;display:grid;justify-items:center;gap:5px;width:116px;padding:5px;background:transparent;border:1px solid transparent;color:#fff;font:13px Arial,sans-serif;text-align:center}
+.desk-min-icon:is(:hover,:focus-visible){background:navy;outline:1px dotted #fff;outline-offset:-1px}
+.pm-icon-art{display:grid;grid-template-columns:repeat(2,9px);gap:3px;place-content:center;width:38px;height:32px;padding-top:7px;border:2px outset #eee;background:linear-gradient(navy 0 26%,#fff 26%);box-shadow:2px 2px #111}
+.pm-icon-art i{width:9px;height:7px;background:#2c7f8c}.pm-icon-art i:nth-child(2){background:#f0b94f}.pm-icon-art i:nth-child(3){background:#c8504d}.pm-icon-art i:nth-child(4){background:navy}
+.pm-workspace{position:relative;isolation:isolate}
+.pm-group{position:relative}
+.pm-folders details[open]>summary{opacity:.55}
+.pm-child{position:absolute;top:10px;right:10px;z-index:5;min-width:150px;background:#fff;border:3px ridge #ccc;box-shadow:2px 2px #000;color:#000}
+#internet-group .pm-child{top:38px;right:26px}
+.pm-child h3{display:flex;align-items:center;gap:4px;margin:0;padding:2px 2px 2px 24px;background:navy;color:#fff;font:bold 13px Arial,sans-serif}
+.pm-child h3 span{flex:1;text-align:center}
+.pm-child-min{flex:none;width:20px;height:18px;padding:0;background:silver;border:2px outset #fff;color:#000;font:bold 10px/1 Arial,sans-serif}
+.pm-child-min:active{border-style:inset}
+.pm-folders details[open] .pm-child .desk-files{display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:transparent;border:0}
+.pm-child .desk-files>*{width:98px;font:13px Arial,sans-serif}
+.pm-child .desk-files :is(button,a):is(:hover,:focus-visible){background:navy;color:#fff;border-color:transparent}
+#os-dialog .modal-window.is-floating{position:absolute;margin:0}
+@media (pointer:fine){.pm-caption,.pm-child h3,#os-dialog .small-title{cursor:move}.program-manager.is-max .pm-caption{cursor:default}}
+@media (min-width:900px) and (min-height:620px){
+  .program-manager{width:min(780px,calc(100% - 48px));margin:clamp(24px,7vh,72px) auto 0}
+  .pm-workspace{min-height:min(46vh,380px);display:flex;flex-direction:column;align-items:flex-start;padding:16px}
+  .pm-folders{margin-top:auto;padding-top:16px}
+  .pm-child{top:16px;right:16px}
+  #internet-group .pm-child{top:50px;right:42px}
+}

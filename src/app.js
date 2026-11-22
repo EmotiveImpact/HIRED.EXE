@@ -134,6 +134,7 @@
     activeSurface().setAttribute('aria-label',title);
     activeSurface().innerHTML=`<section class="modal-window ${wide?'wide':''}"><header class="small-title"><span>${esc(title)}</span><button id="dialog-close" aria-label="Close this window">×</button></header><div class="modal-body">${body}</div></section>`;
     activeSurface().querySelector('#dialog-close').addEventListener('click',onClose);focusDialog();
+    if(activeSurface().id==='os-dialog')H.desktopDialog?.(activeSurface());
   }
   function openMenu(menu){
     for(const item of menu.parentElement.children)item.open=item===menu;
@@ -187,19 +188,19 @@
     const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
     // CALC001.PNG, archived Windows 3.x Calculator resource:
     // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
-    $('os-files').innerHTML=`<section class="program-manager"><header class="pm-caption"><span aria-hidden="true">−</span>Program Manager</header>
+    $('os-files').innerHTML=`<section class="program-manager" aria-label="Program Manager"><header class="pm-caption"><details class="pm-control"><summary aria-label="Program Manager window menu" title="Window menu">−</summary><div class="pm-popup"><button data-window="restore">Restore</button><button data-window="min">Minimise</button><button data-window="max">Maximise</button></div></details><span class="pm-title">Program Manager</span><button class="pm-min" aria-label="Minimise Program Manager" title="Minimise">▼</button><button class="pm-max" aria-label="Maximise Program Manager" title="Maximise">▲</button></header>
       <nav class="pm-menu" aria-label="Program Manager menus">
       <details><summary>File</summary><div class="pm-popup"><button id="attachment-launch">Open HIRE.EXE</button></div></details>
       <details><summary>Options</summary><div class="pm-popup"><button id="pm-reboot">Replay startup</button></div></details>
-      <details><summary>Window</summary><div class="pm-popup"><button id="pm-apps">${esc(E.applicant)}</button><button id="pm-accessories">Accessories</button></div></details>
+      <details><summary>Window</summary><div class="pm-popup"><button id="pm-apps">${esc(E.applicant)}</button><button id="pm-accessories">Accessories</button>${E.id==='solved-001'?'<button id="pm-internet">Internet</button>':''}</div></details>
       <details><summary>Help</summary><div class="pm-popup"><button id="pm-about">About Program Manager</button></div></details></nav>
       <div class="pm-workspace"><section class="pm-group"><h2>${esc(E.applicant)}</h2><div class="desk-files">
       <button id="start-game" title="Double-click to open, or press Enter"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIRE.EXE</strong><small>${launchLabel}</small></button>
       ${cvLink('home-cv','desk-doc')}<button id="skip-portfolio" class="pm-document">Portfolio</button>
       ${unlocked?'<button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>':''}
       </div></section><div class="pm-folders">
-      <details id="accessories-group"><summary>Accessories</summary><div class="desk-files"><button id="desk-calc"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">Calculator</button></div></details>
-      ${E.id==='solved-001'?'<details id="internet-group"><summary>Internet</summary><div class="desk-files"><a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator</a></div></details>':''}
+      <details id="accessories-group"><summary>Accessories</summary><section class="pm-child" aria-label="Accessories"><h3><span>Accessories</span><button class="pm-child-min" aria-label="Minimise Accessories" title="Minimise">▼</button></h3><div class="desk-files"><button id="desk-calc"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">Calculator</button></div></section></details>
+      ${E.id==='solved-001'?'<details id="internet-group"><summary>Internet</summary><section class="pm-child" aria-label="Internet"><h3><span>Internet</span><button class="pm-child-min" aria-label="Minimise Internet" title="Minimise">▼</button></h3><div class="desk-files"><a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator</a></div></section></details>':''}
       </div></div></section>`;
     $('home-cv').textContent=E.applicant+'’s CV';
     setupMenus($('os-files').querySelector('.pm-menu'));
@@ -207,6 +208,7 @@
     $('pm-reboot').onclick=async()=>{closeMenus();await runStartup(true);$('start-game').focus();};
     $('pm-apps').onclick=()=>{closeMenus();$('start-game').focus();};
     $('pm-accessories').onclick=()=>{closeMenus();$('accessories-group').open=true;$('desk-calc').focus();};
+    if($('pm-internet'))$('pm-internet').onclick=()=>{closeMenus();$('internet-group').open=true;$('desk-netscape').focus();};
     $('pm-about').onclick=()=>{closeMenus();setMode('calculator');modal('About Program Manager','<p>Windows for Workgroups 3.11 desktop recreation.</p>');};
     $('attachment-launch').onclick=()=>{closeMenus();launch();};
     $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
@@ -228,7 +230,8 @@
     icon.onclick=e=>{if(e.detail===0||touchLaunch)launch();};
     icon.ondblclick=()=>{if(uiMode==='home')launch();};
     $('skip-portfolio').onclick=()=>showPortfolio('home');
-    requestAnimationFrame(()=>{if(uiMode==='home')icon.focus({preventScroll:true});});
+    H.desktopWindows?.($('os-files'));
+    requestAnimationFrame(()=>{if(uiMode==='home')($('pm-icon')?.hidden===false?$('pm-icon'):icon).focus({preventScroll:true});});
   }
   let launchNumber=0;
   function loadArtwork(){
