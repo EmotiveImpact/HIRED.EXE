@@ -186,9 +186,11 @@ def run(profile, base):
         activate('#pause-button')
         activate('#pause-home')
         activate('#desk-sub')
-        activate('#sea-start')
-        # Fire is a separate control, so the submarine can dive and shoot together.
+        # The window is just the game. Its controls live on the canvas: Space or the left half
+        # dives, X or the right half fires, so the submarine can dive and shoot together.
         sea = page.locator('.sea-view')
+        expect(page.locator('#sea-start, .sea-dive, #sea-fire')).to_have_count(0)
+        expect(sea).to_be_focused()
         if profile == 'desktop':
             page.keyboard.down('Space')
             page.wait_for_timeout(150)
@@ -197,8 +199,8 @@ def run(profile, base):
             page.keyboard.up('x')
             page.keyboard.up('Space')
         elif profile == 'android':
-            boxes = [page.locator(s).bounding_box() for s in ('.sea-dive', '#sea-fire')]
-            points = [{'x':b['x']+b['width']/2, 'y':b['y']+b['height']/2, 'id':i} for i, b in enumerate(boxes, 1)]
+            box = sea.bounding_box()
+            points = [{'x':box['x']+box['width']*share, 'y':box['y']+box['height']/2, 'id':i} for i, share in ((1, 0.25), (2, 0.75))]
             cdp = context.new_cdp_session(page)
             cdp.send('Input.dispatchTouchEvent', {'type':'touchStart', 'touchPoints':points[:1]})
             page.wait_for_timeout(150)
@@ -206,7 +208,8 @@ def run(profile, base):
             page.wait_for_timeout(600)
             cdp.send('Input.dispatchTouchEvent', {'type':'touchEnd', 'touchPoints':[]})
         else:
-            activate('#sea-fire')
+            box = sea.bounding_box()
+            sea.tap(position={'x':box['width']*0.75, 'y':box['height']/2})
         expect(sea).to_have_attribute('data-shots', re.compile(r'^[1-9]'))
         if profile != 'iphone':
             expect(sea).to_have_attribute('data-hits', '1')

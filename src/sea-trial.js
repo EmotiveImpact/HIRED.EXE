@@ -4,10 +4,38 @@
   'use strict';
   const W = 320, VIEW = 180, SURFACE = 46, SEABED = 158;
   const SUB_X = 24, DEPTH_MIN = 50, DEPTH_MAX = 148, START_DEPTH = 86;
-  const SPEED = 22, DIVE = 48, RISE = 37, FINISH = 600, BUOY = 670;
-  const GATE_W = 14, GAP = 26, SHOT_SPEED = 190, COOLDOWN = 0.2, TARGET_POINTS = 250, DELIVERY_POINTS = 1000;
-  const GATES = [{x:160,y:106},{x:275,y:78},{x:390,y:112},{x:520,y:84}];
-  const MARKS = [{x:118,y:104},{x:236,y:124},{x:338,y:66},{x:458,y:130}];
+  const DIVE = 48, RISE = 37, GATE_W = 14, SHOT_SPEED = 190, COOLDOWN = 0.2, LIVES = 3;
+  const POINTS = {target: 250, mine: 100, patrol: 300, clear: 500, delivery: 1000};
+  const BEST_KEY = 'hired-exe:sea-trial:best';
+  // Five levels, each a little harder: faster, tighter gaps, then swaying gates, sea mines and
+  // patrol subs. A gate sways when it has amp (pixels) and rate (radians per second of the level).
+  // The buoy sits 70 px past each finish line. Only the last level ends with the calculator.
+  const g = (x, y, amp, rate, phase) => ({x, y, amp: amp || 0, rate: rate || 0, phase: phase || 0});
+  const xy = list => list.map(([x, y]) => ({x, y}));
+  const LEVELS = [
+    {name: 'Harbour Mouth', speed: 22, gap: 26, finish: 600,
+      gates: [g(160, 106), g(275, 78), g(390, 112), g(520, 84)],
+      marks: xy([[118, 104], [236, 124], [338, 66], [458, 130]])},
+    {name: 'Container Docks', speed: 25, gap: 24, finish: 850,
+      gates: [g(170, 100), g(290, 80), g(410, 116), g(525, 88), g(640, 118), g(750, 92)],
+      marks: xy([[232, 126], [350, 64], [470, 134], [585, 66], [695, 134]]),
+      mines: xy([[350, 98], [470, 98], [700, 104]])},
+    {name: 'Shipping Lane', speed: 27, gap: 23, finish: 870,
+      gates: [g(170, 96), g(290, 104, 12, 1.0), g(410, 84), g(530, 106, 13, 0.9, 1.5), g(650, 92, 11, 1.1, 3), g(770, 108)],
+      marks: xy([[232, 128], [350, 64], [470, 132], [590, 64], [710, 130]]),
+      mines: xy([[350, 100], [710, 100]]),
+      patrols: [{x: 470, y: 96, amp: 20, rate: 1.2, phase: 0}, {x: 590, y: 100, amp: 18, rate: 1.4, phase: 1}]},
+    {name: 'Dusk Crossing', speed: 29, gap: 23, finish: 960, dusk: true,
+      gates: [g(170, 100), g(285, 88, 12, 1.1, 0.5), g(400, 108, 11, 1.2, 2), g(515, 86), g(630, 104, 13, 1.0, 1), g(745, 92, 12, 1.1, 2.5), g(860, 106)],
+      marks: xy([[228, 130], [342, 64], [457, 134], [572, 66], [687, 134], [802, 64]]),
+      mines: xy([[228, 98], [572, 96], [802, 100]]),
+      patrols: [{x: 457, y: 98, amp: 22, rate: 1.1, phase: 0}, {x: 687, y: 98, amp: 20, rate: 1.3, phase: 2}]},
+    {name: 'The Last Mile', speed: 31, gap: 22, finish: 1075, final: true,
+      gates: [g(170, 96), g(285, 108, 12, 1.1), g(400, 84, 11, 1.2, 1), g(515, 104), g(630, 90, 13, 1.0, 2), g(745, 106, 12, 1.1, 0.5), g(860, 88, 11, 1.2, 3), g(975, 100)],
+      marks: xy([[227, 130], [342, 64], [457, 134], [572, 66], [687, 134], [802, 64]]),
+      mines: xy([[227, 98], [457, 94], [687, 100], [917, 94]]),
+      patrols: [{x: 342, y: 98, amp: 20, rate: 1.3, phase: 0}, {x: 572, y: 96, amp: 22, rate: 1.2, phase: 1}, {x: 802, y: 96, amp: 20, rate: 1.4, phase: 2}]}
+  ];
   const C = {
     outline:'#251A43', deep:'#343064', lilac:'#B8ADF0', cyan:'#45DDFC', teal:'#17AFA8', darkTeal:'#0E7F86',
     gold:'#FFD35A', cream:'#FFF1CF', coral:'#FA5777', brickHi:'#F39A60', brick:'#BD594F', white:'#FFFFFF',
@@ -138,7 +166,36 @@
     if (x >= 2 && x <= 6 && y >= 0 && y <= 3 && !((x === 6 || x === 2) && (y === 0 || y === 3))) return x === 5 && y === 1 ? '#251A43' : y === 0 ? '#E9A06E' : y === 3 ? '#9B5636' : '#C9774F';
     return null;
   }, null));
-  const SUBS = [0, 1, 2].map(subSprite), TARGET = targetSprite(), BUOYS = [buoySprite(true), buoySprite(false)];
+  const MINE = paint(15, 15, (x, y) => {
+    const dx = x - 7, dy = y - 7, d = Math.hypot(dx, dy);
+    if (d <= 4.9) { const lit = dx + dy < -3, shade = dx + dy > 2; return lit ? C.lilac : shade ? '#4A2F5E' : '#7A5A93'; }
+    if (d <= 7.3 && (dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy))) return d > 6.2 ? C.cream : '#B8ADF0';
+    return null;
+  });
+  // The rival patrol sub faces left, towards the player, in warm brick.
+  function patrolSprite(frame) {
+    return paint(24, 12, (x, y) => {
+      if (y <= 1 && x >= 10 && x <= 11) return '#8C86B8';
+      if (y >= 2 && y <= 4 && x >= 9 && x <= 14) return y === 2 ? C.brickHi : x >= 13 ? '#7A2E46' : C.brick;
+      if (x >= 21 && x <= 23) {
+        if (x === 21 && y >= 7 && y <= 9) return '#8C86B8';
+        if (frame === 0 && x === 22 && y >= 4 && y <= 11) return y < 8 ? '#F4F2FD' : C.lilac;
+        if (frame === 1 && x === 23 && y >= 5 && y <= 10) return y < 8 ? '#F4F2FD' : C.lilac;
+        if (frame === 2 && x >= 22 && [5, 6, 10, 11].includes(y)) return '#D7D3EE';
+      }
+      const nx = (x + 0.5 - 11) / 10.5, ny = (y + 0.5 - 8) / 3.8;
+      if (nx * nx + ny * ny > 1) return null;
+      if (Math.hypot(x - 6, y - 7) <= 1.2) return x <= 5 && y <= 6 ? C.white : C.cyan;
+      if (y === 9 && x >= 5 && x <= 17) return C.gold;
+      return ny < -0.35 ? C.brickHi : ny > 0.45 ? '#7A2E46' : C.brick;
+    });
+  }
+  const LIFE = paint(9, 6, (x, y) => {
+    if (y <= 1) return x >= 4 && x <= 5 ? '#FFE08A' : null;
+    const nx = (x + 0.5 - 4.5) / 4.5, ny = (y + 0.5 - 4) / 2;
+    return nx * nx + ny * ny <= 1 ? (y === 2 ? '#FFE08A' : y >= 5 ? '#D9822F' : '#F2B33D') : null;
+  });
+  const SUBS = [0, 1, 2].map(subSprite), PATROLS = [0, 1, 2].map(patrolSprite), TARGET = targetSprite(), BUOYS = [buoySprite(true), buoySprite(false)];
 
   // ---- Pixel font ----
   const textCache = new Map();
@@ -245,25 +302,54 @@
   })();
 
   H.seaTrial = function (modal, delivered) {
-    modal('Submarine (final).exe', '<h2>Sea Trial</h2><p>Deliver one calculator. Hold Dive or Space to descend. Release to rise through the harbour gates. Press Fire or X to shoot the targets.</p><canvas class="sea-view" width="' + W + '" height="' + VIEW + '" aria-label="Sea Trial: steer the submarine through the harbour gates"></canvas><p role="status" id="sea-status">Ready at the quay.</p><div class="sea-controls"><button class="btn primary" id="sea-start">Cast off</button><button class="btn sea-dive" disabled>Dive</button><button class="btn sea-fire" id="sea-fire" disabled>Fire</button></div>', true);
-    const canvas = document.querySelector('.sea-view'), ctx = canvas.getContext('2d');
-    const start = document.querySelector('#sea-start'), dive = document.querySelector('.sea-dive'), fire = document.querySelector('#sea-fire'), status = document.querySelector('#sea-status');
+    // The window is just the game: every control and instruction lives on the canvas.
+    modal('Submarine (final).exe', '<canvas class="sea-view" tabindex="0" width="' + W + '" height="' + VIEW + '" aria-label="Sea Trial. Five levels; deliver one calculator to the buoy at the end. Press Space or tap to start. Hold Space or the left half to dive. Press X or tap the right half to fire."></canvas><p role="status" id="sea-status" class="sea-status">Ready at the quay.</p>', true);
+    const canvas = document.querySelector('.sea-view'), ctx = canvas.getContext('2d'), status = document.querySelector('#sea-status');
     const win = canvas.closest('.modal-window');
+    win.classList.add('sea-window');
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches, touch = matchMedia('(pointer: coarse)').matches;
     ctx.imageSmoothingEnabled = false;
     let distance = 0, depth = START_DEPTH, running = false, previous = 0, clock = 0, phase = 'title', phaseTime = 0;
     let diveKey = false, fireKey = false, fireQueued = false, cooldown = 0, flash = 0, hits = 0, fired = 0, score = 0, shake = 0, hurt = 0, wakeTimer = 0;
-    let targets = MARKS.map(t => ({...t, hit:false})), shots = [], effects = [], bubbles = [], pops = [];
+    let level = 0, L = LEVELS[0], lives = LIVES, levelScore = 0, runHits = 0, runTargets = 0, cause = 'gate', best = readBest(), newBest = false;
+    let targets = [], mines = [], patrols = [], shots = [], effects = [], bubbles = [], pops = [];
     const divePointers = new Set(), firePointers = new Set();
     const diving = () => diveKey || divePointers.size > 0, firing = () => fireKey || firePointers.size > 0;
     const fish = Array.from({length: 7}, (_, i) => ({x: 40 + i * 47, y: 78 + (i * 23) % 50, speed: 6 + (i % 3) * 3}));
-    canvas.seaState = () => ({distance, depth, running, hits, score, phase, shots: shots.length});
+    const pad = n => String(n).padStart(6, '0');
+    function readBest() { try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (_) { return 0; } }
+    function saveBest() {
+      if (score <= best) return;
+      best = score; newBest = true;
+      try { localStorage.setItem(BEST_KEY, String(best)); } catch (_) {}
+    }
+    function loadLevel(n) {
+      level = n; L = LEVELS[n]; distance = 0; depth = START_DEPTH; hits = 0;
+      targets = L.marks.map(t => ({...t, hit: false}));
+      mines = (L.mines || []).map(m => ({...m, dead: false}));
+      patrols = (L.patrols || []).map(p => ({...p, dead: false}));
+    }
+    loadLevel(0);
+    // Hooks for the automated play tests: read the run, see the live obstacles, jump to a level.
+    canvas.seaState = () => ({distance, depth, running, hits, score, phase, shots: shots.length, level: level + 1, lives, levels: LEVELS.length});
+    canvas.seaWorld = () => ({
+      finish: L.finish, gap: L.gap,
+      gates: L.gates.map(gate => ({x: gate.x, y: gapY(gate)})),
+      mines: mines.filter(m => !m.dead).map(m => ({x: m.x, y: mineY(m)})),
+      patrols: patrols.filter(p => !p.dead).map(p => patrolAt(p))
+    });
+    canvas.seaWarp = n => { score = 0; lives = LIVES; runHits = 0; runTargets = 0; newBest = false; loadLevel(n - 1); launch(); };
 
     const at = (img, x, y) => ctx.drawImage(img, Math.round(x), Math.round(y));
     function rect(x, y, w, h, colour) { ctx.fillStyle = colour; ctx.fillRect(Math.round(x), Math.round(y), w, h); }
     function tile(img, offset, y) { const w = img.width, x0 = -(((offset % w) + w) % w); for (let x = x0; x < W; x += w) at(img, x, y); }
+    // Swaying gates and patrols move with the level's own clock, so every attempt plays the same way.
+    const levelTime = () => distance / L.speed;
     function targetY(t) { return t.y + Math.round(Math.sin(clock * 2.4 + t.x) * 2); }
-    function blocked(x, y) { return GATES.some(g => x >= g.x && x <= g.x + GATE_W && (y < g.y - GAP || y > g.y + GAP)); }
+    function mineY(m) { return m.y + Math.round(Math.sin(clock * 1.8 + m.x) * 2); }
+    function gapY(gate) { return gate.amp ? gate.y + Math.round(Math.sin(levelTime() * gate.rate + gate.phase) * gate.amp) : gate.y; }
+    function patrolAt(p) { const t = levelTime(); return {x: p.x + Math.round(Math.sin(t * 0.7 + p.x) * 8), y: p.y + Math.round(Math.sin(t * p.rate + p.phase) * p.amp)}; }
+    function blocked(x, y) { return L.gates.some(gate => { const gy = gapY(gate); return x >= gate.x && x <= gate.x + GATE_W && (y < gy - L.gap || y > gy + L.gap); }); }
     function centreText(img, y) { at(img, (W - img.width) / 2, y); }
     function setPhase(next) { phase = next; phaseTime = 0; }
 
@@ -281,8 +367,15 @@
       bubbles.push({x, y, vy:-25, big:false, wobble:1, world:true});
     }
 
-    function releaseControls() { diveKey = false; fireKey = false; fireQueued = false; divePointers.clear(); firePointers.clear(); fire.classList.remove('is-held'); }
-    function stop(message) { running = false; releaseControls(); shots = []; dive.disabled = true; fire.disabled = true; start.hidden = false; start.textContent = 'Try again'; status.textContent = message; }
+    function releaseControls() { diveKey = false; fireKey = false; fireQueued = false; divePointers.clear(); firePointers.clear(); }
+    function stop(message) { running = false; releaseControls(); shots = []; status.textContent = message; }
+    const CRASH = {gate: 'Clipped a harbour gate. Have another go.', mine: 'Hit a mine. Have another go.', patrol: 'Rammed by a patrol sub. Have another go.'};
+    function crash(kind, x, y) {
+      explode(x, y, true);
+      hurt = 0.5; cause = kind; lives--; saveBest();
+      if (lives > 0) { setPhase('crash'); stop(CRASH[kind]); }
+      else { setPhase('over'); stop('Out of submarines. Game over. Carry on from level ' + (level + 1) + '.'); }
+    }
     function shoot() {
       shots.push({x: distance + SUB_X + 37, y: Math.round(depth)});
       cooldown = COOLDOWN; flash = 0.07; fireQueued = false; canvas.dataset.shots = ++fired;
@@ -297,10 +390,34 @@
             if (t.hit) continue;
             const ty = targetY(t);
             if (Math.abs(x + 6 - t.x) <= 7 && Math.abs(s.y - ty) <= 7) {
-              t.hit = true; s.done = true; hits++; score += TARGET_POINTS; canvas.dataset.hits = hits;
+              t.hit = true; s.done = true; hits++; score += POINTS.target; canvas.dataset.hits = hits;
               explode(t.x, ty, false);
-              pops.push({x: t.x, y: ty - 10, t: 0, label: '+' + TARGET_POINTS});
+              pops.push({x: t.x, y: ty - 10, t: 0, label: '+' + POINTS.target});
               status.textContent = 'Target hit. ' + hits + ' of ' + targets.length + '.';
+              break;
+            }
+          }
+          if (s.done) break;
+          for (const m of mines) {
+            if (m.dead) continue;
+            const my = mineY(m);
+            if (Math.abs(x + 6 - m.x) <= 7 && Math.abs(s.y - my) <= 8) {
+              m.dead = true; s.done = true; score += POINTS.mine;
+              explode(m.x, my, false);
+              pops.push({x: m.x, y: my - 10, t: 0, label: '+' + POINTS.mine});
+              status.textContent = 'Mine cleared.';
+              break;
+            }
+          }
+          if (s.done) break;
+          for (const p of patrols) {
+            if (p.dead) continue;
+            const at = patrolAt(p);
+            if (Math.abs(x + 6 - at.x) <= 11 && Math.abs(s.y - at.y) <= 7) {
+              p.dead = true; s.done = true; score += POINTS.patrol;
+              explode(at.x, at.y, true);
+              pops.push({x: at.x, y: at.y - 12, t: 0, label: '+' + POINTS.patrol});
+              status.textContent = 'Patrol sub sunk.';
               break;
             }
           }
@@ -310,26 +427,30 @@
       shots = shots.filter(s => !s.done);
     }
     function update(dt) {
-      distance = Math.min(FINISH, distance + SPEED * dt);
+      distance = Math.min(L.finish, distance + L.speed * dt);
       depth = Math.max(DEPTH_MIN, Math.min(DEPTH_MAX, depth + (diving() ? DIVE : -RISE) * dt));
       cooldown = Math.max(0, cooldown - dt);
       if ((fireQueued || firing()) && cooldown === 0) shoot();
       wakeTimer -= dt;
       if (wakeTimer <= 0 && depth > DEPTH_MIN + 2) { wakeTimer = 0.1; bubbles.push({x: distance + SUB_X + 1, y: depth - 2 + Math.random() * 6, vy: -12 - Math.random() * 10, big: Math.random() < 0.25, wobble: Math.random() * 3, world: true, life: 1.1}); }
       updateShots(dt);
-      const top = depth - 9, bottom = depth + 5;
-      const gate = GATES.find(g => g.x - distance < SUB_X + 36 && g.x + GATE_W - distance > SUB_X + 5 && (top < g.y - GAP || bottom > g.y + GAP));
-      if (gate) {
-        explode(distance + SUB_X + 34, top < gate.y - GAP ? top + 2 : bottom - 2, true);
-        hurt = 0.5; setPhase('crash');
-        stop('Clipped a harbour gate. Have another go.');
-        return;
-      }
-      if (distance >= FINISH) {
+      const top = depth - 9, bottom = depth + 5, left = distance + SUB_X + 5, right = distance + SUB_X + 36;
+      const gate = L.gates.find(gt => gt.x < right && gt.x + GATE_W > left && (top < gapY(gt) - L.gap || bottom > gapY(gt) + L.gap));
+      if (gate) return crash('gate', right - 2, top < gapY(gate) - L.gap ? top + 2 : bottom - 2);
+      const mine = mines.find(m => !m.dead && m.x + 5 > left && m.x - 5 < right && mineY(m) + 5 > top && mineY(m) - 5 < bottom);
+      if (mine) { mine.dead = true; return crash('mine', mine.x, mineY(mine)); }
+      const patrol = patrols.find(p => { if (p.dead) return false; const at = patrolAt(p); return at.x + 10 > left && at.x - 10 < right && at.y + 4 > top && at.y - 4 < bottom; });
+      if (patrol) { const at = patrolAt(patrol); patrol.dead = true; return crash('patrol', at.x, at.y); }
+      if (distance >= L.finish) {
         if (depth <= DEPTH_MIN + 3) {
-          score += DELIVERY_POINTS; setPhase('win'); delivered();
-          stop('Delivery complete. One pocket calculator. Targets hit: ' + hits + ' of ' + targets.length + '.');
-          start.textContent = 'Play again';
+          runHits += hits; runTargets += targets.length;
+          if (L.final) {
+            score += POINTS.delivery; setPhase('win'); saveBest(); delivered();
+            stop('Delivery complete. One pocket calculator. Targets hit: ' + runHits + ' of ' + runTargets + '.');
+          } else {
+            score += POINTS.clear; setPhase('clear'); saveBest();
+            stop('Level ' + (level + 1) + ' clear. Targets hit: ' + hits + ' of ' + targets.length + '.');
+          }
         } else status.textContent = 'Release Dive to surface beside the buoy.';
       }
     }
@@ -341,7 +462,7 @@
       bubbles = bubbles.filter(b => b.y > SURFACE + 1 && b.age < (b.life || 2.5));
       for (const p of pops) p.t += dt;
       pops = pops.filter(p => p.t < 0.9);
-      for (const f of fish) { f.x -= (f.speed + (running ? SPEED * 0.4 : 0)) * dt; if (f.x < -10) { f.x = W + 10 + Math.random() * 40; f.y = 74 + Math.random() * 60; } }
+      for (const f of fish) { f.x -= (f.speed + (running ? L.speed * 0.4 : 0)) * dt; if (f.x < -10) { f.x = W + 10 + Math.random() * 40; f.y = 74 + Math.random() * 60; } }
       if (Math.random() < dt * 1.5) bubbles.push({x: distance + 30 + Math.random() * 300, y: SEABED + 2, vy: -14 - Math.random() * 8, big: Math.random() < 0.3, wobble: Math.random() * 5, world: true, life: 6});
     }
 
@@ -394,6 +515,32 @@
         at(TARGET, x - 8, y - 8);
       }
     }
+    function drawMines() {
+      for (const m of mines) {
+        if (m.dead) continue;
+        const x = m.x - distance, y = mineY(m);
+        if (x < -10 || x > W + 10) continue;
+        for (let cy = y + 8; cy < SEABED + 2; cy += 3) rect(x, cy, 1, 2, cy % 2 ? '#8C86B8' : '#5E5A8C');
+        rect(x - 2, SEABED, 5, 3, '#4A4583');
+        at(MINE, x - 8, y - 8);
+        rect(x - 1, y - 1, 2, 2, Math.floor(clock * 3 + m.x) % 2 ? C.coral : '#7A2E46');
+      }
+    }
+    function drawPatrols() {
+      for (const p of patrols) {
+        if (p.dead) continue;
+        const {x: wx, y} = patrolAt(p), x = wx - distance;
+        if (x < -16 || x > W + 16) continue;
+        at(PATROLS[Math.floor(clock * 14) % 3], x - 12, y - 7);
+      }
+    }
+    function drawDusk() {
+      ctx.globalAlpha = 0.42; rect(0, 0, W, VIEW, '#140C38');
+      // The headlamp: a soft wedge of light ahead of the nose, one pixel column at a time.
+      ctx.globalAlpha = 0.1;
+      for (let i = 0; i < 90; i += 1) { const h = Math.round(2 + i * 0.22); rect(SUB_X + 38 + i, depth - h, 1, h * 2, C.cream); }
+      ctx.globalAlpha = 1;
+    }
     function drawGates() {
       const cols = [C.outline, C.steelHi, C.steelLt, C.steelLt, C.steel, C.steel, C.steel, C.steel, C.steel, C.steel, C.steelSh, C.steelSh, C.steelDk, C.outline];
       function column(x, y0, y1) { cols.forEach((colour, i) => rect(x + i, y0, 1, y1 - y0, colour)); for (let y = y0 + 4; y < y1 - 2; y += 8) { rect(x + 3, y, 1, 1, C.lilac); rect(x + 10, y, 1, 1, C.lilac); rect(x + 3, y + 1, 1, 1, C.steelDk); rect(x + 10, y + 1, 1, 1, C.steelDk); } }
@@ -402,26 +549,26 @@
         for (let i = 0; i < GATE_W + 2; i++) rect(x - 1 + i, y, 1, 5, ((i + Math.floor(y)) >> 1) % 2 ? C.gold : '#3A3049');
         rect(x - 1, y, GATE_W + 2, 1, '#FFE89A');
       }
-      for (const g of GATES) {
-        const x = g.x - distance;
+      for (const g of L.gates) {
+        const x = g.x - distance, gy = gapY(g), GAP = L.gap;
         if (x < -24 || x > W + 24) continue;
-        column(x, 26, g.y - GAP);
+        column(x, 26, gy - GAP);
         rect(x - 3, 22, GATE_W + 6, 5, C.outline); rect(x - 2, 23, GATE_W + 4, 3, C.lilac); rect(x - 2, 25, GATE_W + 4, 1, '#8C86B8');
         const lamp = Math.floor(clock * 2 + g.x) % 2 === 0;
         rect(x + 5, 18, 4, 4, C.outline); rect(x + 6, 19, 2, 2, lamp ? C.coral : '#7A2E46');
         if (lamp) { ctx.globalAlpha = 0.35; disc(ctx, x + 7, 20, 4, C.coral); ctx.globalAlpha = 1; }
-        lip(x, g.y - GAP - 5);
-        column(x, g.y + GAP, VIEW);
-        lip(x, g.y + GAP);
+        lip(x, gy - GAP - 5);
+        column(x, gy + GAP, VIEW);
+        lip(x, gy + GAP);
         rect(x - 3, SEABED + 4, GATE_W + 6, VIEW - SEABED, '#6E6AA0'); rect(x - 3, SEABED + 4, GATE_W + 6, 1, '#9C93D8');
         const glow = 0.5 + Math.sin(clock * 5 + g.x) * 0.5;
         ctx.globalAlpha = 0.25 + glow * 0.35;
-        rect(x + GATE_W - 1, g.y - GAP + 1, 2, 2, C.cyan); rect(x + GATE_W - 1, g.y + GAP - 3, 2, 2, C.cyan);
+        rect(x + GATE_W - 1, gy - GAP + 1, 2, 2, C.cyan); rect(x + GATE_W - 1, gy + GAP - 3, 2, 2, C.cyan);
         ctx.globalAlpha = 1;
       }
     }
     function drawBuoy() {
-      const x = BUOY - distance; if (x < -20 || x > W + 20) return;
+      const x = L.finish + 70 - distance; if (x < -20 || x > W + 20) return;
       at(BUOYS[Math.floor(clock * 2) % 2], x - 8, SURFACE - 18 + Math.round(Math.sin(clock * 2.2) * 1.2));
     }
     function drawSub() {
@@ -482,44 +629,83 @@
     }
     function drawHud() {
       at(text('SCORE', 1, [C.cyan]), 3, 2);
-      at(text(String(score).padStart(6, '0'), 1, [C.cream, C.gold]), 38, 2);
+      at(text(pad(score), 1, [C.cream, C.gold]), 38, 2);
+      for (let i = 0; i < lives; i++) at(LIFE, 80 + i * 11, 3);
       const bx = 118, bw = 84, by = 6;
-      rect(bx - 1, by - 1, bw + 2, 4, C.outline); rect(bx, by, bw, 2, '#6A5FB0'); rect(bx, by, Math.round(bw * distance / FINISH), 2, C.cyan);
-      for (const g of GATES) rect(bx + Math.round(bw * g.x / FINISH) , by - 2, 1, 6, C.gold);
+      rect(bx - 1, by - 1, bw + 2, 4, C.outline); rect(bx, by, bw, 2, '#6A5FB0'); rect(bx, by, Math.round(bw * distance / L.finish), 2, C.cyan);
+      for (const g of L.gates) rect(bx + Math.round(bw * g.x / L.finish) , by - 2, 1, 6, C.gold);
       rect(bx + bw + 1, by - 3, 4, 7, C.outline); rect(bx + bw + 2, by - 2, 2, 5, C.coral);
-      const mx = bx + Math.round(bw * distance / FINISH);
+      const mx = bx + Math.round(bw * distance / L.finish);
       rect(mx - 3, by - 2, 7, 5, C.outline); rect(mx - 2, by - 1, 5, 3, '#F2B33D'); rect(mx - 2, by - 1, 5, 1, '#FFE08A');
-      for (let i = 0; i < MARKS.length; i++) {
-        const x = W - 9 - (MARKS.length - 1 - i) * 10, y = 2, on = targets[i].hit;
+      at(text('LV' + (level + 1), 1, [C.cream]), 214, 2);
+      for (let i = 0; i < targets.length; i++) {
+        const x = W - 9 - (targets.length - 1 - i) * 10, y = 2, on = targets[i].hit;
         disc(ctx, x + 3, y + 4, 4, C.outline);
         disc(ctx, x + 3, y + 4, 3, on ? C.coral : '#5E5A8C'); disc(ctx, x + 3, y + 4, 2, on ? C.cream : '#8C86B8'); rect(x + 3, y + 4, 1, 1, on ? C.coral : '#5E5A8C');
       }
     }
+    function panel(x, y, w, h, label, hint) {
+      ctx.globalAlpha = 0.6; rect(x, y, w, h, C.outline); ctx.globalAlpha = 1;
+      rect(x, y, w, 1, C.lilac); rect(x, y + h - 1, w, 1, C.lilac); rect(x, y, 1, h, C.lilac); rect(x + w - 1, y, 1, h, C.lilac);
+      if (!label) return;
+      const big = text(label, 2, [C.cream, C.gold, C.gold, C.brickHi]), small = text(hint, 1, [C.cyan]);
+      at(big, x + (w - big.width) / 2, y + 10); at(small, x + (w - small.width) / 2, y + 34);
+    }
     function drawBanner() {
       const blinkOn = Math.floor(clock * 2.5) % 2 === 0;
+      const again = touch ? 'TAP TO ' : 'PRESS SPACE TO ';
+      const big = colours => colours || [C.cream, C.gold, C.gold, C.brickHi, C.brickHi, C.brick];
+      const prompt = (words, y) => { if (blinkOn && canStart()) centreText(text(again + words, 1, [C.gold]), y); };
+      // End screens sit on the same dark panel as the title controls, so gates behind never hide the words.
+      const backdrop = (y, h) => panel(20, y, W - 40, h);
       if (phase === 'title') {
-        centreText(text('SEA TRIAL', 3, [C.cream, C.gold, C.gold, C.brickHi, C.brickHi, C.brick]), 62);
-        if (blinkOn) centreText(text('CAST OFF TO START', 1, [C.cream]), 94);
-        centreText(text(touch ? 'HOLD DIVE   TAP FIRE' : 'DIVE: SPACE   FIRE: X', 1, [C.cyan]), 108);
-      } else if (phase === 'go' && phaseTime < 1.2) {
-        if (Math.floor(phaseTime * 8) % 2 === 0 || phaseTime < 0.6) centreText(text('GO!', 3, [C.cream, C.gold, C.gold, C.brickHi]), 66);
+        // The controls stay on screen until the player starts.
+        centreText(text('SEA TRIAL', 3, big()), 16);
+        centreText(text('FIVE LEVELS. ONE CALCULATOR.', 1, [C.cream]), 45);
+        if (best) centreText(text('BEST ' + pad(best), 1, [C.cyan]), 58);
+        prompt('START', 85);
+        panel(12, 96, 144, 54, 'DIVE', touch ? 'HOLD THIS SIDE' : 'HOLD SPACE');
+        panel(164, 96, 144, 54, 'FIRE', touch ? 'TAP THIS SIDE' : 'PRESS X');
+      } else if (phase === 'go' && phaseTime < 1.8) {
+        if (Math.floor(phaseTime * 8) % 2 === 0 || phaseTime < 1.2) {
+          centreText(text('LEVEL ' + (level + 1), 3, big()), 56);
+          centreText(text(L.name, 2, [C.cream, C.cyan]), 84);
+          if (L.final) centreText(text('DELIVER THE CALCULATOR', 1, [C.gold]), 106);
+        }
       } else if (phase === 'crash' && phaseTime > 0.4) {
-        centreText(text('HULL CLIPPED', 3, [C.cream, C.coral, C.coral, C.brick]), 64);
-        if (blinkOn) centreText(text('TRY AGAIN', 1, [C.cream]), 96);
+        backdrop(50, 66);
+        centreText(text({gate: 'HULL CLIPPED', mine: 'MINE HIT', patrol: 'RAMMED'}[cause], 3, [C.cream, C.coral, C.coral, C.brick]), 58);
+        centreText(text(lives + (lives === 1 ? ' SUB LEFT' : ' SUBS LEFT'), 1, [C.cream]), 90);
+        prompt('TRY AGAIN', 104);
+      } else if (phase === 'over' && phaseTime > 0.4) {
+        backdrop(48, 66);
+        centreText(text('GAME OVER', 3, [C.cream, C.coral, C.coral, C.brick]), 56);
+        centreText(text('SCORE ' + pad(score), 1, [C.cyan]), 88);
+        prompt('CARRY ON FROM LEVEL ' + (level + 1), 102);
+      } else if (phase === 'clear' && phaseTime > 0.4) {
+        backdrop(48, 66);
+        centreText(text('LEVEL ' + (level + 1) + ' CLEAR', 3, big()), 56);
+        centreText(text('TARGETS ' + hits + '/' + targets.length + '   BONUS ' + POINTS.clear, 1, [C.cyan]), 88);
+        prompt('START LEVEL ' + (level + 2), 102);
       } else if (phase === 'win' && phaseTime > 0.6) {
-        centreText(text('DELIVERED!', 3, [C.cream, C.gold, C.gold, C.brickHi, C.brickHi, C.brick]), 62);
-        centreText(text('TARGETS ' + hits + '/' + targets.length + '   SCORE ' + String(score).padStart(6, '0'), 1, [C.cyan]), 96);
+        backdrop(48, 78);
+        centreText(text('DELIVERED!', 3, big()), 56);
+        centreText(text('TARGETS ' + runHits + '/' + runTargets + '   SCORE ' + pad(score), 1, [C.cyan]), 88);
+        if (newBest) centreText(text('NEW BEST!', 1, [C.gold]), 100);
+        prompt('PLAY AGAIN', 114);
       }
-      if (running && distance >= FINISH - 40 && depth > DEPTH_MIN + 3 && blinkOn) {
-        const x = BUOY - distance - 30;
+      if (running && distance >= L.finish - 40 && depth > DEPTH_MIN + 3 && blinkOn) {
+        const x = L.finish + 70 - distance - 30;
         at(text('SURFACE!', 1, [C.gold]), Math.max(70, Math.min(W - 52, x)), SURFACE + 8);
       }
     }
     function draw() {
       ctx.save();
       if (shake > 0) ctx.translate(Math.round((Math.random() - 0.5) * 4), Math.round((Math.random() - 0.5) * 3));
-      drawScenery(); drawSeabed(); drawBubbles(); drawTargets(); drawGates(); drawBuoy();
-      drawShots(); drawSub(); drawEffects(); drawSurface();
+      drawScenery(); drawSeabed(); drawBubbles(); drawTargets(); drawMines(); drawPatrols(); drawGates(); drawBuoy();
+      if (L.dusk) { drawSurface(); drawDusk(); }
+      drawShots(); drawSub(); drawEffects();
+      if (!L.dusk) drawSurface();
       ctx.restore();
       drawHud(); drawBanner();
     }
@@ -532,35 +718,49 @@
       requestAnimationFrame(loop);
     }
 
-    start.onclick = () => {
-      distance = 0; depth = START_DEPTH; running = true; hits = 0; fired = 0; score = 0; cooldown = 0; flash = 0; hurt = 0;
-      releaseControls(); shots = []; effects = []; pops = []; bubbles = [];
-      targets = MARKS.map(t => ({...t, hit:false})); canvas.dataset.hits = 0; canvas.dataset.shots = 0; setPhase('go');
-      start.hidden = true; dive.disabled = false; fire.disabled = false; dive.focus(); status.textContent = 'Under way.';
-    };
-    for (const control of [dive, canvas]) {
-      control.onpointerdown = e => { if (running) { e.preventDefault(); dive.focus(); control.setPointerCapture(e.pointerId); divePointers.add(e.pointerId); } };
-      control.onpointerup = control.onlostpointercapture = control.onpointercancel = e => { divePointers.delete(e.pointerId); };
+    // An end screen holds briefly so a held key or thumb does not skip it at once.
+    function canStart() { return !running && (phase === 'title' || phaseTime > (phase === 'win' ? 1.2 : 0.6)); }
+    // Space or a tap moves on from whichever screen is showing: the next level, a retry of this one,
+    // carrying on after a game over (score reset, same level), or a fresh run from level 1.
+    function begin() {
+      if (phase === 'clear') loadLevel(level + 1);
+      else if (phase === 'crash') { score = levelScore; loadLevel(level); }
+      else if (phase === 'over') { score = 0; lives = LIVES; loadLevel(level); }
+      else { score = 0; lives = LIVES; runHits = 0; runTargets = 0; newBest = false; loadLevel(0); }
+      launch();
     }
-    // Fire is a separate control so one thumb can hold Dive while the other shoots.
-    fire.onpointerdown = e => {
-      if (!running || (e.pointerType === 'mouse' && e.button !== 0)) return;
-      e.preventDefault();
-      try { fire.setPointerCapture(e.pointerId); } catch (_) {}
-      firePointers.add(e.pointerId); fireQueued = true; fire.classList.add('is-held');
+    function launch() {
+      levelScore = score; running = true; fired = 0; cooldown = 0; flash = 0; hurt = 0;
+      releaseControls(); shots = []; effects = []; pops = []; bubbles = [];
+      canvas.dataset.hits = 0; canvas.dataset.shots = 0; canvas.dataset.level = level + 1; setPhase('go');
+      status.textContent = 'Under way. Level ' + (level + 1) + ' of ' + LEVELS.length + ': ' + L.name + '.';
+    }
+    // On the canvas, the left half dives and the right half fires, so two thumbs can do both at once.
+    canvas.onpointerdown = e => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      e.preventDefault(); canvas.focus({preventScroll:true});
+      if (!running) { if (!canStart()) return; begin(); }
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      const box = canvas.getBoundingClientRect();
+      if (e.clientX < box.left + box.width / 2) divePointers.add(e.pointerId);
+      else { firePointers.add(e.pointerId); fireQueued = true; }
     };
-    fire.onpointerup = fire.onlostpointercapture = fire.onpointercancel = e => { firePointers.delete(e.pointerId); if (!firePointers.size) fire.classList.remove('is-held'); };
-    fire.onclick = e => { if (running && e.detail === 0) fireQueued = true; };
-    fire.oncontextmenu = e => e.preventDefault();
-    dive.onkeydown = e => { if (e.code === 'Space') { e.preventDefault(); diveKey = true; } };
-    dive.onkeyup = e => { if (e.code === 'Space') { e.preventDefault(); diveKey = false; } };
-    dive.onblur = () => { diveKey = false; };
+    canvas.onpointerup = canvas.onlostpointercapture = canvas.onpointercancel = e => { divePointers.delete(e.pointerId); firePointers.delete(e.pointerId); };
+    canvas.oncontextmenu = e => e.preventDefault();
     win.addEventListener('keydown', e => {
-      if (e.code !== 'KeyX' || e.ctrlKey || e.metaKey || e.altKey || !running) return;
-      e.preventDefault(); if (!e.repeat) { fireKey = true; fireQueued = true; }
+      if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest('button')) return;
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        if (!running) { if (e.repeat || !canStart()) return; begin(); }
+        if (e.code === 'Space') diveKey = true;
+      } else if (e.code === 'KeyX' && running) {
+        e.preventDefault(); if (!e.repeat) { fireKey = true; fireQueued = true; }
+      }
     });
-    win.addEventListener('keyup', e => { if (e.code === 'KeyX') fireKey = false; });
-    win.addEventListener('focusout', e => { if (!win.contains(e.relatedTarget)) fireKey = false; });
+    win.addEventListener('keyup', e => { if (e.code === 'Space') diveKey = false; if (e.code === 'KeyX') fireKey = false; });
+    win.addEventListener('focusout', e => { if (!win.contains(e.relatedTarget)) { diveKey = false; fireKey = false; } });
+    // The dialog focuses its close button first; move focus to the game so Space works straight away.
+    requestAnimationFrame(() => canvas.focus({preventScroll:true}));
     requestAnimationFrame(loop);
   };
 })(globalThis.Hired);
