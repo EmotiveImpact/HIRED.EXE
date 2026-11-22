@@ -351,10 +351,3 @@
 .pm-child .desk-files :is(button,a):is(:hover,:focus-visible){background:navy;color:#fff;border-color:transparent}
 #os-dialog .modal-window.is-floating{position:absolute;margin:0}
 @media (pointer:fine){.pm-caption,.pm-child h3,#os-dialog .small-title{cursor:move}.program-manager.is-max .pm-caption{cursor:default}}
-@media (min-width:900px) and (min-height:620px){
-  .program-manager{width:min(780px,calc(100% - 48px));margin:clamp(24px,7vh,72px) auto 0}
-  .pm-workspace{min-height:min(46vh,380px);display:flex;flex-direction:column;align-items:flex-start;padding:16px}
-  .pm-folders{margin-top:auto;padding-top:16px}
-  .pm-child{top:16px;right:16px}
-  #internet-group .pm-child{top:50px;right:42px}
-}

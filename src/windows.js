@@ -20,18 +20,26 @@
   }
 
   // Mouse and pen drag a window by its title bar. Touch keeps scrolling the page.
+  // A plain click on the title bar leaves the window where it is: it only lifts
+  // out of the layout once the pointer has moved a few pixels.
   function draggable(win, handle, area, { before, after } = {}) {
     handle.addEventListener('pointerdown', e => {
       if (e.button !== 0 || e.pointerType === 'touch') return;
       if (e.target.closest('button,a,input,summary,.pm-popup') || win.classList.contains('is-max')) return;
       e.preventDefault();
-      const from = win.getBoundingClientRect(), box = area.getBoundingClientRect();
-      const offsetX = e.clientX - from.left, offsetY = e.clientY - from.top;
-      before?.(from);
-      place(win, area, from.left - box.left, from.top - box.top);
-      win.classList.add('is-dragging');
+      const startX = e.clientX, startY = e.clientY;
+      let offsetX = 0, offsetY = 0, moving = false;
       handle.setPointerCapture(e.pointerId);
       const move = ev => {
+        if (!moving) {
+          if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 4) return;
+          const from = win.getBoundingClientRect(), box = area.getBoundingClientRect();
+          offsetX = startX - from.left; offsetY = startY - from.top;
+          before?.(from);
+          place(win, area, from.left - box.left, from.top - box.top);
+          win.classList.add('is-dragging');
+          moving = true;
+        }
         const now = area.getBoundingClientRect();
         place(win, area, ev.clientX - now.left - offsetX, ev.clientY - now.top - offsetY);
       };
@@ -39,6 +47,7 @@
         handle.removeEventListener('pointermove', move);
         handle.removeEventListener('pointerup', end);
         handle.removeEventListener('pointercancel', end);
+        if (!moving) return;
         win.classList.remove('is-dragging');
         after?.(parseFloat(win.style.left), parseFloat(win.style.top));
       };
@@ -125,11 +134,15 @@
     for (const group of pm.querySelectorAll('.pm-folders details')) {
       const child = group.querySelector('.pm-child'), id = group.id;
       const saved = state.groups[id] || (state.groups[id] = { open: false, x: null, y: null });
+      // Reopening a saved group fires one toggle event of its own; that one
+      // puts the window back without changing which window is in front.
+      let restoring = saved.open;
       group.open = saved.open;
       const restorePlace = () => { if (saved.x !== null) place(child, workspace, saved.x, saved.y); };
       if (group.open) requestAnimationFrame(restorePlace);
       group.addEventListener('toggle', () => {
         saved.open = group.open;
+        if (restoring) { restoring = false; if (group.open) return; }
         if (group.open) { restorePlace(); raise(child); state.front = id; }
       });
       child.querySelector('.pm-child-min').onclick = () => { group.open = false; group.querySelector('summary').focus({ preventScroll: true }); };

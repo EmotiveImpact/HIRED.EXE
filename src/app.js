@@ -656,16 +656,18 @@
     $('desktop').inert=false;
   }
 
+  // The DOS and Windows 3.11 startup opens every new visit (a new tab or window).
+  // A reload, or coming back from the game, goes straight to the desktop.
   async function runStartup(force=false){
     let seen=false;
-    try{seen=localStorage.getItem(bootKey)==='1';}catch{}
+    try{seen=sessionStorage.getItem(bootKey)==='1';}catch{}
     if(force||!seen){
       const screen=$('dos-start');
       screen.hidden=false;screen.classList.remove('windows-splash');
       $('dos-skip').hidden=false;$('dos-state').textContent='';$('dos-prompt').textContent='';
       $('desktop').inert=true;
       await dosStartup();
-      try{localStorage.setItem(bootKey,'1');}catch{}
+      try{sessionStorage.setItem(bootKey,'1');}catch{}
     }
     revealDesktop();
   }
