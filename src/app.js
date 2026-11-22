@@ -207,8 +207,9 @@
     function closeMenus(){ $('os-files').querySelectorAll('nav details').forEach(menu=>menu.open=false); }
     $('pm-reboot').onclick=async()=>{closeMenus();await runStartup(true);$('start-game').focus();};
     $('pm-apps').onclick=()=>{closeMenus();$('start-game').focus();};
-    $('pm-accessories').onclick=()=>{closeMenus();$('accessories-group').open=true;$('desk-calc').focus();};
-    if($('pm-internet'))$('pm-internet').onclick=()=>{closeMenus();$('internet-group').open=true;$('desk-netscape').focus();};
+    function showGroup(id,shortcut){closeMenus();$(id).open=true;H.desktopWindows?.raiseGroup?.(id);$(shortcut).focus();}
+    $('pm-accessories').onclick=()=>showGroup('accessories-group','desk-calc');
+    if($('pm-internet'))$('pm-internet').onclick=()=>showGroup('internet-group','desk-netscape');
     $('pm-about').onclick=()=>{closeMenus();setMode('calculator');modal('About Program Manager','<p>Windows for Workgroups 3.11 desktop recreation.</p>');};
     $('attachment-launch').onclick=()=>{closeMenus();launch();};
     $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
