@@ -75,7 +75,7 @@ async function run() {
     check(byId('home-cv').getAttribute('href')==='cv.html','CV is missing from the title');
     click('skip-portfolio');
     check(byId('os-dialog').querySelector('a[href="https://vlumeaudio.com/"]'),'Verified portfolio link missing');
-    check(byId('overlay').querySelector('a[href^="mailto:"]'),'Contact action missing');
+    check(byId('os-dialog').querySelector('a[href^="mailto:"]'),'Contact action missing');
     check(byId('os-dialog').textContent.includes('OMNi Digital Media'),'Experience missing from portfolio');
     check(byId('portfolio-cv').getAttribute('href')==='cv.html','CV is missing from the portfolio');
     click('portfolio-back'); click('start-game'); await until(()=>app().mode==='title','Title screen missing'); click('title-play');
