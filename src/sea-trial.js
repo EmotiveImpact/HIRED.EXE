@@ -710,7 +710,7 @@
       drawHud(); drawBanner();
     }
     function loop(now) {
-      if (!canvas.isConnected) return;
+      if (!canvas.isConnected) { release(); return; }
       const dt = previous ? Math.min((now - previous) / 1000, 0.05) : 0; previous = now; clock += dt;
       if (running) update(dt);
       updateWorld(dt);
@@ -746,7 +746,17 @@
       else { firePointers.add(e.pointerId); fireQueued = true; }
     };
     canvas.onpointerup = canvas.onlostpointercapture = canvas.onpointercancel = e => { divePointers.delete(e.pointerId); firePointers.delete(e.pointerId); };
-    canvas.oncontextmenu = e => e.preventDefault();
+    // On a touch screen the window is a controller, not a page. Cancelling the browser's own touch
+    // gestures stops long-press text selection, Live Text, callouts, the magnifier, double-tap zoom
+    // and scrolling, over the game and the backdrop around it. Pointer events, which the game reads,
+    // still arrive, and the close button keeps its normal tap. Everything comes off when it closes.
+    const layer = win.parentElement, off = new AbortController();
+    const hold = e => { if (e.cancelable && !e.target.closest('button')) e.preventDefault(); };
+    for (const type of ['touchstart', 'touchmove', 'touchend']) layer.addEventListener(type, hold, {passive: false, signal: off.signal});
+    for (const type of ['contextmenu', 'selectstart', 'dragstart']) layer.addEventListener(type, e => e.preventDefault(), {signal: off.signal});
+    layer.classList.add('sea-layer');
+    getSelection()?.removeAllRanges();
+    const release = () => { off.abort(); if (!layer.querySelector('.sea-view')) layer.classList.remove('sea-layer'); };
     win.addEventListener('keydown', e => {
       if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest('button')) return;
       if (e.code === 'Space' || e.code === 'Enter') {

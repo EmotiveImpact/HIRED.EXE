@@ -192,6 +192,13 @@ def run(profile, base):
         sea = page.locator('.sea-view')
         expect(page.locator('#sea-start, .sea-dive, #sea-fire')).to_have_count(0)
         expect(sea).to_be_focused()
+        # Like any application, the game window has a blue title bar with its name and a close button.
+        expect(page.locator('.sea-window .small-title')).to_contain_text('Submarine (final).exe')
+        expect(page.locator('.sea-window #dialog-close')).to_be_visible()
+        if profile != 'desktop':
+            # On a phone the window is a controller: the browser's own touch gestures (selection,
+            # callouts, zoom, scrolling) are cancelled for every touch on the game.
+            page.evaluate("() => { window.__seaTouches = []; document.addEventListener('touchstart', e => window.__seaTouches.push(e.defaultPrevented), {passive:true}); }")
         if profile == 'desktop':
             page.keyboard.down('Space')
             page.wait_for_timeout(150)
@@ -212,6 +219,9 @@ def run(profile, base):
             box = sea.bounding_box()
             sea.tap(position={'x':box['width']*0.75, 'y':box['height']/2})
         expect(sea).to_have_attribute('data-shots', re.compile(r'^[1-9]'))
+        if profile != 'desktop':
+            assert page.evaluate("window.__seaTouches.length > 0 && window.__seaTouches.every(Boolean)"), page.evaluate("window.__seaTouches")
+            assert page.evaluate("getSelection().toString() === ''")
         if profile != 'iphone':
             expect(sea).to_have_attribute('data-hits', '1')
         expect(page.locator('#sea-status')).to_have_text('Clipped a harbour gate. Have another go.', timeout=12000)
