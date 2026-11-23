@@ -423,6 +423,11 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .sea-window>.small-title>.w31-sysbox{margin-right:8px}
 .sea-window>.small-title>.w31-min{margin-right:4px}
 .sea-window>.small-title .w31-title{justify-content:flex-start;padding:0}
+.sea-window>.small-title>.sea-sound{flex:none;align-self:center;display:grid;place-content:center;width:25px;height:25px;margin:0 4px 0 0;padding:0;background:#d5d3e3;color:#12152c;border:2px outset #f4f2fd;box-shadow:none;cursor:pointer}
+.sea-sound svg{display:block;fill:currentColor}
+.sea-sound .off,.sea-sound.is-off .on{display:none}
+.sea-sound.is-off .off{display:inline}
+.sea-window>.small-title>.sea-sound:active{border-style:inset}
 .w31-app.is-on-top{z-index:4000!important}
 @media (pointer:coarse){#os-dialog.sea-layer{pointer-events:auto}}
 
