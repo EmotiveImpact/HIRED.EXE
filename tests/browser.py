@@ -192,6 +192,9 @@ def run(profile, base):
         sea = page.locator('.sea-view')
         expect(page.locator('#sea-start, .sea-dive, #sea-fire')).to_have_count(0)
         expect(sea).to_be_focused()
+        # Like any application, the game window has a blue title bar with its name and a close button.
+        expect(page.locator('.sea-window .small-title')).to_contain_text('Submarine (final).exe')
+        expect(page.locator('.sea-window #dialog-close')).to_be_visible()
         if profile != 'desktop':
             # On a phone the window is a controller: the browser's own touch gestures (selection,
             # callouts, zoom, scrolling) are cancelled for every touch on the game.
