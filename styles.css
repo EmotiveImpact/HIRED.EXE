@@ -255,7 +255,8 @@
 #desktop:has(#os-shell:not([hidden])) {background:#226874;justify-content:flex-start}
 #os-shell .desk-surface {background:transparent}
 #os-shell .desk-glyph.navigator {background:#123e50;color:#fbf6d9;font:bold italic 35px Georgia,serif}
-#os-dialog {position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#173a5140}
+/* Windows 3.1 never dimmed the desktop behind a window, so the dialog layer stays clear. */
+#os-dialog {position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:transparent}
 #desktop:has(#os-shell:not([hidden])) .desktop-hint {display:none}
 #dos-start:not([hidden]){position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;background:#0b0b0b;color:#ddd;padding:clamp(20px,5vw,70px);font:clamp(16px,2vw,24px)/1.45 "Courier New",monospace}
 .dos-log p{margin:0 0 .65em}
