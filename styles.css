@@ -281,7 +281,7 @@
 .calc-keys [data-key="="]{grid-row:5 / span 2;grid-column:5;background:#afc5df}
 .calc-keys [data-key="0"]{grid-column:span 2}
 .standard-calc details{font:13px monospace;margin-top:10px}
-.calc-history{max-height:80px;overflow:auto;padding-left:22px}
+.calc-history{max-height:80px;overflow:auto;margin:6px 0 0;padding-left:22px}
 .game-launch{display:grid;place-items:center;background:#161639}.load-card{display:grid;gap:12px;padding:18px 25px;background:silver;border:3px outset white;color:#13132c}.load-card progress{width:100%;accent-color:navy}
 .overlay.game-title{display:grid;place-items:center;text-align:center;color:white;background:linear-gradient(0deg,#171440ee,#17144066)}
 .game-title section{padding:12px}.game-title img{width:clamp(48px,9vw,90px);image-rendering:pixelated;border:3px solid white;box-shadow:4px 4px #21183b}.game-title h1{font:bold clamp(40px,9vw,112px)/1 monospace;letter-spacing:-.08em;margin:10px 0;text-shadow:4px 5px #252049}.game-title h1 span{color:#ffc956}.game-title p{margin:6px 0 15px}
