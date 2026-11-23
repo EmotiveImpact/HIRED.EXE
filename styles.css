@@ -508,8 +508,8 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .pm-glyph-jargon svg,.pm-glyph-setup svg{display:block;width:100%;height:100%}
 
 /* Jargon, the Games group's time sink */
-.jargon-window{--jg-tile:clamp(22px,calc((100vw - 52px) / 12),32px);width:calc(var(--jg-tile) * 12 + 26px)}
-.jargon-window .modal-body{padding:6px;background:var(--w31-face);overflow:hidden}
+.jargon-window{--jg-tile:clamp(18px,min(calc((100vw - 52px) / 12),calc((100svh - 190px) / 9)),32px);width:calc(var(--jg-tile) * 12 + 26px)}
+.jargon-window .modal-body{padding:6px;background:var(--w31-face);overflow:auto}
 .jg{display:flex;flex-direction:column;gap:6px;color:#000;font:bold 12px Arial,Helvetica,sans-serif}
 .jg-defs{position:absolute;width:0;height:0;overflow:hidden}
 .jg-bar{display:flex;gap:4px}

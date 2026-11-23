@@ -59,13 +59,28 @@
   const plural = (n, word) => n + ' ' + word + (n === 1 ? '' : 's');
 
   H.jargon = function ({icon = H.jargonIcon, iconId = 'jargon-icon'} = {}) {
+    // Opening Jargon again brings back the game in progress rather than dealing a new one.
+    const running = wm.get('jargon');
+    if (running?.el.isConnected) {
+      if (running.state === 'min') wm.restore('jargon'); else wm.activate('jargon');
+      return running.el;
+    }
     const saved = load();
     let level = LEVELS.find(l => l.id === saved.level) || LEVELS[1];
     const best = {};
-    for (const l of LEVELS) best[l.id] = Number.isFinite(saved.best?.[l.id]) && saved.best[l.id] > 0 ? Math.floor(saved.best[l.id]) : 0;
+    for (const l of LEVELS) best[l.id] = 0;
     let cols = [], score = 0, prev = null, over = false, cursor = {c: 0, r: ROWS - 1}, said = {};
 
-    const remember = () => store({level: level.id, best});
+    // Another tab may have set a record since this one opened, so read the stored bests before writing.
+    function sync() {
+      const stored = load().best;
+      for (const l of LEVELS) {
+        const n = stored?.[l.id];
+        if (Number.isFinite(n) && n > best[l.id]) best[l.id] = Math.floor(n);
+      }
+    }
+    sync();
+    const remember = () => { sync(); store({level: level.id, best}); };
     const win = wm.openApp({
       id: 'jargon', title: 'Jargon', icon, iconId, className: 'jargon-window',
       menu: [
@@ -149,6 +164,7 @@
       over = true;
       const left = cols.reduce((n, col) => n + col.length, 0);
       if (!left) score += CLEAR_BONUS;
+      sync();
       const record = score > best[level.id];
       if (record) { best[level.id] = score; remember(); }
       render();
