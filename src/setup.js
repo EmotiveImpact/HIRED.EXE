@@ -24,6 +24,12 @@
   ];
 
   H.hireSetup = function ({E = globalThis.HIRED_EDITION || {}, icon = H.setupIcon, iconId = 'setup-icon', safeLink = v => v, openInternet = null} = {}) {
+    // Opening Hire Edem.exe again returns to the Setup already running.
+    const running = wm.get(ID);
+    if (running?.el.isConnected) {
+      if (running.state === 'min') wm.restore(ID); else wm.activate(ID);
+      return running.el;
+    }
     const person = E.applicant || 'Augustus Edem', first = person.split(' ')[0];
     const company = E.company || 'your company';
     const folder = 'C:\\' + ((E.company || 'Work').split(/\s+/)[0].replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase() || 'WORK');
@@ -126,6 +132,9 @@
       for (const s of STEPS) {
         if (!win.isConnected) return;
         if (s.disk) {
+          // A minimised Setup waits for its window before asking for the disk.
+          while (wm.get(ID)?.state === 'min') await wait(250);
+          if (!win.isConnected) return;
           paused = true;
           await wm.message({title: 'Hire Edem Setup', icon: 'info', owner: win, buttons: ['OK'],
             text: 'Please insert the disk labelled:<br><br>Hire Edem Disk 2 (References)<br><br>into drive A:'});
