@@ -95,14 +95,11 @@
   }
   function setMode(mode) {
     uiMode=mode;
-    if(!['boot','home','calculator','sea-trial','desktop-portfolio'].includes(mode))desktopReturn=null;
-    const utility=mode==='calculator'||mode==='sea-trial'||mode==='desktop-portfolio';
-    const desktop=mode==='home'||utility||mode==='boot';
+    if(!['boot','home'].includes(mode))desktopReturn=null;
+    // Desktop programs keep running in their own windows while the game is open, as in Windows.
+    const desktop=mode==='home'||mode==='boot';
     $('os-shell').hidden=!desktop;
     $('game-window').hidden=desktop;
-    $('os-dialog').hidden=!utility;
-    $('os-files').inert=utility;
-    if(!utility)$('os-dialog').replaceChildren();
     if(desktop)$('overlay').replaceChildren();
     if(desktop && document.fullscreenElement===$('game-window'))document.exitFullscreen().catch(()=>{});
 
@@ -123,61 +120,30 @@
   function bindActions(actions) {
     for (const [id,fn] of Object.entries(actions)) {const el=$(id); if(el)el.addEventListener('click',fn);}
   }
-  function activeSurface(){
-    if(uiMode==='home')return $('os-files');
-    return $('os-dialog').hidden ? $('overlay') : $('os-dialog');
-  }
+  function activeSurface(){ return $('overlay'); }
   function focusDialog() { requestAnimationFrame(()=>activeSurface().querySelector('button,a,input')?.focus({preventScroll:true})); }
   function modal(title,body,wide=false,onClose=showHome) {
     activeSurface().className='overlay';
     activeSurface().setAttribute('aria-label',title);
     activeSurface().innerHTML=`<section class="modal-window ${wide?'wide':''}"><header class="small-title"><span>${esc(title)}</span><button id="dialog-close" aria-label="Close this window">×</button></header><div class="modal-body">${body}</div></section>`;
     activeSurface().querySelector('#dialog-close').addEventListener('click',onClose);focusDialog();
-    if(activeSurface().id==='os-dialog')H.desktopDialog?.(activeSurface());
   }
-  function openMenu(menu){
-    for(const item of menu.parentElement.children)item.open=item===menu;
+  // Desktop programs open as their own windows beside Program Manager. Each
+  // returns a modal()-shaped opener, so Calculator and Sea Trial need no changes.
+  const desktopApp=(id,opts={})=>(title,body,wide=false)=>H.wm.openApp({id,title,body,wide,...opts});
+  // CALC001.PNG, archived Windows 3.x Calculator resource:
+  // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
+  const CALC_ICON='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">';
+  const SUB_ICON='<span class="pm-glyph pm-glyph-sub">⚓</span>', DOC_ICON='<span class="pm-glyph pm-glyph-doc">▤</span>';
+  let desktopLaunch=null;
+  function openCv(){
+    const offline=globalThis.HIRED_EMBEDDED_CV, a=document.createElement('a');
+    a.href=offline||'cv.html';
+    if(offline)a.download='Augustus-Edem-CV.pdf';else{a.target='_blank';a.rel='noopener';}
+    a.click();
   }
-  document.addEventListener('pointerdown',event=>{
-    const menu=event.target.closest?.('.pm-menu details');
-    for(const item of document.querySelectorAll('.pm-menu details[open]')){
-      if(item!==menu)item.open=false;
-    }
-  });
-  document.addEventListener('focusin',event=>{
-    if(!event.target.closest?.('.pm-menu')){
-      document.querySelectorAll('.pm-menu details[open]').forEach(item=>item.open=false);
-    }
-  });
-  function setupMenus(nav){
-    nav.onkeydown=event=>{
-      const menu=event.target.closest('details');
-      if(!menu)return;
-      const summary=menu.querySelector('summary'), buttons=[...menu.querySelectorAll('button')];
-      const menus=[...nav.children], index=menus.indexOf(menu);
-      const current=buttons.indexOf(document.activeElement);
-      switch(event.key){
-        case 'Escape': menu.open=false;summary.focus();break;
-        case 'ArrowDown': case 'ArrowUp':
-          openMenu(menu);
-          buttons[current<0?(event.key==='ArrowDown'?0:buttons.length-1):(current+(event.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length].focus();break;
-        case 'ArrowLeft': case 'ArrowRight': {
-          const next=menus[(index+(event.key==='ArrowRight'?1:-1)+menus.length)%menus.length];
-          if(menu.open)openMenu(next);
-          next.querySelector('summary').focus();break;
-        }
-        default:return;
-      }
-      event.preventDefault();event.stopPropagation();
-    };
-    nav.onclick=event=>{
-      const heading=event.target.closest('summary');
-      if(!heading)return;
-      event.preventDefault();
-      const menu=heading.parentElement;
-      if(menu.open)menu.open=false;else openMenu(menu);
-    };
-  }
+  // The running game is a task too, so the Task List can switch to it or end it.
+  H.wm.extraTasks=()=>(game.state||desktopReturn)&&desktopLaunch?[{title:'HIRE.EXE',switchTo:()=>desktopLaunch(),end:()=>{game.state=null;desktopReturn=null;showHome();}}]:[];
   function showHome() {
     setMode('home');
     $('status').textContent='Ready to play';
@@ -185,34 +151,6 @@
     const hasRun=game.state?.mode==='playing';
     const unlocked=progress.seenIntros.includes(H.LEVELS[1].id)||Boolean(progress.results[1]);
     const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
-    // CALC001.PNG, archived Windows 3.x Calculator resource:
-    // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
-    $('os-files').innerHTML=`<section class="program-manager" aria-label="Program Manager"><header class="pm-caption"><details class="pm-control"><summary aria-label="Program Manager window menu" title="Window menu">−</summary><div class="pm-popup"><button data-window="restore">Restore</button><button data-window="min">Minimise</button><button data-window="max">Maximise</button></div></details><span class="pm-title">Program Manager</span><button class="pm-min" aria-label="Minimise Program Manager" title="Minimise">▼</button><button class="pm-max" aria-label="Maximise Program Manager" title="Maximise">▲</button></header>
-      <nav class="pm-menu" aria-label="Program Manager menus">
-      <details><summary>File</summary><div class="pm-popup"><button id="attachment-launch">Open HIRE.EXE</button></div></details>
-      <details><summary>Options</summary><div class="pm-popup"><button id="pm-reboot">Replay startup</button></div></details>
-      <details><summary>Window</summary><div class="pm-popup"><button id="pm-apps">${esc(E.applicant)}</button><button id="pm-accessories">Accessories</button>${E.id==='solved-001'?'<button id="pm-internet">Internet</button>':''}</div></details>
-      <details><summary>Help</summary><div class="pm-popup"><button id="pm-about">About Program Manager</button></div></details></nav>
-      <div class="pm-workspace"><section class="pm-group"><h2>${esc(E.applicant)}</h2><div class="desk-files">
-      <button id="start-game" title="Double-click to open, or press Enter"><img src="${asset('assets/production/enemies/icons/terminal.png')}" alt=""><strong>HIRE.EXE</strong><small>${launchLabel}</small></button>
-      ${cvLink('home-cv','desk-doc')}<button id="skip-portfolio" class="pm-document">Portfolio</button>
-      <button id="desk-sub"><span class="desk-glyph" aria-hidden="true">⚓</span>Submarine (final).exe</button>
-      </div></section><div class="pm-folders">
-      <details id="accessories-group"><summary>Accessories</summary><section class="pm-child" aria-label="Accessories"><h3><span>Accessories</span><button class="pm-child-min" aria-label="Minimise Accessories" title="Minimise">▼</button></h3><div class="desk-files"><button id="desk-calc"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">Calculator</button></div></section></details>
-      ${E.id==='solved-001'?'<details id="internet-group"><summary>Internet</summary><section class="pm-child" aria-label="Internet"><h3><span>Internet</span><button class="pm-child-min" aria-label="Minimise Internet" title="Minimise">▼</button></h3><div class="desk-files"><a id="desk-netscape" href="https://solved.studio/" target="_blank" rel="noopener noreferrer"><span class="desk-glyph navigator" aria-hidden="true">N</span>Netscape Navigator</a></div></section></details>':''}
-      </div></div></section>`;
-    $('home-cv').textContent=E.applicant+'’s CV';
-    setupMenus($('os-files').querySelector('.pm-menu'));
-    function closeMenus(){ $('os-files').querySelectorAll('nav details').forEach(menu=>menu.open=false); }
-    $('pm-reboot').onclick=async()=>{closeMenus();await runStartup();$('start-game').focus();};
-    $('pm-apps').onclick=()=>{closeMenus();$('start-game').focus();};
-    function showGroup(id,shortcut){closeMenus();$(id).open=true;H.desktopWindows?.raiseGroup?.(id);$(shortcut).focus();}
-    $('pm-accessories').onclick=()=>showGroup('accessories-group','desk-calc');
-    if($('pm-internet'))$('pm-internet').onclick=()=>showGroup('internet-group','desk-netscape');
-    $('pm-about').onclick=()=>{closeMenus();setMode('calculator');modal('About Program Manager','<p>Windows for Workgroups 3.11 desktop recreation.</p>');};
-    $('attachment-launch').onclick=()=>{closeMenus();launch();};
-    $('desk-calc').onclick=()=>{setMode('calculator');H.desktopCalculator(modal,unlocked);};
-    $('desk-sub').onclick=()=>{setMode('sea-trial');H.seaTrial(modal,()=>{progress.delivered=true;save();});};
     const reopen=desktopReturn;
     function play(){
       if(reopen){reopen();}
@@ -223,15 +161,32 @@
       else if(hasProgress)beginScene(progress.lastLevel);
       else beginScene(0);
     }
-    function launch(){launchTitle(play,hasRun||hasProgress||!!reopen);}
-    const icon=$('start-game');
-    let touchLaunch=false;
-    icon.onpointerdown=e=>{touchLaunch=e.pointerType!=='mouse';};
-    icon.onclick=e=>{if(e.detail===0||touchLaunch)launch();};
-    icon.ondblclick=()=>{if(uiMode==='home')launch();};
-    $('skip-portfolio').onclick=()=>showPortfolio('home');
-    H.desktopWindows?.($('os-files'));
-    requestAnimationFrame(()=>{if(uiMode==='home')($('pm-icon')?.hidden===false?$('pm-icon'):icon).focus({preventScroll:true});});
+    function launch(){if(uiMode==='home')launchTitle(play,hasRun||hasProgress||!!reopen);}
+    desktopLaunch=launch;
+    const offlineCv=globalThis.HIRED_EMBEDDED_CV;
+    const internet=E.id==='solved-001';
+    H.wm.init($('os-shell'),$('os-dialog'));
+    H.progman($('os-files'),{
+      licensee:E.applicant, organisation:E.company||'',
+      items:{
+        'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
+        'home-cv':{label:E.applicant+'’s CV',icon:'<span class="pm-glyph pm-glyph-cv">CV</span>',href:offlineCv||'cv.html',linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.WRI',workdir:'C:\\HIRE',runs:['cv.wri','cv'],open:openCv},
+        'skip-portfolio':{label:'Portfolio',icon:DOC_ICON,command:'C:\\HIRE\\PORTFOLI.WRI',workdir:'C:\\HIRE',runs:['portfoli.wri','portfoli','portfolio'],open:()=>showPortfolio('home')},
+        'desk-sub':{label:'Submarine (final).exe',icon:SUB_ICON,command:'C:\\HIRE\\SUBMARIN.EXE',workdir:'C:\\HIRE',runs:['submarin.exe','submarin','submarine'],open:()=>H.seaTrial(desktopApp('sea-trial',{icon:SUB_ICON,iconId:'sea-icon'}),()=>{progress.delivered=true;save();})},
+        'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}),unlocked)},
+        ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{})
+      },
+      groups:[
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:['start-game','home-cv','skip-portfolio','desk-sub']},
+        {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
+        ...(internet?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:['desk-netscape']}]:[])
+      ],
+      hooks:{
+        replayStartup:async()=>{await runStartup();H.progman.focus();},
+        exitWindows:()=>exitWindows(),
+        help:(topic,then)=>H.winhelp(topic,then)
+      }
+    });
   }
   let launchNumber=0;
   function loadArtwork(){
@@ -417,14 +372,17 @@
     $('help-back').addEventListener('click',back);
   }
   function showPortfolio(from=uiMode) {
-    const back=from==='portfolio'?portfolioBack:captureReturn(from);portfolioBack=back;
-    setMode(from==='home'?'desktop-portfolio':'portfolio');
+    // From the desktop the portfolio is its own window beside Program Manager; in the game it is a menu.
+    const desk=from==='home';
+    const back=desk?()=>H.wm.close('portfolio'):from==='portfolio'?portfolioBack:captureReturn(from);
+    if(!desk){portfolioBack=back;setMode('portfolio');}
+    const open=desk?desktopApp('portfolio',{icon:DOC_ICON,iconId:'portfolio-icon',resizable:true,maximisable:true,minSize:[300,200]}):modal;
     const contact=safeLink(E.contactUrl);
     const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
     const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
       `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
-    modal(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">Back</button></div>`,true,back);
-    $('portfolio-back').addEventListener('click',back);
+    open(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">${desk?'Close':'Back'}</button></div>`,true,back);
+    (desk?H.wm.get('portfolio').el:$('overlay')).querySelector('#portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
     const old=progress.results[event.levelIndex];
@@ -584,7 +542,7 @@
   }
 
   document.addEventListener('keydown',e=>{
-    if(!$('dos-start').hidden||uiMode==='boot'||e.ctrlKey||e.metaKey||e.altKey)return;
+    if(!$('dos-start').hidden||uiMode==='boot'||uiMode==='home'||e.ctrlKey||e.metaKey||e.altKey)return;
     // Keep keyboard focus inside the current modal.
     if(e.code==='Tab'&&uiMode!=='playing'&&uiMode!=='home'){
       const focusable=[...activeSurface().querySelectorAll('button:not([disabled]),a[href],input')];
@@ -624,38 +582,45 @@
   $('art-book-link').search = globalThis.location.search;
   document.title='HIRE.EXE | '+E.applicant;
 
-  function dosStartup(){
+  const DOS_LOG=$('dos-start').querySelector('.dos-log').innerHTML;
+  // typed: WIN was entered at the MS-DOS prompt after Exit Windows, so go
+  // straight to the blank screen and the splash.
+  function dosStartup(typed=false){
     return new Promise(resolve=>{
       const prompt=$('dos-prompt'), state=$('dos-state'), skip=$('dos-skip');
-      const timers=[];
+      const timers=[], shift=typed?-1300:0;
       function finish(){
         timers.forEach(clearTimeout);
         document.removeEventListener('keydown',shortcut);
         skip.onclick=null;
-        prompt.textContent='C:\\>WIN';
-        state.textContent='Starting Windows…';
+        if(!typed){prompt.textContent='C:\\>WIN';state.textContent='Starting Windows…';}
         skip.hidden=true;
         resolve();
       }
       function shortcut(e){if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();finish();}}
+      skip.hidden=false;
       skip.onclick=finish;
-      document.addEventListener('keydown',shortcut);
+      setTimeout(()=>document.addEventListener('keydown',shortcut));
       if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
-      ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
-        timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
-      });
+      if(!typed){
+        ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
+          timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
+        });
+        timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
+      }
       // As in 1992: WIN clears the screen to black, the splash holds while
       // Windows loads, then the screen blanks again before Program Manager.
-      timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
-      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-blank');},1500));
-      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1850));
-      timers.push(setTimeout(()=>{$('dos-start').classList.remove('windows-splash');},4350));
-      timers.push(setTimeout(finish,4600));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-blank');},1500+shift));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1850+shift));
+      timers.push(setTimeout(()=>{$('dos-start').classList.remove('windows-splash');},4350+shift));
+      timers.push(setTimeout(finish,4600+shift));
     });
   }
 
   function revealDesktop(){
-    $('dos-start').hidden=true;
+    const screen=$('dos-start');
+    screen.hidden=true;screen.classList.remove('dos-shell','windows-splash','windows-blank');
+    $('dos-console')?.remove();$('dos-win')?.remove();
     $('desktop').inert=false;
   }
 
@@ -663,11 +628,90 @@
   // Escape cut it short, and Options > Replay startup runs it again.
   async function runStartup(){
     const screen=$('dos-start');
-    screen.hidden=false;screen.classList.remove('windows-splash','windows-blank');
+    screen.hidden=false;screen.classList.remove('windows-splash','windows-blank','dos-shell');
+    screen.querySelector('.dos-log').innerHTML=DOS_LOG;$('dos-win')?.remove();
     $('dos-skip').hidden=false;$('dos-state').textContent='';$('dos-prompt').textContent='';
     $('desktop').inert=true;
     await dosStartup();
     revealDesktop();
+  }
+
+  // File > Exit Windows. Every program closes and the screen returns to MS-DOS,
+  // just below the WIN that started Windows, with a fresh C:\> prompt. Typing
+  // WIN starts Windows again.
+  async function exitWindows(){
+    for(const rec of H.wm.windows())if(rec.id!=='progman')H.wm.remove(rec.id);
+    game.state=null;desktopReturn=null;
+    setMode('boot');
+    await dosShell();
+    await dosStartup(true);
+    revealDesktop();
+    showHome();
+  }
+  function dosShell(){
+    return new Promise(resolve=>{
+      const screen=$('dos-start'), log=screen.querySelector('.dos-log');
+      screen.hidden=false;screen.classList.remove('windows-splash','windows-blank');screen.classList.add('dos-shell');
+      $('desktop').inert=true;$('dos-skip').hidden=true;$('dos-state').textContent='';
+      if(!$('dos-prompt').textContent)$('dos-prompt').textContent='C:\\>WIN';
+      const out=document.createElement('div');out.id='dos-console';
+      out.innerHTML='<p class="dos-line"> </p><label class="dos-input-line"><span class="dos-typed">C:\\&gt;</span><span class="dos-cursor" aria-hidden="true">▮</span><input id="dos-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" maxlength="120" aria-label="MS-DOS prompt. Type WIN and press Enter to start Windows."></label>';
+      log.append(out);
+      const helper=document.createElement('button');helper.id='dos-win';helper.type='button';helper.textContent='Type WIN to start Windows';
+      screen.append(helper);
+      const input=out.querySelector('input'), typed=out.querySelector('.dos-typed'), line=out.querySelector('.dos-input-line');
+      let pending=null;
+      const ps=()=>pending?pending.prompt:'C:\\>';
+      const show=()=>{typed.textContent=ps()+input.value;fit();};
+      const print=text=>{for(const row of String(text).split('\n')){const p=document.createElement('p');p.className='dos-line';p.textContent=row||' ';out.insertBefore(p,line);}
+        fit();};
+      // Old lines scroll off the top whole, as on a real text screen.
+      function fit(){const rows=[...log.querySelectorAll('p')].filter(p=>p.textContent);
+        while(rows.length&&(rows.length>40||log.scrollHeight>log.clientHeight+1)){const first=rows.shift();if(first.id){first.textContent='';first.hidden=true;}else first.remove();}
+        log.scrollTop=log.scrollHeight;}
+      const pad=(s,n)=>String(s).padEnd(n);
+      const now=new Date(), two=n=>String(n).padStart(2,'0');
+      const day=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()];
+      const commands={
+        cls:()=>{log.querySelectorAll('p').forEach(p=>{if(p.id){p.textContent='';p.hidden=true;}else if(!line.contains(p))p.remove();});},
+        ver:()=>print('\nMS-DOS Version 5.00\n'),
+        dir:()=>print(['',' Volume in drive C is HIRE',' Volume Serial Number is 1A2B-3C4D',' Directory of C:\\','',
+          pad('COMMAND  COM',14)+'   47845 04-09-91   5:00a',pad('AUTOEXEC BAT',14)+'     133 03-10-92   9:14a',pad('CONFIG   SYS',14)+'     101 03-10-92   9:14a',
+          pad('DOS',14)+'   <DIR>   03-10-92   9:02a',pad('WINDOWS',14)+'   <DIR>   03-10-92   9:05a',pad('HIRE',14)+'   <DIR>   03-10-92   9:30a',
+          '        6 file(s)      48079 bytes','                   41287680 bytes free',''].join('\n')),
+        help:()=>print(['','For more information on a specific command, type HELP command-name.','CLS      Clears the screen.','DATE     Displays or sets the date.','DIR      Displays a list of files and subdirectories in a directory.','TIME     Displays or sets the system time.','VER      Displays the MS-DOS version.','WIN      Starts Microsoft Windows.',''].join('\n')),
+        date:()=>{print('Current date is '+day+' '+two(now.getMonth()+1)+'-'+two(now.getDate())+'-'+now.getFullYear());pending={prompt:'Enter new date (mm-dd-yy): '};},
+        time:()=>{print('Current time is '+(now.getHours()%12||12)+':'+two(now.getMinutes())+':'+two(now.getSeconds())+'.00'+(now.getHours()<12?'a':'p'));pending={prompt:'Enter new time: '};},
+        cd:()=>print('C:\\\n'),
+        exit:()=>{}
+      };
+      const needsWindows=['hire','calc','progman','winhelp','taskman','submarin','netscape','control','write','notepad'];
+      function run(raw){
+        const text=raw.trim();
+        print(ps()+raw);
+        if(pending){pending=null;show();return;}
+        const word=text.split(/\s+/)[0].toLowerCase().replace(/^c:\\/,'').replace(/\\$/,''), name=word.split('\\').pop().replace(/\.(exe|com|bat)$/,'');
+        if(!text){print('');show();return;}
+        if(name==='win'){finish();return;}
+        if(commands[name])commands[name]();
+        else if(needsWindows.includes(name))print('This program requires Microsoft Windows.\n');
+        else print('Bad command or file name\n');
+        show();
+      }
+      function finish(){
+        input.blur();helper.remove();out.querySelector('.dos-input-line').remove();
+        resolve();
+      }
+      input.addEventListener('input',show);
+      input.addEventListener('keydown',e=>{
+        if(e.key==='Enter'){e.preventDefault();const v=input.value;input.value='';run(v);}
+        else if(e.key==='Escape'){e.preventDefault();print(ps()+input.value+'\\');input.value='';show();}
+      });
+      screen.addEventListener('pointerdown',e=>{if(!e.target.closest('button'))setTimeout(()=>input.focus({preventScroll:true}));});
+      helper.addEventListener('click',()=>{input.value='WIN';show();setTimeout(()=>{input.value='';run('WIN');},180);});
+      show();
+      requestAnimationFrame(()=>input.focus({preventScroll:true}));
+    });
   }
   async function boot(){
     renderer=new H.Renderer($('game'));

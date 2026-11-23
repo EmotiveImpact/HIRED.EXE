@@ -262,14 +262,15 @@
 #os-shell .desk-surface {background:transparent}
 #os-shell .desk-glyph.navigator {background:#123e50;color:#fbf6d9;font:bold italic 35px Georgia,serif}
 /* Windows 3.1 never dimmed the desktop behind a window, so the dialog layer stays clear. */
-#os-dialog {position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:transparent}
+/* Program windows and dialog boxes share one layer above the desktop; it only catches clicks on the windows themselves. */
+#os-dialog {position:absolute;inset:0;background:transparent;pointer-events:none}
 #desktop:has(#os-shell:not([hidden])) .desktop-hint {display:none}
 #dos-start:not([hidden]){position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;background:#0b0b0b;color:#ddd;padding:clamp(20px,5vw,70px);font:clamp(16px,2vw,24px)/1.45 "Courier New",monospace}
 .dos-log p{margin:0 0 .65em}
 #dos-prompt:not(:empty)::after{content:'▮'}
 #dos-skip{background:transparent;color:#ddd;border:1px solid #777;padding:8px 14px;font:inherit;font-size:14px}
-#os-dialog:has(.standard-calc) .modal-window{width:min(362px,100%);background:#c8c7cc}
-#os-dialog:has(.standard-calc) .modal-body{padding:12px}
+#os-dialog .modal-window:has(.standard-calc){width:min(362px,100%);background:#c8c7cc}
+#os-dialog .modal-window:has(.standard-calc)>.modal-body{padding:12px;background:#c8c7cc}
 .calc-readout{background:#e8ede0;border:2px inset #eee;padding:5px 9px}
 .calc-expression{display:block;min-height:1.4em;font:12px monospace;text-align:right;color:#39473d}
 .standard-calc .calc-display{background:none;padding:0;font:26px/1.3 monospace}
@@ -281,26 +282,9 @@
 .calc-keys [data-key="0"]{grid-column:span 2}
 .standard-calc details{font:13px monospace;margin-top:10px}
 .calc-history{max-height:80px;overflow:auto;padding-left:22px}
-.program-manager{margin:clamp(5px,3vw,38px) auto;width:min(810px,98%);background:#c0c0c0;border:3px ridge #eee;color:#000;font:15px Arial,sans-serif;box-shadow:3px 3px #111}
-.pm-caption,.pm-group h2{margin:0;background:#000080;color:white;text-align:center;font:bold 15px Arial,sans-serif;padding:4px}
-.pm-menu{display:flex;background:white;border-bottom:1px solid black;position:relative;z-index:2}
-.pm-menu details{position:relative}.pm-menu summary{list-style:none;cursor:pointer;padding:4px 10px}.pm-menu summary::first-letter{text-decoration:underline}
-.pm-menu details[open]{background:#000080;color:white}.pm-popup{position:absolute;left:0;top:100%;min-width:max-content;background:#fff;color:#111;border:1px solid #111;box-shadow:2px 2px #555;padding:2px;z-index:5}
-.pm-popup button{display:block;width:100%;white-space:nowrap;text-align:left;border:0;padding:7px 15px;background:white;color:black;font:inherit}
-.pm-popup button:is(:hover,:focus-visible){background:navy;color:white;outline:none}
-.pm-menu summary{list-style:none}.pm-menu summary::-webkit-details-marker{display:none}
-.pm-workspace{padding:18px;display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:start;min-height:260px}
-.pm-group{background:white;border:3px ridge #ccc;box-shadow:1px 1px black}.pm-group h2{background:#686878}
-.pm-group:focus-within h2{background:navy}.pm-group .desk-files{padding:12px 6px;gap:4px}
-.pm-group .desk-files :is(button,a){font:13px Arial,sans-serif;color:black;min-width:0}
-.pm-group .desk-files :is(button,a):is(:hover,:focus-visible){background:navy;color:white}
-.pm-group .desk-files img{width:32px;height:32px}.pm-group small{font-size:11px}
-.program-manager .home-links{background:#ddd;padding:3px 12px;gap:14px;border-top:1px solid #888}.program-manager .home-links :is(button,a){color:black;font:13px Arial,sans-serif}
 .game-launch{display:grid;place-items:center;background:#161639}.load-card{display:grid;gap:12px;padding:18px 25px;background:silver;border:3px outset white;color:#13132c}.load-card progress{width:100%;accent-color:navy}
 .overlay.game-title{display:grid;place-items:center;text-align:center;color:white;background:linear-gradient(0deg,#171440ee,#17144066)}
 .game-title section{padding:12px}.game-title img{width:clamp(48px,9vw,90px);image-rendering:pixelated;border:3px solid white;box-shadow:4px 4px #21183b}.game-title h1{font:bold clamp(40px,9vw,112px)/1 monospace;letter-spacing:-.08em;margin:10px 0;text-shadow:4px 5px #252049}.game-title h1 span{color:#ffc956}.game-title p{margin:6px 0 15px}
-@media(max-width:600px){.pm-workspace{grid-template-columns:1fr;padding:10px;gap:10px;min-height:0}.pm-group .desk-files{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.pm-workspace.stacked{grid-template-columns:1fr}
 .windows-brand{display:none}
 /* Windows 3.1 start-up: the screen goes black when WIN starts, then the splash panel
    sits in the middle of a black screen, sized like the original (89% of the height). */
@@ -311,66 +295,209 @@
 @supports (height:1dvh){.windows-splash .windows-brand{--splash-h:min(89dvh,calc(92vw * 695 / 581))}}
 .windows-brand svg{display:block;width:100%;height:100%}
 .windows-splash #dos-skip{position:relative;z-index:1;margin-top:auto;color:#888;border-color:#444}
-.pm-workspace{display:block}.pm-group .desk-files{display:flex;flex-wrap:wrap}.pm-group .desk-files>*{width:104px}
-.pm-folders{display:flex;align-items:flex-start;gap:16px;margin-top:16px;color:#111}.pm-folders details{min-width:100px}.pm-folders summary{display:grid;justify-items:center;cursor:pointer;font-size:13px;list-style:none}.pm-folders summary:before{content:'';width:32px;height:23px;margin:6px;border:2px outset #eee;background:linear-gradient(navy 0 22%,white 22%);box-shadow:2px 2px black}
-.pm-folders details[open] .desk-files{padding:5px;background:white;border:2px ridge silver}.pm-folders .desk-files :is(a,button){color:black}
-.pm-document:before{content:'▤';display:grid;place-items:center;width:26px;height:32px;background:white;border:1px solid black;color:navy;font-size:23px}
-#start-game:focus strong{background:navy;color:white}
 #desktop:has(#os-shell:not([hidden])) .desktop-footer,#desktop:has(#os-shell:not([hidden])) .desktop-label{display:none}
 .overlay.game-title{position:absolute;display:flex;align-items:center;justify-content:flex-start;isolation:isolate;background:linear-gradient(90deg,#15142efa 0%,#191338c9 45%,transparent 82%),var(--title-scene) center/cover}
 .game-title .title-copy{width:65%;padding:clamp(12px,4vw,54px);text-align:left;z-index:1}.title-copy h1{white-space:nowrap;font-size:clamp(40px,8vw,100px)}.title-copy p{max-width:28ch}
 .title-hero{position:absolute;right:3%;bottom:12%;width:35%;height:70%;display:flex;align-items:flex-end;justify-content:center}.title-hero .title-actor{position:static;width:100%;max-height:100%;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(4px 4px 0 #1a173b88)}
 .title-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.title-links button{background:#161934c9;color:white;border:1px solid #a7a5ce;padding:7px}.replay-frame{display:block;width:100%;max-height:37vh;object-fit:contain}
-@media(max-width:540px){.game-title .title-copy{width:73%}.title-hero{right:0;bottom:18%}.pm-group .desk-files>*{width:86px}}
+@media(max-width:540px){.game-title .title-copy{width:73%}.title-hero{right:0;bottom:18%}}
 
-.program-manager{width:max-content;min-width:min(100%,334px);max-width:calc(100% - 12px)}
-.pm-workspace{min-height:0;padding:12px}
-.pm-group{width:max-content;max-width:100%}
-.pm-group .desk-files{display:grid;grid-template-columns:repeat(3,minmax(0,98px));padding:8px;gap:4px}
-.pm-group:has(#desk-sub) .desk-files{grid-template-columns:repeat(4,minmax(0,98px))}
-.pm-group .desk-files>*{width:auto}
-.pm-folders{margin:12px 0 0}
 .game-title .title-copy h1{font-size:clamp(35px,7vw,88px)}
-@media(max-width:500px){.pm-workspace{padding:8px}.pm-group:has(#desk-sub) .desk-files{grid-template-columns:repeat(3,minmax(0,98px))}.pm-group .desk-files>*{width:auto}.pm-menu summary{padding:7px 10px}.pm-popup button{min-height:38px}}
 
-/* Working desktop: Program Manager moves, minimises to a desktop icon and
-   maximises; program groups open as child windows; utility windows move. */
-.program-manager{position:relative}
-.pm-caption{display:flex;align-items:center;gap:3px;padding:2px;position:relative;z-index:3}
-.pm-title{flex:1;text-align:center}
-.pm-caption>button,.pm-control>summary{flex:none;width:22px;height:20px;display:grid;place-items:center;padding:0;background:silver;border:2px outset #fff;color:#000;font:bold 11px/1 Arial,sans-serif;cursor:pointer}
-.pm-caption>button:active,.pm-control[open]>summary{border-style:inset}
-.pm-control{position:relative}
-.pm-control>summary{list-style:none;font-size:17px}
-.pm-control>summary::-webkit-details-marker{display:none}
-.pm-control .pm-popup{text-align:left;font-weight:normal}
-.pm-popup button:disabled{opacity:1;color:#8a8a8a;background:white;cursor:default}
-.program-manager.is-floating{position:absolute;margin:0;z-index:4;max-width:100%}
-.program-manager.is-max{position:absolute;inset:0;width:auto;min-width:0;max-width:none;margin:0;display:flex;flex-direction:column;z-index:4;box-shadow:none}
-.program-manager.is-max .pm-workspace{flex:1;overflow:auto}
-.program-manager.is-dragging{opacity:.94}
-.desk-min-icon{position:absolute;left:18px;bottom:18px;display:grid;justify-items:center;gap:5px;width:116px;padding:5px;background:transparent;border:1px solid transparent;color:#fff;font:13px Arial,sans-serif;text-align:center}
-.desk-min-icon:is(:hover,:focus-visible){background:navy;outline:1px dotted #fff;outline-offset:-1px}
 .pm-icon-art{display:grid;grid-template-columns:repeat(2,9px);gap:3px;place-content:center;width:38px;height:32px;padding-top:7px;border:2px outset #eee;background:linear-gradient(navy 0 26%,#fff 26%);box-shadow:2px 2px #111}
 .pm-icon-art i{width:9px;height:7px;background:#2c7f8c}.pm-icon-art i:nth-child(2){background:#f0b94f}.pm-icon-art i:nth-child(3){background:#c8504d}.pm-icon-art i:nth-child(4){background:navy}
-.pm-workspace{position:relative;isolation:isolate}
-.pm-group{position:relative}
-.pm-folders details[open]>summary{opacity:.55}
-.pm-child{position:absolute;top:10px;right:10px;z-index:5;min-width:150px;background:#fff;border:3px ridge #ccc;box-shadow:2px 2px #000;color:#000}
-#internet-group .pm-child{top:38px;right:26px}
-.pm-child h3{display:flex;align-items:center;gap:4px;margin:0;padding:2px 2px 2px 24px;background:navy;color:#fff;font:bold 13px Arial,sans-serif}
-.pm-child h3 span{flex:1;text-align:center}
-.pm-child-min{flex:none;width:20px;height:18px;padding:0;background:silver;border:2px outset #fff;color:#000;font:bold 10px/1 Arial,sans-serif}
-.pm-child-min:active{border-style:inset}
-.pm-folders details[open] .pm-child .desk-files{display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:transparent;border:0}
-.pm-child .desk-files>*{width:98px;font:13px Arial,sans-serif}
-.pm-child .desk-files :is(button,a):is(:hover,:focus-visible){background:navy;color:#fff;border-color:transparent}
-#os-dialog .modal-window.is-floating{position:absolute;margin:0}
-@media (pointer:fine){.pm-caption,.pm-child h3,#os-dialog .small-title{cursor:move}.program-manager.is-max .pm-caption{cursor:default}}
-@media (min-width:900px) and (min-height:620px){
-  .program-manager{width:min(780px,calc(100% - 48px));margin:clamp(24px,7vh,72px) auto 0}
-  .pm-workspace{min-height:min(46vh,380px);display:flex;flex-direction:column;align-items:flex-start;padding:16px}
-  .pm-folders{margin-top:auto;padding-top:16px}
-  .pm-child{top:16px;right:16px}
-  #internet-group .pm-child{top:50px;right:42px}
-}
+
+/* Windows 3.1 desktop. Active title bars are dark blue, inactive ones white.
+   Resizable windows have the thick grey frame, dialog boxes the blue one. */
+#os-shell{--w31-active:#000080;--w31-face:#c0c0c0;--w31-shadow:#808080;font:bold 13px Arial,Helvetica,sans-serif;overflow:hidden;min-height:420px}
+#os-files{position:static}
+#os-shell :focus-visible{outline:1px dotted #000;outline-offset:-3px}
+.w31-window{position:absolute;display:flex;flex-direction:column;min-width:0;color:#000;background:var(--w31-face);border:4px solid var(--w31-face);outline:1px solid #000;box-shadow:inset 0 0 0 1px #000;pointer-events:auto}
+.w31-window.is-max{inset:0!important;width:auto!important;height:auto!important;border-width:0;outline:0;box-shadow:none}
+.w31-window.is-centred{left:calc(50% + var(--cascade,0px));top:calc(50% + var(--cascade,0px));transform:translate(-50%,-50%);max-height:calc(100% - 8px)}
+.w31-window.is-dragging,.w31-window.is-sizing{opacity:.92}
+.w31-caption{position:relative;display:flex;align-items:stretch;gap:0;min-height:20px;margin:0;padding:0;background:#fff;color:#000;border-bottom:1px solid #000;font:bold 13px Arial,Helvetica,sans-serif;letter-spacing:0;text-shadow:none;user-select:none}
+.w31-window.is-active>.w31-caption,.w31-child.is-current>.w31-caption{background:var(--w31-active);color:#fff}
+.program-manager:not(.is-active) .w31-child.is-current>.w31-caption{background:#fff;color:#000}
+.w31-title{flex:1;display:flex;align-items:center;justify-content:safe center;padding:1px 6px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.w31-caption>button,.w31-menubar>.w31-sysbox,.w31-menubar>.w31-child-restore{position:relative;flex:none;width:20px;min-height:20px;padding:0;margin:0;background:var(--w31-face);border:0;border-left:1px solid #000;box-shadow:inset 1px 1px #fff,inset -1px -1px var(--w31-shadow);color:#000;cursor:default}
+.w31-caption>button:active,.w31-caption>button.is-open{box-shadow:inset 1px 1px var(--w31-shadow);transform:none}
+.w31-caption>.w31-sysbox{border-left:0;border-right:1px solid #000}
+.w31-sysbox::before{content:'';position:absolute;left:3px;right:4px;top:8px;height:3px;background:#fff;border:1px solid #000;box-shadow:1px 1px var(--w31-shadow)}
+.w31-child .w31-sysbox::before,.w31-child-box::before{left:4px;right:5px}
+.w31-min::before,.w31-max::before,.w31-max.is-restore::after{content:'';position:absolute;left:50%;margin-left:-4px;border:4px solid transparent}
+.w31-min::before{top:7px;border-top:5px solid #000;border-bottom:0}
+.w31-max::before{top:6px;border-bottom:5px solid #000;border-top:0}
+.w31-max.is-restore::before{top:3px;border-bottom-width:4px}
+.w31-max.is-restore::after{top:11px;border-top:4px solid #000;border-bottom:0}
+@media (pointer:coarse){.w31-caption{min-height:30px}.w31-caption>button{width:30px;min-height:30px}.w31-sysbox::before{top:13px}.w31-min::before{top:12px}.w31-max::before{top:11px}.w31-max.is-restore::before{top:7px}.w31-max.is-restore::after{top:16px}}
+@media (pointer:fine){.w31-caption{cursor:default}}
+/* Resizing grips sit on the frame. */
+.w31-grip{position:absolute;z-index:3}
+.w31-grip-n,.w31-grip-s{left:12px;right:12px;height:5px;cursor:ns-resize}.w31-grip-n{top:-5px}.w31-grip-s{bottom:-5px}
+.w31-grip-e,.w31-grip-w{top:12px;bottom:12px;width:5px;cursor:ew-resize}.w31-grip-e{right:-5px}.w31-grip-w{left:-5px}
+.w31-grip-ne,.w31-grip-nw,.w31-grip-se,.w31-grip-sw{width:16px;height:16px}
+/* Corners are L-shaped so they never cover the title bar buttons. */
+.w31-grip-ne{top:-5px;right:-5px;cursor:nesw-resize;clip-path:polygon(0 0,100% 0,100% 100%,calc(100% - 5px) 100%,calc(100% - 5px) 5px,0 5px)}
+.w31-grip-sw{bottom:-5px;left:-5px;cursor:nesw-resize;clip-path:polygon(0 0,5px 0,5px calc(100% - 5px),100% calc(100% - 5px),100% 100%,0 100%)}
+.w31-grip-nw{top:-5px;left:-5px;cursor:nwse-resize;clip-path:polygon(0 0,100% 0,100% 5px,5px 5px,5px 100%,0 100%)}
+.w31-grip-se{bottom:-5px;right:-5px;cursor:nwse-resize;clip-path:polygon(calc(100% - 5px) 0,100% 0,100% 100%,0 100%,0 calc(100% - 5px),calc(100% - 5px) calc(100% - 5px))}
+.is-max>.w31-grip{display:none}
+@media (pointer:coarse){.w31-grip{display:none}}
+
+/* Menus */
+.w31-menubar{position:relative;display:flex;flex-wrap:wrap;align-items:stretch;background:#fff;border-bottom:1px solid #000;min-height:20px}
+.w31-menuhead{padding:2px 8px;margin:0;border:0;background:transparent;color:#000;font:bold 13px Arial,Helvetica,sans-serif;cursor:default}
+.w31-menuhead[aria-expanded="true"],.w31-menuhead:focus-visible{background:var(--w31-active);color:#fff;outline:0}
+.w31-menubar>.w31-sysbox{border-left:0;border-right:1px solid #000}
+.w31-menubar>.w31-child-restore{margin-left:auto}
+.w31-menu{position:fixed;z-index:9000;min-width:150px;padding:2px 0;background:#fff;color:#000;border:1px solid #000;box-shadow:2px 2px 0 #000;font:bold 13px Arial,Helvetica,sans-serif;outline:0}
+.w31-menu button{display:grid;grid-template-columns:16px 1fr auto;align-items:center;width:100%;padding:2px 10px 2px 2px;margin:0;border:0;background:#fff;color:#000;font:inherit;text-align:left;white-space:nowrap;cursor:default}
+.w31-menu button:is(:hover,:focus){background:var(--w31-active);color:#fff;outline:0}
+.w31-menu button:disabled{color:#808080;opacity:1;background:#fff}
+.w31-menu button:disabled:is(:hover,:focus){background:var(--w31-active);color:#808080}
+.w31-menu .w31-key{padding-left:28px}
+.w31-menu [aria-checked="true"] .w31-check::before{content:'✓';display:block;text-align:center}
+.w31-menu hr{margin:3px 0;border:0;border-top:1px solid #000}
+@media (pointer:coarse){.w31-menu button{min-height:38px}.w31-menuhead{padding:6px 10px}}
+
+/* Program Manager */
+.program-manager{min-width:0}
+.pm-workspace{position:relative;flex:1;min-height:0;overflow:auto;background:var(--w31-face)}
+.w31-child{position:absolute;display:flex;flex-direction:column;background:#fff;border:3px solid var(--w31-face);outline:1px solid #000;box-shadow:inset 0 0 0 1px #000;z-index:1}
+.w31-child.is-current{z-index:4}
+.w31-child.is-max{inset:0!important;width:auto!important;height:auto!important;border:0;outline:0;box-shadow:none;z-index:5}
+.w31-child.is-max>.w31-caption{display:none}
+.w31-child>.w31-caption{min-height:18px;font-size:12px}
+.w31-child>.w31-caption>button{width:18px;min-height:18px}
+.w31-child .w31-sysbox::before{top:7px}.w31-child .w31-min::before{top:6px}.w31-child .w31-max::before{top:5px}
+.w31-child .w31-max.is-restore::before{top:2px}.w31-child .w31-max.is-restore::after{top:10px}
+.pm-items{position:relative;flex:1;min-height:0;overflow:auto;padding:6px 4px;background:#fff}
+.pm-items.is-flow{display:flex;flex-wrap:wrap;align-content:flex-start;gap:2px}
+.pm-item{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;width:88px;padding:4px 2px;margin:0;border:0;background:transparent;color:#000;text-align:center;text-decoration:none;font:12px Arial,Helvetica,sans-serif;cursor:default;-webkit-user-drag:none}
+.pm-items.is-free .pm-item{position:absolute}
+.pm-item:focus-visible{outline:0}
+.pm-item:active{transform:none}
+.pm-icon{display:grid;place-items:center;width:32px;height:32px}
+.pm-icon img{width:32px;height:32px;image-rendering:pixelated}
+.pm-label{display:flex;flex-direction:column;align-items:center;padding:0 2px;line-height:1.2}
+.pm-label strong{font-weight:normal}
+.pm-label small{font-size:10px;color:#333}
+.w31-child.is-current .pm-item.is-selected .pm-label,.w31-child.is-current .pm-item:focus .pm-label{background:var(--w31-active);color:#fff}
+.w31-child.is-current .pm-item.is-selected .pm-label small{color:#fff}
+.pm-item.is-dragging{opacity:.4}
+.pm-glyph{display:grid;place-items:center;width:30px;height:30px;font:bold 17px Arial,sans-serif;color:#000080;background:#fff;border:1px solid #000;box-shadow:2px 2px 0 #808080}
+.pm-glyph-cv{font:bold 13px "Courier New",monospace;background:#fff9e4}
+.pm-glyph-doc{width:24px;font-size:20px}
+.pm-glyph-sub{background:#f3d98f;color:#162348;font-size:18px}
+.pm-glyph-navigator{background:#123e50;color:#fbf6d9;font:bold italic 21px Georgia,serif}
+.pm-glyph-app{background:linear-gradient(#000080 0 7px,#fff 7px)}
+.help-glyph{background:#ffffe0;color:#008000;font:bold 20px Georgia,serif}
+.pm-icons{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap-reverse;align-items:flex-end;gap:2px;padding:4px;pointer-events:none;z-index:0}
+.pm-group-icon{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:3px;width:84px;padding:3px 2px;border:0;background:transparent;color:#000;font:12px Arial,Helvetica,sans-serif;cursor:default}
+.pm-group-icon:active{transform:none}
+.pm-group-art{width:32px;height:22px;margin:4px 0 2px;background:linear-gradient(#000080 0 5px,#fff 5px);border:1px solid #000;box-shadow:inset 0 0 0 2px #fff,2px 2px 0 #000;position:relative}
+.pm-group-art::after{content:'';position:absolute;left:5px;right:5px;top:9px;height:6px;background:repeating-linear-gradient(90deg,#808080 0 5px,transparent 5px 8px)}
+.pm-group-label{padding:0 2px}
+.pm-group-icon.is-current .pm-group-label,.pm-group-icon:focus .pm-group-label{background:var(--w31-active);color:#fff}
+.pm-drag-ghost{position:fixed;z-index:9500;pointer-events:none;opacity:.85}
+body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
+.pm-prop-icon{display:flex;align-items:center;gap:16px;margin-top:6px}
+
+/* Minimised windows sit along the bottom of the desktop. */
+.desk-icons{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap-reverse;align-items:flex-end;gap:4px;padding:6px;pointer-events:none;z-index:1}
+.desk-icon{pointer-events:auto;display:flex;flex-direction:column;align-items:center;gap:4px;width:96px;padding:3px;border:0;background:transparent;color:#fff;font:12px Arial,Helvetica,sans-serif;cursor:default}
+.desk-icon:active{transform:none}
+.desk-icon-art{display:grid;place-items:center;min-width:32px;min-height:32px}
+.desk-icon-art img{width:32px;height:32px;image-rendering:pixelated}
+.desk-icon-label{padding:0 3px}
+.desk-icon.is-active .desk-icon-label,.desk-icon:focus .desk-icon-label{background:var(--w31-active);color:#fff}
+
+/* Programs on the desktop */
+#os-dialog .w31-app{border-width:4px;max-width:100%;max-height:100%;box-shadow:inset 0 0 0 1px #000}
+#os-dialog .w31-app.wide{width:min(800px,100%)}
+.w31-app:not(.sea-window)>.small-title{justify-content:flex-start;padding:0;gap:0;font-size:13px;letter-spacing:0}
+.w31-app:not(.sea-window)>.small-title #dialog-close{width:20px;height:auto;min-height:20px;font:bold 15px/1 Arial,sans-serif;background:var(--w31-face);color:#000;border:0;border-left:1px solid #000;box-shadow:inset 1px 1px #fff,inset -1px -1px var(--w31-shadow)}
+.w31-app .modal-body{flex:1;min-height:0;background:#fff}
+.sea-window>.small-title>.w31-sysbox,.sea-window>.small-title>.w31-min{align-self:center;height:25px;width:25px;border:2px outset #f4f2fd;box-shadow:none;background:#d5d3e3}
+.sea-window>.small-title>.w31-sysbox{margin-right:8px}
+.sea-window>.small-title>.w31-min{margin-right:4px}
+.sea-window>.small-title .w31-title{justify-content:flex-start;padding:0}
+.w31-app.is-on-top{z-index:4000!important}
+@media (pointer:coarse){#os-dialog.sea-layer{pointer-events:auto}}
+
+/* Dialog boxes */
+.w31-dialog{background:#fff;border:4px solid var(--w31-active);outline:1px solid #000;box-shadow:inset 0 0 0 1px #000;min-width:min(280px,calc(100% - 16px));max-width:calc(100% - 16px);z-index:5000}
+.w31-dialog:not(.is-active){border-color:#fff}
+.w31-dialog>.w31-caption{background:var(--w31-active);color:#fff}
+.w31-dialog-body{display:flex;gap:14px;padding:14px 14px 12px;margin:0;font:bold 13px Arial,Helvetica,sans-serif}
+.layout-bottom .w31-dialog-body{flex-direction:column}
+.w31-dialog-main{flex:1;min-width:0}
+.w31-dialog-main p{margin:0 0 8px;font-weight:bold}
+.w31-buttons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.layout-side .w31-buttons{flex-direction:column;justify-content:flex-start}
+.w31-buttons button{min-width:76px;padding:4px 10px;background:var(--w31-face);color:#000;border:1px solid #000;border-radius:3px;box-shadow:inset 1px 1px #fff,inset 2px 2px #fff,inset -1px -1px var(--w31-shadow),inset -2px -2px var(--w31-shadow);font:bold 13px Arial,Helvetica,sans-serif;cursor:default}
+.w31-buttons button.is-default{border-width:2px}
+.w31-buttons button:active{box-shadow:inset 1px 1px var(--w31-shadow);transform:none}
+.w31-buttons button:disabled{color:#808080;opacity:1}
+.w31-buttons button:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+.w31-field{display:grid;grid-template-columns:minmax(120px,auto) 1fr;align-items:center;gap:8px;margin:0 0 8px}
+.w31-field input,.w31-field select,.help-search input{min-width:0;width:100%;padding:2px 4px;border:1px solid #000;background:#fff;color:#000;font:13px Arial,Helvetica,sans-serif;border-radius:0}
+.w31-field input[readonly]{background:#fff;color:#000}
+.w31-check-row{display:flex;align-items:center;gap:6px;margin:4px 0}
+.w31-group{border:1px solid #000;padding:6px 12px;margin:0}
+.w31-group legend{padding:0 4px}
+.w31-static{font-weight:bold}
+.w31-static b{font-weight:normal}
+.w31-listbox{min-height:110px;max-height:200px;overflow:auto;border:1px solid #000;background:#fff;font:13px Arial,Helvetica,sans-serif}
+.w31-listbox [role=option]{padding:1px 4px;cursor:default;white-space:nowrap}
+.w31-listbox [aria-selected="true"]{background:var(--w31-active);color:#fff}
+.w31-icon{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid #000;font:bold 20px Georgia,serif;color:#000}
+.w31-icon-stop{border-radius:8px;background:#d00000;color:#fff;font:bold 10px Arial,sans-serif;border-color:#600}
+.w31-icon-info{color:#000080}
+.w31-message .w31-dialog-main{display:flex;gap:16px;align-items:center}
+.w31-message .w31-dialog-main p{margin:0;max-width:340px}
+.w31-exit .w31-dialog-main p{text-align:center;margin:6px 10px 4px}
+.w31-tasklist .w31-buttons{display:grid;grid-template-columns:repeat(3,1fr)}
+.w31-tasklist{width:min(380px,calc(100% - 16px))}
+.w31-about{width:min(420px,calc(100% - 16px))}
+.w31-about hr{border:0;border-top:1px solid #000;margin:8px 0}
+.about-head{display:flex;gap:16px;align-items:flex-start}
+.about-head p{margin:0 0 6px}
+.about-flag{flex:none;width:58px;height:48px}
+.about-licence{font-weight:bold}
+.about-licence b{font-weight:normal}
+.about-stats{display:grid;grid-template-columns:auto 1fr;gap:2px 16px;margin:0}
+.about-stats dd{margin:0;font-weight:normal}
+.pm-properties{width:min(520px,calc(100% - 16px))}
+
+/* Windows Help */
+.help-window{width:min(560px,100%);height:min(470px,100%)}
+.help-window .modal-body{display:flex;flex-direction:column;padding:0;position:relative;overflow:hidden}
+.help-buttons{display:flex;gap:4px;padding:4px;background:var(--w31-face);border-bottom:1px solid #000;flex-wrap:wrap}
+.help-buttons button{padding:2px 10px;background:var(--w31-face);border:1px solid #000;border-radius:3px;box-shadow:inset 1px 1px #fff,inset -1px -1px var(--w31-shadow);font:bold 12px Arial,sans-serif;color:#000}
+.help-buttons button:disabled{color:#808080;opacity:1}
+.help-topic{flex:1;overflow:auto;padding:10px 14px;background:#fff;color:#000;font:13px Arial,Helvetica,sans-serif;line-height:1.45;-webkit-user-select:text;user-select:text}
+.help-topic h2{margin:0 0 10px;font:bold 16px Arial,sans-serif}
+.help-topic h3{margin:12px 0 4px;font:bold 13px Arial,sans-serif}
+.help-topic ul{margin:0;padding-left:20px}
+.help-topic dt{font-weight:bold;margin-top:6px}.help-topic dd{margin:0 0 0 18px}
+.help-jump{color:#008000;text-decoration:underline;text-decoration-style:solid}
+.help-term{color:#008000;text-decoration:underline;text-decoration-style:dotted}
+.help-keys th{text-align:left;padding:2px 14px 2px 0;white-space:nowrap}.help-keys td{padding:2px 0}
+.help-popup{position:absolute;z-index:10;max-width:300px;padding:8px 10px;background:#fff;color:#000;border:1px solid #000;box-shadow:3px 3px 0 #000;font:13px Arial,sans-serif}
+.help-search{width:min(440px,calc(100% - 16px))}
+.help-search .w31-listbox{min-height:80px;max-height:110px;margin:6px 0}
+.help-list .help-definition{min-height:2.6em;margin:8px 0 0;font-weight:normal}
+
+/* MS-DOS after Exit Windows */
+.dos-shell #dos-prompt::after{content:none}
+#dos-console p{margin:0;white-space:pre}
+#dos-console .dos-line{min-height:1.45em}
+.dos-input-line{position:relative;display:flex;white-space:pre;cursor:text}
+.dos-cursor{animation:dos-blink 1s steps(1) infinite}
+@keyframes dos-blink{50%{opacity:0}}
+#dos-input{position:absolute;inset:0;width:100%;opacity:0;border:0;padding:0;font:inherit;color:transparent;background:transparent;caret-color:transparent}
+#dos-win{background:transparent;color:#ddd;border:1px solid #777;padding:8px 14px;font:inherit;font-size:14px}
+.dos-shell .dos-log{flex:1;min-height:0;width:100%;overflow:hidden;margin-bottom:16px}
+@media (prefers-reduced-motion:reduce){.dos-cursor{animation:none}}
