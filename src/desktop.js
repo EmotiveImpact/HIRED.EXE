@@ -5,14 +5,14 @@
     const operations = {'+':(a,b)=>a+b,'−':(a,b)=>a-b,'×':(a,b)=>a*b,'÷':(a,b)=>a/b};
     modal('Calculator', '<section class="standard-calc"><div class="calc-readout"><small class="calc-expression"></small><output class="calc-display" aria-label="Result">0</output></div><div class="calc-keys">' +
       keys.map(key=>'<button type="button" data-key="'+key+'">'+key+'</button>').join('') +
-      '</div><details><summary>History</summary><ol class="calc-history"></ol></details></section>');
+      '</div><details><summary>History</summary><p class="calc-history-empty">No calculations yet.</p><ol class="calc-history"></ol></details></section>');
     const app=document.querySelector('.standard-calc');
     const display=app.querySelector('output'), expression=app.querySelector('.calc-expression');
-    const history=app.querySelector('ol');
+    const history=app.querySelector('ol'), empty=app.querySelector('.calc-history-empty');
     if(unlocked)record('£4,000,000 ÷ 1 download = £4,000,000 per download');
     let memory=0, lhs=0, op='', repeat='', rhs=0, entering=false, supplied=false, caption='';
     function record(line){
-      const item=document.createElement('li'); item.textContent=line; history.prepend(item);
+      const item=document.createElement('li'); item.textContent=line; history.prepend(item); empty.hidden=true;
       if(history.children.length>30)history.lastElementChild.remove();
     }
     function format(n){return Number.isFinite(n)?String(Number(n.toPrecision(13))):'Error';}
