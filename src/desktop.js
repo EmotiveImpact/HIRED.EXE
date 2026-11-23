@@ -62,7 +62,7 @@
     win.tabIndex=-1;
     requestAnimationFrame(()=>win.focus({preventScroll:true}));
     win.onkeydown=e=>{
-      if(e.ctrlKey||e.metaKey||e.altKey)return;
+      if(e.ctrlKey||e.metaKey||e.altKey||e.target.closest('.w31-caption,.w31-menu'))return;
       if(e.key==='Enter' && (e.target.id==='dialog-close'||e.target.tagName==='SUMMARY'))return;
       const k=({'/':'÷','*':'×','-':'−',Enter:'=',Delete:'CE',Backspace:'←',c:'C',C:'C'})[e.key]||e.key;
       if(keys.includes(k)){e.preventDefault();input(k);}

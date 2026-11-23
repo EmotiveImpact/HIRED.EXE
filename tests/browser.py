@@ -39,26 +39,41 @@ def run(profile, base):
             assert page.evaluate("window.getSelection().toString()") == ''
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
+        # As in Windows 3.1, a program item opens with a double-click (a tap on a phone).
+        def open_item(target):
+            item = page.locator(target)
+            item.tap() if mobile else item.dblclick()
         def launch():
-            icon = page.locator('#start-game')
-            icon.tap() if mobile else icon.dblclick()
+            open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
         expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
         # Submarine (final).exe is on the desktop from the start, with no save needed.
         expect(page.locator('#desk-sub')).to_be_visible()
-        group = page.locator('.pm-group')
+        # Program Manager's menus drop over the group window without moving it.
+        group = page.locator('#main-window')
         before = group.bounding_box()
-        activate('.pm-menu details:nth-child(1) summary')
-        expect(page.locator('#attachment-launch')).to_be_visible()
+        activate('#pm-file')
+        expect(page.locator('#pm-exit')).to_be_visible()
         assert group.bounding_box() == before
-        activate('.pm-menu details:nth-child(3) summary')
-        expect(page.locator('#attachment-launch')).to_be_hidden()
-        expect(page.locator('#pm-apps')).to_be_visible()
-        activate('#pm-apps')
-        expect(page.locator('#pm-apps')).to_be_hidden()
+        activate('#pm-window')
+        expect(page.locator('#pm-exit')).to_be_hidden()
+        expect(page.locator('#pm-window-main')).to_be_visible()
+        activate('#pm-window-main')
+        expect(page.locator('#pm-window-main')).to_be_hidden()
         expect(page.locator('#start-game strong')).to_have_text('HIRE.EXE')
-        activate('#accessories-group summary')
-        activate('#desk-calc')
+        # Help > About Program Manager, then Exit Windows > Cancel keeps the session.
+        activate('#pm-help')
+        activate('#pm-about')
+        expect(page.locator('#about-ok')).to_be_visible()
+        activate('#about-ok')
+        activate('#pm-file')
+        activate('#pm-exit')
+        expect(page.locator('#exit-cancel')).to_be_visible()
+        activate('#exit-cancel')
+        expect(page.locator('#start-game')).to_be_visible()
+        # Accessories starts as a group icon at the foot of Program Manager.
+        open_item('#accessories-group')
+        open_item('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
             page.get_by_role('button', name=key, exact=True).click()
@@ -73,6 +88,9 @@ def run(profile, base):
         page.get_by_role('button', name='MR', exact=True).click()
         expect(page.locator('.calc-display')).to_have_text('4')
         activate('#dialog-close')
+        # Accessories opened over the main group, so put it back to an icon.
+        activate('#accessories-window .w31-min')
+        expect(page.locator('#accessories-group')).to_be_visible()
         launch()
         activate('#replay-scenes')
         expect(page.locator('.replay-frame')).to_be_visible()
@@ -186,7 +204,7 @@ def run(profile, base):
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
         activate('#pause-button')
         activate('#pause-home')
-        activate('#desk-sub')
+        open_item('#desk-sub')
         # The window is just the game. Its controls live on the canvas: Space or the left half
         # dives, X or the right half fires, so the submarine can dive and shoot together.
         sea = page.locator('.sea-view')
