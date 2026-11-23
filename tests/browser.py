@@ -44,7 +44,8 @@ def run(profile, base):
             icon.tap() if mobile else icon.dblclick()
         expect(page.locator('#game-window')).to_be_hidden()
         expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
-        expect(page.locator('#desk-sub')).to_have_count(0)
+        # Submarine (final).exe is on the desktop from the start, with no save needed.
+        expect(page.locator('#desk-sub')).to_be_visible()
         group = page.locator('.pm-group')
         before = group.bounding_box()
         activate('.pm-menu details:nth-child(1) summary')
