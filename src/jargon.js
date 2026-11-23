@@ -65,7 +65,9 @@
     for (const l of LEVELS) best[l.id] = Number.isFinite(saved.best?.[l.id]) && saved.best[l.id] > 0 ? Math.floor(saved.best[l.id]) : 0;
     let cols = [], score = 0, prev = null, over = false, cursor = {c: 0, r: ROWS - 1}, said = {};
 
-    const remember = () => store({level: level.id, best});
+    // Another tab may have set a record since this window opened: keep the higher score.
+    const sync = () => { const s = load(); for (const l of LEVELS) { const v = s.best?.[l.id]; if (Number.isFinite(v) && v > best[l.id]) best[l.id] = Math.floor(v); } };
+    const remember = () => { sync(); store({level: level.id, best}); };
     const win = wm.openApp({
       id: 'jargon', title: 'Jargon', icon, iconId, className: 'jargon-window',
       menu: [
@@ -149,6 +151,7 @@
       over = true;
       const left = cols.reduce((n, col) => n + col.length, 0);
       if (!left) score += CLEAR_BONUS;
+      sync();
       const record = score > best[level.id];
       if (record) { best[level.id] = score; remember(); }
       render();

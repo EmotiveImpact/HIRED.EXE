@@ -123,6 +123,13 @@ def run(profile, base):
         activate('#jg-game')
         activate('#jg-undo')
         expect(tiles).to_have_count(108)
+        # A minimised game comes back as it was when its item is opened again.
+        activate(f'.jg-tile[data-c="{c}"][data-r="{r}"]')
+        left = tiles.count()
+        activate('.jargon-window .w31-min')
+        open_item('#desk-jargon')
+        expect(page.locator('.jargon-window')).to_be_visible()
+        expect(tiles).to_have_count(left)
         activate('.jargon-window #dialog-close')
         activate('#games-window .w31-min')
         expect(page.locator('#games-group')).to_be_visible()
@@ -138,6 +145,9 @@ def run(profile, base):
         activate('#setup-internet')
         expect(page.locator('.setup-window')).to_have_count(0)
         expect(page.locator('#desk-link-vimeo')).to_have_attribute('href', 'https://vimeo.com/emotiveimpact')
+        # Each Internet item's command line opens its own page from File > Run.
+        assert page.evaluate(r'''() => { const seen = []; const real = window.open; window.open = u => { seen.push(u); return null; };
+            Hired.progman.run('C:\\NETSCAPE\\NETSCAPE.EXE https://vimeo.com/emotiveimpact'); window.open = real; return seen; }''') == ['https://vimeo.com/emotiveimpact']
         activate('#internet-window .w31-min')
         expect(page.locator('#internet-group')).to_be_visible()
         launch()

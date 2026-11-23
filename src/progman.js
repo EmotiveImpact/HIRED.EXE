@@ -696,7 +696,8 @@
     const text = String(line || '').trim();
     const file = text.split(/\s+/)[0].split(/[\\/]/).pop().toLowerCase();
     const name = file.replace(/\.(exe|com|bat|pif)$/i, '');
-    const known = Object.values(cfg.items).find(d => (d.runs || []).includes(file) || (d.runs || []).includes(name));
+    const exact = Object.values(cfg.items).find(d => d.command && d.command.toLowerCase() === text.toLowerCase());
+    const known = exact || Object.values(cfg.items).find(d => (d.runs || []).includes(file) || (d.runs || []).includes(name));
     if (known?.open) { known.open(); return true; }
     if (name === 'progman') { wm.restore('progman'); return true; }
     if (name === 'winhelp') { cfg.hooks.help('contents'); return true; }
@@ -715,7 +716,7 @@
         if (value === 'ok') {
           if (!v.command.trim()) return false;
           const file = v.command.trim().split(/\s+/)[0].split(/[\\/]/).pop().toLowerCase().replace(/\.(exe|com|bat|pif)$/i, '');
-          const known = Object.values(cfg.items).some(d => (d.runs || []).some(r => r.replace(/\.(exe|com|bat|pif)$/i, '') === file)) || ['progman', 'winhelp', 'taskman'].includes(file);
+          const known = Object.values(cfg.items).some(d => (d.command && d.command.toLowerCase() === v.command.trim().toLowerCase()) || (d.runs || []).some(r => r.replace(/\.(exe|com|bat|pif)$/i, '') === file)) || ['progman', 'winhelp', 'taskman'].includes(file);
           if (!known) { runCommand(v.command, document.querySelector('.w31-dialog[aria-label="Run"]')); return false; }
         }
       }
