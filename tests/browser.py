@@ -105,6 +105,41 @@ def run(profile, base):
         # Accessories opened over the main group, so put it back to an icon.
         activate('#accessories-window .w31-min')
         expect(page.locator('#accessories-group')).to_be_visible()
+        # Games holds Jargon: a group of two or more matching buzzwords clears, and Undo brings it back.
+        open_item('#games-group')
+        open_item('#desk-jargon')
+        tiles = page.locator('.jargon-window .jg-tile')
+        expect(tiles).to_have_count(108)
+        c, r = page.evaluate('''() => {
+            for (const t of document.querySelectorAll('.jg-tile')) {
+                const c = +t.dataset.c, r = +t.dataset.r;
+                for (const n of [`[data-c="${c + 1}"][data-r="${r}"]`, `[data-c="${c}"][data-r="${r + 1}"]`])
+                    if (document.querySelector('.jg-tile' + n)?.classList[1] === t.classList[1]) return [c, r];
+            }
+        }''')
+        activate(f'.jg-tile[data-c="{c}"][data-r="{r}"]')
+        expect(tiles).not_to_have_count(108)
+        expect(page.locator('.jg-status')).to_contain_text('removed')
+        activate('#jg-game')
+        activate('#jg-undo')
+        expect(tiles).to_have_count(108)
+        activate('.jargon-window #dialog-close')
+        activate('#games-window .w31-min')
+        expect(page.locator('#games-group')).to_be_visible()
+        # Hire Edem.exe runs Setup, asks for Disk 2, and ends with email and the Internet group.
+        open_item('#desk-setup')
+        activate('#setup-continue')
+        disk = page.locator('.w31-message', has_text='Disk 2')
+        disk.wait_for(timeout=30000)
+        disk.locator('.w31-buttons button').click()
+        page.locator('#setup-email').wait_for(timeout=40000)
+        expect(page.locator('#setup-email')).to_have_attribute('href', re.compile(r'^mailto:'))
+        page.screenshot(path=OUT/'setup-complete.jpg')
+        activate('#setup-internet')
+        expect(page.locator('.setup-window')).to_have_count(0)
+        expect(page.locator('#desk-link-vimeo')).to_have_attribute('href', 'https://vimeo.com/emotiveimpact')
+        activate('#internet-window .w31-min')
+        expect(page.locator('#internet-group')).to_be_visible()
         launch()
         activate('#replay-scenes')
         expect(page.locator('.replay-frame')).to_be_visible()

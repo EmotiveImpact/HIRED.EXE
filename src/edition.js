@@ -47,6 +47,11 @@ const solvedEdition = {
       work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:'https://cairnmac.com/' }
   ],
   contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRE.EXE%20-%20Let%27s%20talk',
+  // Each platform becomes an icon in the desktop's Internet group (https:// links only).
+  // Add more here once Edem confirms them; Hire Edem.exe sends people to that group.
+  links: [
+    { name: 'Vimeo', url: 'https://vimeo.com/emotiveimpact' }
+  ],
   interview: [
     {question:'What would you like to explore first?', answers:[
       {label:'The creative background', text:'Over 20 years of video production, editing and creative direction. I care about how an idea feels, how clearly it communicates and whether it works for the people using it.'},
