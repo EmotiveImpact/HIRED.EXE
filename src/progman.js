@@ -225,6 +225,14 @@
     workspace.classList.toggle('has-icons', state.groups.some(g => g.state === 'min'));
   }
   H.progman.layout = () => layoutGroups();
+  // Bring Program Manager forward and open one of its groups, as Window > 1, 2, 3 does.
+  H.progman.openGroup = gid => {
+    const g = group(gid);
+    if (!g || !workspace) return false;
+    if (wm.get('progman')?.state === 'min') wm.restore('progman'); else wm.activate('progman');
+    if (g.state === 'min') setGroupState(g, 'normal'); else activateGroup(gid);
+    return true;
+  };
   wm.onResize = () => layoutGroups();
 
   function markSelection() {
