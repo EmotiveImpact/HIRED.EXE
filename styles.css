@@ -313,7 +313,7 @@
 #os-files{position:static}
 #os-shell :focus-visible{outline:1px dotted #000;outline-offset:-3px}
 .w31-window{position:absolute;display:flex;flex-direction:column;min-width:0;color:#000;background:var(--w31-face);border:4px solid var(--w31-face);outline:1px solid #000;box-shadow:inset 0 0 0 1px #000;pointer-events:auto}
-.w31-window.is-max{inset:0!important;width:auto!important;height:auto!important;border-width:0;outline:0;box-shadow:none}
+.w31-window.is-max{inset:0!important;width:auto!important;height:auto!important;max-height:none!important;transform:none!important;border-width:0;outline:0;box-shadow:none}
 .w31-window.is-centred{left:calc(50% + var(--cascade,0px));top:calc(50% + var(--cascade,0px));transform:translate(-50%,-50%);max-height:calc(100% - 8px)}
 .w31-window.is-dragging,.w31-window.is-sizing{opacity:.92}
 .w31-caption{position:relative;display:flex;align-items:stretch;gap:0;min-height:20px;margin:0;padding:0;background:#fff;color:#000;border-bottom:1px solid #000;font:bold 13px Arial,Helvetica,sans-serif;letter-spacing:0;text-shadow:none;user-select:none}
@@ -391,6 +391,7 @@
 .pm-glyph-doc{width:24px;font-size:20px}
 .pm-glyph-sub{background:#f3d98f;color:#162348;font-size:18px}
 .pm-glyph-navigator{background:#123e50;color:#fbf6d9;font:bold italic 21px Georgia,serif}
+.pm-glyph-link{background:#fff;color:#000080;text-decoration:underline;text-underline-offset:2px}
 .pm-glyph-app{background:linear-gradient(#000080 0 7px,#fff 7px)}
 .help-glyph{background:#ffffe0;color:#008000;font:bold 20px Georgia,serif}
 .pm-icons{position:absolute;left:0;right:0;bottom:0;display:flex;flex-wrap:wrap-reverse;align-items:flex-end;gap:2px;padding:4px;pointer-events:none;z-index:0}
@@ -530,3 +531,54 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 #dos-win{background:transparent;color:#ddd;border:1px solid #777;padding:8px 14px;font:inherit;font-size:14px}
 .dos-shell .dos-log{flex:1;min-height:0;width:100%;overflow:hidden;margin-bottom:16px}
 @media (prefers-reduced-motion:reduce){.dos-cursor{animation:none}}
+
+/* Program icons drawn as pictures */
+.pm-glyph-jargon,.pm-glyph-setup{width:32px;height:32px;background:none;border:0;box-shadow:none}
+.pm-glyph-jargon svg,.pm-glyph-setup svg{display:block;width:100%;height:100%}
+
+/* Jargon, the Games group's time sink */
+.jargon-window{--jg-tile:clamp(22px,calc((100vw - 52px) / 12),32px);width:calc(var(--jg-tile) * 12 + 26px)}
+.jargon-window .modal-body{padding:6px;background:var(--w31-face);overflow:auto}
+.jg{display:flex;flex-direction:column;gap:6px;color:#000;font:bold 12px Arial,Helvetica,sans-serif}
+.jg-defs{position:absolute;width:0;height:0;overflow:hidden}
+.jg-bar{display:flex;gap:4px}
+.jg-field,.jg-status{padding:2px 5px;border:1px solid;border-color:var(--w31-shadow) #fff #fff var(--w31-shadow);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jg-pick{flex:1;min-width:0;font-weight:normal}
+.jg-board{display:grid;grid-template-columns:repeat(12,var(--jg-tile));grid-auto-rows:var(--jg-tile);width:max-content;background:#fff;border:2px solid;border-color:var(--w31-shadow) #fff #fff var(--w31-shadow);user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+.jg-tile{display:grid;place-items:center;width:var(--jg-tile);height:var(--jg-tile);padding:0;margin:0;border:0;border-radius:0;background:var(--w31-face);box-shadow:inset 1px 1px #fff,inset -1px -1px #000,inset -2px -2px var(--w31-shadow);cursor:default}
+.jg-tile svg{width:calc(var(--jg-tile) - 10px);height:calc(var(--jg-tile) - 10px);overflow:visible}
+.jg-tile.is-lit,.jg-tile.is-lit:active{background:#fff;box-shadow:inset 1px 1px var(--w31-shadow)}
+.jg-tile:active{transform:none}
+#os-shell .jg-tile:focus-visible{outline:1px dotted #000;outline-offset:-4px}
+.jg .jg-status{margin:0;min-height:calc(2.7em + 6px);font-weight:normal;line-height:1.35;white-space:normal}
+.jg-help{width:min(440px,calc(100% - 16px))}
+.jg-help .w31-dialog-main .jg-help-text{font-weight:normal}
+.jg-legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:0 0 8px;padding:0;list-style:none}
+.jg-legend li{display:flex;align-items:center;gap:6px}
+.jg-legend svg{flex:none;width:16px;height:16px}
+
+/* Hire Edem.exe: Setup runs full screen on a banded blue backdrop, like a 1992 installer */
+.setup-window{width:min(640px,100%);height:min(480px,100%)}
+.setup-window .modal-body{padding:0;overflow:auto;background:#000}
+.setup-stage{display:flex;flex-direction:column;min-height:100%;padding:12px 16px 20px;background:linear-gradient(#0000ff 0 6.25%,#0000ef 0 12.5%,#0000df 0 18.75%,#0000cf 0 25%,#0000bf 0 31.25%,#0000af 0 37.5%,#00009f 0 43.75%,#00008f 0 50%,#00007f 0 56.25%,#00006f 0 62.5%,#00005f 0 68.75%,#00004f 0 75%,#00003f 0 81.25%,#00002f 0 87.5%,#00001f 0 93.75%,#00000f 0)}
+.setup-stage .setup-brand{margin:0 0 16px;color:#fff;font:bold italic clamp(26px,5vw,44px)/1.1 "Times New Roman",Times,"Liberation Serif",serif;text-shadow:3px 3px 0 #000;user-select:none}
+.setup-box{width:min(460px,100%);margin:auto;background:#fff;color:#000;border:4px solid var(--w31-active);outline:1px solid #000;box-shadow:inset 0 0 0 1px #000;font:bold 13px Arial,Helvetica,sans-serif}
+.setup-cap{padding:2px 6px;background:var(--w31-active);color:#fff;text-align:center;border-bottom:1px solid #000}
+.setup-main{padding:14px 16px 4px}
+.setup-box .setup-main p{margin:0 0 10px;font-size:13px;line-height:1.4}
+.setup-main .setup-plain,.setup-aside{font-weight:normal}
+.setup-field{display:flex;align-items:center;gap:8px;margin:4px 0 10px}
+.setup-field input{flex:1;min-width:0;padding:2px 4px;border:1px solid #000;border-radius:0;background:#fff;color:#000;font:13px Arial,Helvetica,sans-serif}
+.setup-file{overflow-wrap:anywhere}
+.setup-file span{font-weight:normal}
+.setup-act{min-height:1.4em}
+.setup-box .setup-main .setup-aside{min-height:2.8em}
+.setup-gauge{position:relative;height:22px;margin:4px 0 8px;border:1px solid #000;background:#fff;font:bold 12px Arial,Helvetica,sans-serif}
+.setup-gauge span{position:absolute;inset:0;display:grid;place-items:center}
+.setup-gauge .setup-fill{background:var(--w31-active);color:#fff;clip-path:inset(0 calc(100% - var(--p,0%)) 0 0)}
+.setup-buttons{padding:4px 12px 14px}
+.setup-buttons a{display:inline-block;min-width:76px;padding:4px 10px;background:var(--w31-face);color:#000;border:1px solid #000;border-radius:3px;box-shadow:inset 1px 1px #fff,inset 2px 2px #fff,inset -1px -1px var(--w31-shadow),inset -2px -2px var(--w31-shadow);font:bold 13px Arial,Helvetica,sans-serif;text-align:center;text-decoration:none;cursor:default}
+.setup-buttons a.is-default{border-width:2px}
+.setup-buttons a:active{box-shadow:inset 1px 1px var(--w31-shadow)}
+.setup-buttons a:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+.setup-done{display:flex;gap:16px;align-items:flex-start}
