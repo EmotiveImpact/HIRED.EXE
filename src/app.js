@@ -149,7 +149,6 @@
     $('status').textContent='Ready to play';
     const hasProgress=Object.keys(progress.results).length>0||progress.seenIntros.length>0||progress.lastLevel>0||!!progress.checkpoint;
     const hasRun=game.state?.mode==='playing';
-    const unlocked=progress.seenIntros.includes(H.LEVELS[1].id)||Boolean(progress.results[1]);
     const launchLabel=hasRun?'Resume this world':progress.checkpoint?'Continue from checkpoint':hasProgress?'Continue application':'Open application';
     const reopen=desktopReturn;
     function play(){
@@ -175,16 +174,17 @@
       items:{
         'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
         'home-cv':{label:E.applicant+'’s CV',icon:'<span class="pm-glyph pm-glyph-cv">CV</span>',href:offlineCv||'cv.html',linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.WRI',workdir:'C:\\HIRE',runs:['cv.wri','cv'],open:openCv},
+        'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_CV_TXT)},
         'skip-portfolio':{label:'Portfolio',icon:DOC_ICON,command:'C:\\HIRE\\PORTFOLI.WRI',workdir:'C:\\HIRE',runs:['portfoli.wri','portfoli','portfolio'],open:()=>showPortfolio('home')},
         'desk-sub':{label:'Submarine (final).exe',icon:SUB_ICON,command:'C:\\HIRE\\SUBMARIN.EXE',workdir:'C:\\HIRE',runs:['submarin.exe','submarin','submarine'],open:()=>H.seaTrial(desktopApp('sea-trial',{icon:SUB_ICON,iconId:'sea-icon'}),()=>{progress.delivered=true;save();})},
         'desk-setup':{label:'Hire Edem.exe',icon:H.setupIcon,command:'A:\\SETUP.EXE',workdir:'A:\\',runs:['setup.exe','setup','hireedem.exe','hireedem'],open:()=>H.hireSetup({E,safeLink,openInternet:internetItems.length?()=>H.progman.openGroup('internet'):null})},
         'desk-jargon':{label:'Jargon',icon:H.jargonIcon,command:'JARGON.EXE',workdir:'C:\\WINDOWS',runs:['jargon.exe','jargon'],open:()=>H.jargon()},
-        'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}),unlocked)},
+        'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
         ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
         ...Object.fromEntries(platforms.map(l=>[l.id,{label:l.name,icon:`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
       },
       groups:[
-        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:['start-game','home-cv','skip-portfolio','desk-sub','desk-setup']},
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:['start-game','home-cv','home-cv-txt','skip-portfolio','desk-sub','desk-setup']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
         {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon']},
         ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[])

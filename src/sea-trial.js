@@ -6,7 +6,7 @@
   const SUB_X = 24, DEPTH_MIN = 50, DEPTH_MAX = 148, START_DEPTH = 86;
   const DIVE = 48, RISE = 37, GATE_W = 14, SHOT_SPEED = 190, COOLDOWN = 0.2, LIVES = 3;
   const POINTS = {target: 250, mine: 100, patrol: 300, clear: 500, delivery: 1000};
-  const BEST_KEY = 'hired-exe:sea-trial:best';
+  const BEST_KEY = 'hired-exe:sea-trial:best', MUTE_KEY = 'hired-exe:sea-trial:muted';
   // Five levels, each a little harder: faster, tighter gaps, then swaying gates, sea mines and
   // patrol subs. A gate sways when it has amp (pixels) and rate (radians per second of the level).
   // The buoy sits 70 px past each finish line. Only the last level ends with the calculator.
@@ -303,10 +303,16 @@
 
   H.seaTrial = function (modal, delivered) {
     // The window is just the game: every control and instruction lives on the canvas.
-    modal('Submarine (final).exe', '<canvas class="sea-view" tabindex="0" width="' + W + '" height="' + VIEW + '" aria-label="Sea Trial. Five levels; deliver one calculator to the buoy at the end. Press Space or tap to start. Hold Space or the left half to dive. Press X or tap the right half to fire."></canvas><p role="status" id="sea-status" class="sea-status">Ready at the quay.</p>', true);
+    modal('Submarine (final).exe', '<canvas class="sea-view" tabindex="0" width="' + W + '" height="' + VIEW + '" aria-label="Sea Trial. Five levels; deliver one calculator to the buoy at the end. Press Space or tap to start. Hold Space or the left half to dive. Press X or tap the right half to fire. Press M to turn the sound on or off."></canvas><p role="status" id="sea-status" class="sea-status">Ready at the quay.</p>', true);
     const canvas = document.querySelector('.sea-view'), ctx = canvas.getContext('2d'), status = document.querySelector('#sea-status');
     const win = canvas.closest('.modal-window');
     win.classList.add('sea-window');
+    // Sound: music and effects from src/sea-sound.js, with an on/off button in the title bar.
+    const sound = H.seaSound({muted: readMuted()});
+    const bar = win.querySelector('.small-title'), mute = document.createElement('button');
+    mute.type = 'button'; mute.className = 'sea-sound';
+    mute.innerHTML = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" shape-rendering="crispEdges"><path d="M2 6h3l4-4v12l-4-4H2z"/><path class="on" d="M11 5h1v6h-1zM13 3h1v10h-1z"/><path class="off" d="M11 5l4 6m0-6l-4 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+    bar.insertBefore(mute, bar.querySelector('.w31-min') || bar.querySelector('#dialog-close'));
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches, touch = matchMedia('(pointer: coarse)').matches;
     ctx.imageSmoothingEnabled = false;
     let distance = 0, depth = START_DEPTH, running = false, previous = 0, clock = 0, phase = 'title', phaseTime = 0;
@@ -318,6 +324,17 @@
     const fish = Array.from({length: 7}, (_, i) => ({x: 40 + i * 47, y: 78 + (i * 23) % 50, speed: 6 + (i % 3) * 3}));
     const pad = n => String(n).padStart(6, '0');
     function readBest() { try { return Number(localStorage.getItem(BEST_KEY)) || 0; } catch (_) { return 0; } }
+    function readMuted() { try { return localStorage.getItem(MUTE_KEY) === '1'; } catch (_) { return false; } }
+    function showSound() {
+      mute.classList.toggle('is-off', sound.muted);
+      mute.setAttribute('aria-pressed', String(!sound.muted));
+      mute.setAttribute('aria-label', 'Sound'); mute.title = sound.muted ? 'Sound is off (M)' : 'Sound is on (M)';
+    }
+    function toggleSound() {
+      sound.setMuted(!sound.muted); sound.unlock(); showSound();
+      try { localStorage.setItem(MUTE_KEY, sound.muted ? '1' : '0'); } catch (_) {}
+      status.textContent = sound.muted ? 'Sound off.' : 'Sound on.';
+    }
     function saveBest() {
       if (score <= best) return;
       best = score; newBest = true;
@@ -338,6 +355,7 @@
       mines: mines.filter(m => !m.dead).map(m => ({x: m.x, y: mineY(m)})),
       patrols: patrols.filter(p => !p.dead).map(p => patrolAt(p))
     });
+    canvas.seaSound = () => ({state: sound.state, muted: sound.muted, song: sound.song, log: sound.log.slice()});
     canvas.seaWarp = n => { score = 0; lives = LIVES; runHits = 0; runTargets = 0; newBest = false; loadLevel(n - 1); launch(); };
 
     const at = (img, x, y) => ctx.drawImage(img, Math.round(x), Math.round(y));
@@ -363,6 +381,7 @@
       if (!calm) shake = big ? 0.35 : 0.18;
     }
     function spark(x, y) {
+      sound.effect('clank');
       effects.push({kind:'spark', x, y, t:0, life:0.18});
       bubbles.push({x, y, vy:-25, big:false, wobble:1, world:true});
     }
@@ -373,12 +392,14 @@
     function crash(kind, x, y) {
       explode(x, y, true);
       hurt = 0.5; cause = kind; lives--; saveBest();
-      if (lives > 0) { setPhase('crash'); stop(CRASH[kind]); }
-      else { setPhase('over'); stop('Out of submarines. Game over. Carry on from level ' + (level + 1) + '.'); }
+      sound.effect('crash');
+      if (lives > 0) { setPhase('crash'); sound.music('lost', 0, 0.35); stop(CRASH[kind]); }
+      else { setPhase('over'); sound.music('over', 0, 0.7); stop('Out of submarines. Game over. Carry on from level ' + (level + 1) + '.'); }
     }
     function shoot() {
       shots.push({x: distance + SUB_X + 37, y: Math.round(depth)});
       cooldown = COOLDOWN; flash = 0.07; fireQueued = false; canvas.dataset.shots = ++fired;
+      sound.effect('fire');
     }
     function updateShots(dt) {
       for (const s of shots) {
@@ -391,7 +412,7 @@
             const ty = targetY(t);
             if (Math.abs(x + 6 - t.x) <= 7 && Math.abs(s.y - ty) <= 7) {
               t.hit = true; s.done = true; hits++; score += POINTS.target; canvas.dataset.hits = hits;
-              explode(t.x, ty, false);
+              explode(t.x, ty, false); sound.effect('hit');
               pops.push({x: t.x, y: ty - 10, t: 0, label: '+' + POINTS.target});
               status.textContent = 'Target hit. ' + hits + ' of ' + targets.length + '.';
               break;
@@ -403,7 +424,7 @@
             const my = mineY(m);
             if (Math.abs(x + 6 - m.x) <= 7 && Math.abs(s.y - my) <= 8) {
               m.dead = true; s.done = true; score += POINTS.mine;
-              explode(m.x, my, false);
+              explode(m.x, my, false); sound.effect('mine');
               pops.push({x: m.x, y: my - 10, t: 0, label: '+' + POINTS.mine});
               status.textContent = 'Mine cleared.';
               break;
@@ -415,7 +436,7 @@
             const at = patrolAt(p);
             if (Math.abs(x + 6 - at.x) <= 11 && Math.abs(s.y - at.y) <= 7) {
               p.dead = true; s.done = true; score += POINTS.patrol;
-              explode(at.x, at.y, true);
+              explode(at.x, at.y, true); sound.effect('sink');
               pops.push({x: at.x, y: at.y - 12, t: 0, label: '+' + POINTS.patrol});
               status.textContent = 'Patrol sub sunk.';
               break;
@@ -445,10 +466,10 @@
         if (depth <= DEPTH_MIN + 3) {
           runHits += hits; runTargets += targets.length;
           if (L.final) {
-            score += POINTS.delivery; setPhase('win'); saveBest(); delivered();
+            score += POINTS.delivery; setPhase('win'); saveBest(); sound.music('win'); delivered();
             stop('Delivery complete. One pocket calculator. Targets hit: ' + runHits + ' of ' + runTargets + '.');
           } else {
-            score += POINTS.clear; setPhase('clear'); saveBest();
+            score += POINTS.clear; setPhase('clear'); saveBest(); sound.music('clear');
             stop('Level ' + (level + 1) + ' clear. Targets hit: ' + hits + ' of ' + targets.length + '.');
           }
         } else status.textContent = 'Release Dive to surface beside the buoy.';
@@ -711,6 +732,7 @@
     }
     function loop(now) {
       if (!canvas.isConnected) { release(); return; }
+      sound.setHidden(document.hidden || win.hidden);
       const dt = previous ? Math.min((now - previous) / 1000, 0.05) : 0; previous = now; clock += dt;
       if (running) update(dt);
       updateWorld(dt);
@@ -733,6 +755,7 @@
       levelScore = score; running = true; fired = 0; cooldown = 0; flash = 0; hurt = 0;
       releaseControls(); shots = []; effects = []; pops = []; bubbles = [];
       canvas.dataset.hits = 0; canvas.dataset.shots = 0; canvas.dataset.level = level + 1; setPhase('go');
+      sound.effect('dive'); sound.music('level', level, 0.85);
       status.textContent = 'Under way. Level ' + (level + 1) + ' of ' + LEVELS.length + ': ' + L.name + '.';
     }
     // On the canvas, the left half dives and the right half fires, so two thumbs can do both at once.
@@ -756,13 +779,21 @@
     for (const type of ['contextmenu', 'selectstart', 'dragstart']) layer.addEventListener(type, e => e.preventDefault(), {signal: off.signal});
     layer.classList.add('sea-layer');
     getSelection()?.removeAllRanges();
-    const release = () => { off.abort(); if (!layer.querySelector('.sea-view')) layer.classList.remove('sea-layer'); };
+    // Phones only allow sound to start from a tap, so every tap, click or key press in the window
+    // (or on the backdrop around it) tries to start it. The first one that counts does.
+    for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) layer.addEventListener(type, () => sound.unlock(), {capture: true, signal: off.signal});
+    document.addEventListener('visibilitychange', () => sound.setHidden(document.hidden || win.hidden), {signal: off.signal});
+    mute.addEventListener('click', () => { toggleSound(); canvas.focus({preventScroll: true}); }, {signal: off.signal});
+    showSound(); sound.unlock(); sound.music('title');
+    const release = () => { off.abort(); sound.close(); if (!layer.querySelector('.sea-view')) layer.classList.remove('sea-layer'); };
     win.addEventListener('keydown', e => {
       if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest('button')) return;
       if (e.code === 'Space' || e.code === 'Enter') {
         e.preventDefault();
         if (!running) { if (e.repeat || !canStart()) return; begin(); }
         if (e.code === 'Space') diveKey = true;
+      } else if (e.code === 'KeyM') {
+        e.preventDefault(); if (!e.repeat) toggleSound();
       } else if (e.code === 'KeyX' && running) {
         e.preventDefault(); if (!e.repeat) { fireKey = true; fireQueued = true; }
       }

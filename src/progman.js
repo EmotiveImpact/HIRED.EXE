@@ -749,16 +749,18 @@
   }
   H.progman.exitWindows = exitWindows;
 
-  function about() {
+  // Help > About for Program Manager, and for the accessories that share it.
+  function about(product = 'Program Manager', owner = pm) {
     const flag = document.querySelector('.windows-brand svg');
     const art = flag ? '<svg class="about-flag" viewBox="330 78 350 285" aria-hidden="true">' + [...flag.querySelectorAll(':scope > polygon')].map(p => p.outerHTML).join('') + '</svg>' : '';
     const open = wm.windows().length + state.groups.filter(g => g.state !== 'min').length;
     wm.dialog({
-      title: 'About Program Manager', owner: pm, className: 'w31-about',
-      body: '<div class="about-head">' + art + '<div><p><b>Microsoft Windows</b><br><b>Program Manager</b></p><p>Version 3.1<br>Copyright © 1985-1992 Microsoft Corp.</p></div></div>' +
+      title: 'About ' + product, owner, className: 'w31-about',
+      body: '<div class="about-head">' + art + '<div><p><b>Microsoft ' + (product === 'Program Manager' ? 'Windows</b><br><b>' : '') + esc(product) + '</b></p><p>Version 3.1<br>Copyright © 1985-1992 Microsoft Corp.</p></div></div>' +
         '<hr><p class="about-licence">This product is licensed to:<br><b>' + esc(cfg.licensee) + '</b><br><b>' + esc(cfg.organisation || '') + '</b></p><hr>' +
         '<dl class="about-stats"><dt>386 Enhanced Mode</dt><dd></dd><dt>Memory:</dt><dd>14,862 KB Free</dd><dt>System Resources:</dt><dd>' + Math.max(41, 84 - open * 3) + '% Free</dd></dl>',
       buttons: [{ label: 'OK', value: 'ok', default: true, id: 'about-ok' }]
     });
   }
+  H.progman.about = about;
 })(globalThis.Hired);

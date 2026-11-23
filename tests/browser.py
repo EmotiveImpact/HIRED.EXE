@@ -71,6 +71,20 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
+        open_item('#home-cv-txt')
+        notepad = page.locator('.notepad-window')
+        expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
+        expect(notepad.locator('.notepad-text')).to_have_value(re.compile(r'^AUGUSTUS EDEM'))
+        assert notepad.locator('.notepad-text').evaluate('a => a.readOnly') == mobile
+        activate('#notepad-search')
+        activate('#notepad-find-menu')
+        page.locator('#notepad-find').fill('ravensbourne')
+        page.keyboard.press('Enter')
+        assert notepad.locator('.notepad-text').evaluate('a => a.value.slice(a.selectionStart, a.selectionEnd)') == 'Ravensbourne'
+        activate('#notepad-file')
+        activate('#notepad-exit')
+        expect(notepad).to_have_count(0)
         # Accessories starts as a group icon at the foot of Program Manager.
         open_item('#accessories-group')
         open_item('#desk-calc')
@@ -248,6 +262,10 @@ def run(profile, base):
         # Like any application, the game window has a blue title bar with its name and a close button.
         expect(page.locator('.sea-window .small-title')).to_contain_text('Submarine (final).exe')
         expect(page.locator('.sea-window #dialog-close')).to_be_visible()
+        # It has sound: title music from the start, and an on/off button beside the window buttons.
+        sound_log = lambda: page.evaluate("document.querySelector('.sea-view').seaSound().log")
+        expect(page.locator('.sea-window .sea-sound')).to_have_attribute('aria-pressed', 'true')
+        assert 'music:title' in sound_log(), sound_log()
         if profile != 'desktop':
             # On a phone the window is a controller: the browser's own touch gestures (selection,
             # callouts, zoom, scrolling) are cancelled for every touch on the game.
@@ -272,12 +290,18 @@ def run(profile, base):
             box = sea.bounding_box()
             sea.tap(position={'x':box['width']*0.75, 'y':box['height']/2})
         expect(sea).to_have_attribute('data-shots', re.compile(r'^[1-9]'))
+        assert {'dive', 'music:level', 'fire'} <= set(sound_log()), sound_log()
         if profile != 'desktop':
             assert page.evaluate("window.__seaTouches.length > 0 && window.__seaTouches.every(Boolean)"), page.evaluate("window.__seaTouches")
             assert page.evaluate("getSelection().toString() === ''")
         if profile != 'iphone':
             expect(sea).to_have_attribute('data-hits', '1')
         expect(page.locator('#sea-status')).to_have_text('Clipped a harbour gate. Have another go.', timeout=12000)
+        assert {'crash', 'music:lost'} <= set(sound_log()), sound_log()
+        activate('.sea-sound')
+        expect(page.locator('.sea-sound')).to_have_attribute('aria-pressed', 'false')
+        activate('.sea-sound')
+        expect(page.locator('.sea-sound')).to_have_attribute('aria-pressed', 'true')
         activate('#dialog-close')
         launch()
         activate('#title-play')

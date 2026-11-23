@@ -281,7 +281,7 @@
 .calc-keys [data-key="="]{grid-row:5 / span 2;grid-column:5;background:#afc5df}
 .calc-keys [data-key="0"]{grid-column:span 2}
 .standard-calc details{font:13px monospace;margin-top:10px}
-.calc-history{max-height:80px;overflow:auto;padding-left:22px}
+.calc-history{max-height:80px;overflow:auto;margin:6px 0 0;padding-left:22px}
 .game-launch{display:grid;place-items:center;background:#161639}.load-card{display:grid;gap:12px;padding:18px 25px;background:silver;border:3px outset white;color:#13132c}.load-card progress{width:100%;accent-color:navy}
 .overlay.game-title{display:grid;place-items:center;text-align:center;color:white;background:linear-gradient(0deg,#171440ee,#17144066)}
 .game-title section{padding:12px}.game-title img{width:clamp(48px,9vw,90px);image-rendering:pixelated;border:3px solid white;box-shadow:4px 4px #21183b}.game-title h1{font:bold clamp(40px,9vw,112px)/1 monospace;letter-spacing:-.08em;margin:10px 0;text-shadow:4px 5px #252049}.game-title h1 span{color:#ffc956}.game-title p{margin:6px 0 15px}
@@ -424,6 +424,11 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .sea-window>.small-title>.w31-sysbox{margin-right:8px}
 .sea-window>.small-title>.w31-min{margin-right:4px}
 .sea-window>.small-title .w31-title{justify-content:flex-start;padding:0}
+.sea-window>.small-title>.sea-sound{flex:none;align-self:center;display:grid;place-content:center;width:25px;height:25px;margin:0 4px 0 0;padding:0;background:#d5d3e3;color:#12152c;border:2px outset #f4f2fd;box-shadow:none;cursor:pointer}
+.sea-sound svg{display:block;fill:currentColor}
+.sea-sound .off,.sea-sound.is-off .on{display:none}
+.sea-sound.is-off .off{display:inline}
+.sea-window>.small-title>.sea-sound:active{border-style:inset}
 .w31-app.is-on-top{z-index:4000!important}
 @media (pointer:coarse){#os-dialog.sea-layer{pointer-events:auto}}
 
@@ -490,6 +495,30 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .help-search{width:min(440px,calc(100% - 16px))}
 .help-search .w31-listbox{min-height:80px;max-height:110px;margin:6px 0}
 .help-list .help-definition{min-height:2.6em;margin:8px 0 0;font-weight:normal}
+
+/* Notepad */
+.notepad-window{width:min(560px,100%);height:min(440px,100%)}
+.notepad-window .modal-body{display:flex;padding:0;overflow:hidden}
+.notepad-text{flex:1;display:block;width:100%;min-width:0;margin:0;padding:1px 4px;border:0;border-radius:0;resize:none;outline:0;background:#fff;color:#000;font:bold 13px/1.3 Arial,Helvetica,sans-serif;white-space:pre-wrap;overflow-wrap:break-word;overflow:auto;-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+.notepad-text.is-nowrap{white-space:pre;overflow-wrap:normal}
+.notepad-text::selection{background:var(--w31-active);color:#fff}
+#os-shell .notepad-text:focus-visible{outline:0}
+/* Windows 3.1 scroll bars: grey track, bevelled thumb and arrow boxes. */
+.notepad-text::-webkit-scrollbar{width:17px;height:17px;background:var(--w31-face)}
+.notepad-text::-webkit-scrollbar-track{background:var(--w31-face)}
+.notepad-text::-webkit-scrollbar-thumb{background:var(--w31-face);border:1px solid #000;box-shadow:inset 1px 1px #fff,inset -1px -1px var(--w31-shadow)}
+.notepad-text::-webkit-scrollbar-corner{background:var(--w31-face)}
+.notepad-text::-webkit-scrollbar-button{display:none}
+.notepad-text::-webkit-scrollbar-button:single-button{display:block;width:17px;height:17px;background:var(--w31-face) no-repeat center;border:1px solid #000;box-shadow:inset 1px 1px #fff,inset -1px -1px var(--w31-shadow)}
+.notepad-text::-webkit-scrollbar-button:single-button:vertical:decrement{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAECAYAAABCxiV9AAAAHUlEQVR42mNgQAX/kTlMWCT+o0v+x2YCIxYJOAAAX2MGAD1w/l0AAAAASUVORK5CYII=)}
+.notepad-text::-webkit-scrollbar-button:single-button:vertical:increment{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAECAYAAABCxiV9AAAAIUlEQVR42mNkYGD4z4ADMDEwMDDikGNkgjHQJbCpRrECAH9vAgjHH9KIAAAAAElFTkSuQmCC)}
+.notepad-text::-webkit-scrollbar-button:single-button:horizontal:decrement{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAHCAYAAAAvZezQAAAAKElEQVR42mNgQAX/mZA5DAwMDEzIHJjAf2Q9TAwMDIzoAgzogii2AABRKAUIZ9MPkQAAAABJRU5ErkJggg==)}
+.notepad-text::-webkit-scrollbar-button:single-button:horizontal:increment{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAHCAYAAAAvZezQAAAAKUlEQVR42l3MsQkAMAwDwXP231lpQhBW83CFIGrnNRs+NkA2TMPYh3ABXQwFCKNwFkcAAAAASUVORK5CYII=)}
+@media (pointer:coarse){.notepad-text{font-size:15px;padding:4px 6px}}
+.notepad-find{width:min(420px,calc(100% - 16px))}
+.notepad-find-options{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px}
+.notepad-find-options .w31-group label{margin-right:8px;font-weight:bold}
+.notepad-save{width:min(380px,calc(100% - 16px))}
 
 /* MS-DOS after Exit Windows */
 .dos-shell #dos-prompt::after{content:none}
