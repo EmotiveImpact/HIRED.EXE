@@ -71,6 +71,20 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
+        open_item('#home-cv-txt')
+        notepad = page.locator('.notepad-window')
+        expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
+        expect(notepad.locator('.notepad-text')).to_have_value(re.compile(r'^AUGUSTUS EDEM'))
+        assert notepad.locator('.notepad-text').evaluate('a => a.readOnly') == mobile
+        activate('#notepad-search')
+        activate('#notepad-find-menu')
+        page.locator('#notepad-find').fill('ravensbourne')
+        page.keyboard.press('Enter')
+        assert notepad.locator('.notepad-text').evaluate('a => a.value.slice(a.selectionStart, a.selectionEnd)') == 'Ravensbourne'
+        activate('#notepad-file')
+        activate('#notepad-exit')
+        expect(notepad).to_have_count(0)
         # Accessories starts as a group icon at the foot of Program Manager.
         open_item('#accessories-group')
         open_item('#desk-calc')

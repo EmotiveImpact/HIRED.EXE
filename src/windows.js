@@ -449,7 +449,7 @@
 
   // Application windows (Calculator, Help, Sea Trial, the portfolio) open in the
   // desktop's window layer and sit beside Program Manager.
-  wm.openApp = function ({ id, title, body, wide = false, icon = '', resizable = false, maximisable = false, minSize, className = '', onClose, menu = null, iconId }) {
+  wm.openApp = function ({ id, title, body, wide = false, icon = '', resizable = false, maximisable = false, minSize, className = '', onClose, menu = null, iconId, focus }) {
     const existing = tops.get(id);
     if (existing) remove(id);
     const win = document.createElement('section');
@@ -459,7 +459,7 @@
     appLayer.append(win);
     appLayer.hidden = false;
     win.querySelector('#dialog-close').addEventListener('click', () => close(id));
-    const rec = wm.register(win, { id, title, icon, area: appLayer, resizable, maximisable, minSize, iconId, onClose });
+    const rec = wm.register(win, { id, title, icon, area: appLayer, resizable, maximisable, minSize, iconId, onClose, focus });
     if (menu) rec.menubar = menubar(win.querySelector('.w31-menubar'), menu);
     activate(id);
     return win;
