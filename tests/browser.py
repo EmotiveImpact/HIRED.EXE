@@ -130,12 +130,40 @@ def run(profile, base):
         open_item('#desk-jargon')
         expect(page.locator('.jargon-window')).to_be_visible()
         expect(tiles).to_have_count(left)
+        # A best score another tab saved survives this window changing level.
+        page.evaluate("localStorage.setItem('hired-exe:jargon:v1', JSON.stringify({level: 'mid', best: {junior: 0, mid: 4321, senior: 0}}))")
+        activate('#jg-game')
+        activate('#jg-level-junior')
+        stored = page.evaluate("JSON.parse(localStorage.getItem('hired-exe:jargon:v1'))")
+        assert stored['best']['mid'] == 4321 and stored['level'] == 'junior', stored
+        page.evaluate("localStorage.removeItem('hired-exe:jargon:v1')")
+        if mobile:
+            # On a landscape phone the whole board still fits inside the window.
+            page.set_viewport_size({'width':844,'height':390})
+            fits = page.evaluate('''() => {
+                const body = document.querySelector('.jargon-window .modal-body').getBoundingClientRect();
+                const win = document.querySelector('.jargon-window').getBoundingClientRect();
+                const low = Math.max(...[...document.querySelectorAll('.jg-tile')].map(t => t.getBoundingClientRect().bottom));
+                return {low, body: body.bottom, top: win.top, bottom: win.bottom, height: innerHeight};
+            }''')
+            page.set_viewport_size(options['viewport'])
+            assert fits['low'] <= fits['body'] + 0.5 and fits['top'] >= 0 and fits['bottom'] <= fits['height'] + 0.5, fits
         activate('.jargon-window #dialog-close')
         activate('#games-window .w31-min')
         expect(page.locator('#games-group')).to_be_visible()
         # Hire Edem.exe runs Setup, asks for Disk 2, and ends with email and the Internet group.
         open_item('#desk-setup')
         activate('#setup-continue')
+        # Minimised, Setup copies up to Disk 2 and then holds the prompt until its window is back.
+        activate('.setup-window .w31-min')
+        gauge = page.locator('.setup-gauge')
+        expect(gauge).to_have_attribute('aria-valuenow', '46', timeout=30000)
+        page.wait_for_timeout(1000)
+        expect(page.locator('.w31-message')).to_have_count(0)
+        # Opening Hire Edem.exe again brings back the same install, not a new Welcome screen.
+        open_item('#desk-setup')
+        expect(gauge).to_be_visible()
+        expect(gauge).to_have_attribute('aria-valuenow', '46')
         disk = page.locator('.w31-message', has_text='Disk 2')
         disk.wait_for(timeout=30000)
         disk.locator('.w31-buttons button').click()

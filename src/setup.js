@@ -51,12 +51,13 @@
     const box = win.querySelector('.setup-box'), cap = box.querySelector('.setup-cap');
     const main = box.querySelector('.setup-main'), buttons = box.querySelector('.setup-buttons');
 
-    // A pause that stops while a question is on screen and gives up if the window goes.
+    // A pause that stops while a question is on screen and ends at once if the window goes,
+    // so the install below can return instead of waiting for ever.
     function wait(ms) {
       return new Promise(resolve => {
         let left = ms, last = performance.now();
         (function tick() {
-          if (!win.isConnected) return;
+          if (!win.isConnected) return resolve();
           const now = performance.now();
           if (!paused) left -= now - last;
           last = now;
@@ -122,7 +123,7 @@
       };
       async function fill(to, ms) {
         const from = shown, n = Math.max(1, Math.round(ms / 140));
-        for (let i = 1; i <= n; i++) { await wait(ms / n); set(Math.round(from + (to - from) * i / n)); }
+        for (let i = 1; i <= n; i++) { await wait(ms / n); if (!win.isConnected) return; set(Math.round(from + (to - from) * i / n)); }
       }
       // Files arrive compressed (EDITING.DL_) and are expanded as they are copied (EDITING.DLL).
       const step = s => {
@@ -133,7 +134,7 @@
         if (!win.isConnected) return;
         if (s.disk) {
           // A minimised Setup waits for its window before asking for the disk.
-          while (wm.get(ID)?.state === 'min') await wait(250);
+          while (win.isConnected && wm.get(ID)?.state === 'min') await wait(250);
           if (!win.isConnected) return;
           paused = true;
           await wm.message({title: 'Hire Edem Setup', icon: 'info', owner: win, buttons: ['OK'],
