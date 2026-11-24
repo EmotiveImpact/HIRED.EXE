@@ -47,8 +47,25 @@ def run(profile, base):
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
         expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
-        # Submarine (final).exe is on the desktop from the start, with no save needed.
-        expect(page.locator('#desk-sub')).to_be_visible()
+        # Submarine (final).exe is on the desktop from the start, with no save needed, in Games.
+        expect(page.locator('#games-window #desk-sub')).to_be_visible()
+        # Every group starts open, and no group window lies over another.
+        groups = ['main', 'accessories', 'internet', 'games', 'working']
+        for name in groups:
+            expect(page.locator(f'#{name}-window')).to_be_visible()
+            expect(page.locator(f'#{name}-group')).to_be_hidden()
+        assert page.evaluate('''() => { const r = [...document.querySelectorAll('.pm-group-win')].map(w => w.getBoundingClientRect());
+            return r.every((a, i) => r.every((b, j) => i >= j || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)); }''')
+        # Each group window is as tall as its icons need, so none scrolls inside.
+        assert page.evaluate("[...document.querySelectorAll('.pm-group-win .pm-items')].every(b => b.scrollHeight <= b.clientHeight + 1)")
+        # The Internet group links Edem's own sites, and Working On the projects in progress.
+        for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
+                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers-coral.vercel.app/',
+                          '#desk-work-drafthr':'https://drafthr.io/', '#desk-work-lumalook':'https://lumalook.app/', '#desk-work-commune':'https://ourcommune.io/'}.items():
+            expect(page.locator(item)).to_have_attribute('href', url)
+            expect(page.locator(item)).to_have_attribute('target', '_blank')
+        expect(page.locator('#internet-window .pm-item')).to_have_count(5)
+        expect(page.locator('#working-window .pm-item')).to_have_count(5)
         # Program Manager's menus drop over the group window without moving it.
         group = page.locator('#main-window')
         before = group.bounding_box()
@@ -76,6 +93,8 @@ def run(profile, base):
         notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
         expect(notepad.locator('.notepad-text')).to_have_value(re.compile(r'^AUGUSTUS EDEM'))
+        for line in ('CURRENTLY WORKING ON', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):
+            assert line in notepad.locator('.notepad-text').input_value(), line
         assert notepad.locator('.notepad-text').evaluate('a => a.readOnly') == mobile
         activate('#notepad-search')
         activate('#notepad-find-menu')
@@ -85,8 +104,7 @@ def run(profile, base):
         activate('#notepad-file')
         activate('#notepad-exit')
         expect(notepad).to_have_count(0)
-        # Accessories starts as a group icon at the foot of Program Manager.
-        open_item('#accessories-group')
+        # Accessories starts open, with Calculator in it.
         open_item('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
@@ -102,11 +120,14 @@ def run(profile, base):
         page.get_by_role('button', name='MR', exact=True).click()
         expect(page.locator('.calc-display')).to_have_text('4')
         activate('#dialog-close')
-        # Accessories opened over the main group, so put it back to an icon.
+        # A minimised group becomes an icon below the open ones, and opens again from it.
         activate('#accessories-window .w31-min')
         expect(page.locator('#accessories-group')).to_be_visible()
+        assert page.evaluate('''() => { const icon = document.querySelector('#accessories-group').getBoundingClientRect();
+            return [...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => w.getBoundingClientRect().bottom <= icon.top + 1); }''')
+        open_item('#accessories-group')
+        expect(page.locator('#accessories-window #desk-calc')).to_be_visible()
         # Games holds Jargon: a group of two or more matching buzzwords clears, and Undo brings it back.
-        open_item('#games-group')
         open_item('#desk-jargon')
         tiles = page.locator('.jargon-window .jg-tile')
         expect(tiles).to_have_count(108)

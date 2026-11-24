@@ -1,5 +1,6 @@
 // CV.TXT, the plain text version of the CV that opens in Notepad on the
 // desktop. Keep it in step with cv.html and assets/cv/Augustus-Edem-CV.pdf.
+// CURRENTLY WORKING ON matches the desktop's Working On group (E.working in edition.js).
 globalThis.HIRED_CV_TXT = `AUGUSTUS EDEM
 AI-native product builder & creative director
 London, UK
@@ -18,16 +19,32 @@ Vlume: released macOS audio mixer
 vlumeaudio.com
 Designed and led the build from menu-bar controls to download and checkout. The app gives users per-app and per-output volume controls. SwiftUI, Core Audio, Next.js and Polar.
 
+Cairn: macOS storage utility in development
+cairnmac.com
+Designed reviewable cleanup plans, protected-file safeguards and receipts that show the actual change in free space. SwiftUI and SQLite.
+
+
+CURRENTLY WORKING ON
+
 SALEANE: appointment booking demo
 saleane.vercel.app/demo
 Designed the workflow that connects a customer's booking request to a small business owner's diary. The demo shows the customer and business views.
 
-Commune: shared-living product in development
-Led the homepage and journal, checked navigation on desktop and mobile, and used interactive examples to explain household splits and repayments. React, TypeScript, Neon and Vercel.
+NoSpoilers: release checks for software teams
+nospoilers-coral.vercel.app
+Reads the packages and production assets a release actually ships, and catches source maps, secrets and internal files before they go public.
 
-Cairn: macOS storage utility in development
-cairnmac.com
-Designed reviewable cleanup plans, protected-file safeguards and receipts that show the actual change in free space. SwiftUI and SQLite.
+DraftHR: HR letter drafting for the UK and US
+drafthr.io
+Helps employees, HR teams and HR consultants write HR letters section by section, have them checked and keep a clear record of every step.
+
+Lumalook: film looks for iPhone photos and video
+lumalook.app
+Shoot, grade and edit on iPhone with film looks tuned on deep skin first.
+
+Commune: shared-living product in development
+ourcommune.io
+Led the homepage and journal, checked navigation on desktop and mobile, and used interactive examples to explain household splits and repayments. React, TypeScript, Neon and Vercel.
 
 
 EXPERIENCE

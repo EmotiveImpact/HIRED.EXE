@@ -50,7 +50,19 @@ const solvedEdition = {
   // Each platform becomes an icon in the desktop's Internet group (https:// links only).
   // Add more here once Edem confirms them; Hire Edem.exe sends people to that group.
   links: [
-    { name: 'Vimeo', url: 'https://vimeo.com/emotiveimpact' }
+    { name: 'Vimeo', url: 'https://vimeo.com/emotiveimpact' },
+    { name: 'Vlume', url: 'https://vlumeaudio.com/' },
+    { name: 'Cairn', url: 'https://cairnmac.com/' },
+    { name: 'Emotive Impact', url: 'https://emotiveimpact.io/' }
+  ],
+  // Projects in progress: one icon each in the desktop's Working On group (https:// links only).
+  // Keep the list in step with CURRENTLY WORKING ON in src/cv-text.js.
+  working: [
+    { name: 'SALEANE', url: 'https://saleane.vercel.app/demo' },
+    { name: 'NoSpoilers', url: 'https://nospoilers-coral.vercel.app/' },
+    { name: 'DraftHR', url: 'https://drafthr.io/' },
+    { name: 'Lumalook', url: 'https://lumalook.app/' },
+    { name: 'Commune', url: 'https://ourcommune.io/' }
   ],
   // Hire Edem.exe's install steps for this employer. They answer the Solved advert line by line:
   // no fancy office, Claude Code and Codex, automate the third time, a salary with a number in it,
