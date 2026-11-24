@@ -6,7 +6,7 @@ const directorScenes = [
       ['p01-upload','Upload','Portal|Please upload your CV.','Augustus|There you go.'],
       ['p02-form','The receipt','Portal|Thank you. Now enter your employment history.','Augustus|What did you do with the PDF?'],
       ['p03-the-limit','Five years maximum','Portal|Please enter a number between one and five.','Augustus|I’ll let the other fifteen know.'],
-      ['p04-gatekeeper','An idea','Solved’s advert|No long cover note. Just tell us what you have done that is abnormal.','Augustus|Nothing yet. Give me a week.'],
+      ['p04-gatekeeper','An idea','Solved’s advert|No long cover note. Just tell us what you have done that is abnormal.','Augustus|Abnormal? I’ll do better than tell you. I’ll build you a video game.'],
       ['p05-play','Press Play','Augustus|There. Abnormal enough. Your turn to apply for something.']
     ]
   },
