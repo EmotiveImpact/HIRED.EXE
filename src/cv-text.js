@@ -10,16 +10,16 @@ Film portfolio: vimeo.com/emotiveimpact
 
 PROFILE
 
-I take products from an initial brief to a working release. I design the experience, map how the interface, APIs and database work together, and direct Codex and Claude Code through the build. I review changes and test the flows customers use. I bring more than 20 years in film and editing, with experience leading creative teams, managing budgets and delivering client work.
+I build and ship products with Claude Code and Codex, and I use them every day. Two products are out and six are in progress. I take each one from the idea to a live URL: the interface, the database, payments, the deploy and the landing page. Before this I spent more than 20 years directing and editing film, leading creative teams, managing budgets and delivering client work.
 
 
 SELECTED PRODUCTS
 
 Vlume: released macOS audio mixer
 vlumeaudio.com
-Designed and led the build from menu-bar controls to download and checkout. The app gives users per-app and per-output volume controls. SwiftUI, Core Audio, Next.js and Polar.
+Designed and built with Claude Code and Codex, from menu-bar controls to download and checkout. The app gives users per-app and per-output volume controls. SwiftUI, Core Audio, Next.js and Polar.
 
-Cairn: macOS storage utility in development
+Cairn: macOS storage utility
 cairnmac.com
 Designed reviewable cleanup plans, protected-file safeguards and receipts that show the actual change in free space. SwiftUI and SQLite.
 

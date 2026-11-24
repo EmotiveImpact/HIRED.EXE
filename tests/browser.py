@@ -88,9 +88,16 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # README.TXT is the first icon: the application in the advert's own two headings.
+        assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
+        open_item('#home-readme')
+        notepad = page.locator('.notepad-window')
+        expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
+        for line in ('1. WHAT I HAVE BUILT', 'vlumeaudio.com', '2. WHAT I HAVE DONE THAT IS ABNORMAL', 'Right to work in the UK: yes.'):
+            assert line in notepad.locator('.notepad-text').input_value(), line
+        activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
         open_item('#home-cv-txt')
-        notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
         expect(notepad.locator('.notepad-text')).to_have_value(re.compile(r'^AUGUSTUS EDEM'))
         for line in ('CURRENTLY WORKING ON', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):

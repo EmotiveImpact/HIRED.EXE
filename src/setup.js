@@ -97,7 +97,7 @@
       stage = 'welcome';
       screen('Welcome',
         '<p>Welcome to Hire Edem Setup.</p>' +
-        '<p class="setup-plain">Setup will install ' + esc(person) + ', creative director and AI-native product builder, at ' + esc(company) + '.</p>' +
+        '<p class="setup-plain">Setup will install ' + esc(person) + ', AI-native product builder and creative director, at ' + esc(company) + '.</p>' +
         '<p class="setup-plain">It is strongly recommended that you quit all other applications before continuing. Especially the other candidates’.</p>' +
         '<label class="setup-field">Install to:<input name="path" value="' + esc(folder) + '" maxlength="40" spellcheck="false" autocomplete="off" autocapitalize="characters"></label>',
         [{label: 'Continue', id: 'setup-continue', default: true, action: () => {
