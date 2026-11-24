@@ -331,24 +331,24 @@
   // Sizes match the furniture atlas that tools/build-room-art.py cuts; `top` is how far above
   // the floor a piece can be stood on. The hero is 58 tall.
   const FURNITURE = {
-    desk: { w: 70, h: 50, top: 50 }, chest: { w: 66, h: 50, top: 50 }, work_chair: { w: 38, h: 56 },
-    bin: { w: 28, h: 36 }, shelf: { w: 82, h: 104, top: 104 }, lamp: { w: 28, h: 38 },
-    table: { w: 256, h: 48, top: 48 }, chair_side: { w: 54, h: 64 }, chair: { w: 46, h: 64 },
-    palm: { w: 70, h: 84 }, sideboard: { w: 90, h: 52, top: 52 },
-    reception: { w: 94, h: 62, top: 58 }, armchair: { w: 54, h: 60 }, coffee_table: { w: 86, h: 32, top: 32 },
-    planter: { w: 96, h: 46 }, tree: { w: 52, h: 100 }, floor_lamp: { w: 28, h: 108 }
+    desk: { w: 88, h: 48, top: 48 }, chest: { w: 90, h: 48, top: 48 }, stool: { w: 34, h: 44 },
+    bin: { w: 30, h: 50 }, shelf: { w: 90, h: 100, top: 100 }, lamp: { w: 26, h: 36 },
+    table: { w: 272, h: 46, top: 46 }, chair_side: { w: 38, h: 66 }, chair: { w: 42, h: 66 },
+    palm: { w: 64, h: 104 }, sideboard: { w: 80, h: 112, top: 49 },
+    reception: { w: 130, h: 64, top: 64 }, armchair: { w: 70, h: 62 }, coffee_table: { w: 74, h: 36, top: 36 },
+    planter: { w: 86, h: 50 }, tree: { w: 64, h: 100 }, floor_lamp: { w: 56, h: 110 }
   };
   // Each room, from its left wall: [piece, x, flipped, the piece it stands on]. Later pieces are
   // drawn in front. An enemy paces the tops from its first named piece to its last.
   const ROOMS = [
-    { furniture: [['shelf', 250], ['chest', 346], ['desk', 412], ['lamp', 450, false, 'desk'], ['work_chair', 490], ['bin', 540]],
-      enemy: ['cv', 'chest', 'desk'], ideas: [[291, 148], [379, 118], [447, 118]] },
-    { furniture: [['sideboard', 236], ['chair_side', 334], ['chair', 404], ['chair', 466], ['chair', 528], ['chair', 590], ['table', 386],
-      ['chair_side', 640, true], ['palm', 1086]],
-      enemy: ['inbox', 'table', 'table'], ideas: [[281, 96], [452, 108], [514, 108], [576, 108]] },
-    { furniture: [['floor_lamp', 430], ['armchair', 462], ['coffee_table', 524], ['armchair', 618], ['tree', 690], ['reception', 770],
+    { furniture: [['shelf', 244], ['chest', 344], ['desk', 434], ['lamp', 492, true, 'desk'], ['stool', 530], ['bin', 568]],
+      enemy: ['cv', 'chest', 'desk'], ideas: [[289, 144], [389, 116], [478, 116]] },
+    { furniture: [['sideboard', 236], ['chair_side', 326], ['chair', 380], ['chair', 444], ['chair', 508], ['chair', 572], ['table', 362],
+      ['chair_side', 632, true], ['palm', 1090]],
+      enemy: ['inbox', 'table', 'table'], ideas: [[276, 150], [436, 106], [498, 106], [560, 106]] },
+    { furniture: [['floor_lamp', 420], ['armchair', 462], ['coffee_table', 536], ['armchair', 614], ['tree', 682], ['reception', 738],
       ['planter', 962]],
-      ideas: [[567, 76], [786, 102], [828, 102]] }
+      ideas: [[573, 80], [780, 108], [824, 108]] }
   ];
   // Furnishing a room adds each piece as decor, a one-way top for the ones that have one,
   // an enemy pacing the named piece, and ideas above the tops.

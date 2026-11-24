@@ -1,12 +1,12 @@
 """Turn the generated HQ room art into what the game loads.
 
 Sources live in assets/source/hq-rooms/ and are never edited:
-  wall-<room>.png        a flat elevation of the room's back wall, no furniture
-  furniture-<room>.png   separate pieces of furniture on a transparent or flat magenta ground
+  wall-<room>.png, wall-<room>-b.png   two stretches of the room's back wall as flat elevations, no furniture
+  furniture-<room>.png                 separate pieces of furniture on a transparent or flat magenta ground
 
-A wall source may carry things the room must not show: a painted strip of floor, a painted lift
-door, the generator's watermark. WALLS names the part of each source that is kept. The kept part
-is tiled, mirrored at each join, to the width of a room.
+A room is wider than one wall image, so WALLS lists the stretches that make up its wall from left
+to right and the part of each that is kept. A stretch may carry something the room must not show,
+such as a painted lift door, and the kept part leaves it out.
 
 Outputs:
   assets/production/backgrounds/interview-room-<n>.webp   one wall plate per room, at the size it is drawn
@@ -25,20 +25,18 @@ from PIL import Image, ImageFilter
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'assets/source/hq-rooms'
 WALL_SIZE = (1190, 448)
-# Room -> the floor it is on, the part of the source that is kept (left, top, right, bottom as
-# fractions) and how it is laid out: 'centre' puts one copy mid-room, 'pair' joins two at mid-room.
+# Room -> the floor it is on and its wall from left to right: (source, kept span as fractions of
+# its width). The departing lift stands in front of the last 180 pixels or so of each plate.
 WALLS = {
-    'workshop': {'floor': 2, 'keep': (0, 0, 1, 1), 'layout': 'centre'},
-    'boardroom': {'floor': 3, 'keep': (0.045, 0, 0.955, 0.893), 'layout': 'centre'},
-    'reception': {'floor': 4, 'keep': (0.268, 0, 1, 0.895), 'layout': 'pair'},
+    'workshop': {'floor': 2, 'sections': [('wall-workshop-b', 0, 0.46), ('wall-workshop', 0, 1)]},
+    'boardroom': {'floor': 3, 'sections': [('wall-boardroom-b', 0.02, 0.57), ('wall-boardroom', 0, 1)]},
+    'reception': {'floor': 4, 'sections': [('wall-reception-b', 0, 0.72), ('wall-reception', 0.205, 1)]},
 }
-# Corners of a furniture sheet that hold a generator's badge or watermark, as fractions.
-SHEET_MARKS = [(0, 0, 0.06, 0.08), (0.72, 0.905, 1, 1)]
 # Sheet -> rows of (piece, height in game pixels), in reading order. The hero is 58 tall.
 SHEETS = {
-    'workshop': [[('desk', 50), ('chest', 50), ('work_chair', 56)], [('bin', 36), ('shelf', 104), ('lamp', 38)]],
-    'boardroom': [[('table', 48)], [('chair_side', 64), ('chair', 64), ('palm', 84), ('sideboard', 52)]],
-    'reception': [[('reception', 62), ('armchair', 60), ('coffee_table', 32)], [('planter', 46), ('tree', 100), ('floor_lamp', 108)]],
+    'workshop': [[('desk', 48), ('chest', 48), ('stool', 44)], [('bin', 50), ('shelf', 100), ('lamp', 36)]],
+    'boardroom': [[('table', 46)], [('chair_side', 66), ('chair', 66), ('palm', 104), ('sideboard', 112)]],
+    'reception': [[('reception', 64), ('armchair', 62), ('coffee_table', 36)], [('planter', 50), ('tree', 100), ('floor_lamp', 110)]],
 }
 
 
@@ -52,9 +50,6 @@ def matte(im):
     key = np.median(edge, axis=0)
     distance = np.sqrt(((rgb - key) ** 2).sum(axis=2))
     alpha = np.clip((distance - 30) / 50, 0, 1)
-    height, width = alpha.shape
-    for x0, y0, x1, y1 in SHEET_MARKS:
-        alpha[int(y0 * height):int(y1 * height), int(x0 * width):int(x1 * width)] = 0
     # Pull the cut in by a pixel so no rim of the ground colour survives the scaling down.
     alpha = np.asarray(Image.fromarray((alpha * 255).astype(np.uint8)).filter(ImageFilter.MinFilter(5))) / 255
     return rgb, alpha
@@ -135,22 +130,19 @@ def build_furniture():
 def build_walls():
     width, height = WALL_SIZE
     for room, wall in WALLS.items():
-        im = Image.open(SRC / f'wall-{room}.png').convert('RGB')
-        x0, y0, x1, y1 = wall['keep']
-        im = im.crop((round(x0 * im.width), round(y0 * im.height), round(x1 * im.width), round(y1 * im.height)))
-        tile = im.resize((round(im.width * height / im.height), height), Image.Resampling.LANCZOS)
-        flipped = tile.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-        plate = Image.new('RGB', WALL_SIZE)
-        # Start from mid-room and work outwards so the room reads the same from either lift.
-        first = width // 2 - (tile.width if wall['layout'] == 'pair' else tile.width // 2)
-        index = 0
-        while first > 0:
-            first -= tile.width; index -= 1
-        for x in range(first, width, tile.width):
-            mirrored = index % 2 == 0 if wall['layout'] == 'pair' else index % 2 != 0
-            plate.paste(flipped if mirrored else tile, (x, 0)); index += 1
+        plate, x = Image.new('RGB', WALL_SIZE), 0
+        for source, left, right in wall['sections']:
+            im = Image.open(SRC / f'{source}.png').convert('RGB')
+            im = im.crop((round(left * im.width), 0, round(right * im.width), im.height))
+            im = im.resize((round(im.width * height / im.height), height), Image.Resampling.LANCZOS)
+            plate.paste(im, (x, 0)); x += im.width
+        if x < width - 32:
+            sys.exit(f'{room}: the wall is {x} wide and the room needs {width}')
+        if x < width:
+            # The last few pixels stand behind the departing lift; repeat the edge to fill them.
+            plate.paste(plate.crop((2 * x - width, 0, x, height)).transpose(Image.Transpose.FLIP_LEFT_RIGHT), (x, 0))
         plate.save(ROOT / f"assets/production/backgrounds/interview-room-{wall['floor']}.webp", quality=88, method=6)
-        print(f"wall {room}: floor {wall['floor']}, tile {tile.width} wide")
+        print(f"wall {room}: floor {wall['floor']}, sections {x} wide for a {width} plate")
 
 
 if __name__ == '__main__':

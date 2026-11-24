@@ -2,228 +2,228 @@
   "image": "assets/production/environment/furniture-atlas.png",
   "size": [
     512,
-    402
+    326
   ],
   "frames": {
     "desk": {
       "x": 0,
       "y": 0,
-      "w": 70,
-      "h": 50,
+      "w": 88,
+      "h": 48,
       "source": "assets/source/hq-rooms/furniture-workshop.png",
       "sourceRect": [
-        221,
-        352,
-        787,
-        755
+        55,
+        143,
+        455,
+        363
       ]
     },
     "chest": {
-      "x": 72,
+      "x": 90,
       "y": 0,
-      "w": 66,
-      "h": 50,
+      "w": 90,
+      "h": 48,
       "source": "assets/source/hq-rooms/furniture-workshop.png",
       "sourceRect": [
-        914,
-        351,
-        1447,
-        753
+        530,
+        188,
+        857,
+        363
       ]
     },
-    "work_chair": {
-      "x": 140,
+    "stool": {
+      "x": 182,
       "y": 0,
-      "w": 38,
-      "h": 56,
+      "w": 34,
+      "h": 44,
       "source": "assets/source/hq-rooms/furniture-workshop.png",
       "sourceRect": [
-        1656,
-        279,
-        1981,
-        764
+        967,
+        173,
+        1115,
+        363
       ]
     },
     "bin": {
-      "x": 180,
+      "x": 218,
       "y": 0,
-      "w": 28,
-      "h": 36,
+      "w": 30,
+      "h": 50,
       "source": "assets/source/hq-rooms/furniture-workshop.png",
       "sourceRect": [
-        347,
-        1057,
-        669,
-        1460
+        157,
+        527,
+        334,
+        813
       ]
     },
     "shelf": {
-      "x": 210,
+      "x": 250,
       "y": 0,
-      "w": 82,
-      "h": 104,
+      "w": 90,
+      "h": 100,
       "source": "assets/source/hq-rooms/furniture-workshop.png",
       "sourceRect": [
-        962,
-        921,
-        1415,
-        1491
+        517,
+        477,
+        827,
+        819
       ]
     },
     "lamp": {
-      "x": 294,
+      "x": 342,
       "y": 0,
-      "w": 28,
-      "h": 38,
+      "w": 26,
+      "h": 36,
       "source": "assets/source/hq-rooms/furniture-workshop.png",
       "sourceRect": [
-        1595,
-        946,
-        2008,
-        1488
+        931,
+        533,
+        1136,
+        807
       ]
     },
     "table": {
       "x": 0,
-      "y": 106,
-      "w": 256,
-      "h": 48,
+      "y": 102,
+      "w": 272,
+      "h": 46,
       "source": "assets/source/hq-rooms/furniture-boardroom.png",
       "sourceRect": [
-        187,
-        383,
-        2119,
-        744
+        109,
+        191,
+        1091,
+        357
       ]
     },
     "chair_side": {
-      "x": 258,
-      "y": 106,
-      "w": 54,
-      "h": 64,
+      "x": 274,
+      "y": 102,
+      "w": 38,
+      "h": 66,
       "source": "assets/source/hq-rooms/furniture-boardroom.png",
       "sourceRect": [
-        118,
-        1027,
-        561,
-        1559
+        61,
+        569,
+        238,
+        870
       ]
     },
     "chair": {
       "x": 314,
-      "y": 106,
-      "w": 46,
-      "h": 64,
+      "y": 102,
+      "w": 42,
+      "h": 66,
       "source": "assets/source/hq-rooms/furniture-boardroom.png",
       "sourceRect": [
-        657,
-        1026,
-        1037,
-        1560
+        355,
+        569,
+        548,
+        870
       ]
     },
     "palm": {
-      "x": 362,
-      "y": 106,
-      "w": 70,
-      "h": 84,
+      "x": 358,
+      "y": 102,
+      "w": 64,
+      "h": 104,
       "source": "assets/source/hq-rooms/furniture-boardroom.png",
       "sourceRect": [
-        1116,
-        1005,
-        1563,
-        1545
+        631,
+        479,
+        869,
+        870
       ]
     },
     "sideboard": {
-      "x": 0,
-      "y": 192,
-      "w": 90,
-      "h": 52,
+      "x": 424,
+      "y": 102,
+      "w": 80,
+      "h": 112,
       "source": "assets/source/hq-rooms/furniture-boardroom.png",
       "sourceRect": [
-        1605,
-        1198,
-        2194,
-        1541
+        931,
+        533,
+        1169,
+        870
       ]
     },
     "reception": {
-      "x": 92,
-      "y": 192,
-      "w": 94,
-      "h": 62,
+      "x": 0,
+      "y": 216,
+      "w": 130,
+      "h": 64,
       "source": "assets/source/hq-rooms/furniture-reception.png",
       "sourceRect": [
-        153,
-        342,
-        779,
-        756
+        31,
+        127,
+        500,
+        357
       ]
     },
     "armchair": {
-      "x": 188,
-      "y": 192,
-      "w": 54,
-      "h": 60,
+      "x": 132,
+      "y": 216,
+      "w": 70,
+      "h": 62,
       "source": "assets/source/hq-rooms/furniture-reception.png",
       "sourceRect": [
-        980,
-        310,
-        1388,
-        768
+        542,
+        104,
+        827,
+        356
       ]
     },
     "coffee_table": {
-      "x": 244,
-      "y": 192,
-      "w": 86,
-      "h": 32,
+      "x": 204,
+      "y": 216,
+      "w": 74,
+      "h": 36,
       "source": "assets/source/hq-rooms/furniture-reception.png",
       "sourceRect": [
-        1563,
-        541,
-        2150,
-        757
+        871,
+        210,
+        1169,
+        356
       ]
     },
     "planter": {
-      "x": 332,
-      "y": 192,
-      "w": 96,
-      "h": 46,
+      "x": 280,
+      "y": 216,
+      "w": 86,
+      "h": 50,
       "source": "assets/source/hq-rooms/furniture-reception.png",
       "sourceRect": [
-        152,
-        1105,
-        781,
-        1407
+        61,
+        605,
+        473,
+        842
       ]
     },
     "tree": {
-      "x": 430,
-      "y": 192,
-      "w": 52,
+      "x": 368,
+      "y": 216,
+      "w": 64,
       "h": 100,
       "source": "assets/source/hq-rooms/furniture-reception.png",
       "sourceRect": [
-        1058,
-        938,
-        1310,
-        1421
+        571,
+        485,
+        803,
+        842
       ]
     },
     "floor_lamp": {
-      "x": 0,
-      "y": 294,
-      "w": 28,
-      "h": 108,
+      "x": 434,
+      "y": 216,
+      "w": 56,
+      "h": 110,
       "source": "assets/source/hq-rooms/furniture-reception.png",
       "sourceRect": [
-        1806,
-        939,
-        1935,
-        1426
+        917,
+        434,
+        1125,
+        842
       ]
     }
   }
