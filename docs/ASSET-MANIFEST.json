@@ -434,24 +434,6 @@
       "sha256": "94cc61839da6d5791c9d752390e76095815621ddd5ab90cc2ed7913e51fd96a7"
     },
     {
-      "path": "assets/production/backgrounds/interview-floor-2.webp",
-      "role": "production-asset",
-      "bytes": 145504,
-      "sha256": "22c5f598d3ca3769051740756ca00bee689138f7670fe6b003a8ff5b157618d7"
-    },
-    {
-      "path": "assets/production/backgrounds/interview-floor-3.webp",
-      "role": "production-asset",
-      "bytes": 117832,
-      "sha256": "74fdbfcab55326ed6d4cbd6cdc7a7218dff6bf39cbfdebde5a011e0973a079e7"
-    },
-    {
-      "path": "assets/production/backgrounds/interview-floor-4.webp",
-      "role": "production-asset",
-      "bytes": 138306,
-      "sha256": "a04bc95f75db1e1b223708b1cd1dd24faf8e1ac5eec59f2ade16e44ecd22942f"
-    },
-    {
       "path": "assets/production/backgrounds/interview-hq.png",
       "role": "production-asset",
       "bytes": 2883966,
@@ -462,6 +444,24 @@
       "role": "production-asset",
       "bytes": 296004,
       "sha256": "33033f2ac216e17c353e148e8920e8fcd6f57cf7e4c8e8c038703a0c0f746c93"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-room-2.webp",
+      "role": "production-asset",
+      "bytes": 78942,
+      "sha256": "6b1f9608f16fd54a79c2200d0869fdb4221e0fd84b7944739d40f17b1c612e66"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-room-3.webp",
+      "role": "production-asset",
+      "bytes": 129766,
+      "sha256": "75666dc187d75592bb4e9d8d792a466b665585eb1b7fed8d9cacbc573e1b3540"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-room-4.webp",
+      "role": "production-asset",
+      "bytes": 91118,
+      "sha256": "f27f16e6b8abb0d56f833a3f58065bfeff44f3549ed09aa952faf40d8f8585e0"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city.png",
@@ -552,6 +552,18 @@
       "role": "production-asset",
       "bytes": 16931,
       "sha256": "ce0d6525f3ba26621878f67c90129314e407480e7714ecd44982dfcbd6674f80"
+    },
+    {
+      "path": "assets/production/environment/furniture-atlas.json",
+      "role": "production-asset",
+      "bytes": 4086,
+      "sha256": "ac6d78181f32243610f5dee5c8063d24511b4ce664ac8f534c32c0c08f826f1f"
+    },
+    {
+      "path": "assets/production/environment/furniture-atlas.png",
+      "role": "production-asset",
+      "bytes": 129501,
+      "sha256": "ee287c29a0a867214552a22e1d72ee8ff16a6eb47e3268b6747e9dc3fb6c7601"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -888,6 +900,66 @@
       "role": "generated-source",
       "bytes": 3527,
       "sha256": "cc1663c32ca85e634affa17b5a0f573b24e69124aa5e02829866a59d1e8624fc"
+    },
+    {
+      "path": "assets/source/hq-rooms/README.md",
+      "role": "generated-source",
+      "bytes": 1600,
+      "sha256": "d1112de5af9763ccb6dcb92c0b42bb7f26d35d0fda2c45ed34851eb147169b79"
+    },
+    {
+      "path": "assets/source/hq-rooms/furniture-boardroom.png",
+      "role": "generated-source",
+      "bytes": 1623341,
+      "sha256": "b28cabf7cffa7550abc7ac35ae6d81bcff5214b97738d73ce0640f85bacfe1ca"
+    },
+    {
+      "path": "assets/source/hq-rooms/furniture-reception.png",
+      "role": "generated-source",
+      "bytes": 1305048,
+      "sha256": "43a825762d48047ef872d41e13600c5cd562bab11e0b7579add92002cd5d4b6a"
+    },
+    {
+      "path": "assets/source/hq-rooms/furniture-workshop.png",
+      "role": "generated-source",
+      "bytes": 1532998,
+      "sha256": "9289b0f7e75b57898e2c6d511043cf10c2e9e58eccb94d4f91c5d5632db286fd"
+    },
+    {
+      "path": "assets/source/hq-rooms/previous/interview-floor-2.webp",
+      "role": "generated-source",
+      "bytes": 145504,
+      "sha256": "22c5f598d3ca3769051740756ca00bee689138f7670fe6b003a8ff5b157618d7"
+    },
+    {
+      "path": "assets/source/hq-rooms/previous/interview-floor-3.webp",
+      "role": "generated-source",
+      "bytes": 117832,
+      "sha256": "74fdbfcab55326ed6d4cbd6cdc7a7218dff6bf39cbfdebde5a011e0973a079e7"
+    },
+    {
+      "path": "assets/source/hq-rooms/previous/interview-floor-4.webp",
+      "role": "generated-source",
+      "bytes": 138306,
+      "sha256": "a04bc95f75db1e1b223708b1cd1dd24faf8e1ac5eec59f2ade16e44ecd22942f"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-boardroom.png",
+      "role": "generated-source",
+      "bytes": 4133629,
+      "sha256": "92bef32f264df6aa58508346641d0bb77353a3fcc51fa46663d257ab7b8446ef"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-reception.png",
+      "role": "generated-source",
+      "bytes": 3006758,
+      "sha256": "39e49f1acf61e49f23cf5efca898844dc2f7cb99827cbf25e701d85f71cb6744"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-workshop.png",
+      "role": "generated-source",
+      "bytes": 1397886,
+      "sha256": "6a056fc0ad547b205f3612d373a2a98bd960c1332116d175c03b9b83b9ac86e0"
     },
     {
       "path": "assets/source-atlases/props-4x4.png",

@@ -247,8 +247,7 @@
         ground(2640, 540, 360), ground(3340, 900, 350), ground(4400, 900, 340), ground(5460, 900, 330),
         ground(6520, 900, 320), ledge(370, 338, 192),
         ledge(850, 290), moving(1210, 250, 144, 80, 0, 0.02), ledge(1640, 222, 192),
-        ledge(2160, 292), moving(2460, 270, 144, 0, 65, 0.02), ledge(2910, 242, 192),
-        ledge(6790, 210, 144)],
+        ledge(2160, 292), moving(2460, 270, 144, 0, 65, 0.02), ledge(2910, 242, 192)],
       enemies: [enemy('cv', 850, 400, 770, 1030), enemy('plane', 1180, 266, 1010, 1320, 1.6),
         enemy('inbox', 1570, 360, 1470, 1830), enemy('cv', 2270, 400, 2100, 2440, 1.3),
         enemy('plane', 2790, 246, 2690, 3030, 1.6), enemy('inbox', 3000, 360, 2820, 3100)],
@@ -326,6 +325,48 @@
   const besideLift = (level, item) => level.floorDoors.some(door =>
     Math.abs(item.x - door.car) < LIFT.reach + 12 || (item.x >= door.arrival.x - LIFT.reach - 24 && item.x < door.arrival.x + LIFT.reach + 12));
 
+  // Furniture is part of the level, not the backdrop: it stands on the room's floor at the hero's
+  // scale. `top` is the height of a flat top above the floor; those pieces can be stood on, and a
+  // piece without one is never drawn with a level top. Sizes match the cut-outs in the atlas.
+  // Sizes match the furniture atlas that tools/build-room-art.py cuts; `top` is how far above
+  // the floor a piece can be stood on. The hero is 58 tall.
+  const FURNITURE = {
+    desk: { w: 70, h: 50, top: 50 }, chest: { w: 66, h: 50, top: 50 }, work_chair: { w: 38, h: 56 },
+    bin: { w: 28, h: 36 }, shelf: { w: 82, h: 104, top: 104 }, lamp: { w: 28, h: 38 },
+    table: { w: 256, h: 48, top: 48 }, chair_side: { w: 54, h: 64 }, chair: { w: 46, h: 64 },
+    palm: { w: 70, h: 84 }, sideboard: { w: 90, h: 52, top: 52 },
+    reception: { w: 94, h: 62, top: 58 }, armchair: { w: 54, h: 60 }, coffee_table: { w: 86, h: 32, top: 32 },
+    planter: { w: 96, h: 46 }, tree: { w: 52, h: 100 }, floor_lamp: { w: 28, h: 108 }
+  };
+  // Each room, from its left wall: [piece, x, flipped, the piece it stands on]. Later pieces are
+  // drawn in front. An enemy paces the tops from its first named piece to its last.
+  const ROOMS = [
+    { furniture: [['shelf', 250], ['chest', 346], ['desk', 412], ['lamp', 450, false, 'desk'], ['work_chair', 490], ['bin', 540]],
+      enemy: ['cv', 'chest', 'desk'], ideas: [[291, 148], [379, 118], [447, 118]] },
+    { furniture: [['sideboard', 236], ['chair_side', 334], ['chair', 404], ['chair', 466], ['chair', 528], ['chair', 590], ['table', 386],
+      ['chair_side', 640, true], ['palm', 1086]],
+      enemy: ['inbox', 'table', 'table'], ideas: [[281, 96], [452, 108], [514, 108], [576, 108]] },
+    { furniture: [['floor_lamp', 430], ['armchair', 462], ['coffee_table', 524], ['armchair', 618], ['tree', 690], ['reception', 770],
+      ['planter', 962]],
+      ideas: [[567, 76], [786, 102], [828, 102]] }
+  ];
+  // Furnishing a room adds each piece as decor, a one-way top for the ones that have one,
+  // an enemy pacing the named piece, and ideas above the tops.
+  function furnishRoom(level, room, start, floor) {
+    const placed = {};
+    for (const [piece, x, flip, on] of room.furniture) {
+      const { w, h, top } = FURNITURE[piece], y = floor - (on ? FURNITURE[on].top : 0);
+      const item = { type: 'furniture', piece, x: start + x, y, w, h, flip: Boolean(flip) };
+      level.decor.push(item); placed[piece] = item;
+      if (top) level.platforms.push({ ...rect(start + x + 4, floor - top, w - 8, 20, 'furniture'), piece });
+    }
+    if (room.enemy) {
+      const [type, first, last] = room.enemy, from = placed[first].x + 6, to = placed[last].x + placed[last].w - 6;
+      level.enemies.push(enemy(type, (from + to) / 2, floor - FURNITURE[first].top, from, to, 0.9));
+    }
+    for (const [x, up] of room.ideas) level.collectibles.push({ x: start + x, y: floor - up, kind: 'coin' });
+  }
+
   const LEVELS = definitions.map((level, levelIndex) => {
     if (level.id === 'final-interview') {
       const upperFloors = [4400, 5460, 6520];
@@ -352,33 +393,18 @@
       }
     }
     if (level.id === 'final-interview') {
-      // Extend the upper rooms from right to left so earlier door coordinates stay stable.
+      // Lengthen the upper rooms from right to left so earlier door coordinates stay stable.
+      // A room has one unbroken floor: the stretch between its lift and its arena holds the furniture.
       const floorStarts = level.floorScenes.slice(1).map(room => room.start);
-      floorStarts.reverse().forEach((start, index) => {
+      floorStarts.reverse().forEach(start => {
         const approach = level.platforms.find(p => p.type === 'ground' && p.x === start);
-        const split = start + 305;
-        const remaining = approach.w - (split - start);
-        const y = approach.y;
-        shiftRight(level, split, 440);
-        if (index === 0) {
-          approach.w += 440;
-          level.platforms.push(ledge(split + 100, y - 64, 180), ledge(split + 302, y - 80, 124));
-          level.collectibles.push(...arc(split + 92, y - 105, 7, 42));
-          return;
-        }
-        const rise = 42;
-        approach.w = split - start;
-        level.platforms.push(
-          ground(split + 118, 220, y - rise),
-          ground(split + 440, remaining, y)
-        );
-        level.enemies.push(enemy(index === 1 ? 'inbox' : 'cv', split + 210, y - rise,
-          split + 134, split + 325, 1.05));
-        level.collectibles.push(...arc(split + 15, y - 104, 5, 42));
+        shiftRight(level, start + 305, 440);
+        approach.w += 440;
       });
       configureInterviewDoors(level);
       settleInterviewRooms(level);
       configureInterviewDoors(level);
+      level.floorScenes.slice(1).forEach((room, index) => furnishRoom(level, ROOMS[index], room.start, 440));
     }
     level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
     level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });

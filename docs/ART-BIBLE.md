@@ -76,6 +76,8 @@ The delivered environment kit uses 96 × 96 terrain textures and 192 × 192 prop
 
 Each world suggests distant atmosphere, a middle city and local decoration. The delivered backdrop is one painted plate per world, drifting at 0.12 of camera speed. Foreground props, platforms, actors and ambient particles are separate. Three independent background source layers were not generated. Keep playable surfaces in the clearest foreground plane; painted architecture does not define collision geometry.
 
+The three upper floors of Final Interview HQ are rooms, and a room's backdrop is its back wall only: a flat elevation with windows, lamps and panelling, fixed to the floor. Furniture is never painted into a wall. It is cut from separate sheets into the furniture atlas and placed in the level, so anything that looks like a desk is a desk the hero can reach.
+
 ## HUD and feedback
 
 Use a compact portrait, hearts, lightbulb counter, skill progress and a clearly labelled dash state. Hearts communicate health; lightbulbs communicate score; skill tokens communicate optional evidence. A red icon alone is insufficient for a boss warning, so pair colour with a label or a recognisable animation. Every gameplay cue has to work without colour alone, and the HUD stays clear of critical jumps.
@@ -102,6 +104,9 @@ The concept boards in `references/` are never loaded by the game. Everything the
 | `assets/production/environment/props-atlas.png` | Sixteen props in 192 × 192 storage cells | 768 × 768 |
 | `assets/production/backgrounds/*.png` | One painted backdrop per world | 1672 × 941 |
 | `assets/production/backgrounds/*.webp` | The 960 × 540 copies the game loads | 960 × 540 |
+| `assets/production/backgrounds/interview-room-2.webp` to `-4.webp` | The back walls of the workshop, boardroom and reception | 1190 × 448 |
+| `assets/production/environment/furniture-atlas.png` | Seventeen pieces of room furniture at the size they are drawn | 512 wide |
+| `assets/source/hq-rooms/` | Generated wall and furniture sources, their provenance, and the earlier room paintings | Variable |
 | `assets/source-atlases/terrain-4x4.png`, `props-4x4.png` | Generated source sheets for the two environment atlases | 1254 × 1254 |
 
 ### Hero animations

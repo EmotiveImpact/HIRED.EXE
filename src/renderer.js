@@ -13,9 +13,8 @@
   const COLOURS = { cyan: '#6af4ff', gold: '#ffda5e', purple: '#bb8cff', pink: '#ff83b4', dust: '#fff1d0' };
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
   const round = Math.round;
-  // HQ rooms are painted with their floor low in the frame. Raising the plate brings the
-  // furniture's feet up to the floor the player walks on.
-  const ROOM_RISE = 48;
+  // An HQ room's back wall is a flat plate that stands on the floor and scrolls with it.
+  const ROOM_WALL = { height: 448, floor: 440, base: ['#3d6f7c', '#a488cf', '#cbbbe6'] };
   const LIFT_ART = { half: 64, door: 40, height: 112, header: 28 };
 
   class Renderer {
@@ -41,10 +40,11 @@
         hero: this.meta.hero?.image || 'assets/production/characters/hero-atlas.png',
         enemies: this.meta.enemies?.image || 'assets/production/enemies/enemy-atlas.png',
         terrain: this.meta.terrain?.image || 'assets/production/environment/terrain-atlas.png',
-        props: this.meta.props?.image || 'assets/production/environment/props-atlas.png'
+        props: this.meta.props?.image || 'assets/production/environment/props-atlas.png',
+        furniture: this.meta.furniture?.image || 'assets/production/environment/furniture-atlas.png'
       };
       BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
-      for (let i = 2; i <= 4; i++) specs['hqFloor' + i] = 'assets/production/backgrounds/interview-floor-' + i + '.webp';
+      for (let i = 2; i <= 4; i++) specs['hqRoom' + i] = 'assets/production/backgrounds/interview-room-' + i + '.webp';
       const results = await Promise.allSettled(Object.entries(specs).map(([key, path]) => new Promise((resolve, reject) => {
         const im = new root.Image();
         im.onload = () => {
@@ -55,7 +55,7 @@
         im.src = root.HIRED_EMBEDDED_ASSETS?.[path] || path;
       })));
       this.failed = results.flatMap((r, i) => r.status === 'rejected' ? [Object.entries(specs)[i][1]] : []);
-      for (const key of ['hero', 'enemies', 'terrain', 'props']) {
+      for (const key of ['hero', 'enemies', 'terrain', 'props', 'furniture']) {
         if (!this.meta[key]?.frames) this.failed.push(key + ' frame metadata');
       }
       const report = { loaded: Object.keys(this.images), failed: [...this.failed] };
@@ -85,7 +85,7 @@
       ctx.save();
       ctx.translate(-round(this.camera), 0);
       if (room) { ctx.beginPath(); ctx.rect(room.start, 0, room.end - room.start, HGT); ctx.clip(); }
-      if (this.indoors) this.underfloor(room);
+      if (this.indoors) this.roomWall(state.floor, room);
       this.decor(state.world, false);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w)) continue;
@@ -97,6 +97,8 @@
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
         // An interview floor ends at its lift, which draws the wall that stops you.
         if (p.type === 'gate' && typeof p.needs === 'number') continue;
+        // Furniture is drawn as itself; its platform is only the top you stand on.
+        if (p.type === 'furniture') continue;
         if (p.type === 'gate') this.gate(p, state);
         else if (p.type === 'wall' || p.type === 'breakable') this.wall(p, state);
         else this.platform(p);
@@ -128,7 +130,9 @@
     visible(x, width = 0) { return x + width > this.camera - 220 && x < this.camera + W + 220; }
 
     background(floor, start) {
-      const ctx = this.ctx, im = this.images[floor ? 'hqFloor' + (floor + 1) : 'background' + this.levelIndex];
+      const ctx = this.ctx, im = this.images['background' + this.levelIndex];
+      // Indoors the room's own wall, drawn with the world, is the whole backdrop.
+      if (floor) { ctx.fillStyle = ROOM_WALL.base[floor - 1]; ctx.fillRect(0, 0, W, HGT); return; }
       if (!im) {
         ctx.fillStyle = ['#88c7ff', '#e5abc4', '#7773dc', '#a3ceec'][this.levelIndex];
         ctx.fillRect(0, 0, W, HGT); return;
@@ -138,12 +142,11 @@
       const width = Math.ceil(HGT * im.width / im.height);
       const offset = (this.camera - start) * 0.12;
       const first = Math.floor(offset / width);
-      const y = floor ? -ROOM_RISE : 0;
       for (let i = first; i <= first + 2; i++) {
         const x = round(i * width - offset);
         ctx.save();
-        if (i % 2) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, y, width, HGT); }
-        else ctx.drawImage(im, x, y, width, HGT);
+        if (i % 2) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, width, HGT); }
+        else ctx.drawImage(im, x, 0, width, HGT);
         ctx.restore();
       }
       // Push the painted city slightly into the distance. Collision art stays crisp.
@@ -298,13 +301,28 @@
       ctx.fillRect(0, 0, this.canvas.width, HGT);
     }
 
-    // Below an indoor floor there is only the dark of the building, so a gap reads as a gap.
-    underfloor(room) {
-      const ctx = this.ctx, x = Math.max(room.start, this.camera - 4), w = W + 8;
-      const shade = ctx.createLinearGradient(0, 440, 0, HGT);
-      shade.addColorStop(0, '#2c2257'); shade.addColorStop(.35, '#1b1438'); shade.addColorStop(1, '#120d28');
-      ctx.fillStyle = shade; ctx.fillRect(x, 440, w, HGT - 440);
-      ctx.fillStyle = 'rgba(12,8,30,.35)'; ctx.fillRect(x, 432, w, 8);
+    // The room's back wall is one plate that runs from the lift you arrived in to the lift you
+    // leave by. It is fixed to the floor, so furniture standing against it never slides along it.
+    roomWall(floor, room) {
+      const ctx = this.ctx, im = this.images['hqRoom' + (floor + 1)];
+      if (!im) return;
+      const width = round(ROOM_WALL.height * im.width / im.height), x = room.start + 150;
+      if (this.visible(x, width)) ctx.drawImage(im, x, ROOM_WALL.floor + 2 - ROOM_WALL.height, width, ROOM_WALL.height);
+      // A soft shadow where the wall meets the floor seats the furniture against it.
+      const shade = ctx.createLinearGradient(0, ROOM_WALL.floor - 26, 0, ROOM_WALL.floor);
+      shade.addColorStop(0, 'rgba(34,24,70,0)'); shade.addColorStop(1, 'rgba(34,24,70,.3)');
+      ctx.fillStyle = shade; ctx.fillRect(Math.max(room.start, this.camera - 4), ROOM_WALL.floor - 26, W + 8, 26);
+    }
+
+    furniture(d) {
+      const f = this.frame('furniture', d.piece), im = this.images.furniture;
+      if (!f || !im) return;
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.translate(round(d.x + d.w / 2), round(d.y) + 1);
+      if (d.flip) ctx.scale(-1, 1);
+      ctx.drawImage(im, f.x, f.y, f.w, f.h, -d.w / 2, -d.h, d.w, d.h);
+      ctx.restore();
     }
 
     // An indoor floor: a polished marble slab with a gold nosing over the building's own stone.
@@ -507,6 +525,7 @@
           continue;
         }
         if (front) continue;
+        if (d.type === 'furniture') { this.furniture(d); continue; }
         if (d.type === 'sign') { this.sign(d); continue; }
         // World terminals are supplied by checkpoint actors, avoiding two screens
         // occupying the same save point.

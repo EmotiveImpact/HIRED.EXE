@@ -452,6 +452,34 @@ test('no idea, sign or save point stands in a lift doorway', () => {
   }
 });
 
+test('room furniture stands on the floor at the size it was cut, and leaves the arena clear', () => {
+  const hq = globalThis.Hired.LEVELS[3];
+  const frames = require('../assets/production/environment/furniture-atlas.json').frames;
+  const pieces = hq.decor.filter(item => item.type === 'furniture');
+  for (const room of hq.floorScenes.slice(1)) {
+    assert.ok(pieces.some(item => item.x > room.start && item.x < room.end), `${room.title} is furnished`);
+  }
+  for (const item of pieces) {
+    assert.deepEqual([item.w, item.h], [frames[item.piece].w, frames[item.piece].h], `${item.piece} matches the atlas`);
+    const support = [...hq.platforms].filter(pl => pl.x <= item.x + item.w / 2 && pl.x + pl.w >= item.x + item.w / 2 && pl.y === item.y);
+    assert.ok(support.length, `${item.piece} stands on something`);
+  }
+  const tops = hq.platforms.filter(pl => pl.type === 'furniture');
+  assert.ok(tops.length >= 6);
+  for (const top of tops) assert.ok(top.y < 440 && 440 - top.y <= 110, `${top.piece} can be reached with one jump`);
+  const arena = hq.rounds.find(round => round.arena).arena;
+  assert.ok(!tops.some(top => top.x + top.w > arena[0] && top.x < arena[1]), 'nothing to stand on inside the arena');
+  // A piece can be stood on from above and walked past from the side.
+  const game = gameAtStart(3), p = game.state.player, desk = tops.find(top => top.piece === 'desk');
+  game.state.floor = 1;
+  Object.assign(p, { x: desk.x + desk.w / 2 - p.w / 2, y: desk.y - p.h - 30, vx: 0, vy: 0 });
+  tick(game, {}, 30);
+  assert.equal(p.y + p.h, desk.y, 'lands on the desk');
+  Object.assign(p, { x: desk.x - 80, y: 440 - p.h, vx: 0, vy: 0 });
+  tick(game, { right: true }, 40);
+  assert.ok(p.x > desk.x + desk.w, 'walks past the desk');
+});
+
 test('cutscene panels: every ready panel exists and is used, and every beat id is well formed', () => {
   const fs = require('node:fs');
   const path = require('node:path');
