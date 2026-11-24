@@ -59,9 +59,9 @@ Not public yet: Fenny. Life 1.0, an offline-first personal OS in Expo and React 
 
 BUILD, AUTOMATE, GROW
 
-Build: I map the path from interface to API to database, write the spec and the acceptance criteria, then direct Claude Code and Codex. I read the code, reproduce the bugs, test the whole flow and decide what ships.
+Build: I start with research. I look for ideas nobody has built, and where somebody has, I mine their reviews and Reddit for what customers want fixed. A deep dive in Codex ends in a PRD. In Claude Code I fix what the PRD missed and add more research and the design system. Only then do I build, with a web designer's eye and a film-maker and marketer's feel for the customer journey. I read the code, test the whole flow and decide what ships.
 
-Automate: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me each day on the code with suggestions for what to fix. If I do something twice, they do it the third time.
+Automate: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me each day on what to fix in the code. If I do something twice, they do it the third time.
 
 Grow: twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts at the end of 2026.
 
