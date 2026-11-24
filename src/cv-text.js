@@ -2,7 +2,7 @@
 // desktop. Keep it in step with cv.html and assets/cv/Augustus-Edem-CV.pdf.
 // CURRENTLY WORKING ON matches the desktop's Working On group (E.working in edition.js).
 globalThis.HIRED_CV_TXT = `AUGUSTUS EDEM
-AI-native builder & creative founder
+AI-Native Builder & Creative Founder
 London, UK. Remote. Unrestricted right to work in the UK.
 emotiveimpact@gmail.com
 hireexe.me | vlumeaudio.com | vimeo.com/emotiveimpact
