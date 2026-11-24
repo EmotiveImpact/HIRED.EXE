@@ -52,6 +52,22 @@ const solvedEdition = {
   links: [
     { name: 'Vimeo', url: 'https://vimeo.com/emotiveimpact' }
   ],
+  // Hire Edem.exe's install steps for this employer. They answer the Solved advert line by line:
+  // no fancy office, Claude Code and Codex, automate the third time, a salary with a number in it,
+  // no ping-pong table, no detailed instructions and no long cover note.
+  setupSteps: [
+    {file: 'OFFICE.IN_', act: 'Searching for fancy office...', aside: 'None found. Space required: one desk.', to: 9},
+    {file: 'EDITING.DL_', act: 'Uncompressing twenty years of film and editing...', aside: 'This may take a while. It took twenty years the first time.', to: 18},
+    {file: 'DIRECTOR.DL_', act: 'Installing creative direction...', aside: 'Includes saying “it’s nearly there” and meaning it.', to: 27},
+    {file: 'AGENTS.IN_', act: 'Configuring Claude Code and Codex...', aside: 'They have been told to ask before deleting anything. They have asked twice already.', to: 36},
+    {file: 'TWICE.SY_', act: 'Copying the same file for the second time...', aside: 'There will not be a third. It has been automated.', to: 46},
+    {disk: true, file: 'REFS.TX_', act: 'Reading Disk 2 (References)...', aside: 'References available on request. As is traditional.', to: 55},
+    {file: 'SALARY.IN_', act: 'Reading the salary from the advert...', aside: 'It gives an actual number. Setup has read it twice to be sure.', to: 64},
+    {file: 'PINGPONG.SY_', act: 'Locating the ping-pong table...', aside: 'None found. Located the kettle instead. The first round is on Augustus.', to: 73},
+    {file: 'README.TX_', act: 'Reading detailed instructions...', aside: 'None supplied. Continuing anyway.', to: 81},
+    {file: 'COVERLET.TX_', act: 'Deleting “I look forward to hearing from you”...', aside: 'It had been looking forward for some time.', to: 89},
+    {file: 'ETHIC.DL_', act: 'Installing work ethic...', aside: 'Still at 97%. It’s staying late to finish.', to: 97, stall: true}
+  ],
   interview: [
     {question:'What would you like to explore first?', answers:[
       {label:'The creative background', text:'Over 20 years of video production, editing and creative direction. I care about how an idea feels, how clearly it communicates and whether it works for the people using it.'},
@@ -64,10 +80,10 @@ const solvedEdition = {
       {label:'SALEANE', text:'A customer asks to book. The owner needs the right appointment in their diary. I can walk through the design between those two moments and show what the demo does.'},
       {label:'Cairn', text:'Cairn asks a practical question before any cleanup: does the owner understand what they are about to remove? I can show you how that shaped the flow.'}
     ]},
-    {question:'What should the next conversation focus on?', answers:[
-      {label:'Working together', text:'How I could contribute creative direction, product judgement and hands-on AI-assisted building to your team.'},
-      {label:'A project walkthrough', text:'A chance to look at real work, discuss trade-offs and ask questions about how it was made.'},
-      {label:'The role and the team', text:'What the team needs, where my experience fits and what we could learn from each other.'}
+    {question:'What happens next?', answers:[
+      {label:'The 30-minute call', text:'Half an hour, your questions, my screen. I’ll bring the work and leave the deck at home. I gather you don’t do them either.'},
+      {label:'The paid trial project', text:'Hand me a problem, not a task list. I’ll come back with a live URL and a short note on what I’d fix next.'},
+      {label:'Monday', text:'Suits me. The advert mentioned several hats. I’ll bring my own.'}
     ]}
   ]
 };
@@ -76,7 +92,13 @@ const solvedEdition = {
 const editions = new Map([
   [solvedEdition.id, solvedEdition],
   ['portfolio', { ...solvedEdition, id: 'portfolio', company: '', interviewer: null, role: 'Product builder',
-    editionLabel: 'PORTFOLIO EDITION',
+    editionLabel: 'PORTFOLIO EDITION', setupSteps: null,
+    interview: [...solvedEdition.interview.slice(0, 2),
+    {question:'What should the next conversation focus on?', answers:[
+      {label:'Working together', text:'How I could contribute creative direction, product judgement and hands-on AI-assisted building to your team.'},
+      {label:'A project walkthrough', text:'A chance to look at real work, discuss trade-offs and ask questions about how it was made.'},
+      {label:'The role and the team', text:'What the team needs, where my experience fits and what we could learn from each other.'}
+    ]}],
     intro: 'I’m Augustus Edem. Play through four stages of my work in creative direction and product building, or open the portfolio.',
     finish: 'Thanks for playing. I’d love to show you how the work came together.' }]
 ]);

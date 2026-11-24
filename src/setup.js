@@ -11,6 +11,7 @@
     '<rect x="6.5" y="15.5" width="19" height="14" fill="#fff" stroke="#000"/><path d="M9 19.5h14M9 22.5h14M9 25.5h9" stroke="#000080"/></svg></span>';
 
   // The feed line shows as the step starts; the second line lands halfway through.
+  // An edition can supply its own list as setupSteps, to answer that employer's advert.
   const STEPS = [
     {file: 'DESK.IN_', act: 'Checking available desk space...', aside: 'Space required: one desk. Space available: Setup was too polite to ask.', to: 10},
     {file: 'EDITING.DL_', act: 'Uncompressing twenty years of film and editing...', aside: 'This may take a while. It took twenty years the first time.', to: 22},
@@ -34,6 +35,7 @@
     const company = E.company || 'your company';
     const folder = 'C:\\' + ((E.company || 'Work').split(/\s+/)[0].replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase() || 'WORK');
     const email = safeLink(E.contactUrl);
+    const steps = Array.isArray(E.setupSteps) && E.setupSteps.length ? E.setupSteps : STEPS;
     let stage = 'welcome', paused = false, asking = false, target = folder;
 
     const win = wm.openApp({
@@ -130,7 +132,7 @@
         file.textContent = target + '\\' + s.file.replace(/\.(\w\w)_$/, (m, x) => '.' + x + ({DL: 'L', IN: 'I', TX: 'T', SY: 'S'}[x] || '_'));
         act.textContent = s.act; aside.textContent = '';
       };
-      for (const s of STEPS) {
+      for (const s of steps) {
         if (!win.isConnected) return;
         if (s.disk) {
           // A minimised Setup waits for its window before asking for the disk.

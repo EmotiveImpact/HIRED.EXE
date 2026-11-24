@@ -154,7 +154,7 @@ async function run() {
     for (const i of [0,0,1]) { click('answer-'+i); check(byId('interview-next'),'Missing interview response');click('interview-next'); }
     check(app().mode==='finish','Ending did not open');
     const ending=byId('overlay').textContent;
-    for(const label of ['The creative background','Vlume','A project walkthrough'])check(ending.includes(label),'Ending lost '+label);
+    for(const label of ['The creative background','Vlume','The paid trial project'])check(ending.includes(label),'Ending lost '+label);
     const email=byId('overlay').querySelector('a[href^="mailto:"]');
     check(new URL(email.href).searchParams.get('body').includes('Vlume'),'Email lost interview topic');
     check(byId('final-cv').getAttribute('href')==='cv.html','CV is missing from the results');
