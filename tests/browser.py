@@ -290,7 +290,8 @@ def run(profile, base):
             page.set_viewport_size(options['viewport'])
         page.goto(base+'/cv.html')
         expect(page.locator('h1')).to_have_text('Augustus Edem')
-        expect(page.get_by_role('heading', name='Selected products')).to_be_visible()
+        for heading in ('The abnormal bit', 'Shipped', 'In the works', 'Build, automate, grow', 'Experience'):
+            expect(page.get_by_role('heading', name=heading, exact=True)).to_be_visible()
         with page.expect_download() as download:
             activate('a[download]')
         assert download.value.suggested_filename == 'Augustus-Edem-CV.pdf'
@@ -411,7 +412,22 @@ def run(profile, base):
         page.select_option('#layout','touch' if mobile else 'keyboard')
         page.click('#run')
         result = page.locator('#status')
-        page.wait_for_function("['PASS','FAIL'].some(s=>document.querySelector('#status').textContent.startsWith(s))",timeout=320000)
+        crashed = []
+        page.on('crash', lambda _: crashed.append('page crashed'))
+        try:
+            page.wait_for_function("['PASS','FAIL'].some(s=>document.querySelector('#status').textContent.startsWith(s))",timeout=320000)
+        except Exception as error:
+            # Say where the run was and whether frames were still arriving, so a timeout can be told from a stall.
+            where = ['no report from the page']
+            try:
+                where = [result.inner_text(), page.locator('#results').inner_text(), 'frames in 2 s: ' + str(page.evaluate(
+                    "() => new Promise(done => { let n = 0; const tick = () => { n++; requestAnimationFrame(tick); }; requestAnimationFrame(tick); setTimeout(() => done(n), 2000); })"))]
+                page.screenshot(path=OUT/'stalled.jpg')
+            except Exception as second:
+                where.append(f'could not read the page: {second}')
+            report = '\n'.join(['Playthrough did not finish', *crashed, *where])
+            (OUT/'result.txt').write_text(report)
+            raise AssertionError(report) from error
         report = result.inner_text() + '\n' + page.locator('#results').inner_text()
         (OUT/'result.txt').write_text(report)
         print(report, flush=True)
