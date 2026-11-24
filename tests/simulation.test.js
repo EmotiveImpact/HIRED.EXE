@@ -349,6 +349,7 @@ test('resuming at a late checkpoint skips the rounds already cleared', () => {
   assert.equal(g.restoreCheckpoint(record), true);
   assert.equal(g.state.bossIndex, 2); assert.equal(g.state.boss.type, 'algorithm');
   assert.equal(g.state.floor, 2);
+  // Only the wall behind this floor's lift is left to stop anyone.
   const gates = g.state.world.platforms.filter(pl => pl.type === 'gate');
   assert.deepEqual(gates.map(gate => gate.needs), [2]);
 });
@@ -401,25 +402,53 @@ test('the charging boss can be defeated directly by dashing into its opening', (
   assert.equal(boss.health, boss.maxHealth - 1);
 });
 
-test('clearing each interview round opens a door to a distinct, saved floor', () => {
-  const g = gameAtStart(3, { assist: true }), p = g.state.player;
+test('clearing each interview round calls a lift that carries the player to a distinct, saved floor', () => {
+  const g = gameAtStart(3, { assist: true }), p = g.state.player, L = globalThis.Hired.LIFT;
   for (const door of g.state.world.floorDoors) {
-    Object.assign(p, { x: door.x - p.w + 2, y: door.y - p.h, vx: 0, vy: 0 });
+    const wall = g.state.world.platforms.find(pl => pl.type === 'gate' && pl.needs === door.round);
+    Object.assign(p, { x: door.car - p.w / 2, y: door.y - p.h, vx: 0, vy: 0, grounded: true });
     g.setPieces();
-    assert.equal(g.state.floorTransition, null);
+    assert.equal(g.state.floorTransition, null, 'the lift stays shut until the round is cleared');
     g.clearBoss(g.state.boss);
+    g.drainEvents();
+    // The lift takes a moment to arrive and open, and announces itself.
+    for (let i = 0; i < L.call + L.doors; i++) { g.setPieces(); assert.equal(g.state.floorTransition, null); }
+    assert.deepEqual(g.drainEvents().map(e => e.type), ['liftCall', 'liftDing']);
     g.setPieces();
     assert.equal(g.state.floorTransition.door, door);
-    tick(g, { right: true }, 5);
-    assert.equal(g.state.floor, door.round);
-    tick(g, {}, 1);
+    // Step in, doors close, ride. Input does nothing until the player steps out upstairs.
+    const phases = [];
+    for (let i = 0; i < 400 && g.state.floorTransition; i++) {
+      const { phase } = g.state.floorTransition;
+      if (phases.at(-1) !== phase) phases.push(phase);
+      assert.equal(g.state.floor, ['board', 'close', 'ride'].includes(phase) ? door.round : door.round + 1);
+      tick(g, { left: true, jumpPressed: true }, 1);
+    }
+    assert.deepEqual(phases, ['board', 'close', 'ride', 'arrive', 'open', 'exit']);
+    assert.equal(g.state.floorTransition, null);
     assert.equal(g.state.floor, door.round + 1);
     assert.equal(p.x, door.landing.x + 8);
+    assert.equal(p.y + p.h, door.landing.y, 'the player steps out onto the floor');
+    assert.equal(door.landing.y, 440, 'rooms keep their floor at floor height');
     assert.ok(g.state.camera.x >= g.state.world.floorScenes[g.state.floor].start);
-    tick(g, {}, 6);
-    assert.equal(g.state.floorTransition, null);
-    assert.ok(p.y + p.h < door.y);
     assert.equal(g.state.checkpoint.id, door.landing.id);
+    assert.ok(g.state.world.platforms.includes(wall), 'the wall behind the lift stays solid');
+    assert.deepEqual(g.drainEvents().map(e => e.type).filter(type => type.startsWith('lift')),
+      ['liftDoor', 'liftMove', 'liftDing', 'liftDoor']);
+  }
+});
+
+test('no idea, sign or save point stands in a lift doorway', () => {
+  const hq = globalThis.Hired.LEVELS[3];
+  for (const door of hq.floorDoors) {
+    for (const x of [door.car, door.arrival.x]) {
+      const near = item => Math.abs(item.x - x) < 64;
+      assert.ok(!hq.collectibles.some(item => item.kind === 'coin' && near(item)));
+      assert.ok(!hq.checkpoints.some(near));
+      assert.ok(!hq.decor.some(near));
+    }
+    const ground = hq.platforms.find(pl => pl.type === 'ground' && pl.x <= door.arrival.x - 64 && pl.x + pl.w >= door.landing.x + 60);
+    assert.equal(ground?.y, door.arrival.y, 'solid floor runs from the lift to the save point');
   }
 });
 

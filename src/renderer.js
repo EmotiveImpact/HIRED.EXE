@@ -13,6 +13,10 @@
   const COLOURS = { cyan: '#6af4ff', gold: '#ffda5e', purple: '#bb8cff', pink: '#ff83b4', dust: '#fff1d0' };
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
   const round = Math.round;
+  // HQ rooms are painted with their floor low in the frame. Raising the plate brings the
+  // furniture's feet up to the floor the player walks on.
+  const ROOM_RISE = 48;
+  const LIFT_ART = { half: 64, door: 40, height: 112, header: 28 };
 
   class Renderer {
     constructor(canvas) {
@@ -74,21 +78,25 @@
       ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, W, HGT);
       const room = state?.world.floorScenes?.[state.floor];
+      this.indoors = Boolean(state?.floor);
       this.background(state?.floor ?? 0, room?.start ?? 0);
       if (!state) return;
       this.ambient();
       ctx.save();
       ctx.translate(-round(this.camera), 0);
       if (room) { ctx.beginPath(); ctx.rect(room.start, 0, room.end - room.start, HGT); ctx.clip(); }
+      if (this.indoors) this.underfloor(room);
       this.decor(state.world, false);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w)) continue;
-        if (p.type === 'ground') { this.ground(p); if (p.belt) this.belt(p); }
+        if (p.type === 'ground') { if (this.indoors) this.roomFloor(p); else this.ground(p); if (p.belt) this.belt(p); }
       }
-      this.floorDoors(state);
+      this.lifts(state, room);
       this.decor(state.world, true);
       for (const p of state.world.platforms) {
         if (!this.visible(p.x, p.w) || p.type === 'ground') continue;
+        // An interview floor ends at its lift, which draws the wall that stops you.
+        if (p.type === 'gate' && typeof p.needs === 'number') continue;
         if (p.type === 'gate') this.gate(p, state);
         else if (p.type === 'wall' || p.type === 'breakable') this.wall(p, state);
         else this.platform(p);
@@ -106,7 +114,7 @@
       this.signoffs(state);
       this.boss(state);
       for (const shot of state.projectiles) this.projectile(shot);
-      this.player(state.player, state);
+      if (!this.riding(state)) this.player(state.player, state);
       for (const p of state.particles) this.particle(p);
       this.feed(state);
       ctx.restore();
@@ -130,11 +138,12 @@
       const width = Math.ceil(HGT * im.width / im.height);
       const offset = (this.camera - start) * 0.12;
       const first = Math.floor(offset / width);
+      const y = floor ? -ROOM_RISE : 0;
       for (let i = first; i <= first + 2; i++) {
         const x = round(i * width - offset);
         ctx.save();
-        if (i % 2) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, width, HGT); }
-        else ctx.drawImage(im, x, 0, width, HGT);
+        if (i % 2) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, y, width, HGT); }
+        else ctx.drawImage(im, x, y, width, HGT);
         ctx.restore();
       }
       // Push the painted city slightly into the distance. Collision art stays crisp.
@@ -281,24 +290,208 @@
     }
 
     roomFade(state) {
-      const ctx = this.ctx, tick = state.floorTransition.tick;
-      ctx.fillStyle = `rgba(25,20,46,${Math.min(tick, 12 - tick) / 6})`;
+      // The screen dips only while the car is between floors.
+      const ctx = this.ctx, ride = state.floorTransition, L = H.LIFT;
+      const dark = ride.phase === 'ride' ? (ride.tick - (L.ride - 10)) / 10 : ride.phase === 'arrive' ? 1 - ride.tick / 10 : 0;
+      if (dark <= 0) return;
+      ctx.fillStyle = `rgba(25,20,46,${Math.min(1, dark)})`;
       ctx.fillRect(0, 0, this.canvas.width, HGT);
     }
 
-    floorDoors(state) {
-      const ctx = this.ctx;
-      const entrance = state.world.floorDoors?.[state.floor - 1]?.landing;
-      if (entrance && this.visible(entrance.x - 44, 55)) {
-        ctx.fillStyle = '#32285a'; ctx.fillRect(entrance.x - 44, entrance.y - 108, 55, 108);
-        ctx.fillStyle = '#ffe19b'; ctx.fillRect(entrance.x - 42, entrance.y - 108, 51, 4);
+    // Below an indoor floor there is only the dark of the building, so a gap reads as a gap.
+    underfloor(room) {
+      const ctx = this.ctx, x = Math.max(room.start, this.camera - 4), w = W + 8;
+      const shade = ctx.createLinearGradient(0, 440, 0, HGT);
+      shade.addColorStop(0, '#2c2257'); shade.addColorStop(.35, '#1b1438'); shade.addColorStop(1, '#120d28');
+      ctx.fillStyle = shade; ctx.fillRect(x, 440, w, HGT - 440);
+      ctx.fillStyle = 'rgba(12,8,30,.35)'; ctx.fillRect(x, 432, w, 8);
+    }
+
+    // An indoor floor: a polished marble slab with a gold nosing over the building's own stone.
+    roomFloor(p) {
+      const ctx = this.ctx, x = round(p.x), y = round(p.y), w = round(p.w);
+      ctx.save();
+      ctx.beginPath(); ctx.rect(x, y, w, HGT - y + 4); ctx.clip();
+      ctx.fillStyle = THEMES[3].base; ctx.fillRect(x, y, w, HGT - y);
+      const start = Math.max(0, Math.floor((this.camera - p.x - 96) / 96));
+      const last = Math.min(Math.ceil(p.w / 96), Math.ceil((this.camera + W - p.x + 96) / 96));
+      for (let col = start; col < last; col++) {
+        for (let row = 0; y + 14 + row * 96 < HGT; row++) this.tile('stone', p.x + col * 96, y + 14 + row * 96);
       }
-      for (const door of state.world.floorDoors || []) {
-        if (state.bossIndex <= door.round || !this.visible(door.x - 55, 120)) continue;
-        ctx.fillStyle = '#32285a'; ctx.fillRect(door.x - 32, door.y - 115, 80, 115);
-        ctx.fillStyle = '#ffe19b'; ctx.fillRect(door.x - 28, door.y - 111, 72, 4);
-        this.label('DOOR · FLOOR ' + (door.round + 2), door.x + 8, door.y - 130, '#ffe8ae', 11);
+      ctx.fillStyle = ink; ctx.fillRect(x, y + 14, w, 3);
+      ctx.fillStyle = '#b08a3c'; ctx.fillRect(x, y + 11, w, 3);
+      ctx.fillStyle = '#ffd97a'; ctx.fillRect(x, y + 9, w, 2);
+      ctx.fillStyle = '#c9bdf0'; ctx.fillRect(x, y, w, 9);
+      ctx.fillStyle = '#e9e1ff'; ctx.fillRect(x, y, w, 5);
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(x, y, w, 2);
+      // Slab joints and a soft sheen, fixed to the world so they scroll with the floor.
+      for (let jx = Math.ceil(p.x / 96) * 96; jx < p.x + p.w; jx += 96) {
+        ctx.fillStyle = 'rgba(88,72,150,.55)'; ctx.fillRect(jx, y, 2, 9);
+        ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(jx + 14, y + 2, 26, 1); ctx.fillRect(jx + 46, y + 3, 10, 1);
       }
+      ctx.fillStyle = 'rgba(29,22,57,.3)'; ctx.fillRect(x + w - 4, y + 14, 4, HGT - y);
+      ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fillRect(x, y + 14, 3, HGT - y);
+      ctx.restore();
+    }
+
+    // True while the hero is inside the car, where the lift draws them behind its doors.
+    riding(state) {
+      return ['close', 'ride', 'arrive', 'open'].includes(state.floorTransition?.phase);
+    }
+
+    lifts(state, room) {
+      const doors = state.world.floorDoors;
+      if (!doors) return;
+      const L = H.LIFT, ride = state.floorTransition, top = doors.length + 1;
+      const ease = t => t * t * (3 - 2 * t);
+      const rider = () => this.player(state.player, state);
+      const out = doors[state.floor], back = doors[state.floor - 1];
+      if (out && this.visible(out.car - 70, 190)) {
+        const here = state.floor + 1, called = state.bossIndex > out.round ? out.called : 0;
+        const o = { number: top, arrow: 0, open: 0, car: null, moving: false, locked: called === 0,
+          wall: [out.x, room.end], button: out.x + 24, label: 'LIFT TO FLOOR ' + (here + 1) };
+        if (called > 0 && called < L.call) {
+          // Called: the car comes down the shaft from the top floor.
+          const t = called / L.call;
+          o.number = Math.max(here, round(top - (top - here) * t * 1.15)); o.arrow = -1; o.moving = true;
+          o.car = (1 - ease(t)) * (out.y + 30);
+        } else if (called >= L.call) {
+          o.number = here; o.car = 0; o.open = clamp((called - L.call) / L.doors, 0, 1);
+        }
+        if (ride?.door === out && ride.phase !== 'board') o.label = null;
+        if (ride?.door === out && ride.phase === 'close') { o.open = 1 - ride.tick / L.doors; o.rider = rider; }
+        if (ride?.door === out && ride.phase === 'ride') {
+          const t = ride.tick / L.ride;
+          o.open = 0; o.car = t * t * (out.y + 30); o.rider = rider; o.moving = true; o.arrow = 1;
+          if (t > .5) o.number = here + 1;
+        }
+        if (o.locked) o.note = 'CLEAR THE ROUND';
+        this.lift(out.car, out.y, o);
+      }
+      if (back && this.visible(back.arrival.x - 100, 190)) {
+        const shut = back.shut ?? L.doors;
+        const o = { number: state.floor + 1, arrow: 0, open: 1 - shut / L.doors, car: 0, moving: false,
+          wall: [room.start, back.arrival.x - LIFT_ART.half], button: back.arrival.x + LIFT_ART.half - 12 };
+        if (ride?.door === back) {
+          if (ride.phase === 'arrive') { o.open = 0; o.moving = true; o.arrow = 1; o.rider = rider; }
+          else if (ride.phase === 'open') { o.open = ride.tick / L.doors; o.rider = rider; }
+          else o.open = 1;
+        }
+        this.lift(back.arrival.x, back.arrival.y, o);
+      }
+    }
+
+    // One lift, seen from the landing: a glazed shaft, a car on its cables, a pair of sliding
+    // doors, a floor indicator over them and a call button on the wall beside.
+    lift(cx, floor, o) {
+      const ctx = this.ctx, A = LIFT_ART, t = this.time;
+      const left = cx - A.half, doorTop = floor - A.height, headTop = doorTop - A.header;
+      const stone = (x, w) => {
+        ctx.fillStyle = ink; ctx.fillRect(x - 2, -4, w + 4, floor + 4);
+        ctx.fillStyle = '#a79bdc'; ctx.fillRect(x, -4, w, floor + 4);
+        ctx.fillStyle = '#d9d0f8'; ctx.fillRect(x, -4, Math.min(5, w), floor + 4);
+        ctx.fillStyle = '#7d70be'; ctx.fillRect(x + w - Math.min(5, w), -4, Math.min(5, w), floor + 4);
+        ctx.fillStyle = 'rgba(54,42,108,.5)';
+        for (let y = floor - 34; y > 0; y -= 46) ctx.fillRect(x, y, w, 2);
+      };
+      ctx.save();
+      // The wall the floor ends at.
+      if (o.wall && o.wall[1] > o.wall[0]) stone(o.wall[0], o.wall[1] - o.wall[0]);
+      // Shaft: dark well, guide rails, cross ties and the cables the car hangs from.
+      ctx.fillStyle = ink; ctx.fillRect(left - 2, -4, A.half * 2 + 4, floor + 4);
+      const well = ctx.createLinearGradient(left, 0, left + A.half * 2, 0);
+      well.addColorStop(0, '#191338'); well.addColorStop(.5, '#2d2460'); well.addColorStop(1, '#191338');
+      ctx.fillStyle = well; ctx.fillRect(left + 12, -4, A.half * 2 - 24, floor + 4);
+      ctx.fillStyle = '#4b4290';
+      for (let y = (floor - 20) % 58 - 58; y < headTop; y += 58) ctx.fillRect(left + 12, y, A.half * 2 - 24, 3);
+      ctx.fillStyle = '#6e63b8'; ctx.fillRect(cx - 46, -4, 3, floor); ctx.fillRect(cx + 43, -4, 3, floor);
+      const run = o.moving ? (t * 190 * (o.arrow || 1)) % 14 : 0;
+      for (const x of [cx - 8, cx + 6]) {
+        ctx.fillStyle = '#8f86cf'; ctx.fillRect(x, -4, 2, floor);
+        ctx.fillStyle = '#d6cffa';
+        for (let y = -14 - run; y < headTop; y += 14) ctx.fillRect(x, round(y), 2, 5);
+      }
+      // The car.
+      if (o.car !== null) {
+        const rise = round(o.car), cw = A.door + 6, ch = A.height + 8, cy = floor - ch - rise;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(left + 12, -4, A.half * 2 - 24, floor + 4); ctx.clip();
+        ctx.fillStyle = ink; ctx.fillRect(cx - cw - 2, cy - 12, cw * 2 + 4, ch + 14);
+        ctx.fillStyle = '#8d6a2c'; ctx.fillRect(cx - cw, cy - 10, cw * 2, 10);
+        ctx.fillStyle = '#e2b85a'; ctx.fillRect(cx - cw, cy - 10, cw * 2, 3);
+        ctx.fillStyle = '#5d4a9e'; ctx.fillRect(cx - 12, cy - 18, 24, 8);
+        const wall = ctx.createLinearGradient(0, cy, 0, cy + ch);
+        wall.addColorStop(0, '#fff6d6'); wall.addColorStop(.55, '#f6dfa6'); wall.addColorStop(1, '#d9b470');
+        ctx.fillStyle = wall; ctx.fillRect(cx - cw, cy, cw * 2, ch);
+        ctx.fillStyle = '#b98646'; ctx.fillRect(cx - cw, cy + ch - 44, cw * 2, 44);
+        ctx.fillStyle = '#9a6a35';
+        for (let x = cx - cw + 14; x < cx + cw; x += 22) ctx.fillRect(x, cy + ch - 44, 2, 40);
+        ctx.fillStyle = '#ffe9a8'; ctx.fillRect(cx - cw, cy + ch - 48, cw * 2, 4);
+        ctx.fillStyle = '#7a5a2a'; ctx.fillRect(cx - cw, cy + ch - 44, cw * 2, 2);
+        // Mirror on the back wall, ceiling light and floor.
+        ctx.fillStyle = '#a9dff2'; ctx.fillRect(cx - 24, cy + 16, 48, 40);
+        ctx.fillStyle = '#e6fbff'; ctx.fillRect(cx - 24, cy + 16, 48, 3); ctx.fillRect(cx - 16, cy + 24, 3, 22); ctx.fillRect(cx - 10, cy + 24, 2, 14);
+        ctx.strokeStyle = '#b98a3a'; ctx.lineWidth = 2; ctx.strokeRect(cx - 25, cy + 15, 50, 42);
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(cx - 26, cy + 3, 52, 4);
+        ctx.fillStyle = 'rgba(255,250,210,.35)'; ctx.fillRect(cx - 32, cy + 7, 64, 6);
+        ctx.fillStyle = '#6b4a8c'; ctx.fillRect(cx - cw, cy + ch - 5, cw * 2, 5);
+        if (o.rider) {
+          ctx.save(); ctx.beginPath(); ctx.rect(cx - cw, cy, cw * 2, ch); ctx.clip();
+          ctx.translate(0, -rise); o.rider(); ctx.restore();
+        }
+        // Side frames of the car.
+        ctx.fillStyle = '#c99a45'; ctx.fillRect(cx - cw, cy, 3, ch); ctx.fillRect(cx + cw - 3, cy, 3, ch);
+        ctx.restore();
+      }
+      // Glass over the open shaft.
+      ctx.fillStyle = 'rgba(150,214,255,.16)'; ctx.fillRect(left + 12, -4, A.half * 2 - 24, headTop + 4);
+      ctx.fillStyle = 'rgba(255,255,255,.2)';
+      for (let y = headTop - 150; y > -80; y -= 150) {
+        for (let i = 0; i < 26; i++) ctx.fillRect(left + 18 + i * 2, y + 60 - i * 2, 12, 1);
+      }
+      ctx.fillStyle = ink;
+      for (let y = headTop - 96; y > -10; y -= 96) ctx.fillRect(left + 12, y, A.half * 2 - 24, 3);
+      // Doors: two leaves that part from the middle.
+      const slide = round(clamp(o.open, 0, 1) * (A.door - 3));
+      ctx.save();
+      ctx.beginPath(); ctx.rect(cx - A.door, doorTop, A.door * 2, A.height); ctx.clip();
+      if (o.car === null || o.car > 2) { ctx.fillStyle = '#140f2c'; ctx.fillRect(cx - A.door, doorTop, A.door * 2, A.height); }
+      for (const side of [-1, 1]) {
+        const x = side < 0 ? cx - A.door - slide : cx + slide;
+        const metal = ctx.createLinearGradient(x, 0, x + A.door, 0);
+        metal.addColorStop(0, '#b9a4e8'); metal.addColorStop(.3, '#efe8ff'); metal.addColorStop(.62, '#cbbdf3'); metal.addColorStop(1, '#9585d2');
+        ctx.fillStyle = metal; ctx.fillRect(x, doorTop, A.door, A.height);
+        ctx.strokeStyle = '#7566b8'; ctx.lineWidth = 2; ctx.strokeRect(x + 7, doorTop + 10, A.door - 14, A.height - 22);
+        ctx.fillStyle = '#ffd97a'; ctx.fillRect(x + 7, doorTop + 52, A.door - 14, 3);
+        ctx.fillStyle = ink; ctx.fillRect(side < 0 ? x + A.door - 2 : x, doorTop, 2, A.height);
+      }
+      ctx.restore();
+      // Surround: stone piers, a gold sill and the header that carries the indicator.
+      stone(left, 24); stone(cx + A.door, 24);
+      ctx.fillStyle = '#ffd97a'; ctx.fillRect(left, doorTop - 6, 24, 4); ctx.fillRect(cx + A.door, doorTop - 6, 24, 4);
+      ctx.fillStyle = '#b08a3c'; ctx.fillRect(cx - A.door - 2, floor - 3, A.door * 2 + 4, 3);
+      ctx.fillStyle = ink; ctx.fillRect(left - 2, headTop - 2, A.half * 2 + 4, A.header + 4);
+      ctx.fillStyle = '#3a2d72'; ctx.fillRect(left, headTop, A.half * 2, A.header);
+      ctx.fillStyle = '#ffd97a'; ctx.fillRect(left, headTop, A.half * 2, 3); ctx.fillRect(left, doorTop - 3, A.half * 2, 3);
+      ctx.fillStyle = '#120d28'; ctx.fillRect(cx - 27, headTop + 6, 54, 16);
+      const blink = !o.moving || Math.floor(t * 5) % 2 === 0;
+      ctx.fillStyle = '#ffc94f'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
+      ctx.fillText(String(o.number), cx - (o.arrow ? 8 : 0), headTop + 19);
+      if (o.arrow && blink) {
+        const ax = cx + 10, ay = headTop + 14;
+        for (let i = 0; i < 5; i++) ctx.fillRect(ax - i, ay + (o.arrow > 0 ? i - 4 : 4 - i), i * 2 + 1, 1);
+      }
+      // Call button.
+      const bx = round(o.button), by = floor - 62;
+      ctx.fillStyle = ink; ctx.fillRect(bx - 7, by - 12, 14, 26);
+      ctx.fillStyle = '#d8c98f'; ctx.fillRect(bx - 5, by - 10, 10, 22);
+      ctx.fillStyle = o.locked ? '#d2536f' : o.moving || o.open > 0 ? '#fff3a6' : '#8a7a4a';
+      ctx.fillRect(bx - 3, by - 6, 6, 6);
+      if (!o.locked && (o.moving || o.open > 0)) { ctx.fillStyle = 'rgba(255,240,150,.3)'; ctx.fillRect(bx - 6, by - 9, 12, 12); }
+      ctx.fillStyle = '#4a3f86'; ctx.fillRect(bx - 3, by + 4, 6, 3);
+      ctx.restore();
+      if (o.label) this.label(o.label, cx, headTop - 14, '#ffe8ae', 11);
+      if (o.note) this.label(o.note, cx, headTop - 36, '#d4f5e3', 10);
     }
 
     decor(world, front) {
@@ -333,6 +526,8 @@
         for (let i = 0; i < world.platforms.length; i++) {
           const p = world.platforms[i];
           if (p.type !== 'ground' || p.w < 420) continue;
+          // Street lamps stay outdoors.
+          if (world.floorScenes && p.x >= world.floorScenes[1].start) continue;
           const x = p.x + p.w - 82;
           if (!this.visible(x, 80) || x > world.boss.x - 160) continue;
           const prop = this.levelIndex === 2 ? 'pink_tree' : 'lamp';

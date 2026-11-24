@@ -266,7 +266,7 @@
           arena: [4560, 5220] },
         { type: 'algorithm', name: 'Round 3 · The panel', x: 5950, floor: 295, w: 88, h: 76, health: 3, interviewRound: true }
       ],
-      gates: [gate(4190, 350, 0, 'DOOR TO FLOOR 2'), gate(5250, 340, 1, 'DOOR TO FLOOR 3'), gate(6310, 330, 2, 'DOOR TO FLOOR 4')],
+      gates: [gate(4190, 350, 0, 'LIFT TO FLOOR 2'), gate(5250, 340, 1, 'LIFT TO FLOOR 3'), gate(6310, 330, 2, 'LIFT TO FLOOR 4')],
       boss: { type: 'finalreview', name: 'Interview host', x: 6950, floor: 320, w: 84, h: 88, health: 3 },
       decor: [{ type: 'sign', x: 90, y: 440, text: 'FINAL INTERVIEW HQ' }, { type: 'tree', x: 520, y: 440 },
         { type: 'terminal', x: 1110, y: 400 }, { type: 'banner', x: 1460, y: 360 },
@@ -274,7 +274,7 @@
         { type: 'sign', x: 3160 - 180, y: 360, text: 'JUST THREE MORE ROUNDS' },
         { type: 'sign', x: 6550, y: 320, text: 'BRING YOUR STORY' }, { type: 'banner', x: 7150, y: 320 }],
       hints: [{ x: 100, text: 'The final climb. Checkpoints keep your progress safe.' },
-        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then enter the door on the right.' },
+        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then take the lift on the right.' },
         { x: 6540, text: 'The interview host has your file. Head through the doors and choose what to talk about.' }]
     }
   ];
@@ -286,6 +286,9 @@
     { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
   ];
 
+  // The lift stands against the wall that ends each floor. `car` is the middle of its doorway
+  // on the floor you leave and `arrival` the same spot on the floor you reach.
+  const LIFT = { reach: 64, clear: 132, landing: 200 };
   function configureInterviewDoors(level) {
     level.floorDoors = level.gates.filter(g => typeof g.needs === 'number').map(g => ({
       x: g.x, y: g.y + g.h, landing: level.checkpoints.find(cp => cp.x > g.x), round: g.needs
@@ -296,7 +299,32 @@
     level.floorScenes = titles.map((title, i) => ({
       title, start: starts[i], end: level.floorDoors[i] ? level.floorDoors[i].x + 48 : level.width
     }));
+    level.floorDoors.forEach((door, i) => {
+      door.car = door.x - LIFT.reach;
+      door.arrival = { x: starts[i + 1] + 24 + LIFT.reach, y: door.landing.y };
+      door.called = 0;
+    });
   }
+  // Floors 2 to 4 are rooms, so their floor sits at floor height with the painted room standing
+  // behind it, and the save point, signs and ideas keep clear of the lift you arrive in.
+  function settleInterviewRooms(level) {
+    const starts = level.floorScenes.map(room => room.start);
+    level.floorScenes.slice(1).forEach((room, index) => {
+      const from = room.start, to = starts[index + 2] ?? Infinity;
+      const drop = 440 - level.platforms.find(p => p.type === 'ground' && p.x === from).y;
+      const inRoom = item => item.x >= from && item.x < to;
+      for (const name of LISTS) for (const item of level[name] || []) {
+        if (!inRoom(item)) continue;
+        for (const field of ['y', 'baseY', 'floor']) if (field in item) item[field] += drop;
+        if (item.type === 'ground') item.h = 680 - item.y;
+      }
+      if (inRoom(level.boss)) level.boss.floor += drop;
+      level.floorDoors[index].landing.x = from + LIFT.landing;
+      for (const sign of level.decor) if (inRoom(sign) && sign.x < from + LIFT.landing + 40) sign.x = from + LIFT.landing + 42;
+    });
+  }
+  const besideLift = (level, item) => level.floorDoors.some(door =>
+    Math.abs(item.x - door.car) < LIFT.reach + 12 || (item.x >= door.arrival.x - LIFT.reach - 24 && item.x < door.arrival.x + LIFT.reach + 12));
 
   const LEVELS = definitions.map((level, levelIndex) => {
     if (level.id === 'final-interview') {
@@ -349,6 +377,8 @@
         level.collectibles.push(...arc(split + 15, y - 104, 5, 42));
       });
       configureInterviewDoors(level);
+      settleInterviewRooms(level);
+      configureInterviewDoors(level);
     }
     level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
     level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
@@ -357,6 +387,8 @@
     const secret = skills.reduce((highest, item) => item.y < highest.y ? item : highest);
     secret.secret = true;
     level.collectibles.forEach((c, i) => { c.id = level.id + '-pickup-' + i; c.collected = false; });
+    // No idea hangs in a lift doorway. Dropping them after the IDs are set keeps old saves valid.
+    if (level.floorDoors) level.collectibles = level.collectibles.filter(c => c.kind !== 'coin' || !besideLift(level, c));
     // The original pickup IDs remain stable for saved checkpoints.
     level.collectibles.push({ ...bonusItems[levelIndex], kind: 'bonus', collected: false });
     level.checkpoints.forEach((c, i) => { c.id = 'checkpoint-' + i; c.active = false; });

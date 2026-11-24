@@ -8,6 +8,10 @@
   const PHYSICS = Object.freeze({ lives: 3, maxLives: 9, gravity: 0.66, jump: 14.6, doubleJump: 13.5, runSpeed: 6.2,
     boostSpeed: 8.8, dashSpeed: 13.2, dashFrames: 11, dashCooldown: 48, coyoteFrames: 7, bufferFrames: 8 });
 
+  // The HQ lift, in ticks: how long it takes to answer a call, to work its doors, to leave a floor
+  // and to pull in at the next, and how far a passenger steps each tick.
+  const LIFT = Object.freeze({ call: 40, doors: 22, ride: 50, arrive: 26, step: 3 });
+
   class Game {
     constructor() {
       this.viewWidth = WIDTH; this.state = null; this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
@@ -262,7 +266,8 @@
       const s = this.state, world = s.world;
       if (!world.gates) return;
       const keysLeft = world.collectibles.some(item => item.kind === 'key' && !item.collected);
-      const open = world.platforms.filter(pl => pl.type === 'gate' && (pl.needs === 'keys' ? !keysLeft : s.bossIndex > pl.needs));
+      // A keyword gate opens for good. The wall behind an interview lift never does: the lift is the way on.
+      const open = world.platforms.filter(pl => pl.type === 'gate' && pl.needs === 'keys' && !keysLeft);
       if (!open.length) return;
       world.platforms = world.platforms.filter(pl => !open.includes(pl));
       for (const g of open) {
@@ -279,11 +284,21 @@
         // Scope Creep drags the finish line away to the real end of the level.
         if (f.triggered && f.timer < 150) { f.timer++; f.x += 3 + f.timer * 0.16; }
       }
+      // The lift you arrived in shuts behind you.
+      const behind = s.world.floorDoors?.[s.floor - 1];
+      if (behind?.shut < LIFT.doors) behind.shut++;
+      // Clearing the round calls the lift. It travels to this floor, opens, and takes whoever
+      // walks up to its doors.
       const door = s.world.floorDoors?.[s.floor];
-      if (door && s.bossIndex > door.round && p.x + p.w >= door.x) {
-        s.floorTransition = { door, tick: 0 };
-        p.vx = 0; p.vy = 0; p.dashTime = 0; p.animation = 'idle';
-        s.projectiles = [];
+      if (door && s.bossIndex > door.round) {
+        if (door.called === 0) this.emit('liftCall', { floor: s.floor + 1 });
+        if (door.called < LIFT.call + LIFT.doors) {
+          if (++door.called === LIFT.call) this.emit('liftDing', { floor: s.floor + 1 });
+        } else if (p.grounded && p.y + p.h === door.y && p.x + p.w / 2 >= door.car - 32) {
+          s.floorTransition = { door, phase: 'board', tick: 0 };
+          p.vx = 0; p.vy = 0; p.dashTime = 0;
+          s.projectiles = [];
+        }
       }
       if (c && !c.done) {
         if (!c.active && p.x > c.startX) { c.active = true; c.x = c.startX - c.lead; this.emit('chaseStart'); }
@@ -303,24 +318,46 @@
       const lookBehind = s.chase?.active ? .5 : .35;
       return clamp(p.x + p.w / 2 - this.viewWidth * lookBehind, start, Math.max(start, end - this.viewWidth));
     }
+    // A lift ride: step in, doors close, the car leaves, the next floor arrives, doors open, step out.
     advanceFloorTransition() {
-      const s = this.state, p = s.player, transition = s.floorTransition;
-      const { landing, round } = transition.door;
-      transition.tick++;
-      // Swap scenes at the darkest point of the doorway fade.
-      if (transition.tick === 6) {
-        s.floor = round + 1;
-        p.x = landing.x + 8;
-        p.y = landing.y - p.h;
-        p.grounded = false; p.groundId = null; p.jumpBuffer = 0; p.coyote = 0;
-        s.particles = [];
-        s.camera.x = this.cameraTarget();
+      const s = this.state, p = s.player, ride = s.floorTransition, door = ride.door;
+      const pose = name => { if (p.animation === name) p.animationTime++; else { p.animation = name; p.animationTime = 0; } };
+      const walkTo = centre => {
+        const gap = centre - (p.x + p.w / 2);
+        if (Math.abs(gap) > LIFT.step) { p.facing = Math.sign(gap); p.x += p.facing * LIFT.step; pose('run'); return false; }
+        p.x = centre - p.w / 2; p.facing = 1; pose('idle');
+        return true;
+      };
+      const next = phase => { ride.phase = phase; ride.tick = 0; };
+      ride.tick++;
+      if (ride.phase === 'board') {
+        if (walkTo(door.car)) { this.emit('liftDoor'); next('close'); }
+      } else if (ride.phase === 'close') {
+        pose('idle');
+        if (ride.tick >= LIFT.doors) { this.emit('liftMove'); next('ride'); }
+      } else if (ride.phase === 'ride') {
+        if (ride.tick >= LIFT.ride) {
+          s.floor = door.round + 1;
+          p.x = door.arrival.x - p.w / 2; p.y = door.arrival.y - p.h;
+          p.jumpBuffer = 0; p.coyote = 0;
+          s.particles = [];
+          s.camera.x = this.cameraTarget();
+          next('arrive');
+        }
+      } else if (ride.phase === 'arrive') {
+        if (ride.tick >= LIFT.arrive) { this.emit('liftDing', { floor: s.floor + 1 }); next('open'); }
+      } else if (ride.phase === 'open') {
+        pose('idle');
+        if (ride.tick >= LIFT.doors) next('exit');
+      } else if (walkTo(door.landing.x + 8 + p.w / 2)) {
+        door.shut = 0;
+        this.emit('liftDoor');
+        s.floorTransition = null;
+        p.grounded = false; p.groundId = null;
+        p.invulnerable = Math.max(p.invulnerable, 60);
         this.checkpoints();
       }
-      if (transition.tick >= 12) {
-        s.floorTransition = null;
-        p.invulnerable = Math.max(p.invulnerable, 60);
-      }
+      s.camera.x += (this.cameraTarget() - s.camera.x) * 0.12;
     }
     environmentEffects() {
       const s = this.state, p = s.player;
@@ -508,6 +545,7 @@
       this.state.particles = this.state.particles.filter(p => p.life > 0);
     }
   }
-  H.Game = Game; H.PHYSICS = PHYSICS; H.WIDTH = WIDTH; H.HEIGHT = HEIGHT;
+  H.Game = Game;
+  H.LIFT = LIFT; H.PHYSICS = PHYSICS; H.WIDTH = WIDTH; H.HEIGHT = HEIGHT;
   if (typeof module !== 'undefined' && module.exports) module.exports = { Game, PHYSICS, overlaps };
 })(typeof globalThis !== 'undefined' ? globalThis : window);
