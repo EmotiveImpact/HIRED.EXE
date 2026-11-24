@@ -1,13 +1,13 @@
 // Review-only edit. Published game beats stay in scenes.js until the director approves.
 const directorScenes = [
   {
-    title: 'One PDF', place: 'Augustus’s home studio', cue: 'Opening cinematic, before World 1. The portal prompt is read aloud as screen dialogue. Augustus draws what the filter might look like, then presses Play.',
+    title: 'One PDF', place: 'Augustus’s home studio', cue: 'Opening cinematic, before World 1. The portal prompt is read aloud as screen dialogue. Solved’s advert then asks its own question, which is why the game exists: Augustus sketches the filter, builds the game and presses Play.',
     shots: [
       ['p01-upload','Upload','Portal|Please upload your CV.','Augustus|There you go.'],
       ['p02-form','The receipt','Portal|Thank you. Now enter your employment history.','Augustus|What did you do with the PDF?'],
       ['p03-the-limit','Five years maximum','Portal|Please enter a number between one and five.','Augustus|I’ll let the other fifteen know.'],
-      ['p04-gatekeeper','An idea','', 'Augustus|Psych! I didn’t draw anything. I used my imagination!'],
-      ['p05-play','Press Play','Augustus|Right. Your turn to apply for something.']
+      ['p04-gatekeeper','An idea','Solved’s advert|No long cover note. Just tell us what you have done that is abnormal.','Augustus|Nothing yet. Give me a week.'],
+      ['p05-play','Press Play','Augustus|There. Abnormal enough. Your turn to apply for something.']
     ]
   },
   {
