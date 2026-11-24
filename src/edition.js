@@ -44,7 +44,11 @@ const solvedEdition = {
   // Keep the lists in step with links and working below, and with src/cv-text.js.
   readme: `README.TXT
 
-Solved’s advert asks for two things and no long cover note. This is both things, and it is not long.
+You asked for a CV. I built you a video game.
+
+It was playable a day after the first commit. Four worlds, a working Windows 3.1 and a submarine, with my portfolio as the prize.
+
+Your advert asks for two things and no long cover note. Both are below, and reading them takes less time than World 1.
 
 
 1. WHAT I HAVE BUILT
@@ -74,9 +78,9 @@ Each one is an icon in the Internet and Working On groups. Double-click it and i
 
 2. WHAT I HAVE DONE THAT IS ABNORMAL
 
-You asked for a CV. I built you a video game.
+You are sitting in it.
 
-Nobody asked for one. Hand me a problem and making something is what I do first. This one has four worlds, a working Windows 3.1 and a submarine that was ordered by mistake. The first commit was on 19 November 2026 and it was playable the next day.
+Nobody asked for a game. Hand me a problem and making something is what I do first. This one has four worlds, a working Windows 3.1 and a submarine that was ordered by mistake. The first commit was on 19 November 2026 and it was playable the next day. A bot plays all four worlds on desktop, Android and iPhone on every pull request.
 
 
 3. THE REST
@@ -87,6 +91,8 @@ Before this: twenty years directing and editing film. My own content starts at t
 Right to work in the UK: yes, unrestricted.
 Where: London, working remotely. Happy to meet in person now and then.
 Days: two to five. Your call.
+
+Now close this and double-click HIRE.EXE. The portfolio is at the end.
 
 Augustus Edem
 emotiveimpact@gmail.com

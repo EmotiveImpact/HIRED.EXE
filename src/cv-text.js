@@ -8,28 +8,28 @@ emotiveimpact@gmail.com
 hireexe.me | vlumeaudio.com | vimeo.com/emotiveimpact
 
 
-PROFILE
-
-I build products with an editor's eye. Twenty years of film taught me where a cut should land. Graphic design taught me where the eye goes first. Building websites taught me what makes people stay and where they get stuck. I build software the same way, with Claude Code and Codex open every hour of every day: I work out what should happen on screen, trace what has to happen behind it, direct the agents, test the result and decide what ships.
-
-
 THE ABNORMAL BIT
 
 HIRE.EXE: my job application, as a video game
 hireexe.me
-Asked for a CV, I built a game. It is a 16-bit platformer about getting hired: four worlds, a working Windows 3.1 desktop, a submarine minigame and my portfolio at the end. I directed the characters, worlds, story and sound, and built it with Claude Code and Codex. The first commit was on 19 November 2026 and it was playable the next day. A bot plays all four worlds on desktop, Android and iPhone on every pull request.
+You asked for a CV. I built you a video game. The first commit was on 19 November 2026 and it was playable a day later. Four worlds, a working Windows 3.1 desktop and a submarine, with my portfolio as the prize. I directed the characters, worlds, story and sound, and built it with Claude Code and Codex. A bot plays it on desktop, Android and iPhone on every pull request. Play it first.
+
+
+PROFILE
+
+Twenty years of cutting film taught me one thing above the rest: the moment people get bored, you have lost them. Graphic design taught me where the eye goes first. Building websites taught me where people get stuck. I build software the same way, with Claude Code and Codex open every hour of every day. I work out what should happen on screen, trace what has to happen behind it, direct the agents, test the result and decide what ships.
 
 
 SHIPPED
 
 Vlume: macOS audio utility, on sale
 vlumeaudio.com
-Turn one app up without turning everything else up: per-app volume, up to 3x boost, a six-band EQ, audio delay and multi-output. I built the lot, from the menu-bar controls to the site, the licensing and the checkout. First sale recorded on 16 November 2026.
+One app is too quiet, so you turn everything up. Vlume turns up just the one: per-app volume, up to 3x boost, a six-band EQ, audio delay and multi-output. I built the lot, from the menu-bar controls to the site, the licensing and the checkout. First sale recorded on 16 November 2026.
 SwiftUI and Core Audio on the Mac. Next.js and Payload CMS on Vercel. Polar checkout and payment webhooks.
 
 Cairn: Mac storage cleaner for developers
 cairnmac.com
-Reviewable cleanup plans, protected files and receipts that separate estimated savings from the measured change in free space. Works from inside Claude Code, Codex and Cursor. SwiftUI and SQLite.
+A cleaner that shows its working: a plan you approve first, files it will never touch and a receipt that separates the estimate from the space you got back. Works inside Claude Code, Codex and Cursor. SwiftUI and SQLite.
 
 
 CURRENTLY WORKING ON
@@ -59,11 +59,11 @@ Not public yet: Fenny. Life 1.0, an offline-first personal OS in Expo and React 
 
 BUILD, AUTOMATE, GROW
 
-Build: I start with research. I look for ideas nobody has built, and where somebody has, I mine their reviews and Reddit for what customers want fixed. A deep dive in Codex ends in a PRD. In Claude Code I fix what the PRD missed and add more research and the design system. Only then do I build, with a web designer's eye and a film-maker and marketer's feel for the customer journey. I read the code, test the whole flow and decide what ships.
+Build: Before I build, I read the complaints. I look for ideas nobody has built. Where somebody has, I mine their reviews and Reddit for what customers want fixed. A Codex deep dive ends in a PRD. In Claude Code I fix what the PRD missed and add more research and the design system. Only then do I build, with a web designer's eye and a film-maker and marketer's feel for the customer journey. I read the code, test the flow and decide what ships.
 
-Automate: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me each day on what to fix in the code. If I do something twice, they do it the third time.
+Automate: If I do something twice, an agent does it the third time. Agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me each day on what to fix in the code.
 
-Grow: twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts at the end of 2026.
+Grow: Twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts at the end of 2026.
 
 Tools: Claude Code, Codex, Cursor and Antigravity. TypeScript, JavaScript, HTML, CSS, Tailwind, React, Next.js, Vite, Node.js, React Native and Expo, Swift and SwiftUI, PHP, SQL. Postgres on Neon and Supabase, SQLite. Vercel, Git, GitHub checks, REST APIs, webhooks, WebSockets, OAuth and WorkOS. Stripe and Polar for payments. n8n and Make.com for automation. Final Cut Pro, Premiere Pro, After Effects and Photoshop. On a new stack I trace one real workflow, read the docs and test a small prototype.
 
@@ -107,4 +107,9 @@ Right to work in the UK: unrestricted.
 Where: London, working remotely. I use long stretches of focus to research hard problems, learn new tools and test ideas, then share progress through written updates, demos and clear decisions. Happy to meet in person now and then.
 Days: two to five a week.
 Source code: private. The live links are the evidence, and I will walk you through any of the code on a call.
+
+
+YOUR MOVE
+
+Play HIRE.EXE at hireexe.me. Reach the end and my portfolio is the prize. After that, thirty minutes on a call is all I ask.
 `;
