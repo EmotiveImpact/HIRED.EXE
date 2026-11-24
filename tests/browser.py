@@ -93,7 +93,7 @@ def run(profile, base):
         open_item('#home-readme')
         notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
-        for line in ('1. WHAT I HAVE BUILT', 'vlumeaudio.com', '2. WHAT I HAVE DONE THAT IS ABNORMAL', 'Right to work in the UK: yes.'):
+        for line in ('1. WHAT I HAVE BUILT', 'vlumeaudio.com', '2. WHAT I HAVE DONE THAT IS ABNORMAL', 'Right to work in the UK: yes, unrestricted.'):
             assert line in notepad.locator('.notepad-text').input_value(), line
         activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.

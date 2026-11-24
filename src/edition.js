@@ -7,7 +7,9 @@ const solvedEdition = {
   applicant: 'Augustus Edem',
   editionLabel: 'SOLVED STUDIO EDITION',
   intro: 'I’m Augustus Edem. Most people attach a CV. I got carried away and made Solved Studio a four-world adventure. Play through my application or go straight to the work.',
-  finish: 'Thanks for playing, Solved Studio. I’d love to walk you through the work you picked and hear what you’re building next.',
+  finish: 'Thanks for playing, Solved Studio. Nobody asked me for a game. You asked what I had done that was abnormal, and this seemed quicker than explaining. I’d love to walk you through the work you picked.',
+  // The line under the title. Other editions keep "A playable application by <name>".
+  tagline: 'You asked for a CV.\nAugustus Edem built this.',
   skillProjects: {
     "creative-direction": "Emotive Impact",
     "product-thinking": "Commune",
@@ -74,15 +76,17 @@ Each one is an icon in the Internet and Working On groups. Double-click it and i
 
 You asked for a CV. I built you a video game.
 
-It has four worlds, a working Windows 3.1 and a submarine that was ordered by mistake. Nobody asked for any of it. The first commit was on 19 November 2026 and it was playable the next day.
+Nobody asked for one. Hand me a problem and making something is what I do first. This one has four worlds, a working Windows 3.1 and a submarine that was ordered by mistake. The first commit was on 19 November 2026 and it was playable the next day.
 
 
 3. THE REST
 
-Tools: Claude Code and Codex, every hour of every day. I do not cope well with usage limits.
-Before this: twenty years directing and editing film.
-Right to work in the UK: yes.
-Where: London. Remote by preference, so the commute goes into the work.
+Tools: Claude Code and Codex, every hour of every day.
+Automation: agents test my software, handle the data and hand work to each other. If I do something twice, they do it the third time.
+Before this: twenty years directing and editing film. My own content starts at the end of 2026.
+Right to work in the UK: yes, unrestricted.
+Where: London, working remotely. Happy to meet in person now and then.
+Days: two to five. Your call.
 
 Augustus Edem
 emotiveimpact@gmail.com
@@ -169,7 +173,7 @@ emotiveimpact@gmail.com
 const editions = new Map([
   [solvedEdition.id, solvedEdition],
   ['portfolio', { ...solvedEdition, id: 'portfolio', company: '', interviewer: null, role: 'Product builder',
-    editionLabel: 'PORTFOLIO EDITION', setupSteps: null, skillTitles: null, readme: null,
+    editionLabel: 'PORTFOLIO EDITION', setupSteps: null, skillTitles: null, readme: null, tagline: null,
     interview: [
     {question:'What would you like to explore first?', answers:[
       {label:'The creative background', text:'Over 20 years of video production, editing and creative direction. I care about how an idea feels, how clearly it communicates and whether it works for the people using it.'},

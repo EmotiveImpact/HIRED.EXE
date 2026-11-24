@@ -3,7 +3,7 @@
 // CURRENTLY WORKING ON matches the desktop's Working On group (E.working in edition.js).
 globalThis.HIRED_CV_TXT = `AUGUSTUS EDEM
 AI-native product builder & creative director
-London, UK
+London, UK. Right to work in the UK.
 emotiveimpact@gmail.com
 Film portfolio: vimeo.com/emotiveimpact
 

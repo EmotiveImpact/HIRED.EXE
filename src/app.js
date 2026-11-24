@@ -227,7 +227,7 @@
       layer.className='overlay game-title';
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
       $('title-play').onclick=play;
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
