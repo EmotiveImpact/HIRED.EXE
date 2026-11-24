@@ -54,14 +54,12 @@ Shipped:
 Vlume, a Mac audio mixer. On sale now.
 vlumeaudio.com
 
-Cairn, a Mac storage utility.
-cairnmac.com
-
 HIRE.EXE, the thing you are in.
 hireexe.me
 
 Shipping next:
 
+Cairn, Mac storage cleaner. In development, with a download on the site: cairnmac.com
 SALEANE, appointment booking: saleane.vercel.app/demo
 NoSpoilers, release checks: nospoilers-coral.vercel.app
 DraftHR, HR letters: drafthr.io
