@@ -54,14 +54,16 @@ Shipped:
 Vlume, a Mac audio mixer. On sale now.
 vlumeaudio.com
 
+Cairn, a Mac storage cleaner for developers.
+cairnmac.com
+
 HIRE.EXE, the thing you are in.
 hireexe.me
 
 Shipping next:
 
-Cairn, Mac storage cleaner. In development, with a download on the site: cairnmac.com
 SALEANE, appointment booking: saleane.vercel.app/demo
-NoSpoilers, release checks: nospoilers-coral.vercel.app
+NoSpoilers, release checks: nospoilers.dev
 DraftHR, HR letters: drafthr.io
 Lumalook, film looks for iPhone: lumalook.app
 Commune, shared living: ourcommune.io
@@ -80,7 +82,7 @@ Nobody asked for one. Hand me a problem and making something is what I do first.
 3. THE REST
 
 Tools: Claude Code and Codex, every hour of every day.
-Automation: agents test my software, handle the data and hand work to each other. If I do something twice, they do it the third time.
+Automation: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me on the code every day with things to fix. If I do something twice, they do it the third time.
 Before this: twenty years directing and editing film. My own content starts at the end of 2026.
 Right to work in the UK: yes, unrestricted.
 Where: London, working remotely. Happy to meet in person now and then.
@@ -126,7 +128,7 @@ emotiveimpact@gmail.com
   // Keep the list in step with CURRENTLY WORKING ON in src/cv-text.js.
   working: [
     { name: 'SALEANE', url: 'https://saleane.vercel.app/demo' },
-    { name: 'NoSpoilers', url: 'https://nospoilers-coral.vercel.app/' },
+    { name: 'NoSpoilers', url: 'https://nospoilers.dev/' },
     { name: 'DraftHR', url: 'https://drafthr.io/' },
     { name: 'Lumalook', url: 'https://lumalook.app/' },
     { name: 'Commune', url: 'https://ourcommune.io/' }

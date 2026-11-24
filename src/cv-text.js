@@ -27,28 +27,28 @@ vlumeaudio.com
 Turn one app up without turning everything else up: per-app volume, up to 3x boost, a six-band EQ, audio delay and multi-output. I built the lot, from the menu-bar controls to the site, the licensing and the checkout. First sale recorded on 16 November 2026.
 SwiftUI and Core Audio on the Mac. Next.js and Payload CMS on Vercel. Polar checkout and payment webhooks.
 
+Cairn: Mac storage cleaner for developers
+cairnmac.com
+Reviewable cleanup plans, protected files and receipts that separate estimated savings from the measured change in free space. Works from inside Claude Code, Codex and Cursor. SwiftUI and SQLite.
+
 
 CURRENTLY WORKING ON
 
-Cairn: Mac storage cleaner for developers
-cairnmac.com
-In development, with a download on the site. Reviewable cleanup plans, protected files and receipts that separate estimated savings from the measured change in free space. Works from inside Claude Code, Codex and Cursor. SwiftUI and SQLite.
-
 SALEANE: AI receptionist for salons, barbers and clinics
 saleane.vercel.app/demo
-Booking, rescheduling, cancellations and reminders, with a one-click sample studio. Selected for the FIRST 1000 programme.
+In development. Booking, rescheduling, cancellations and reminders, with a one-click sample studio. Selected for the FIRST 1000 programme.
 
 Commune: shared living
 ourcommune.io
-Costs, household tasks and group information, with interactive examples that explain splits and repayments. React, TypeScript, Neon Postgres and Vercel.
+In development. Costs, household tasks and group information, with interactive examples that explain splits and repayments. React, TypeScript, Neon Postgres and Vercel.
 
 NoSpoilers: release checks for software teams
-nospoilers-coral.vercel.app
-Reads what a release actually ships and catches source maps, secrets and internal files before they go public.
+nospoilers.dev
+In development. Reads what a release actually ships and catches source maps, secrets and internal files before they go public.
 
 DraftHR: HR letters for the UK and US
 drafthr.io
-Written section by section, checked, with a record of every step.
+In development. Written section by section, checked, with a record of every step.
 
 Lumalook: film looks for iPhone photos and video
 lumalook.app
@@ -61,7 +61,7 @@ BUILD, AUTOMATE, GROW
 
 Build: I map the path from interface to API to database, write the spec and the acceptance criteria, then direct Claude Code and Codex. I read the code, reproduce the bugs, test the whole flow and decide what ships.
 
-Automate: agents test my software, handle the data and hand work to each other. If I do something twice, they do it the third time.
+Automate: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me each day on the code with suggestions for what to fix. If I do something twice, they do it the third time.
 
 Grow: twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts at the end of 2026.
 

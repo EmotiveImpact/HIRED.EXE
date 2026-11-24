@@ -62,7 +62,7 @@ def run(profile, base):
         assert page.evaluate(below) and page.evaluate(snug)
         # The Internet group links Edem's own sites, and Working On the projects in progress.
         for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
-                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers-coral.vercel.app/',
+                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers.dev/',
                           '#desk-work-drafthr':'https://drafthr.io/', '#desk-work-lumalook':'https://lumalook.app/', '#desk-work-commune':'https://ourcommune.io/'}.items():
             expect(page.locator(item)).to_have_attribute('href', url)
             expect(page.locator(item)).to_have_attribute('target', '_blank')
