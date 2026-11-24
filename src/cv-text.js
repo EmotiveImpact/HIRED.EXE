@@ -65,7 +65,7 @@ Automate: agents test my software, handle the data and hand work to each other. 
 
 Grow: twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts at the end of 2026.
 
-Tools: Claude Code, Codex and Cursor. TypeScript, JavaScript, React, Next.js, React Native and Expo, Swift and SwiftUI, SQL. Postgres on Neon and Supabase, SQLite. Vercel, GitHub checks, REST APIs, webhooks, OAuth and Polar. On a new stack I trace one real workflow, read the docs and test a small prototype.
+Tools: Claude Code, Codex, Cursor and Antigravity. TypeScript, JavaScript, HTML, CSS, Tailwind, React, Next.js, Vite, Node.js, React Native and Expo, Swift and SwiftUI, PHP, SQL. Postgres on Neon and Supabase, SQLite. Vercel, Git, GitHub checks, REST APIs, webhooks, WebSockets, OAuth and WorkOS. Stripe and Polar for payments. n8n and Make.com for automation. Final Cut Pro, Premiere Pro, After Effects and Photoshop. On a new stack I trace one real workflow, read the docs and test a small prototype.
 
 
 EXPERIENCE
