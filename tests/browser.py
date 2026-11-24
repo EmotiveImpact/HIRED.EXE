@@ -47,23 +47,28 @@ def run(profile, base):
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
         expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
-        # Submarine (final).exe is on the desktop from the start, with no save needed, in Games.
-        expect(page.locator('#games-window #desk-sub')).to_be_visible()
-        # Every group starts open, and no group window lies over another.
-        groups = ['main', 'accessories', 'internet', 'games', 'working']
-        for name in groups:
-            expect(page.locator(f'#{name}-window')).to_be_visible()
-            expect(page.locator(f'#{name}-group')).to_be_hidden()
-        assert page.evaluate('''() => { const r = [...document.querySelectorAll('.pm-group-win')].map(w => w.getBoundingClientRect());
-            return r.every((a, i) => r.every((b, j) => i >= j || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)); }''')
-        # Each group window is as tall as its icons need, so none scrolls inside.
-        assert page.evaluate("[...document.querySelectorAll('.pm-group-win .pm-items')].every(b => b.scrollHeight <= b.clientHeight + 1)")
+        # Submarine (final).exe is there from the start, with no save needed, in the Games group.
+        expect(page.locator('#games-window #desk-sub')).to_have_count(1)
+        # Only the main group starts open. The others wait as icons, clear of it.
+        expect(page.locator('#main-window')).to_be_visible()
+        for name in ('accessories', 'games', 'internet', 'working'):
+            expect(page.locator(f'#{name}-window')).to_be_hidden()
+            expect(page.locator(f'#{name}-group')).to_be_visible()
+        apart = '''() => { const r = [...document.querySelectorAll('.pm-group-win:not([hidden])')].map(w => w.getBoundingClientRect());
+            return r.every((a, i) => r.every((b, j) => i >= j || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)); }'''
+        below = '''() => { const icons = [...document.querySelectorAll('.pm-group-icon')].filter(i => i.offsetParent).map(i => i.getBoundingClientRect());
+            return [...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => icons.every(i => w.getBoundingClientRect().bottom <= i.top + 1)); }'''
+        snug = "[...document.querySelectorAll('.pm-group-win:not([hidden]) .pm-items')].every(b => b.scrollHeight <= b.clientHeight + 1)"
+        assert page.evaluate(below) and page.evaluate(snug)
         # The Internet group links Edem's own sites, and Working On the projects in progress.
         for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
                           '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers-coral.vercel.app/',
                           '#desk-work-drafthr':'https://drafthr.io/', '#desk-work-lumalook':'https://lumalook.app/', '#desk-work-commune':'https://ourcommune.io/'}.items():
             expect(page.locator(item)).to_have_attribute('href', url)
             expect(page.locator(item)).to_have_attribute('target', '_blank')
+            # Each link has a picture of its own, drawn in the sixteen Windows colours.
+            expect(page.locator(f'{item} .pm-glyph-art svg')).to_have_count(1)
+        assert page.evaluate("new Set([...document.querySelectorAll('.pm-glyph-art')].map(g => g.innerHTML)).size") == 9
         expect(page.locator('#internet-window .pm-item')).to_have_count(5)
         expect(page.locator('#working-window .pm-item')).to_have_count(5)
         # Program Manager's menus drop over the group window without moving it.
@@ -104,7 +109,10 @@ def run(profile, base):
         activate('#notepad-file')
         activate('#notepad-exit')
         expect(notepad).to_have_count(0)
-        # Accessories starts open, with Calculator in it.
+        # Accessories starts as a group icon. Opened, it sits clear of the main group and shows all it holds.
+        open_item('#accessories-group')
+        expect(page.locator('#accessories-window')).to_be_visible()
+        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
         open_item('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
@@ -120,14 +128,12 @@ def run(profile, base):
         page.get_by_role('button', name='MR', exact=True).click()
         expect(page.locator('.calc-display')).to_have_text('4')
         activate('#dialog-close')
-        # A minimised group becomes an icon below the open ones, and opens again from it.
+        # Put Accessories back to an icon.
         activate('#accessories-window .w31-min')
         expect(page.locator('#accessories-group')).to_be_visible()
-        assert page.evaluate('''() => { const icon = document.querySelector('#accessories-group').getBoundingClientRect();
-            return [...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => w.getBoundingClientRect().bottom <= icon.top + 1); }''')
-        open_item('#accessories-group')
-        expect(page.locator('#accessories-window #desk-calc')).to_be_visible()
         # Games holds Jargon: a group of two or more matching buzzwords clears, and Undo brings it back.
+        open_item('#games-group')
+        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
         open_item('#desk-jargon')
         tiles = page.locator('.jargon-window .jg-tile')
         expect(tiles).to_have_count(108)
@@ -312,6 +318,7 @@ def run(profile, base):
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
         activate('#pause-button')
         activate('#pause-home')
+        open_item('#games-group')
         open_item('#desk-sub')
         # The window is just the game. Its controls live on the canvas: Space or the left half
         # dives, X or the right half fires, so the submarine can dive and shoot together.

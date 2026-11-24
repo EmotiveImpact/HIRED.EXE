@@ -137,9 +137,8 @@
 
   function defaultPmGeo(area) {
     const W = area.clientWidth, Ht = area.clientHeight;
-    // Tall enough, where the screen allows, to show every group open at once.
-    if (W < 600) return { x: 4, y: 4, w: W - 8, h: Ht - 8 };
-    const w = Math.min(780, W - 48), h = Math.min(Math.max(424, Ht * 0.6), Ht - 96, 520);
+    if (W < 600) return { x: 4, y: 4, w: W - 8, h: Math.min(Ht - 8, Math.max(380, Ht * 0.72)) };
+    const w = Math.min(780, W - 48), h = Math.min(Math.max(360, Ht * 0.6), Ht - 96, 520);
     return { x: (W - w) / 2, y: Math.max(12, Math.min(72, Ht * 0.07)), w, h };
   }
   function defaultGroupGeo(g, i) {
@@ -221,7 +220,8 @@
     }
     let y = gap;
     for (const row of rows) {
-      row.list.at(-1).w += usable - row.w;
+      // A full row is squared off to the edge; a group on its own keeps the width of its icons.
+      if (row.list.length > 1) row.list.at(-1).w += usable - row.w;
       let h = 0;
       for (const c of row.list) {
         // The icons wrap to the new width before their height is read.
