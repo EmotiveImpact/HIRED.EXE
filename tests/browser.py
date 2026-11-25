@@ -443,6 +443,12 @@ def run(profile, base):
         expect(page.locator('#final-cv')).to_have_attribute('href', 'cv.html')
         expect(page.locator('#overlay')).to_contain_text('fictional hiring journey')
         page.evaluate("localStorage.removeItem('hired-exe:v04:solved-001')")
+        # The visitor log notes this visit's moments, and sends nothing from a test server.
+        moments = page.evaluate("Hired.track.log.map(e => e.n)")
+        assert 'Arrived' in moments and 'Game completed' in moments and page.evaluate("Hired.track.live") is False, moments
+        # A pasted link shows the title-screen card.
+        assert page.locator('meta[property="og:image"]').get_attribute('content') == 'https://hireexe.me/assets/social/link-preview.jpg'
+        assert page.request.get(base+'/assets/social/link-preview.jpg').body().startswith(b'\xff\xd8')
         print('PASS CV download, saved chapter and cartoon interview ending', flush=True)
 
         page.goto(base+'/tests/playthrough.html')

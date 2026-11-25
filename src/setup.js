@@ -167,6 +167,7 @@
     }
 
     function showEmail() {
+      H.track?.('Email address shown');
       let copied = false;
       wm.dialog({
         title: 'Send an Email', owner: win, className: 'setup-email-box',
@@ -177,6 +178,7 @@
         init(box) { const field = box.querySelector('.setup-address'); field.addEventListener('focus', () => field.select()); },
         async onButton(value, v, box) {
           if (value !== 'copy') return true;
+          H.track?.('Email address copied');
           const field = box.querySelector('.setup-address');
           field.focus(); field.select();
           try { await navigator.clipboard.writeText(address); copied = true; } catch (_) { copied = document.execCommand?.('copy') || false; }
@@ -188,6 +190,7 @@
 
     function complete() {
       stage = 'done';
+      H.track?.('Setup completed');
       const list = [];
       if (address) list.push({label: 'Send an Email', id: 'setup-email', default: true, action: showEmail});
       list.push({label: 'Close', id: 'setup-close', default: !list.length, action: () => wm.close(ID)});
