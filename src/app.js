@@ -70,7 +70,7 @@
   let desktopReturn=null, titleBack=null, artworkLoad=null, assetReport=null;
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
-  let helpBack=showHome, portfolioBack=showHome, worldsBack=showHome;
+  let helpBack=showHome, worldsBack=showHome;
   let jumpPressed=false, dashPressed=false;
 
   function clearInputs() {
@@ -134,7 +134,7 @@
   // CALC001.PNG, archived Windows 3.x Calculator resource:
   // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
   const CALC_ICON='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">';
-  const SUB_ICON='<span class="pm-glyph pm-glyph-sub">⚓</span>', DOC_ICON='<span class="pm-glyph pm-glyph-doc">▤</span>';
+  const SUB_ICON='<span class="pm-glyph pm-glyph-sub">⚓</span>';
   const CV_PDF='assets/cv/Augustus-Edem-CV.pdf';
   let desktopLaunch=null;
   function openCv(path='cv.html'){
@@ -356,8 +356,8 @@
   function showPause() {
     if(!game.state||game.state.mode!=='playing'){showHome();return;}
     setMode('pause');$('status').textContent='Paused. Take your time.';
-    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>Paused.</h2><p class="muted">Everything’s where you left it. Including the enemies.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Back to desktop</button><button class="btn" id="pause-portfolio">Portfolio</button></div>`,false,resume);
-    bindActions({'resume-game':resume,'restart-level':()=>startLevel(game.state.levelIndex),'pause-worlds':showWorlds,'pause-help':()=>showHelp('pause'),'pause-home':showHome,'pause-portfolio':()=>showPortfolio('pause')});bindAssist();
+    modal('Paused',`<p class="eyebrow">${esc(game.state.world.name)}</p><h2>Paused.</h2><p class="muted">Everything’s where you left it. Including the enemies.</p><div class="pause-actions"><button class="btn primary" id="resume-game">Back to the game</button><button class="btn" id="restart-level">Restart this world</button><button class="btn" id="pause-worlds">Choose a world</button><button class="btn" id="pause-help">How to play</button></div>${assistRow()}<div class="modal-actions"><button class="btn" id="pause-home">Back to desktop</button></div>`,false,resume);
+    bindActions({'resume-game':resume,'restart-level':()=>startLevel(game.state.levelIndex),'pause-worlds':showWorlds,'pause-help':()=>showHelp('pause'),'pause-home':showHome});bindAssist();
   }
   function returnTo(mode) {
     if(typeof mode==='function'){mode();return;}
@@ -373,31 +373,17 @@
   function captureReturn(from=uiMode) {
     if(typeof from==='function')return from;
     const mode=typeof from==='string'?from:uiMode;
-    // Capture the old back action by value, so nested help/portfolio windows
+    // Capture the old back action by value, so nested help and world windows
     // retrace their route instead of replacing it with a circular reference.
     if(mode==='help'){const back=helpBack;return()=>showHelp(back);}
-    if(mode==='portfolio'){const back=portfolioBack;return()=>showPortfolio(back);}
     if(mode==='worlds'){const back=worldsBack;return()=>showWorlds(back);}
     return()=>returnTo(mode);
   }
   function showHelp(from=uiMode) {
     const back=from==='help'?helpBack:captureReturn(from);helpBack=back;
     setMode('help');
-    modal('How to play',`<p class="eyebrow">A FEW GOOD MOVES</p><h2>You already know the way.</h2><div class="controls-grid"><div class="control-card"><strong>Move</strong><span class="key">A</span> <span class="key">D</span> or <span class="key">←</span> <span class="key">→</span></div><div class="control-card"><strong>Jump & double jump</strong><span class="key">Space</span> / <span class="key">W</span> / <span class="key">↑</span></div><div class="control-card"><strong>Dash</strong><span class="key">Shift</span> or <span class="key">X</span></div><div class="control-card"><strong>Pause</strong><span class="key">P</span> or <span class="key">Esc</span></div></div><ul class="help-list"><li>Hold jump for height. Tap again in the air for a second jump.</li><li>Land on an enemy or dash through it. Watch your dash meter recharge.</li><li>Dodge the CV Filter and the Algorithm, then strike while their shields are down. In Ship It City, dash through the three lit terminals in order.</li><li>Collect ideas and optional skill tokens. Defeat the boss to open the exit.</li><li>Computer terminals save your place on this browser. Retries are unlimited.</li><li>Hold Down and press Jump to drop through a floating platform. Look for the small briefcase on the high route in each world for a portfolio field note.</li></ul><p class="tiny-note">On a phone, use the controls below the game. Landscape gives the world more room. You can visit the portfolio at any time.</p><div class="modal-actions"><button class="btn primary" id="help-back">Got it</button></div>`,true,back);
+    modal('How to play',`<p class="eyebrow">A FEW GOOD MOVES</p><h2>You already know the way.</h2><div class="controls-grid"><div class="control-card"><strong>Move</strong><span class="key">A</span> <span class="key">D</span> or <span class="key">←</span> <span class="key">→</span></div><div class="control-card"><strong>Jump & double jump</strong><span class="key">Space</span> / <span class="key">W</span> / <span class="key">↑</span></div><div class="control-card"><strong>Dash</strong><span class="key">Shift</span> or <span class="key">X</span></div><div class="control-card"><strong>Pause</strong><span class="key">P</span> or <span class="key">Esc</span></div></div><ul class="help-list"><li>Hold jump for height. Tap again in the air for a second jump.</li><li>Land on an enemy or dash through it. Watch your dash meter recharge.</li><li>Dodge the CV Filter and the Algorithm, then strike while their shields are down. In Ship It City, dash through the three lit terminals in order.</li><li>Collect ideas and optional skill tokens. Defeat the boss to open the exit.</li><li>Computer terminals save your place on this browser. Retries are unlimited.</li><li>Hold Down and press Jump to drop through a floating platform. Look for the small briefcase on the high route in each world: it holds a skill token.</li></ul><p class="tiny-note">On a phone, use the controls below the game. Landscape gives the world more room. You can visit the portfolio at any time.</p><div class="modal-actions"><button class="btn primary" id="help-back">Got it</button></div>`,true,back);
     $('help-back').addEventListener('click',back);
-  }
-  function showPortfolio(from=uiMode) {
-    // From the desktop the portfolio is its own window beside Program Manager; in the game it is a menu.
-    const desk=from==='home';
-    const back=desk?()=>H.wm.close('portfolio'):from==='portfolio'?portfolioBack:captureReturn(from);
-    if(!desk){portfolioBack=back;setMode('portfolio');}
-    const open=desk?desktopApp('portfolio',{icon:DOC_ICON,iconId:'portfolio-icon',resizable:true,maximisable:true,minSize:[300,200]}):modal;
-    const contact=safeLink(E.contactUrl);
-    const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
-    const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
-      `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
-    open(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>AI-native product builder & creative director</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">${desk?'Close':'Back'}</button></div>`,true,back);
-    (desk?H.wm.get('portfolio').el:$('overlay')).querySelector('#portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
     const old=progress.results[event.levelIndex];
@@ -419,8 +405,8 @@
     $('status').textContent=storageAvailable?'World complete. Progress saved on this browser.':'World complete. Progress kept for this session.';
     const last=s.levelIndex===3;
     const bonus=s.world.collectibles.find(item=>item.kind==='bonus'&&item.collected);
-    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':(['Application received.','Shipped. On time. No ocean.'][s.levelIndex]||'Good work. Onwards.')}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div>${bonus?`<p class="bonus-result">Found · ${esc(bonus.title)}</p>`:''}<div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button><button class="btn" id="complete-portfolio">View portfolio</button></div>`,false,showWorlds);
-    bindActions({'next-world':()=>beginScene(s.levelIndex+1),'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex),'complete-portfolio':()=>showPortfolio('complete')});
+    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':(['Application received.','Shipped. On time. No ocean.'][s.levelIndex]||'Good work. Onwards.')}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div>${bonus?`<p class="bonus-result">Found · ${esc(bonus.title)}</p>`:''}<div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button></div>`,false,showWorlds);
+    bindActions({'next-world':()=>beginScene(s.levelIndex+1),'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex)});
   }
   function beginInterview() {
     if(progress.pendingScene===H.LEVELS.length){delete progress.pendingScene;save();}
@@ -447,8 +433,8 @@
       draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions"><button class="btn primary" id="final-portfolio">Meet ${esc(E.applicant.split(' ')[0])}</button>${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
-    bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
+    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions">${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    bindActions({'final-worlds':showWorlds,'final-home':showHome});
   }
 
   // Music and effects: Sea Trial's 16-bit engine (src/sea-sound.js) playing a theme for each
@@ -578,7 +564,6 @@
     button.addEventListener('contextmenu',e=>e.preventDefault());
   });
   $('worlds-button').addEventListener('click',()=>assetReport&&showWorlds());
-  $('portfolio-button').addEventListener('click',()=>ready&&showPortfolio());
   $('help-button').addEventListener('click',()=>ready&&showHelp());
   $('home').addEventListener('click',()=>{if(ready){desktopReturn=['title','game-load'].includes(uiMode)?null:captureReturn(uiMode);showHome();}});
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});

@@ -469,7 +469,7 @@ def run(profile, base):
         (OUT/'result.txt').write_text(report)
         print(report, flush=True)
         assert report.startswith('PASS'), report
-        page.frame_locator('iframe').locator('#final-portfolio').wait_for()
+        page.frame_locator('iframe').locator('#final-worlds').wait_for()
         page.locator('iframe').screenshot(path=OUT/'ending.jpg')
         # WebKit's offline transport also rejects a file:// main document.
         # Load the actual files while denying and recording every HTTP(S) request.
