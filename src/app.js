@@ -165,8 +165,11 @@
     const offlineCv=globalThis.HIRED_EMBEDDED_CV;
     const internet=E.id==='solved-001';
     // One Internet group icon per platform in the edition.
-    const platforms=(E.links||[]).filter(l=>l&&l.name&&safeLink(l.url)?.startsWith('https://'))
-      .map(l=>({id:'desk-link-'+l.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:l.name,url:l.url}));
+    const linkItems=(list,prefix)=>(list||[]).filter(l=>l&&l.name&&safeLink(l.url)?.startsWith('https://'))
+      .map(l=>({id:prefix+l.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:l.name,url:l.url}));
+    const platforms=linkItems(E.links,'desk-link-');
+    // Projects in progress get a group of their own, one icon each.
+    const working=linkItems(E.working,'desk-work-');
     const internetItems=[...(internet?['desk-netscape']:[]),...platforms.map(l=>l.id)];
     H.wm.init($('os-shell'),$('os-dialog'));
     H.progman($('os-files'),{
@@ -181,13 +184,15 @@
         'desk-jargon':{label:'Jargon',icon:H.jargonIcon,command:'JARGON.EXE',workdir:'C:\\WINDOWS',runs:['jargon.exe','jargon'],open:()=>H.jargon()},
         'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
         ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
-        ...Object.fromEntries(platforms.map(l=>[l.id,{label:l.name,icon:`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
+        ...Object.fromEntries([...platforms,...working].map(l=>[l.id,{label:l.name,icon:H.linkIcon?.(l.name)||`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
       },
       groups:[
-        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:['start-game','home-cv','home-cv-txt','skip-portfolio','desk-sub','desk-setup']},
+        // Only the applicant's own group starts open; the rest wait as icons along the bottom.
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:['start-game','home-cv','home-cv-txt','skip-portfolio','desk-setup']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
-        {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon']},
-        ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[])
+        {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon','desk-sub']},
+        ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[]),
+        ...(working.length?[{id:'working',title:'Working On',file:'WORKING.GRP',items:working.map(l=>l.id)}]:[])
       ],
       hooks:{
         replayStartup:async()=>{await runStartup();H.progman.focus();},
