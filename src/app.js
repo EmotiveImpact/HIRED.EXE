@@ -175,7 +175,7 @@
     H.wm.init($('os-shell'),$('os-dialog'));
     H.progman($('os-files'),{
       licensee:E.applicant, organisation:E.company||'',
-      items:{
+      items:H.track.items({
         'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
         ...(E.readme?{'home-readme':{label:'README.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\README.TXT',workdir:'C:\\HIRE',runs:['readme.txt','readme'],open:()=>H.notepad('README.TXT',E.readme)}}:{}),
         'home-cv':{label:E.applicant+'’s CV',icon:'<span class="pm-glyph pm-glyph-cv">CV</span>',href:offlineCv||'cv.html',linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.WRI',workdir:'C:\\HIRE',runs:['cv.wri','cv'],open:()=>openCv()},
@@ -189,7 +189,7 @@
         'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
         ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
         ...Object.fromEntries([...platforms,...working].map(l=>[l.id,{label:l.name,icon:H.linkIcon?.(l.name)||`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
-      },
+      }),
       groups:[
         // Only the applicant's own group starts open; the rest wait as icons along the bottom.
         {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv','home-cv-txt','home-cv-pdf','skip-portfolio','desk-setup']},
@@ -231,7 +231,7 @@
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
       layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
-      $('title-play').onclick=play;
+      $('title-play').onclick=()=>{H.track(continuing?'Game continued':'Game started');play();};
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
       focusDialog();
@@ -320,7 +320,7 @@
     bindActions({
       'scene-next':()=>{if(last)finishScene();else{sceneBeat++;showScene();}},
       'scene-prev':()=>{sceneBeat--;showScene();},
-      'scene-skip':finishScene
+      'scene-skip':()=>{H.track('Cutscene skipped',scene.title);finishScene();}
     });
     if(beat.burst)audio.effect('scene');
     requestAnimationFrame(()=>$('scene-next')?.focus({preventScroll:true}));
@@ -339,6 +339,7 @@
     if(!assetReport)return;
     audio.at=0;
     game.start(index,{assist:progress.assist});
+    H.track('World started',(index+1)+'. '+H.LEVELS[index].name);
     if (!game.restoreCheckpoint(checkpoint)) delete progress.checkpoint;
     delete progress.pendingScene;
     progress.lastLevel=index;save();
@@ -391,6 +392,7 @@
   function showPortfolio(from=uiMode) {
     // From the desktop the portfolio is its own window beside Program Manager; in the game it is a menu.
     const desk=from==='home';
+    H.track('Opened','Portfolio');
     const back=desk?()=>H.wm.close('portfolio'):from==='portfolio'?portfolioBack:captureReturn(from);
     if(!desk){portfolioBack=back;setMode('portfolio');}
     const open=desk?desktopApp('portfolio',{icon:DOC_ICON,iconId:'portfolio-icon',resizable:true,maximisable:true,minSize:[300,200]}):modal;
@@ -414,6 +416,7 @@
     progress.pendingScene=event.levelIndex+1;
     progress.lastLevel=Math.min(H.LEVELS.length-1,progress.pendingScene);
     save();showComplete();
+    H.track('World finished',(event.levelIndex+1)+'. '+H.LEVELS[event.levelIndex].name);
   }
   function showComplete() {
     if(!game.state){showHome();return;}
@@ -427,6 +430,7 @@
   function beginInterview() {
     if(progress.pendingScene===H.LEVELS.length){delete progress.pendingScene;save();}
     interviewIndex=0; interviewChoice=null; interviewAnswers=[]; showInterview();
+    H.track('Interview reached');
   }
   function showInterview() {
     setMode('interview');
@@ -438,6 +442,7 @@
   }
   function showFinish() {
     setMode('finish');
+    H.track('Game completed');
     const complete=Object.keys(progress.results).filter(i=>progress.results[i]?.completed).length;
     const skills=new Set(Object.values(progress.results).flatMap(r=>Array.isArray(r.skills)?r.skills:[])).size;
     const project = E.portfolio.find(item => interviewAnswers.includes(item.name));
@@ -611,9 +616,10 @@
         skip.hidden=true;
         resolve();
       }
-      function shortcut(e){if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();finish();}}
+      const skipped=()=>{if(!typed)H.track('Startup skipped');finish();};
+      function shortcut(e){if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();skipped();}}
       skip.hidden=false;
-      skip.onclick=finish;
+      skip.onclick=skipped;
       setTimeout(()=>document.addEventListener('keydown',shortcut));
       if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
       if(!typed){
