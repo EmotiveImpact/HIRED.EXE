@@ -466,7 +466,7 @@
         if (depth <= DEPTH_MIN + 3) {
           runHits += hits; runTargets += targets.length;
           if (L.final) {
-            score += POINTS.delivery; setPhase('win'); saveBest(); sound.music('win'); delivered();
+            score += POINTS.delivery; setPhase('win'); saveBest(); sound.music('win'); delivered(); H.track?.('Sea Trial completed');
             stop('Delivery complete. One pocket calculator. Targets hit: ' + runHits + ' of ' + runTargets + '.');
           } else {
             score += POINTS.clear; setPhase('clear'); saveBest(); sound.music('clear');
@@ -755,6 +755,7 @@
       levelScore = score; running = true; fired = 0; cooldown = 0; flash = 0; hurt = 0;
       releaseControls(); shots = []; effects = []; pops = []; bubbles = [];
       canvas.dataset.hits = 0; canvas.dataset.shots = 0; canvas.dataset.level = level + 1; setPhase('go');
+      H.track?.('Sea Trial played', 'Level ' + (level + 1));
       sound.effect('dive'); sound.music('level', level, 0.85);
       status.textContent = 'Under way. Level ' + (level + 1) + ' of ' + LEVELS.length + ': ' + L.name + '.';
     }

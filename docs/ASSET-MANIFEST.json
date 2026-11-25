@@ -884,6 +884,12 @@
       "sha256": "7f3fd39e4c4c177180c822082f44e7ce66a4ab91957d5a82e346c760aa747ab2"
     },
     {
+      "path": "assets/social/link-preview.jpg",
+      "role": "production-asset",
+      "bytes": 174633,
+      "sha256": "f6150fbaef1ead628282535d528fdeb39d72388dac5608eca59cfbf199dcab09"
+    },
+    {
       "path": "assets/sounds/windows31/chimes.wav",
       "role": "production-asset",
       "bytes": 15920,
