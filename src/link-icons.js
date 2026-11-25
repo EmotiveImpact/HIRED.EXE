@@ -150,6 +150,17 @@
       P.rect(7, 15, 18, 1, 'k'); P.rect(14, 20, 4, 7, 'n'); P.set(16, 23, 'y');
       P.rect(9, 18, 4, 4, 'k'); P.rect(10, 19, 2, 2, 'c'); P.rect(19, 18, 4, 4, 'k'); P.rect(20, 19, 2, 2, 'c');
       P.rect(1, 28, 30, 2, 'G'); P.rows('l', [[28, 1, 5], [28, 26, 30]]);
+    },
+    // CV.PDF: a page with a turned corner and the red PDF band across it.
+    'cv-pdf': P => {
+      P.rect(7, 2, 19, 27, 'k'); P.rect(8, 3, 17, 25, 'w');
+      for (let i = 0; i < 6; i++) { P.rect(21 + i, 2 + i, 5 - i, 1, ''); P.rect(21, 2 + i, i - 1, 1, 's'); P.set(20 + i, 2 + i, 'k'); }
+      P.rect(20, 2, 1, 6, 'k'); P.rect(20, 7, 6, 1, 'k');
+      P.rect(10, 6, 8, 1, 'g'); P.rect(10, 9, 13, 1, 'g'); P.rect(10, 26, 13, 1, 'g');
+      P.rect(2, 12, 21, 11, 'k'); P.rect(3, 13, 19, 9, 'r');
+      const letters = ['###..###..####', '#..#.#..#.#...', '#..#.#..#.#...', '###..#..#.###.', '#....#..#.#...', '#....#..#.#...', '#....###..#...'];
+      letters.forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') P.set(5 + i, 14 + j, 'w'); }));
+      P.shadow();
     }
   };
 

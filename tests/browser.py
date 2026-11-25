@@ -95,6 +95,11 @@ def run(profile, base):
         expect(page.locator('#start-game')).to_be_visible()
         # README.TXT is the first icon: the application in the advert's own two headings.
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
+        # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
+        expect(page.locator('#home-cv-pdf')).to_contain_text('CV.PDF')
+        assert page.locator('#home-cv-pdf').get_attribute('href') == 'assets/cv/Augustus-Edem-CV.pdf'
+        assert page.locator('#home-cv-pdf').get_attribute('target') == '_blank'
+        assert page.request.get(base+'/assets/cv/Augustus-Edem-CV.pdf').body().startswith(b'%PDF-')
         open_item('#home-readme')
         notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
@@ -458,6 +463,8 @@ def run(profile, base):
         page.locator('#start-game').wait_for()
         assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
+        assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
+        assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         launch()
         activate('#title-play')
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
