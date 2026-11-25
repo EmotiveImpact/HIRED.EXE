@@ -36,12 +36,12 @@ Build. I start with the complaint, because that is where the product is. I look 
 
 Automate. If I do something twice, an agent does it the third time. Agents test my software, handle data, run bug sweeps and code reviews, hand work to each other and brief me each day on what to fix.
 
-Grow. Twenty years of cutting film to hold attention, plus analytics on how people move through websites and funnels.
+Grow. Nearly twenty years of holding attention, in the edit and on the web, plus analytics on how people move through sites and funnels.
 
 
 EXPERIENCE
 
-More than 20 years in film and editing and 15 to 20 years designing and building websites, alongside graphic design and creative direction.
+Nearly twenty years across film, websites, graphic design and creative direction.
 
 Founder & Creative Director, Emotive Impact
 London and remote | November 2022 to present
