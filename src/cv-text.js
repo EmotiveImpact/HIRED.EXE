@@ -12,25 +12,27 @@ THE ABNORMAL BIT
 
 HIRE.EXE: my job application, as a video game
 hireexe.me
-You asked for a CV. I built you a video game. The first commit was on 19 November 2026 and it was playable a day later. Four worlds, a working Windows 3.1 desktop and a submarine, with my portfolio as the prize. I directed the characters, worlds, story and sound, and built it with Claude Code and Codex. A bot plays it on desktop, Android and iPhone on every pull request.
+You asked for a CV. I built you a video game. A CV gets skimmed. A game gets played. The first commit was on 19 November 2026 and it was playable a day later: four worlds, a working Windows 3.1 desktop and a submarine, with my portfolio as the prize. I directed the story, characters and sound and built it with Claude Code and Codex. A bot plays it on desktop, Android and iPhone on every pull request.
 Play it first: hireexe.me
 
 
 PROFILE
 
-Twenty years of cutting film taught me one thing above the rest: the moment people get bored, you have lost them. Graphic design taught me where the eye goes first. Building websites taught me where people get stuck. I build software the same way, with Claude Code and Codex open every hour of every day. I work out what should happen on screen, trace what has to happen behind it, direct the agents, read the code and test the result. What ships is my call, and the finished product is mine to answer for.
+I have ADHD and a million ideas an hour. The trouble is that good ideas die between the idea and the working thing. AI agents closed that gap, and twenty years taught me what makes the working thing worth using. Film taught me one rule: bored people leave. Graphic design taught me where the eye goes first. Websites taught me where people get stuck. Claude Code and Codex are open every hour of every day: I plan what happens on screen and behind it, direct the agents, read the code and test the result. What ships is my call, and the finished product is mine to answer for.
 
 
 SHIPPED
 
+Two shipped. Six on the way. One sale so far, and I am counting it.
+
 Vlume: macOS audio utility, on sale
 vlumeaudio.com
-On sale. First sale recorded on 16 November 2026. One app is too quiet, so you turn everything up. Vlume turns up just the one: per-app volume, up to 3x boost, a six-band EQ, audio delay and multi-output. I built the lot, from the menu-bar controls to the site, the licensing and the checkout. First sale recorded on 16 November 2026.
+On sale. First sale recorded on 16 November 2026. The real feature is hearing the call over the music. Vlume turns one app up without the rest, with up to 3x boost, EQ, delay and multi-output. I built the lot, from the menu bar to the site, licensing and checkout.
 SwiftUI and Core Audio on the Mac. Next.js and Payload CMS on Vercel. Polar checkout and payment webhooks.
 
 Cairn: Mac storage cleaner for developers
 cairnmac.com
-A cleaner that shows its working: a plan you approve first, files it will never touch and a receipt that separates the estimate from the space you got back. Works inside Claude Code, Codex and Cursor. SwiftUI and SQLite.
+Deleting files is easy. Trusting the delete is the product. Cairn shows its working: a plan you approve first, files it never touches and a receipt that measures the space you really got back. Works inside Claude Code, Codex and Cursor. SwiftUI and SQLite.
 
 
 CURRENTLY WORKING ON
@@ -60,11 +62,11 @@ Not public yet: Fenny. Life 1.0, an offline-first personal OS in Expo and React 
 
 BUILD, AUTOMATE, GROW
 
-Build: Before I build, I read the complaints. I look for ideas nobody has built. Where somebody has, I mine reviews and Reddit for what customers want fixed. A Codex deep dive ends in a PRD. In Claude Code I fix what it missed, then add research and the design system. Only then do I build, with a designer's eye and a film-maker and marketer's feel for the customer journey.
+Build: I start with the complaint, because that is where the product is. I look for ideas nobody has built, or mine reviews and Reddit for what existing ones get wrong. A Codex deep dive ends in a PRD. In Claude Code I fill its gaps and add research and a design system. Then I build, with a designer's eye and a film-maker and marketer's feel for the customer journey.
 
-Automate: If I do something twice, an agent does it the third time. Agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me each day on what to fix in the code.
+Automate: If I do something twice, an agent does it the third time. Agents test my software, handle data, run bug sweeps and code reviews, hand work to each other and brief me each day on what to fix.
 
-Grow: Twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts at the end of 2026.
+Grow: Twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts in late 2026.
 
 Tools: I direct AI coding agents to build, integrate and test products using the technologies below.
 AI agents: Claude Code, Codex, Cursor and Antigravity.
