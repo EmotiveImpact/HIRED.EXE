@@ -79,13 +79,12 @@ async function run() {
     check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
     click('scene-next');
     check(byId('overlay').textContent.includes('copy to mark mine against'),'Missing opening dialogue');
-    click('portfolio-button'); click('portfolio-back');
-    check(app().mode==='scene' && byId('overlay').textContent.includes('copy to mark mine against'),'Portfolio lost current comic panel');
+    check(!byId('portfolio-button'),'Portfolio should not be in the game');
     click('scene-prev'); for(let i=0;i<4;i++)click('scene-next');
     check(byId('overlay').querySelector('.comic-burst'),'Opening did not reach action panel');
     click('scene-next');
     check(app().mode==='playing' && app().state.tick===0,'Opening did not hand off to world one');
-    notes('PASS opening, previous panel, portfolio return and comic breakout');
+    notes('PASS opening, previous panel and comic breakout');
     if(app().state.assist){click('pause-button');byId('assist-toggle').click();click('resume-game');}
     click('pause-button'); const pausedTick=app().state.tick;
     await nextFrame(); await nextFrame(); check(app().state.tick===pausedTick,'Pause advanced simulation');
@@ -103,7 +102,7 @@ async function run() {
     check(!win.document.querySelector('[data-control].is-held'),'Pointer release left a button held');
     click('pause-button');click('restart-level');
     check(app().state.coins===0 && app().state.checkpoint.id==='start','Restart retained run state');
-    notes('PASS portfolio, pause/help/return, movement, double jump, dash, cancellation and restart');
+    notes('PASS pause/help/return, movement, double jump, dash, cancellation and restart');
     let restored = false;
     for(let index=0;index<4;index++) {
       let lastTick=-1;
@@ -154,8 +153,8 @@ async function run() {
     const email=byId('overlay').querySelector('a[href^="mailto:"]');
     check(new URL(email.href).searchParams.get('body').includes('Vlume'),'Email lost interview topic');
     check(byId('final-cv').getAttribute('href')==='cv.html','CV is missing from the results');
-    click('final-portfolio');click('portfolio-back');check(app().mode==='finish','Portfolio did not return to ending');
-    notes('PASS three interview answers, matching project, contextual email and portfolio return');
+    check(!byId('final-portfolio'),'Portfolio should not be on the ending');
+    notes('PASS three interview answers, matching project and contextual email');
     const before=app().progress;
     const reloaded=new Promise(resolve=>frame.addEventListener('load',resolve,{once:true}));
     win.location.reload(); await reloaded;

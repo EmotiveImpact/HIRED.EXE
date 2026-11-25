@@ -11,7 +11,7 @@
   const EVENTS = {
     SystemStart: TADA, SystemExit: CHIMES, SystemDefault: DING,
     SystemAsterisk: CHORD, SystemExclamation: CHORD, SystemHand: CHORD, SystemQuestion: CHORD,
-    // Not in WIN.INI: Hire Edem Setup finishing, which borrows the fanfare.
+    // Not in WIN.INI: Hire Augustus Setup finishing, which borrows the fanfare.
     SetupComplete: TADA
   };
 
