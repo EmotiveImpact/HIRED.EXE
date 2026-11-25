@@ -197,7 +197,7 @@
         ...(working.length?[{id:'working',title:'Working On',file:'WORKING.GRP',items:working.map(l=>l.id)}]:[])
       ],
       hooks:{
-        replayStartup:async()=>{await runStartup();H.progman.focus();},
+        replayStartup:async()=>{await runStartup();H.progman.focus();audio.system('SystemStart');},
         exitWindows:()=>exitWindows(),
         help:(topic,then)=>H.winhelp(topic,then)
       }
@@ -443,7 +443,7 @@
 
   // Music and effects: Sea Trial's 16-bit engine (src/sea-sound.js) playing a theme for each
   // world from src/game-sound.js. No audio files or network requests.
-  const audio={enabled:!progress.muted,engine:null,at:0,
+  const audio={enabled:!progress.muted,engine:null,at:0,chime:false,
     get running(){return this.engine?.state==='running';},
     async start(){
       if(!this.enabled)return;
@@ -451,7 +451,16 @@
         this.engine ||= H.gameSound();
         await this.engine.unlock();
         this.syncMusic();
+        if(this.chime)this.system('SystemStart');
       }catch(_){this.enabled=false;updateSound();}
+    },
+    // The desktop's system sounds (src/win-sound.js). A browser keeps sound locked until the
+    // first click, tap or key press, so a start-up fanfare that comes too early waits for it.
+    system(event){
+      if(!this.enabled)return;
+      if(!this.running){if(event==='SystemStart')this.chime=true;return;}
+      this.chime=false;
+      winSounds.play(event,this.engine);
     },
     // The world's theme plays during play. A pause remembers the bar to carry on from,
     // and the fanfare for a cleared world is left to ring out over the results.
@@ -471,6 +480,9 @@
       this.engine.effect(type);
     }
   };
+  const winSounds=H.winSound();
+  if(audio.enabled)winSounds.preload();
+  H.wm.sound=event=>audio.system(event);
   function updateSound() {$('sound-button').textContent=audio.enabled?'Sound on':'Sound off';$('sound-button').setAttribute('aria-pressed',String(audio.enabled));}
   function updateHud() {
     const s=game.state;if(!s)return;
@@ -642,6 +654,7 @@
   // just below the WIN that started Windows, with a fresh C:\> prompt. Typing
   // WIN starts Windows again.
   async function exitWindows(){
+    audio.system('SystemExit');
     for(const rec of H.wm.windows())if(rec.id!=='progman')H.wm.remove(rec.id);
     game.state=null;desktopReturn=null;
     setMode('boot');
@@ -649,6 +662,7 @@
     await dosStartup(true);
     revealDesktop();
     showHome();
+    audio.system('SystemStart');
   }
   function dosShell(){
     return new Promise(resolve=>{
@@ -719,6 +733,7 @@
     renderer=new H.Renderer($('game'));
     await runStartup();
     ready=true;$('loading').classList.add('hidden');showHome();
+    audio.system('SystemStart');
     globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return assetReport;},get progress(){return JSON.parse(JSON.stringify(progress));},get sound(){const s=audio.engine;return s?{state:s.state,muted:s.muted,song:s.song,position:s.position,log:s.log.slice()}:null;}};
     requestAnimationFrame(frame);
   }

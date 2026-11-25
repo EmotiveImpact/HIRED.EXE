@@ -555,8 +555,16 @@
       });
       sys.addEventListener('dblclick', () => { closePopup(); entry.cancel(); });
       draggable(box, box.querySelector('.w31-caption'), appLayer, { start: g => setBox(box, g, false) });
-      const outside = e => { if (closeOutside && !box.contains(e.target) && !e.target.closest('.w31-menu')) entry.cancel(); };
-      if (closeOutside) setTimeout(() => document.addEventListener('pointerdown', outside, true));
+      // A press outside closes a box that allows it. Otherwise, as in Windows, pressing a
+      // window that is waiting on the dialog box in front of it gets the default beep.
+      const outside = e => {
+        if (box.contains(e.target) || e.target.closest('.w31-menu')) return;
+        if (closeOutside) { entry.cancel(); return; }
+        if (dialogs.at(-1) !== entry || e.target.closest('.w31-window')) return;
+        const waiting = dialogs.flatMap(d => [d.owner, d === entry ? null : d.box]).filter(Boolean);
+        if (waiting.some(el => { const r = el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom; })) wm.sound?.('SystemDefault');
+      };
+      setTimeout(() => { if (!done) document.addEventListener('pointerdown', outside, true); });
       init?.(box, { press, finish, values });
       const first = () => {
         if (done) return;
@@ -568,8 +576,14 @@
   wm.dialogOpen = () => dialogs.length > 0;
   wm.cancelDialogs = () => { while (dialogs.length) dialogs.at(-1).cancel(); };
 
-  // A message box: icon is 'stop', 'exclaim', 'info' or 'question'.
+  // The desktop's system sounds: the program sets this to a function that takes an event's
+  // WIN.INI name ('SystemExclamation', 'SystemDefault' and so on).
+  wm.sound = null;
+  const ICON_SOUND = { stop: 'SystemHand', exclaim: 'SystemExclamation', info: 'SystemAsterisk', question: 'SystemQuestion' };
+
+  // A message box: icon is 'stop', 'exclaim', 'info' or 'question'. It arrives with its icon's sound.
   wm.message = function ({ title, text, icon = '', buttons = ['OK'], owner = null }) {
+    wm.sound?.(ICON_SOUND[icon] || 'SystemDefault');
     const list = buttons.map((label, i) => ({ label, value: label.replace('&', '').toLowerCase(), default: i === 0, cancel: /cancel|no/i.test(label) || buttons.length === 1 }));
     return wm.dialog({
       title, owner, className: 'w31-message',
