@@ -59,7 +59,10 @@ def run(profile, base):
         below = '''() => { const icons = [...document.querySelectorAll('.pm-group-icon')].filter(i => i.offsetParent).map(i => i.getBoundingClientRect());
             return [...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => icons.every(i => w.getBoundingClientRect().bottom <= i.top + 1)); }'''
         snug = "[...document.querySelectorAll('.pm-group-win:not([hidden]) .pm-items')].every(b => b.scrollHeight <= b.clientHeight + 1)"
-        assert page.evaluate(below) and page.evaluate(snug)
+        # Every group window opens at one standard size, whatever it holds: it never grows to fit its icons.
+        standard = "new Set([...document.querySelectorAll('.pm-group-win:not([hidden])')].map(w => w.offsetWidth + 'x' + w.offsetHeight)).size === 1"
+        assert page.evaluate(below) and page.evaluate(snug) and page.evaluate(standard)
+        assert page.locator('#main-window').evaluate("w => w.offsetWidth <= 4 * 90 + 16")
         # The Internet group links Edem's own sites, and Working On the projects in progress.
         for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
                           '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/', '#desk-work-nospoilers':'https://nospoilers.dev/',
@@ -93,6 +96,15 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # The portfolio opens at a set size and scrolls inside, however long its text is.
+        open_item('#skip-portfolio')
+        portfolio = page.locator('.w31-app[data-win="portfolio"]')
+        expect(portfolio).to_be_visible()
+        box, screen = portfolio.bounding_box(), page.viewport_size
+        assert box['height'] <= 461 and box['width'] <= 641 and box['y'] >= 0 and box['y'] + box['height'] <= screen['height'], box
+        assert page.evaluate("(() => { const b = document.querySelector('.w31-app[data-win=portfolio] .modal-body'); return b.scrollHeight > b.clientHeight; })()")
+        activate('.w31-app[data-win="portfolio"] #dialog-close')
+        expect(portfolio).to_have_count(0)
         # README.TXT is the first icon: an old-style README saying what this is and where everything is.
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
         # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
@@ -122,10 +134,12 @@ def run(profile, base):
         activate('#notepad-file')
         activate('#notepad-exit')
         expect(notepad).to_have_count(0)
-        # Accessories starts as a group icon. Opened, it sits clear of the main group and shows all it holds.
+        # Accessories starts as a group icon. Opened, it is the same size as the main group, though it holds one icon.
+        # With room it sits beside the main group; on a phone it opens over it, a step down and to the right.
         open_item('#accessories-group')
         expect(page.locator('#accessories-window')).to_be_visible()
-        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
+        assert page.evaluate(standard) and page.evaluate(snug) and (mobile or (page.evaluate(apart) and page.evaluate(below)))
+        assert page.evaluate("(() => { const a = document.querySelector('#main-window'), b = document.querySelector('#accessories-window'); return b.offsetLeft > a.offsetLeft && b.offsetTop >= a.offsetTop; })()")
         open_item('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
@@ -146,7 +160,7 @@ def run(profile, base):
         expect(page.locator('#accessories-group')).to_be_visible()
         # Games holds Jargon: a group of two or more matching buzzwords clears, and Undo brings it back.
         open_item('#games-group')
-        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
+        assert page.evaluate(standard) and page.evaluate(snug) and (mobile or (page.evaluate(apart) and page.evaluate(below)))
         open_item('#desk-jargon')
         tiles = page.locator('.jargon-window .jg-tile')
         expect(tiles).to_have_count(108)
