@@ -96,15 +96,9 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
-        # The portfolio opens at a set size and scrolls inside, however long its text is.
-        open_item('#skip-portfolio')
-        portfolio = page.locator('.w31-app[data-win="portfolio"]')
-        expect(portfolio).to_be_visible()
-        box, screen = portfolio.bounding_box(), page.viewport_size
-        assert box['height'] <= 461 and box['width'] <= 641 and box['y'] >= 0 and box['y'] + box['height'] <= screen['height'], box
-        assert page.evaluate("(() => { const b = document.querySelector('.w31-app[data-win=portfolio] .modal-body'); return b.scrollHeight > b.clientHeight; })()")
-        activate('.w31-app[data-win="portfolio"] #dialog-close')
-        expect(portfolio).to_have_count(0)
+        # The portfolio window is gone from the desktop; the film work is the Video Portfolio link.
+        expect(page.locator('#skip-portfolio')).to_have_count(0)
+        expect(page.locator('#desk-link-vimeo')).to_contain_text('Video Portfolio')
         # README.TXT is the first icon: an old-style README saying what this is and where everything is.
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
         # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
@@ -410,6 +404,8 @@ def run(profile, base):
         activate('.sea-sound')
         expect(page.locator('.sea-sound')).to_have_attribute('aria-pressed', 'true')
         activate('#dialog-close')
+        # On a phone the Games folder opens over the main one; put it away before launching.
+        activate('#games-window .w31-min')
         launch()
         activate('#title-play')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")

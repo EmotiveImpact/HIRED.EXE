@@ -167,7 +167,7 @@
     const internet=E.id==='solved-001';
     // One Internet group icon per platform in the edition.
     const linkItems=(list,prefix)=>(list||[]).filter(l=>l&&l.name&&safeLink(l.url)?.startsWith('https://'))
-      .map(l=>({id:prefix+l.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:l.name,url:l.url}));
+      .map(l=>({id:prefix+(l.id||l.name).toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:l.name,url:l.url,icon:l.id||l.name}));
     const platforms=linkItems(E.links,'desk-link-');
     // Projects in progress get a group of their own, one icon each.
     const working=linkItems(E.working,'desk-work-');
@@ -181,17 +181,16 @@
         'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_CV_TXT)},
         // The CV as the PDF itself: it opens in the browser's own viewer, or downloads from the single-file build.
         'home-cv-pdf':{label:'CV.PDF',icon:H.linkIcon('CV.PDF'),href:offlineCv||CV_PDF,linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.PDF',workdir:'C:\\HIRE',runs:['cv.pdf'],open:()=>openCv(CV_PDF)},
-        'skip-portfolio':{label:'Portfolio',icon:DOC_ICON,command:'C:\\HIRE\\PORTFOLI.WRI',workdir:'C:\\HIRE',runs:['portfoli.wri','portfoli','portfolio'],open:()=>showPortfolio('home')},
         'desk-sub':{label:'Submarine (final).exe',icon:SUB_ICON,command:'C:\\HIRE\\SUBMARIN.EXE',workdir:'C:\\HIRE',runs:['submarin.exe','submarin','submarine'],open:()=>H.seaTrial(desktopApp('sea-trial',{icon:SUB_ICON,iconId:'sea-icon'}),()=>{progress.delivered=true;save();})},
         'desk-setup':{label:'Hire Augustus.exe',icon:H.setupIcon,command:'A:\\SETUP.EXE',workdir:'A:\\',runs:['setup.exe','setup','hireaug.exe','hireaug','hireaugustus','hireedem.exe','hireedem'],open:()=>H.hireSetup({E,safeLink,openInternet:internetItems.length?()=>H.progman.openGroup('internet'):null})},
         'desk-jargon':{label:'Jargon',icon:H.jargonIcon,command:'JARGON.EXE',workdir:'C:\\WINDOWS',runs:['jargon.exe','jargon'],open:()=>H.jargon()},
         'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
         ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
-        ...Object.fromEntries([...platforms,...working].map(l=>[l.id,{label:l.name,icon:H.linkIcon?.(l.name)||`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
+        ...Object.fromEntries([...platforms,...working].map(l=>[l.id,{label:l.name,icon:H.linkIcon?.(l.icon)||`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
       },
       groups:[
         // Only the applicant's own group starts open; the rest wait as icons along the bottom.
-        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv-txt','home-cv-pdf','skip-portfolio','desk-setup']},
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv-txt','home-cv-pdf','desk-setup']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
         {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon','desk-sub']},
         ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[]),

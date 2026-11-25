@@ -97,7 +97,7 @@ Augustus Edem
   // Each platform becomes an icon in the desktop's Internet group (https:// links only).
   // Add more here once Edem confirms them; Hire Augustus.exe sends people to that group.
   links: [
-    { name: 'Vimeo', url: 'https://vimeo.com/emotiveimpact' },
+    { name: 'Video Portfolio', id: 'vimeo', url: 'https://vimeo.com/emotiveimpact' },
     { name: 'Vlume', url: 'https://vlumeaudio.com/' },
     { name: 'Cairn', url: 'https://cairnmac.com/' },
     { name: 'Emotive Impact', url: 'https://emotiveimpact.io/' }
