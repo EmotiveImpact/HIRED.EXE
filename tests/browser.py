@@ -51,7 +51,7 @@ def run(profile, base):
         expect(page.locator('#games-window #desk-sub')).to_have_count(1)
         # Only the main group starts open. The others wait as icons, clear of it.
         expect(page.locator('#main-window')).to_be_visible()
-        for name in ('accessories', 'games', 'internet', 'working'):
+        for name in ('accessories', 'games', 'artbook', 'internet', 'working'):
             expect(page.locator(f'#{name}-window')).to_be_hidden()
             expect(page.locator(f'#{name}-group')).to_be_visible()
         apart = '''() => { const r = [...document.querySelectorAll('.pm-group-win:not([hidden])')].map(w => w.getBoundingClientRect());
@@ -243,6 +243,65 @@ def run(profile, base):
             Hired.progman.run('C:\\NETSCAPE\\NETSCAPE.EXE https://vimeo.com/emotiveimpact'); window.open = real; return seen; }''') == ['https://vimeo.com/emotiveimpact']
         activate('#internet-window .w31-min')
         expect(page.locator('#internet-group')).to_be_visible()
+        # The Art Book group holds the picture viewer and the documents behind the art.
+        open_item('#artbook-group')
+        expect(page.locator('#artbook-window .pm-item')).to_have_count(4)
+        assert page.evaluate(standard)
+        open_item('#desk-artbook')
+        book = page.locator('.art-window')
+        expect(book.locator('.w31-title')).to_have_text('Art Book')
+        # It opens on a contents page of thumbnails at a set size, and scrolls inside.
+        expect(book.locator('.art-thumb')).to_have_count(17)
+        expect(book.locator('.art-count')).to_have_text('17 pictures')
+        assert book.evaluate("w => w.offsetWidth <= 680 && w.offsetHeight <= 520 && w.querySelector('.art-page').scrollHeight > w.querySelector('.art-page').clientHeight")
+        page.wait_for_function("(() => { const i = document.querySelector('.art-thumb img'); return i.complete && i.naturalWidth > 0; })()")
+        # A thumbnail opens its picture, fitted inside the window with its caption and file name.
+        activate('.art-thumb >> nth=0')
+        expect(book.locator('.w31-title')).to_have_text('Art Book - ALLEY.BMP')
+        expect(book.locator('.art-stage img.is-loaded')).to_be_visible()
+        expect(book.locator('.art-caption b')).to_have_text('Application Alley')
+        expect(book.locator('.art-count')).to_have_text('Picture 1 of 17')
+        expect(book.locator('.art-size')).to_have_text('1672 x 941')
+        assert book.evaluate('''w => { const s = w.querySelector('.art-stage').getBoundingClientRect(), i = w.querySelector('.art-stage img').getBoundingClientRect();
+            return i.width > 100 && i.left >= s.left && i.right <= s.right && i.top >= s.top && i.bottom <= s.bottom; }''')
+        expect(book.locator('[data-art="prev"]')).to_be_enabled()
+        # >> browses the book in order; Contents goes back to the thumbnails.
+        activate('.art-window [data-art="next"]')
+        expect(book.locator('.w31-title')).to_have_text('Art Book - AUGUSTUS.BMP')
+        if not mobile:
+            page.keyboard.press('ArrowRight')
+            expect(book.locator('.w31-title')).to_have_text('Art Book - KIT.BMP')
+        activate('.art-window [data-art="contents"]')
+        expect(book.locator('.art-thumb')).to_have_count(17)
+        expect(book.locator('[data-art="contents"]')).to_be_disabled()
+        # The last picture is a sprite sheet, and there is nothing after it.
+        page.evaluate("Hired.artBook('sprites-furniture')")
+        expect(book.locator('.art-stage.is-sheet img.is-loaded')).to_be_visible()
+        expect(book.locator('[data-art="next"]')).to_be_disabled()
+        activate('.art-window #dialog-close')
+        expect(book).to_have_count(0)
+        # The documents open in Write as set pages: headings and tables, with no Markdown marks left showing.
+        open_item('#desk-doc-artbible')
+        write = page.locator('.write-window')
+        expect(write.locator('.w31-title')).to_have_text('Write - ARTBIBLE.WRI')
+        expect(write.locator('.write-doc h1')).to_have_text('HIRE.EXE art bible')
+        assert write.locator('.write-doc table').count() >= 3 and write.locator('.write-doc h2').count() >= 5
+        text = write.locator('.write-doc').inner_text()
+        assert '| ---' not in text and '## ' not in text and '**' not in text and '](' not in text, 'Markdown marks showing'
+        assert write.evaluate("w => w.offsetWidth <= 640 && w.offsetHeight <= 500")
+        activate('#write-find-menu')
+        activate('#write-find-item')
+        page.locator('#write-find').fill('terracotta')
+        page.keyboard.press('Enter')
+        assert page.evaluate("getSelection().toString()") == 'Terracotta'
+        page.evaluate("Hired.write('docs/LEVEL-DESIGN.md')")
+        expect(write.locator('.w31-title')).to_have_text('Write - LEVELS.WRI')
+        expect(write.locator('.write-doc h1')).to_have_text('Four-world level design')
+        activate('#write-file')
+        activate('#write-exit')
+        expect(write).to_have_count(0)
+        activate('#artbook-window .w31-min')
+        expect(page.locator('#artbook-group')).to_be_visible()
         launch()
         activate('#replay-scenes')
         expect(page.locator('.replay-frame')).to_be_visible()
@@ -499,6 +558,13 @@ def run(profile, base):
         expect(page.locator('#home-cv')).to_have_count(0)
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
+        # The Art Book's pictures and documents travel inside the single file.
+        page.evaluate("Hired.artBook('play-1')")
+        expect(page.locator('.art-stage img.is-loaded')).to_be_visible()
+        assert page.locator('.art-stage img').get_attribute('src').startswith('data:image/webp')
+        page.evaluate("Hired.write('docs/ENGINE-API.md')")
+        expect(page.locator('.write-doc h1')).to_have_text('HIRE.EXE simulation API')
+        page.evaluate("Hired.wm.close('write'); Hired.wm.close('artbook')")
         launch()
         activate('#title-play')
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0

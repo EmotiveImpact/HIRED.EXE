@@ -32,6 +32,8 @@ runtime_paths.add('assets/production/characters/portrait-reference.png')
 runtime_paths.add('assets/production/story/manga-panels.webp')
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/directors-board').rglob('*.webp'))
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/story/panels-v2').glob('*.jpg'))
+# The desktop's Art Book: its web-sized pictures and thumbnails (made by tools/build-art-book.py).
+runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/art-book').rglob('*.webp'))
 for path in runtime_paths:
     if not (ROOT/path).is_file():
         raise FileNotFoundError(path)
@@ -63,7 +65,10 @@ cv_uri = data_uri(cv_pdf)
 game_html=bind_static_images(game_html,runtime_map,'HIRED_EMBEDDED_ASSETS')
 # The desktop's system sounds travel inside the single-file edition too.
 sound_map={str(p.relative_to(ROOT)):data_uri(p) for p in sorted((ROOT/'assets/sounds/windows31').glob('*.wav'))}
-game_html=game_html.replace('globalThis.HIRED_EMBEDDED_ASSETS =', f'globalThis.HIRED_EMBEDDED_CV = "{cv_uri}";\nglobalThis.HIRED_EMBEDDED_SOUNDS = {json.dumps(sound_map,separators=(",",":"))};\nglobalThis.HIRED_EMBEDDED_ASSETS =', 1)
+# So do the documents Write opens from the Art Book group: the paths named in src/write.js.
+doc_map={path:(ROOT/path).read_text() for path in sorted(set(re.findall(r"'(docs/[^']+\.md)'",(ROOT/'src/write.js').read_text())))}
+doc_json=json.dumps(doc_map,separators=(",",":")).replace('</','<\\/')
+game_html=game_html.replace('globalThis.HIRED_EMBEDDED_ASSETS =', f'globalThis.HIRED_EMBEDDED_CV = "{cv_uri}";\nglobalThis.HIRED_EMBEDDED_SOUNDS = {json.dumps(sound_map,separators=(",",":"))};\nglobalThis.HIRED_EMBEDDED_DOCS = {doc_json};\nglobalThis.HIRED_EMBEDDED_ASSETS =', 1)
 game_html=re.sub(r'href="cv.html"(?: target="_blank" rel="noopener")?>View CV',
                  f'href="{cv_uri}" download="{cv_pdf.name}">Download CV (PDF)', game_html)
 game_html=re.sub(r'<script src="([^"]+)"></script>',lambda m:'<script>\n'+(ROOT/m.group(1)).read_text().replace('</script','<\\/script')+'\n</script>',game_html)

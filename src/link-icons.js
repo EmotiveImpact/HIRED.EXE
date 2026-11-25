@@ -161,6 +161,34 @@
       const letters = ['###..###..####', '#..#.#..#.#...', '#..#.#..#.#...', '###..#..#.###.', '#....#..#.#...', '#....#..#.#...', '#....###..#...'];
       letters.forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') P.set(5 + i, 14 + j, 'w'); }));
       P.shadow();
+    },
+    // The Art Book: a landscape in a gilt frame.
+    'art-book': P => {
+      P.rect(3, 5, 26, 21, 'k'); P.rect(4, 6, 24, 19, 'y');
+      P.rect(4, 24, 24, 1, 'Y'); P.rect(27, 6, 1, 19, 'Y'); P.rect(4, 6, 24, 1, 'w'); P.rect(4, 6, 1, 18, 'w');
+      P.rect(7, 9, 18, 13, 'k'); P.rect(8, 10, 16, 11, 'c');
+      P.disc(20, 13, 2, 'y'); P.rect(10, 12, 4, 1, 'w'); P.rect(9, 13, 6, 1, 'w');
+      P.rows('l', [[16, 11, 14], [17, 9, 16], [18, 8, 18]]);
+      P.rows('G', [[17, 19, 21], [18, 19, 23], [19, 8, 23], [20, 8, 23]]);
+      P.rows('l', [[19, 8, 13]]);
+      P.shadow();
+    },
+    // Write documents: a page of text under a fountain pen.
+    write: P => {
+      P.rect(3, 6, 21, 23, 'k'); P.rect(4, 7, 19, 21, 'w');
+      P.rect(6, 10, 9, 2, 'n'); for (const y of [15, 18, 21, 24]) P.rect(6, y, y === 24 ? 8 : 14, 1, 'g');
+      P.shadow();
+      // The pen crosses the top corner: u runs across it, v along it, nib down and to the left.
+      const U = 34, FROM = -26, TO = 4;
+      P.each((x, y) => {
+        const u = x + y - U, v = y - x;
+        if (v < FROM || v > TO) return '';
+        const half = v > TO - 6 ? Math.floor((TO - v) / 2) : 2;
+        if (Math.abs(u) > half) return '';
+        if (v > TO - 6) return v > TO - 2 || (u === 0 && v < TO - 3) ? 'k' : 'Y';
+        if (Math.abs(u) === 2 || v === FROM || v === TO - 6) return 'k';
+        return v === TO - 8 || v === TO - 9 ? 'y' : u === 1 ? 'b' : 'n';
+      });
     }
   };
 
