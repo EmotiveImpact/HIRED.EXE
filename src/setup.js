@@ -1,4 +1,4 @@
-// Hire Edem.exe: the desktop's last program. It runs an old-style Setup that
+// Hire Augustus.exe: the desktop's last program. It runs an old-style Setup that
 // installs the applicant, with the progress messages doing the talking, and
 // ends on Setup Complete with a real way to get in touch.
 (function (H) {
@@ -25,7 +25,7 @@
   ];
 
   H.hireSetup = function ({E = globalThis.HIRED_EDITION || {}, icon = H.setupIcon, iconId = 'setup-icon', safeLink = v => v, openInternet = null} = {}) {
-    // Opening Hire Edem.exe again returns to the Setup already running.
+    // Opening Hire Augustus.exe again returns to the Setup already running.
     const running = wm.get(ID);
     if (running?.el.isConnected) {
       if (running.state === 'min') wm.restore(ID); else wm.activate(ID);
@@ -39,13 +39,13 @@
     let stage = 'welcome', paused = false, asking = false, target = folder;
 
     const win = wm.openApp({
-      id: ID, title: 'Hire Edem Setup', icon, iconId, className: 'setup-window', resizable: true, maximisable: true, minSize: [300, 320],
+      id: ID, title: 'Hire Augustus Setup', icon, iconId, className: 'setup-window', resizable: true, maximisable: true, minSize: [300, 320],
       onClose: () => {
         if (stage === 'done') return true;
         confirmExit();
         return false;
       },
-      body: '<div class="setup-stage"><p class="setup-brand" aria-hidden="true">Hire Edem Setup</p>' +
+      body: '<div class="setup-stage"><p class="setup-brand" aria-hidden="true">Hire Augustus Setup</p>' +
         '<section class="setup-box" role="group" aria-labelledby="setup-cap"><header class="setup-cap" id="setup-cap"></header>' +
         '<div class="setup-main"></div><div class="w31-buttons setup-buttons"></div></section></div>'
     });
@@ -59,7 +59,7 @@
       return new Promise(resolve => {
         let left = ms, last = performance.now();
         (function tick() {
-          if (!win.isConnected) return resolve();
+          if (!win.isConnected || stage === 'done') return resolve();
           const now = performance.now();
           if (!paused) left -= now - last;
           last = now;
@@ -96,7 +96,7 @@
     function welcome() {
       stage = 'welcome';
       screen('Welcome',
-        '<p>Welcome to Hire Edem Setup.</p>' +
+        '<p>Welcome to Hire Augustus Setup.</p>' +
         '<p class="setup-plain">Setup will install ' + esc(person) + ', AI-native product builder and creative director, at ' + esc(company) + '.</p>' +
         '<p class="setup-plain">It is strongly recommended that you quit all other applications before continuing. Especially the other candidates’.</p>' +
         '<label class="setup-field">Install to:<input name="path" value="' + esc(folder) + '" maxlength="40" spellcheck="false" autocomplete="off" autocapitalize="characters"></label>',
@@ -109,11 +109,12 @@
 
     async function install() {
       stage = 'installing';
-      screen('Hire Edem Setup',
+      screen('Hire Augustus Setup',
         '<p class="setup-file">Copying file: <span></span></p>' +
         '<div class="setup-news" role="status"><p class="setup-act"></p><p class="setup-aside"></p></div>' +
         '<div class="setup-gauge" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span>0%</span><span class="setup-fill" aria-hidden="true">0%</span></div>',
-        [{label: 'Cancel', id: 'setup-cancel', default: true, action: confirmExit}]);
+        [{label: 'Skip', id: 'setup-skip', action: () => { if (!asking) complete(); }},
+         {label: 'Cancel', id: 'setup-cancel', default: true, action: confirmExit}]);
       const file = main.querySelector('.setup-file span'), act = main.querySelector('.setup-act'), aside = main.querySelector('.setup-aside');
       const gauge = main.querySelector('.setup-gauge');
       let shown = 0;
@@ -125,7 +126,7 @@
       };
       async function fill(to, ms) {
         const from = shown, n = Math.max(1, Math.round(ms / 140));
-        for (let i = 1; i <= n; i++) { await wait(ms / n); if (!win.isConnected) return; set(Math.round(from + (to - from) * i / n)); }
+        for (let i = 1; i <= n; i++) { await wait(ms / n); if (!win.isConnected || stage === 'done') return; set(Math.round(from + (to - from) * i / n)); }
       }
       // Files arrive compressed (EDITING.DL_) and are expanded as they are copied (EDITING.DLL).
       const step = s => {
@@ -133,16 +134,17 @@
         act.textContent = s.act; aside.textContent = '';
       };
       for (const s of steps) {
-        if (!win.isConnected) return;
+        // Skip jumps straight to Setup Complete, so the rest of the install stops here.
+        if (!win.isConnected || stage === 'done') return;
         if (s.disk) {
           // A minimised Setup waits for its window before asking for the disk.
           while (win.isConnected && wm.get(ID)?.state === 'min') await wait(250);
           if (!win.isConnected) return;
           paused = true;
-          await wm.message({title: 'Hire Edem Setup', icon: 'info', owner: win, buttons: ['OK'],
-            text: 'Please insert the disk labelled:<br><br>Hire Edem Disk 2 (References)<br><br>into drive A:'});
+          await wm.message({title: 'Hire Augustus Setup', icon: 'info', owner: win, buttons: ['OK'],
+            text: 'Please insert the disk labelled:<br><br>Hire Augustus Disk 2 (References)<br><br>into drive A:'});
           paused = false;
-          if (!win.isConnected) return;
+          if (!win.isConnected || stage === 'done') return;
         }
         step(s);
         const half = shown + Math.round((s.to - shown) / 2);
@@ -159,7 +161,7 @@
           await fill(s.to, 1700);
         }
       }
-      if (win.isConnected) complete();
+      if (win.isConnected && stage !== 'done') complete();
     }
 
     function complete() {

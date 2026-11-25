@@ -44,58 +44,30 @@ const solvedEdition = {
   // Keep the lists in step with links and working below, and with src/cv-text.js.
   readme: `README.TXT
 
-You asked what I have done that is abnormal. I built my job application as a video game.
+HIRE.EXE, version 1.0
+A job application, disguised as a video game.
 
-It was playable a day after the first commit. Four worlds, a working Windows 3.1 with my live work in its Internet folder, and a submarine game as the bonus.
+WHAT THIS IS
 
-Your advert asks for two things and no long cover note. Both are below, and reading them takes less time than World 1.
+You asked what I had done that was abnormal. This is it. I built my application as a 16-bit game, directed every scene, and built it with Claude Code and Codex. It was playable the day after the first commit. A bot plays it on desktop, Android and iPhone every time I change it.
 
+WHERE EVERYTHING IS
 
-1. WHAT I HAVE BUILT
+HIRE.EXE: The game. Four worlds, about five minutes.
+CV.TXT and CV.PDF: The facts, for people who skip to the end.
+Internet: Things I have shipped. Double-click to open.
+Working On: Things in beta. Same again.
+Games: The submarine. Nobody asked for it.
+Hire Augustus.exe: Run this last.
 
-Shipped:
+KNOWN ISSUES
 
-Vlume, a Mac audio mixer. On sale now.
-vlumeaudio.com
+The submarine was ordered by mistake. It stays.
+The Calculator has opinions.
 
-Cairn, a Mac storage cleaner for developers.
-cairnmac.com
-
-HIRE.EXE, the thing you are in.
-hireexe.me
-
-Shipping next:
-
-SALEANE, appointment booking: saleane.vercel.app/demo
-NoSpoilers, release checks: nospoilers.dev
-DraftHR, HR letters: drafthr.io
-Lumalook, film looks for iPhone: lumalook.app
-Commune, shared living: ourcommune.io
-Fenny: no link yet.
-
-Each one is an icon in the Internet and Working On groups. Double-click it and it opens.
-
-
-2. WHAT I HAVE DONE THAT IS ABNORMAL
-
-You are sitting in it.
-
-Nobody asked for a game. Hand me a problem and making something is what I do first. This one has four worlds, a working Windows 3.1 and a submarine that was ordered by mistake. The first commit was on 19 November 2026 and it was playable the next day. A bot plays all four worlds on desktop, Android and iPhone on every pull request.
-
-
-3. THE REST
-
-Tools: Claude Code and Codex, every hour of every day.
-Automation: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me on the code every day with things to fix. If I do something twice, they do it the third time.
-Before this: twenty years directing and editing film.
-Right to work in the UK: yes, unrestricted.
-Where: London, working remotely. Happy to meet in person now and then.
-Hours: full time.
-
-Now close this and double-click HIRE.EXE. My live work is in the Internet folder, and the submarine is in Games.
+Now close this and double-click HIRE.EXE.
 
 Augustus Edem
-emotiveimpact@gmail.com
 `,
   profile: 'I build and ship products with Claude Code and Codex, every day. Two are out, six are on the way, and I do the lot: the idea, the interface, the database, the checkout and the deploy. Before this I spent twenty years directing and editing film, which is where I learned what keeps people watching.',
   experience: [
@@ -117,15 +89,15 @@ emotiveimpact@gmail.com
     { name:'Commune', description:'A shared-living product for household costs, tasks and group information.',
       work:'I directed the homepage and journal, reviewed navigation on desktop and mobile, and used interactive examples to explain splits and repayments.', url:'https://ourcommune.io/' },
     { name:'SALEANE', description:'A booking assistant that connects customer requests with a small business owner’s diary.',
-      work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/demo' },
+      work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/' },
     { name:'Cairn', description:'A Mac storage utility that helps people decide what to clear.',
       work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:'https://cairnmac.com/' }
   ],
   contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRE.EXE%20-%20Let%27s%20talk',
   // Each platform becomes an icon in the desktop's Internet group (https:// links only).
-  // Add more here once Edem confirms them; Hire Edem.exe sends people to that group.
+  // Add more here once Edem confirms them; Hire Augustus.exe sends people to that group.
   links: [
-    { name: 'Vimeo', url: 'https://vimeo.com/emotiveimpact' },
+    { name: 'Video Portfolio', id: 'vimeo', url: 'https://vimeo.com/emotiveimpact' },
     { name: 'Vlume', url: 'https://vlumeaudio.com/' },
     { name: 'Cairn', url: 'https://cairnmac.com/' },
     { name: 'Emotive Impact', url: 'https://emotiveimpact.io/' }
@@ -133,13 +105,13 @@ emotiveimpact@gmail.com
   // Projects in progress: one icon each in the desktop's Working On group (https:// links only).
   // Keep the list in step with CURRENTLY WORKING ON in src/cv-text.js.
   working: [
-    { name: 'SALEANE', url: 'https://saleane.vercel.app/demo' },
+    { name: 'SALEANE', url: 'https://saleane.vercel.app/' },
     { name: 'NoSpoilers', url: 'https://nospoilers.dev/' },
     { name: 'DraftHR', url: 'https://drafthr.io/' },
     { name: 'Lumalook', url: 'https://lumalook.app/' },
     { name: 'Commune', url: 'https://ourcommune.io/' }
   ],
-  // Hire Edem.exe's install steps for this employer. They answer the Solved advert line by line:
+  // Hire Augustus.exe's install steps for this employer. They answer the Solved advert line by line:
   // no fancy office, Claude Code and Codex, automate the third time, a salary with a number in it,
   // no ping-pong table, no detailed instructions and no long cover note.
   setupSteps: [

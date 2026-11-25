@@ -59,10 +59,13 @@ def run(profile, base):
         below = '''() => { const icons = [...document.querySelectorAll('.pm-group-icon')].filter(i => i.offsetParent).map(i => i.getBoundingClientRect());
             return [...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => icons.every(i => w.getBoundingClientRect().bottom <= i.top + 1)); }'''
         snug = "[...document.querySelectorAll('.pm-group-win:not([hidden]) .pm-items')].every(b => b.scrollHeight <= b.clientHeight + 1)"
-        assert page.evaluate(below) and page.evaluate(snug)
+        # Every group window opens at one standard size, whatever it holds: it never grows to fit its icons.
+        standard = "new Set([...document.querySelectorAll('.pm-group-win:not([hidden])')].map(w => w.offsetWidth + 'x' + w.offsetHeight)).size === 1"
+        assert page.evaluate(below) and page.evaluate(snug) and page.evaluate(standard)
+        assert page.locator('#main-window').evaluate("w => w.offsetWidth <= 4 * 90 + 16")
         # The Internet group links Edem's own sites, and Working On the projects in progress.
         for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
-                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers.dev/',
+                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/', '#desk-work-nospoilers':'https://nospoilers.dev/',
                           '#desk-work-drafthr':'https://drafthr.io/', '#desk-work-lumalook':'https://lumalook.app/', '#desk-work-commune':'https://ourcommune.io/'}.items():
             expect(page.locator(item)).to_have_attribute('href', url)
             expect(page.locator(item)).to_have_attribute('target', '_blank')
@@ -97,7 +100,10 @@ def run(profile, base):
         chimes = profile != 'iphone'
         if chimes:
             page.wait_for_function("HIRED_APP.sound?.log.includes('win:SystemStart')")
-        # README.TXT is the first icon: the application in the advert's own two headings.
+        # The portfolio window is gone from the desktop; the film work is the Video Portfolio link.
+        expect(page.locator('#skip-portfolio')).to_have_count(0)
+        expect(page.locator('#desk-link-vimeo')).to_contain_text('Video Portfolio')
+        # README.TXT is the first icon: an old-style README saying what this is and where everything is.
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
         # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
         expect(page.locator('#home-cv-pdf')).to_contain_text('CV.PDF')
@@ -108,7 +114,7 @@ def run(profile, base):
         open_item('#home-readme')
         notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
-        for line in ('1. WHAT I HAVE BUILT', 'vlumeaudio.com', '2. WHAT I HAVE DONE THAT IS ABNORMAL', 'Right to work in the UK: yes, unrestricted.'):
+        for line in ('WHAT THIS IS', 'WHERE EVERYTHING IS', 'Hire Augustus.exe: Run this last.', 'KNOWN ISSUES', 'double-click HIRE.EXE'):
             assert line in notepad.locator('.notepad-text').input_value(), line
         activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
@@ -126,10 +132,12 @@ def run(profile, base):
         activate('#notepad-file')
         activate('#notepad-exit')
         expect(notepad).to_have_count(0)
-        # Accessories starts as a group icon. Opened, it sits clear of the main group and shows all it holds.
+        # Accessories starts as a group icon. Opened, it is the same size as the main group, though it holds one icon.
+        # With room it sits beside the main group; on a phone it opens over it, a step down and to the right.
         open_item('#accessories-group')
         expect(page.locator('#accessories-window')).to_be_visible()
-        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
+        assert page.evaluate(standard) and page.evaluate(snug) and (mobile or (page.evaluate(apart) and page.evaluate(below)))
+        assert page.evaluate("(() => { const a = document.querySelector('#main-window'), b = document.querySelector('#accessories-window'); return b.offsetLeft > a.offsetLeft && b.offsetTop >= a.offsetTop; })()")
         open_item('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
@@ -150,7 +158,7 @@ def run(profile, base):
         expect(page.locator('#accessories-group')).to_be_visible()
         # Games holds Jargon: a group of two or more matching buzzwords clears, and Undo brings it back.
         open_item('#games-group')
-        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
+        assert page.evaluate(standard) and page.evaluate(snug) and (mobile or (page.evaluate(apart) and page.evaluate(below)))
         open_item('#desk-jargon')
         tiles = page.locator('.jargon-window .jg-tile')
         expect(tiles).to_have_count(108)
@@ -195,7 +203,7 @@ def run(profile, base):
         activate('.jargon-window #dialog-close')
         activate('#games-window .w31-min')
         expect(page.locator('#games-group')).to_be_visible()
-        # Hire Edem.exe runs Setup, asks for Disk 2, and ends with email and the Internet group.
+        # Hire Augustus.exe runs Setup, asks for Disk 2, and ends with email and the Internet group.
         open_item('#desk-setup')
         activate('#setup-continue')
         # Minimised, Setup copies up to Disk 2 and then holds the prompt until its window is back.
@@ -204,7 +212,7 @@ def run(profile, base):
         expect(gauge).to_have_attribute('aria-valuenow', '46', timeout=30000)
         page.wait_for_timeout(1000)
         expect(page.locator('.w31-message')).to_have_count(0)
-        # Opening Hire Edem.exe again brings back the same install, not a new Welcome screen.
+        # Opening Hire Augustus.exe again brings back the same install, not a new Welcome screen.
         open_item('#desk-setup')
         expect(gauge).to_be_visible()
         expect(gauge).to_have_attribute('aria-valuenow', '46')
@@ -405,6 +413,8 @@ def run(profile, base):
         activate('.sea-sound')
         expect(page.locator('.sea-sound')).to_have_attribute('aria-pressed', 'true')
         activate('#dialog-close')
+        # On a phone the Games folder opens over the main one; put it away before launching.
+        activate('#games-window .w31-min')
         launch()
         activate('#title-play')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
@@ -471,8 +481,8 @@ def run(profile, base):
         context.route(re.compile(r'^https?://'), reject_network)
         page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
-        assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
-        assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
+        # CV.TXT and CV.PDF replace the old CV web page icon.
+        expect(page.locator('#home-cv')).to_have_count(0)
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         launch()
