@@ -44,37 +44,28 @@ const solvedEdition = {
   // Keep the lists in step with links and working below, and with src/cv-text.js.
   readme: `README.TXT
 
-You have my CV. You have had the email. This is the part that would not fit in either.
+HIRE.EXE, version 1.0
+A job application, disguised as a video game.
 
+WHAT THIS IS
 
-1. WHY THIS JOB
+You asked what I had done that was abnormal. This is it. I built my application as a 16-bit game, directed every scene, and built it with Claude Code and Codex. It was playable the day after the first commit. A bot plays it on desktop, Android and iPhone every time I change it.
 
-Most adverts describe a job. Yours describes how I already spend my days: think of something, build it, put it in front of real people, keep what works and start the next one.
+WHERE EVERYTHING IS
 
-I have spent more than twenty years making things for other people's companies. A studio with more ideas than hands, run by a founder who builds every day, is the job I would have written for myself if I had thought anyone would read it.
+HIRE.EXE: The game. Four worlds, about five minutes.
+CV.TXT and CV.PDF: The facts, for people who skip to the end.
+Internet: Things I have shipped. Double-click to open.
+Working On: Things in beta. Same again.
+Games: The submarine. Nobody asked for it.
+Hire Augustus.exe: Run this last.
 
+KNOWN ISSUES
 
-2. WHAT I WOULD BUILD FIRST
+The submarine was ordered by mistake. It stays.
+The Calculator has opinions.
 
-Ideas, not promises. I have not seen inside any of these, so treat them as opening offers.
-
-UK tax savings: a "what have I missed?" check. Upload last year's figures, get a plain-English list of the reliefs you could have claimed, and a nudge well before 31 January rather than on it.
-
-Site selection: a one-page site report people can forward. The final decision is usually made by someone who never opened the map, so give them the map's conclusion, including why the other sites lost.
-
-AI-to-human tasks: the handover. When the AI gets stuck, it writes the brief for the human, including what it has already tried. Better briefs, quicker jobs, fewer "what did you mean by this?" messages.
-
-Content brand: one recording in, a week of clips, posts and a newsletter out, cut by someone who knows where viewers stop watching. The agents do the chopping. I do the taste.
-
-
-3. PARTNERING, BOTH WAYS
-
-Point me at any of the above and I will start building on day one.
-
-And the other way round: SALEANE, an AI receptionist for salons, barbers and clinics, and DraftHR, which writes HR letters for UK and US teams, are both built and in beta. If either fits the studio, they are yours to test.
-
-
-Now close this and double-click HIRE.EXE. The submarine is in Games.
+Now close this and double-click HIRE.EXE.
 
 Augustus Edem
 `,
