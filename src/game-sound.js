@@ -79,7 +79,14 @@
     scene(t) {
       tone(t, {type: 'triangle', f0: 180, f1: 540, dur: 0.32, vol: 0.25, send: 0.5});
       hiss(t, {type: 'bandpass', f0: 800, f1: 3000, q: 0.8, dur: 0.3, vol: 0.15});
-    }
+    },
+    // The HQ lift: a two-note chime when it arrives, a low slide for its doors and a hum as it leaves.
+    liftDing(t) {
+      tone(t, {type: 'sine', f0: 1319, dur: 0.45, vol: 0.2, send: 0.5});
+      tone(t + 0.17, {type: 'sine', f0: 1047, dur: 0.6, vol: 0.18, send: 0.5});
+    },
+    liftDoor(t) { tone(t, {type: 'triangle', f0: 150, f1: 110, dur: 0.3, vol: 0.2}); },
+    liftMove(t) { tone(t, {type: 'triangle', f0: 70, f1: 140, dur: 0.8, vol: 0.22}); }
   });
 
   H.gameSound = options => H.seaSound(Object.assign({}, options, {songs: SONGS, effects}));
