@@ -8,11 +8,11 @@
   // last until the page is reloaded, so a visitor can never lose HIRE.EXE. Window
   // positions are kept by Options > Save Settings on Exit.
   const wm = H.wm, esc = wm.esc;
-  const STORE = 'hired-exe:progman:v2';
+  const STORE = 'hired-exe:progman:v3';
   const CELL_W = 92, CELL_H = 78;
   const PM_ICON = '<span class="pm-icon-art"><i></i><i></i><i></i><i></i></span>';
   const APP_ICON = '<span class="pm-glyph pm-glyph-app" aria-hidden="true"></span>';
-  const state = { groups: null, order: [], active: null, sel: {}, tidy: true, options: { autoArrange: true, minimiseOnUse: false, saveOnExit: true }, saved: null, uid: 1, pm: null };
+  const state = { groups: null, order: [], active: null, sel: {}, seq: 0, options: { autoArrange: true, minimiseOnUse: false, saveOnExit: true }, saved: null, uid: 1, pm: null };
   let cfg = null, root = null, pm = null, workspace = null, bar = null, menus = null, navigating = false, dragged = false;
 
   function load() {
@@ -24,8 +24,9 @@
   function snapshot() {
     const rec = wm.get('progman');
     const groups = {};
-    for (const g of state.groups) groups[g.id] = { state: g.state, geo: g.geo };
-    return { pm: rec ? { state: rec.state, geo: rec.geo } : state.pm, groups, active: state.active, tidy: state.tidy, options: { ...state.options } };
+    // A group that was never moved by hand saves no place: it finds one again when it opens.
+    for (const g of state.groups) groups[g.id] = { state: g.state, geo: g.auto === false ? g.geo : null };
+    return { pm: rec ? { state: rec.state, geo: rec.geo } : state.pm, groups, active: state.active, options: { ...state.options } };
   }
   function applySnapshot(s) {
     if (!s) return;
@@ -34,10 +35,10 @@
       const saved = s.groups?.[g.id];
       if (!saved) continue;
       if (['normal', 'min', 'max'].includes(saved.state)) g.state = saved.state;
-      if (saved.geo && ['x', 'y', 'w', 'h'].every(k => Number.isFinite(saved.geo[k]))) g.geo = saved.geo;
+      const placed = saved.geo && ['x', 'y', 'w', 'h'].every(k => Number.isFinite(saved.geo[k]));
+      g.geo = placed ? saved.geo : null; g.auto = !placed;
     }
     if (s.active && state.groups.some(g => g.id === s.active)) state.active = s.active;
-    if (typeof s.tidy === 'boolean') state.tidy = s.tidy;
     if (s.pm) state.pm = s.pm;
   }
 
@@ -52,7 +53,7 @@
       }
       return;
     }
-    state.groups = cfg.groups.map(g => ({ id: g.id, title: g.title, file: g.file, state: g.state || 'min', geo: null, items: g.items.filter(ref => cfg.items[ref]).map(ref => ({ uid: 'u' + state.uid++, ref })) }));
+    state.groups = cfg.groups.map(g => ({ id: g.id, title: g.title, file: g.file, state: g.state || 'min', geo: null, auto: true, seq: 0, items: g.items.filter(ref => cfg.items[ref]).map(ref => ({ uid: 'u' + state.uid++, ref })) }));
     state.active = cfg.groups[0].id;
     const saved = load();
     applySnapshot(saved);
@@ -141,12 +142,28 @@
     const w = Math.min(780, W - 48), h = Math.min(Math.max(360, Ht * 0.6), Ht - 96, 520);
     return { x: (W - w) / 2, y: Math.max(12, Math.min(72, Ht * 0.07)), w, h };
   }
-  function defaultGroupGeo(g, i) {
-    const W = workspace.clientWidth || 600, Ht = workspace.clientHeight || 300;
-    const n = Math.max(1, g.items.length), cols = Math.max(1, Math.min(n, 4, Math.floor((W - 30) / CELL_W)));
-    const rows = Math.ceil(n / cols);
-    const w = Math.min(W - 16, Math.max(210, cols * CELL_W + 24)), h = Math.min(Ht - 96, rows * CELL_H + 46);
-    return { x: 8 + i * 22, y: 8 + i * 22, w, h: Math.max(110, h) };
+  // Every group window opens at one standard size, whatever it holds, as a new
+  // window did in 3.1: room for four icons across and two rows, or three by three
+  // in a narrow Program Manager. Icons that do not fit are reached by its scroll bar.
+  function standardSize() {
+    const W = workspace.clientWidth, Ht = workspace.clientHeight, narrow = W < 520, gap = narrow ? 4 : 8;
+    const cols = narrow ? 3 : 4, rows = narrow ? 3 : 2;
+    return { gap, step: narrow ? 18 : 22, w: Math.max(150, Math.min(cols * 90 + 14, W - gap * 2)), h: Math.max(90, Math.min(rows * 74 + 38, Ht - gap * 2)) };
+  }
+  // A group that has not been moved by hand opens in the first free place beside
+  // or below the others, clear of the group icons. With no free place left it
+  // opens over them, a step down and to the right, as windows cascade.
+  function placeGroup(g) {
+    const { gap, step, w, h } = standardSize();
+    const W = workspace.clientWidth, Ht = workspace.clientHeight - (state.groups.some(x => x.state === 'min') ? 72 : 0);
+    const others = state.groups.filter(x => x !== g && x.state === 'normal' && x.geo).map(x => x.geo);
+    const clear = (x, y) => others.every(o => x + w <= o.x || o.x + o.w <= x || y + h <= o.y || o.y + o.h <= y);
+    for (let y = gap; y === gap || y + h <= Ht; y += h + gap)
+      for (let x = gap; x === gap || x + w <= W; x += w + gap)
+        if (clear(x, y)) { g.geo = { x, y, w, h }; return; }
+    let k = 1;
+    while (others.some(o => o.x === gap + k * step && o.y === gap + k * step)) k++;
+    g.geo = wm.clamp({ x: gap + k * step, y: gap + k * step, w, h }, workspace);
   }
 
   function renderGroups() {
@@ -181,8 +198,8 @@
     cap.querySelector('.w31-max').addEventListener('click', () => setGroupState(g, g.state === 'max' ? 'normal' : 'max'));
     cap.addEventListener('dblclick', e => { if (!e.target.closest('button')) setGroupState(g, g.state === 'max' ? 'normal' : 'max'); });
     win.addEventListener('pointerdown', () => activateGroup(g.id, false));
-    wm.draggable(win, cap, workspace, { end: geo => { g.geo = geo; state.tidy = false; } });
-    wm.resizable(win, workspace, { min: [150, 90], end: geo => { g.geo = geo; state.tidy = false; reflowFree(g); } });
+    wm.draggable(win, cap, workspace, { end: geo => { g.geo = geo; g.auto = false; } });
+    wm.resizable(win, workspace, { min: [150, 90], end: geo => { g.geo = geo; g.auto = false; reflowFree(g); } });
   }
   function wireIcon(icon) {
     const g = group(icon.dataset.group);
@@ -198,73 +215,33 @@
     icon.addEventListener('focus', () => activateGroup(g.id, false));
   }
 
-  // Until a group is moved or sized by hand, the open groups keep themselves tidy:
-  // side by side in rows, so none overlaps another. A group opens as a compact
-  // block, at most four icons across, and never stretches to fill the row. Rows
-  // that do not fit are reached by scrolling the workspace.
-  function tidyGroups() {
-    const W = workspace.clientWidth, gap = W < 500 ? 4 : 8, usable = W - gap * 2;
-    const maxCols = Math.max(1, Math.min(4, Math.floor((usable - 16) / 90)));
-    const rows = [];
-    for (const g of state.groups) {
-      const win = g.state === 'normal' && workspace.querySelector('#' + g.id + '-window');
-      if (!win) continue;
-      const n = Math.max(1, g.items.length), cols = Math.ceil(n / Math.ceil(n / maxCols));
-      const cap = win.querySelector('.w31-caption'), text = document.createRange();
-      text.selectNodeContents(cap.querySelector('.w31-title'));
-      const capW = [...cap.querySelectorAll('button')].reduce((sum, b) => sum + b.offsetWidth, 0) + text.getBoundingClientRect().width + 20;
-      const w = Math.min(usable, Math.max(cols * 90 + 16, Math.ceil(capW)));
-      let row = rows.find(r => r.w + gap + w <= usable);
-      if (!row) rows.push(row = { w: -gap, list: [] });
-      row.w += gap + w;
-      row.list.push({ g, win, w });
-    }
-    let y = gap;
-    for (const row of rows) {
-      let h = 0;
-      for (const c of row.list) {
-        // The icons wrap to the new width before their height is read.
-        c.win.style.width = c.w + 'px';
-        const box = c.win.querySelector('.pm-items');
-        const bottom = Math.max(0, ...[...box.children].map(el => el.offsetTop + el.offsetHeight));
-        h = Math.max(h, c.win.offsetHeight - box.clientHeight + bottom + 6);
-      }
-      let x = gap;
-      for (const c of row.list) { c.g.geo = { x, y, w: c.w, h }; x += c.w + gap; }
-      y += h + gap;
-    }
-    return y;
-  }
-
   // Place each group window where it was left, clamped to the workspace.
-  function layoutGroups(again) {
+  function layoutGroups() {
     if (!workspace?.isConnected || !workspace.clientWidth) return;
     const max = state.groups.find(g => g.state === 'max');
-    const width = workspace.clientWidth;
     for (const g of state.groups) { const win = workspace.querySelector('#' + g.id + '-window'); if (win) { win.hidden = g.state === 'min'; win.classList.toggle('is-max', g.state === 'max'); } }
-    const tidy = state.tidy && !max;
-    const end = tidy ? tidyGroups() : 0;
-    state.groups.forEach((g, i) => {
+    if (!max) {
+      // Groups still where Program Manager put them are placed again, in the order
+      // they were opened, when its size has changed under them.
+      const std = standardSize(), W = workspace.clientWidth, Ht = workspace.clientHeight;
+      const auto = state.groups.filter(g => g.state === 'normal' && g.auto !== false).sort((a, b) => (a.seq || 0) - (b.seq || 0));
+      for (const g of auto) if (g.geo && (g.geo.w !== std.w || g.geo.h !== std.h || g.geo.x + g.geo.w > W || g.geo.y + g.geo.h > Ht)) g.geo = null;
+      for (const g of auto) if (!g.geo) placeGroup(g);
+    }
+    for (const g of state.groups) {
       const win = workspace.querySelector('#' + g.id + '-window');
-      if (!win) return;
+      if (!win) continue;
       win.classList.toggle('is-current', g.id === state.active);
       const maxB = win.querySelector('.w31-max');
       maxB.classList.toggle('is-restore', g.state === 'max');
       maxB.setAttribute('aria-label', g.state === 'max' ? 'Restore' : 'Maximise');
       if (g.state === 'normal') {
-        if (!g.geo) g.geo = defaultGroupGeo(g, state.groups.filter(x => x.state !== 'min').indexOf(g));
-        wm.setBox(win, tidy ? g.geo : wm.clamp(g.geo, workspace));
+        if (!g.geo) placeGroup(g);
+        wm.setBox(win, wm.clamp(g.geo, workspace));
       } else if (g.state === 'max') for (const side of ['left', 'top', 'right', 'bottom', 'width', 'height']) win.style[side] = '';
       workspace.querySelector('#' + g.id + '-group').hidden = g.state !== 'min';
       workspace.querySelector('#' + g.id + '-group').classList.toggle('is-current', g.id === state.active && g.state === 'min');
-    });
-    // Minimised groups sit below the tidy rows, never underneath them.
-    const icons = workspace.querySelector('.pm-icons');
-    const below = tidy && state.groups.some(g => g.state === 'min');
-    icons.style.bottom = below ? 'auto' : '';
-    icons.style.top = below ? Math.max(workspace.clientHeight - icons.offsetHeight, end) + 'px' : '';
-    // A scroll bar that comes or goes changes the width the rows were fitted to.
-    if (tidy && !again && workspace.clientWidth !== width) { layoutGroups(true); return; }
+    }
     // A maximised group fills Program Manager and borrows its title and menu bar.
     pm.classList.toggle('has-max-child', !!max);
     pm.querySelector(':scope > .w31-caption .w31-title').textContent = max ? 'Program Manager - [' + max.title + ']' : 'Program Manager';
@@ -321,7 +298,9 @@
   function setGroupState(g, s) {
     wm.closePopup();
     if (s === 'max') for (const x of state.groups) if (x.state === 'max' && x !== g) x.state = 'normal';
-    if (s === 'min' && g.state === 'normal') g.geo = wm.measure(workspace.querySelector('#' + g.id + '-window'), workspace);
+    // A group moved by hand comes back where it was left; any other finds a free place again.
+    if (s === 'min' && g.state === 'normal') g.geo = g.auto === false ? wm.measure(workspace.querySelector('#' + g.id + '-window'), workspace) : null;
+    if (s !== 'min' && g.state === 'min') g.seq = ++state.seq;
     g.state = s;
     if (s === 'min') {
       // The next open group becomes active, or the icon itself.
@@ -348,7 +327,7 @@
   }
   function track(g, mode) {
     const win = workspace.querySelector('#' + g.id + '-window');
-    wm.keyboardTrack(win, workspace, mode, { min: [150, 90], end: geo => { g.geo = geo; state.tidy = false; } });
+    wm.keyboardTrack(win, workspace, mode, { min: [150, 90], end: geo => { g.geo = geo; g.auto = false; } });
   }
   function nextGroup(d) {
     const list = state.groups;
@@ -594,7 +573,7 @@
   function openGroups() { return state.groups.filter(g => g.state !== 'min'); }
   function cascadeGroups() {
     const list = openGroups();
-    state.tidy = false;
+    for (const g of list) g.auto = false;
     const W = workspace.clientWidth, Ht = workspace.clientHeight - (state.groups.some(g => g.state === 'min') ? 72 : 0);
     list.forEach((g, i) => { g.state = 'normal'; g.geo = { x: i * 24, y: i * 24, w: Math.max(170, W * 0.62), h: Math.max(110, Ht * 0.62) }; });
     layoutGroups();
@@ -603,7 +582,7 @@
   function tileGroups() {
     const list = openGroups();
     if (!list.length) return;
-    state.tidy = false;
+    for (const g of list) g.auto = false;
     const cols = Math.ceil(Math.sqrt(list.length)), rows = Math.ceil(list.length / cols);
     const W = workspace.clientWidth, Ht = workspace.clientHeight - (state.groups.some(g => g.state === 'min') ? 72 : 0);
     list.forEach((g, i) => { g.state = 'normal'; g.geo = { x: (i % cols) * W / cols, y: Math.floor(i / cols) * Ht / rows, w: W / cols, h: Ht / rows }; });
@@ -688,7 +667,7 @@
       const title = values.title.trim() || (values.file.trim().replace(/\.grp$/i, '') || 'New Group');
       if (g) { g.title = title; g.file = values.file.trim() || g.file; renderGroups(); focusSelection(); return; }
       const id = 'group' + state.uid++;
-      const created = { id, title, file: values.file.trim() || title.replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase() + '.GRP', state: 'normal', geo: null, items: [] };
+      const created = { id, title, file: values.file.trim() || title.replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase() + '.GRP', state: 'normal', geo: null, auto: true, seq: ++state.seq, items: [] };
       state.groups.push(created);
       state.active = id;
       renderGroups();
