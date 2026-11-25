@@ -61,10 +61,6 @@ London | Before 2009 | Graphic design, film editing and websites for my own clie
 
 IN THE WORKS
 
-SALEANE: AI receptionist for salons, barbers and clinics
-saleane.vercel.app | In development
-Selected for the FIRST 1000 programme. Booking, rescheduling, cancellations and reminders, with a one-click sample studio.
-
 Commune: Shared living
 ourcommune.io | In development
 Costs, household tasks and group information, with interactive examples that explain splits and repayments.
@@ -80,6 +76,10 @@ Written section by section, checked, with a record of every step.
 Lumalook: Film looks for iPhone photos and video
 lumalook.app
 Tuned on deep skin first.
+
+SALEANE: AI receptionist for salons, barbers and clinics
+saleane.vercel.app | In development
+Selected for the FIRST 1000 programme. Booking, rescheduling, cancellations and reminders, with a one-click sample studio.
 
 Not public yet
 Fenny, Life 1.0 (an offline-first personal OS), Bounty (resale research) and Assistant Central (a multi-agent platform).

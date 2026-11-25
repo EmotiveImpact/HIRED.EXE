@@ -86,12 +86,12 @@ Augustus Edem
       work:'I led scope, schedules and budgets, mentored editors and reviewed work before delivery.', url:'https://emotiveimpact.io/' },
     { name:'Vlume', description:'A macOS mixer for turning one app up and adjusting connected speakers individually.',
       work:'I designed and built it with Claude Code and Codex, from the menu-bar controls to the site, the download and the one-time purchase.', url:'https://vlumeaudio.com/' },
+    { name:'Cairn', description:'A Mac storage utility that helps people decide what to clear.',
+      work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:'https://cairnmac.com/' },
     { name:'Commune', description:'A shared-living product for household costs, tasks and group information.',
       work:'I directed the homepage and journal, reviewed navigation on desktop and mobile, and used interactive examples to explain splits and repayments.', url:'https://ourcommune.io/' },
     { name:'SALEANE', description:'A booking assistant that connects customer requests with a small business owner’s diary.',
-      work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/' },
-    { name:'Cairn', description:'A Mac storage utility that helps people decide what to clear.',
-      work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:'https://cairnmac.com/' }
+      work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/' }
   ],
   contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRE.EXE%20-%20Let%27s%20talk',
   // Each platform becomes an icon in the desktop's Internet group (https:// links only).
@@ -105,11 +105,11 @@ Augustus Edem
   // Projects in progress: one icon each in the desktop's Working On group (https:// links only).
   // Keep the list in step with CURRENTLY WORKING ON in src/cv-text.js.
   working: [
-    { name: 'SALEANE', url: 'https://saleane.vercel.app/' },
     { name: 'NoSpoilers', url: 'https://nospoilers.dev/' },
     { name: 'DraftHR', url: 'https://drafthr.io/' },
     { name: 'Lumalook', url: 'https://lumalook.app/' },
-    { name: 'Commune', url: 'https://ourcommune.io/' }
+    { name: 'Commune', url: 'https://ourcommune.io/' },
+    { name: 'SALEANE', url: 'https://saleane.vercel.app/' }
   ],
   // Hire Augustus.exe's install steps for this employer. They answer the Solved advert line by line:
   // no fancy office, Claude Code and Codex, automate the third time, a salary with a number in it,
@@ -128,16 +128,11 @@ Augustus Edem
     {file: 'ETHIC.DL_', act: 'Installing work ethic...', aside: 'Still at 97%. It’s staying late to finish.', to: 97, stall: true}
   ],
   interview: [
-    {question:'Build, automate or grow?', answers:[
-      {label:'Build', text:'Two products out and six on the way, all built with Claude Code and Codex. Vlume takes payment. Cairn asks before it deletes anything. Both seemed like good habits.'},
-      {label:'Automate', text:'A bot plays all four worlds of this game on desktop, Android and iPhone on every pull request. I played it through by hand twice. There was no third time.'},
-      {label:'Grow', text:'Twenty years of cutting film teaches you exactly where people stop watching. At Digital Smart Web I ran the A/B tests and the funnels. My own content is next.'}
-    ]},
     {question:'Which project shall we talk through?', answers:[
       {label:'Vlume', text:'I started with a listening problem. In Vlume you can route Mac audio to multiple speakers and adjust each output. I can show you the controls and the timing trade-offs.'},
+      {label:'Cairn', text:'Cairn asks a practical question before any cleanup: does the owner understand what they are about to remove? I can show you how that shaped the flow.'},
       {label:'Commune', text:'In Commune, I’m interested in the moment a shared task becomes one person’s responsibility. A household pantry makes that design problem very concrete.'},
-      {label:'SALEANE', text:'A customer asks to book. The owner needs the right appointment in their diary. I can walk through the design between those two moments and show what the demo does.'},
-      {label:'Cairn', text:'Cairn asks a practical question before any cleanup: does the owner understand what they are about to remove? I can show you how that shaped the flow.'}
+      {label:'SALEANE', text:'A customer asks to book. The owner needs the right appointment in their diary. I can walk through the design between those two moments and show what the demo does.'}
     ]},
     {question:'What happens next?', answers:[
       {label:'The 30-minute call', text:'Half an hour, your questions, my screen. I’ll bring the work and leave the deck at home. I gather you don’t do them either.'},
@@ -158,7 +153,7 @@ const editions = new Map([
       {label:'The product-building process', text:'I work with AI coding agents to turn ideas into working products. I shape the flow, direct the agents and test the result. If a real customer can’t finish the task, there’s still work to do.'},
       {label:'How the two fit together', text:'Storytelling gives a product a clear purpose. Building makes that purpose tangible. I enjoy the work between the two: shaping a problem, trying an approach and refining the result.'}
     ]},
-      solvedEdition.interview[1],
+      solvedEdition.interview[0],
     {question:'What should the next conversation focus on?', answers:[
       {label:'Working together', text:'How I could contribute creative direction, product judgement and hands-on AI-assisted building to your team.'},
       {label:'A project walkthrough', text:'A chance to look at real work, discuss trade-offs and ask questions about how it was made.'},

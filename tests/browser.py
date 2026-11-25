@@ -497,7 +497,7 @@ def run(profile, base):
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-2\.webp'))
         page.screenshot(path=OUT/'james.jpg', animations='disabled')
         activate('#scene-skip')
-        for answer in (0, 0, 1):
+        for answer in (0, 1):
             activate(f'#answer-{answer}')
             activate('#interview-next')
         expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')

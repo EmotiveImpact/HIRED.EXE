@@ -27,7 +27,7 @@ The interview ending records the visitor's chosen topics, links to the selected 
 
 The default URL selects `solved-001`. Use `?edition=portfolio` for the employer-neutral version. Add another entry to the edition map in [src/edition.js](src/edition.js) and give it a distinct ID. Set its company, role, opening, closing, projects, field notes, contact and interview questions. The same built site serves each registered edition by URL and keeps results under separate keys. Unknown IDs fall back to the default. Keep private project walkthroughs as descriptions.
 
-The portfolio currently links to [Vlume](https://vlumeaudio.com/) and [SALEANE](https://saleane.vercel.app/).
+The portfolio currently links to [Vlume](https://vlumeaudio.com/) and [Cairn](https://cairnmac.com/).
 
 ## Build and verify
 
