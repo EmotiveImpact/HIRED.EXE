@@ -32,11 +32,11 @@ Deleting files is easy. Trusting the delete is the product. Cairn shows its work
 
 BUILD, AUTOMATE, GROW
 
-Build. I start with the complaint, because that is where the product is. I look for ideas nobody has built, or mine reviews and Reddit for what others get wrong. A Codex deep dive ends in a PRD. In Claude Code I fill its gaps with research and a design system. Then I direct the build with a designer's eye and a film-maker and marketer's feel for the customer journey.
+Build. I start with the complaint, because that is where the product is. I look for ideas nobody has built, or mine customer reviews and Reddit for what existing products miss. A Codex deep dive ends in a PRD. In Claude Code I fill its gaps with research and a design system. Then I direct the build with a designer's eye and a filmmaker and marketer's feel for the customer journey.
 
 Automate. If I do something twice, an agent does it the third time. Agents test my software, handle data, run bug sweeps and code reviews, hand work to each other and brief me each day on what to fix.
 
-Grow. Twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels.
+Grow. Twenty years of cutting film to hold attention, plus analytics on how people move through websites and funnels.
 
 
 EXPERIENCE
@@ -79,7 +79,7 @@ lumalook.app
 Tuned on deep skin first.
 
 Not public yet
-Fenny. Life 1.0, an offline-first personal OS. Bounty, a resale research workbench. Assistant Central, a multi-agent platform with owner approvals.
+Fenny, Life 1.0 (an offline-first personal OS), Bounty (a resale research workbench) and Assistant Central (a multi-agent platform with owner approvals).
 
 
 TOOLS
