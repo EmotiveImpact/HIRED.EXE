@@ -38,7 +38,7 @@
       }
       progress.assist = saved.assist === true;
       const record = saved.checkpoint;
-      if (record?.level === progress.lastLevel && H.LEVELS[record.level].checkpoints.some(cp => cp.id === record.checkpoint))
+      if (record?.level === progress.lastLevel && (H.LEVELS[record.level].checkpoints.some(cp => cp.id === record.checkpoint) || H.LEVELS[record.level].checkpointAliases[record.checkpoint]))
         progress.checkpoint = record;
       progress.delivered = saved.delivered === true;
       progress.muted = saved.muted === true;

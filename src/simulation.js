@@ -11,6 +11,9 @@
   // The HQ lift, in ticks: how long it takes to answer a call, to work its doors, to leave a floor
   // and to pull in at the next, and how far a passenger steps each tick.
   const LIFT = Object.freeze({ call: 40, doors: 22, ride: 50, arrive: 26, step: 3 });
+  // The Feed: the ticks it takes to arrive and to drop away, how far it slips back each tick as it
+  // goes, and how far and how fast it surges.
+  const FEED = Object.freeze({ arrive: 50, leave: 40, slip: 1.5, surge: 0.14, pulse: 0.05 });
 
   class Game {
     constructor() {
@@ -31,7 +34,7 @@
         camera: { x: 0, y: 0 }, score: 0, coins: 0, skills: [], checkpoint: { ...world.spawn, id: 'start' },
         enemies: world.enemies, boss, bossQueue, bossIndex: 0, chase, fakeExit, floor: 0, floorTransition: null, keys: 0, particles: [], projectiles: [], time: 0, tick: 0, deaths: 0,
         lives: PHYSICS.lives,
-        assist: Boolean(options.assist), hintsShown: [], completed: false };
+        assist: Boolean(options.assist), hintsShown: [], retired: [], completed: false };
       this.events = []; this.accumulator = 0; this.pendingJump = false; this.pendingDash = false;
       this.emit('start', { levelIndex: world.levelIndex });
       return this.state;
@@ -40,16 +43,21 @@
       const s = this.state;
       if (!s || s.checkpoint.id === 'start') return null;
       return { level: s.levelIndex, checkpoint: s.checkpoint.id,
-        collected: s.world.collectibles.filter(i => i.collected).map(i => i.id),
+        collected: [...s.world.collectibles.filter(i => i.collected).map(i => i.id), ...s.retired],
         defeated: s.enemies.filter(e => !e.alive).map(e => e.id),
         score: s.score, time: s.time, deaths: s.deaths };
     }
     restoreCheckpoint(record) {
       const s = this.state;
       if (!record || record.level !== s.levelIndex) return false;
-      const cp = s.world.checkpoints.find(point => point.id === record.checkpoint);
+      // A save made at a save point that has since been removed resumes at the one that replaced it.
+      let id = record.checkpoint;
+      while (s.world.checkpointAliases?.[id]) id = s.world.checkpointAliases[id];
+      const cp = s.world.checkpoints.find(point => point.id === id);
       if (!cp) return false;
       const picked = new Set(Array.isArray(record.collected) ? record.collected : []);
+      // Ideas the level no longer holds still count for a game that was saved with them.
+      s.retired = s.world.retiredPickups.filter(id => picked.has(id)); s.coins += s.retired.length;
       const defeated = new Set(Array.isArray(record.defeated) ? record.defeated : []);
       for (const item of s.world.collectibles) {
         item.collected = picked.has(item.id);
@@ -301,21 +309,32 @@
         }
       }
       if (c && !c.done) {
-        if (!c.active && p.x > c.startX) { c.active = true; c.x = c.startX - c.lead; this.emit('chaseStart'); }
+        // The Feed arrives from off screen, then keeps a set distance behind a runner. That distance
+        // shrinks to fit a narrow view, so the wall is always in sight, and it surges and eases so it
+        // reads as something in the world giving chase. Its pace shrinks with the distance, so a
+        // player who stops has the same time to get moving again on any screen.
+        const reach = Math.min(c.trail, this.viewWidth / 2 - 40);
+        const pace = c.speed * reach / c.trail * (s.assist ? 0.8 : 1);
+        if (!c.active && p.x > c.startX) { c.active = true; c.age = 0; c.x = p.x - reach - c.lead; this.emit('chaseStart'); }
         if (c.active) {
-          // The Feed never falls far behind, so there is always pressure, and never gains on a runner.
-          c.x = Math.max(c.x + (s.assist ? c.speed * 0.8 : c.speed), p.x - c.trail);
-          if (p.x > c.endX) { c.active = false; c.done = true; this.emit('chaseEnd'); }
+          c.age++;
+          const arriving = c.lead * Math.max(0, 1 - c.age / FEED.arrive) ** 2;
+          const surge = reach * FEED.surge * (1 - Math.cos(c.age * FEED.pulse)) / 2;
+          c.x = Math.max(c.x + pace, p.x - reach - arriving + surge);
+          if (p.x > c.endX) { c.active = false; c.done = true; c.gone = 0; c.behind = p.x - c.x; this.emit('chaseEnd'); }
           else if (c.x > p.x + 6) this.respawn('feed');
         }
       }
+      // Outrun, the Feed can no longer catch anyone. It falls further behind as it drops away, slowly
+      // enough to stay in the picture while it goes.
+      if (c?.gone < FEED.leave) { c.gone++; c.x = Math.max(c.x, p.x - c.behind - c.gone * FEED.slip); }
     }
     cameraTarget() {
       const s = this.state, p = s.player;
       const room = s.world.floorScenes?.[s.floor];
       const start = room?.start ?? 0;
       const end = room?.end ?? s.world.width;
-      const lookBehind = s.chase?.active ? .5 : .35;
+      const lookBehind = s.chase?.active || s.chase?.gone < FEED.leave ? .5 : .35;
       return clamp(p.x + p.w / 2 - this.viewWidth * lookBehind, start, Math.max(start, end - this.viewWidth));
     }
     // A lift ride: step in, doors close, the car leaves, the next floor arrives, doors open, step out.
@@ -546,6 +565,6 @@
     }
   }
   H.Game = Game;
-  H.LIFT = LIFT; H.PHYSICS = PHYSICS; H.WIDTH = WIDTH; H.HEIGHT = HEIGHT;
+  H.LIFT = LIFT; H.FEED = FEED; H.PHYSICS = PHYSICS; H.WIDTH = WIDTH; H.HEIGHT = HEIGHT;
   if (typeof module !== 'undefined' && module.exports) module.exports = { Game, PHYSICS, overlaps };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

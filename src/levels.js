@@ -44,7 +44,7 @@
     collectibles: [...arc(x0 + 620, 300, 4, 38), ...arc(x0 + 880, 220, 4, 40)],
     checkpoints: [{ x: x0 + 1450, y: 400 }],
     decor: [{ type: 'sign', x: x0 + 40, y: 400, text: 'CONVEYOR A: WITH YOU' }, { type: 'sign', x: x0 + 800, y: 400, text: 'CONVEYOR B: AGAINST YOU' },
-      { type: 'sign', x: x0 + 1470, y: 400, text: 'QUALITY CONTROL' }],
+      { type: 'sign', x: x0 + 1514, y: 400, text: 'QUALITY CONTROL' }],
     hints: [{ x: x0 + 20, text: 'Conveyors carry you. The second one runs the wrong way, so keep moving.' },
       { x: x0 + 1440, text: 'Presses slam on a rhythm. Wait for one to lift, then run or dash under it.' }] });
   const craneRide = x0 => ({ width: 920,
@@ -63,7 +63,7 @@
     collectibles: [...arc(x0 + 230, 232, 3, 60), ...arc(x0 + 760, 232, 3, 60),
       ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => ({ x: x0 + 300 + i * 140, y: 350, kind: 'coin' }))],
     checkpoints: [{ x: x0 + 30, y: 440 }, { x: x0 + 1420, y: 440 }],
-    decor: [{ type: 'sign', x: x0 + 150, y: 440, text: 'A/B TEST: A IS UP, B IS DOWN' }, { type: 'sign', x: x0 + 1290, y: 440, text: 'RESULT: INCONCLUSIVE' }],
+    decor: [{ type: 'sign', x: x0 + 150, y: 440, text: 'A/B TEST: A IS UP, B IS DOWN' }, { type: 'sign', x: x0 + 1200, y: 440, text: 'RESULT: INCONCLUSIVE' }],
     hints: [{ x: x0 + 10, text: 'Two lanes. The spring takes you to A, fast and risky. B stays low with more ideas.' }] });
   const barChart = x0 => ({ width: 1700,
     platforms: [...[400, 350, 300, 250, 200].map((y, i) => ground(x0 + i * 200, 130, y)),
@@ -81,6 +81,8 @@
     checkpoints: [{ x: x0 + 40, y: 400 }],
     decor: [{ type: 'sign', x: x0 + 110, y: 400, text: 'WE WILL BE WITH YOU SHORTLY' }, { type: 'tree', x: x0 + 470, y: 400 }],
     hints: [{ x: x0 + 20, text: 'The waiting room. Nobody is coming. There must be a bell somewhere.' }] });
+  // A sign's board: how wide it is and how far above its feet it starts and ends.
+  const SIGN = { w: 180, top: 89, bottom: 24 };
   const INSERTS = [
     [{ at: 1780, build: coinTerrace(440) }, { at: 4360, build: coverLetterClimb }],
     [{ at: 2530, build: coinTerrace(384) }, { at: 5160, build: beltsAndPresses }, { at: 6700, build: craneRide }],
@@ -132,17 +134,16 @@
         skill(3260, 258, 'problem-solving', 'Problem solving'),
         ...arc(726, 346, 6, 38), ...arc(1608, 336, 6, 38), ...arc(2460, 320, 7, 38), ...arc(3290, 330, 7, 36),
         ...arc(4190, 330, 6, 36), ...arc(4980, 320, 6, 36), ...arc(4540, 250, 4, 40), ...arc(6150, 165, 4, 40),
-        key(5420, 396, 'SYNERGY'), key(5736, 280, 'PASSIONATE'), key(6072, 150, 'NINJA')],
+        key(5526, 396, 'SYNERGY'), key(5736, 280, 'PASSIONATE'), key(6072, 150, 'NINJA')],
       checkpoints: [{ x: 1370, y: 440 }, { x: 3770, y: 440 }, { x: 5180, y: 440 }, { x: 6440, y: 440 }],
       springs: [{ x: 1950, y: 420, w: 44, h: 16 }, { x: 6050, y: 440, w: 44, h: 16 }], boosts: [],
       gates: [gate(6520, 440, 'keys', 'KEYWORD GATE')],
       boss: { type: 'recruitmentbot', name: 'CV Filter', x: 7150, floor: 440, w: 82, h: 82, health: 3 },
       decor: [{ type: 'cafe', x: 50, y: 440 }, { type: 'sign', x: 280, y: 440, text: 'APPLICATION ALLEY' },
-        { type: 'sign', x: 690, y: 440, text: 'MIND THE GAP IN YOUR CV' },
-        { type: 'tree', x: 620, y: 440 }, { type: 'banner', x: 1110, y: 440 },
+        { type: 'sign', x: 600, y: 440, text: 'MIND THE GAP IN YOUR CV' }, { type: 'banner', x: 1110, y: 440 },
         { type: 'arch', x: 1810, y: 420 }, { type: 'tree', x: 2360, y: 420 },
         { type: 'terminal', x: 3030, y: 440 }, { type: 'banner', x: 3580, y: 440 },
-        { type: 'tree', x: 4420, y: 420 }, { type: 'sign', x: 5230, y: 440, text: 'THE FILTER READS KEYWORDS' },
+        { type: 'tree', x: 4420, y: 420 }, { type: 'sign', x: 5244, y: 440, text: 'THE FILTER READS KEYWORDS' },
         { type: 'banner', x: 5860, y: 440 }, { type: 'sign', x: 6800, y: 440, text: 'STOMP WHEN THE SHIELD IS DOWN' }],
       hints: [{ x: 100, text: 'Move with A/D or the arrow keys. Space to jump.' },
         { x: 570, text: 'Jump again in the air. Gold ideas show a safe route.' },
@@ -189,7 +190,7 @@
         { type: 'crate', x: 1700, y: 440 }, { type: 'banner', x: 2280, y: 440 },
         { type: 'crane', x: 2550, y: 384 }, { type: 'terminal', x: 2870, y: 384 },
         { type: 'crate', x: 3350, y: 440 }, { type: 'sign', x: 4300, y: 440, text: 'NEARLY DONE' },
-        { type: 'sign', x: 5180, y: 400, text: 'PHASE 2' }, { type: 'crate', x: 5560, y: 400 },
+        { type: 'sign', x: 5298, y: 400, text: 'PHASE 2' }, { type: 'crate', x: 5560, y: 400 },
         { type: 'sign', x: 5900, y: 384, text: 'PHASE 2 (QUICK TWEAK)' }, { type: 'crane', x: 6360, y: 384 },
         { type: 'sign', x: 6720, y: 440, text: 'PHASE 2 FINAL_final v3' }, { type: 'crate', x: 7080, y: 440 },
         { type: 'sign', x: 7640, y: 440, text: 'DASH THROUGH LIT TERMINALS' }],
@@ -226,13 +227,15 @@
       springs: [{ x: 1690, y: 440, w: 44, h: 16 }],
       boosts: [{ x: 300, y: 440, w: 280 }, { x: 1720, y: 440, w: 380 }, { x: 3300, y: 440, w: 390 },
         { x: 4700, y: 440, w: 320 }, { x: 6240, y: 440, w: 320 }],
-      chase: { startX: 4560, endX: 7440, speed: 4.7, lead: 320, trail: 380 },
+      // The chase ends as you pass the sign that says so.
+      chase: { startX: 4560, endX: 7300, speed: 4.7, lead: 260, trail: 380 },
       boss: { type: 'algorithm', name: 'The Algorithm', x: 8070, floor: 405, w: 88, h: 76, health: 4 },
       decor: [{ type: 'sign', x: 90, y: 440, text: 'GROWTH RUN' }, { type: 'banner', x: 330, y: 440 },
         { type: 'satellite', x: 890, y: 440 }, { type: 'terminal', x: 1260, y: 440 },
         { type: 'banner', x: 1790, y: 440 }, { type: 'satellite', x: 2580, y: 440 },
-        { type: 'terminal', x: 3480, y: 440 }, { type: 'sign', x: 4330, y: 440, text: 'DO NOT STOP SCROLLING' },
+        { type: 'terminal', x: 3480, y: 440 }, { type: 'sign', x: 4340, y: 440, text: 'DO NOT STOP SCROLLING' },
         { type: 'banner', x: 5120, y: 440 }, { type: 'satellite', x: 5900, y: 440 }, { type: 'banner', x: 6600, y: 440 },
+        { type: 'sign', x: 7210, y: 440, text: 'YOU’RE ALL CAUGHT UP' },
         { type: 'sign', x: 7760, y: 440, text: 'READ THE PATTERN' }],
       hints: [{ x: 100, text: 'Cyan lanes give you a burst of speed. Jump before the edge.' },
         { x: 2460, text: 'Planes are safe to stomp from above. Keep one jump in reserve.' },
@@ -280,9 +283,9 @@
 
   const bonusItems = [
     { id: 'chatgpt-pass', x: 189, y: 397, badge: 'GPT', colour: '#9ce8cf', title: 'ChatGPT subscription', line: 'Finally, someone who thinks you’re absolutely right. £20 a month.' },
-    { id: 'claude-pass', x: 189, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'Brilliant find. You’ve hit your usage limit. Try again at 4pm.' },
-    { id: 'cold-coffee', x: 189, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Still technically a drink.' },
-    { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
+    { id: 'claude-pass', x: 300, y: 397, badge: 'CLD', colour: '#f7ad8d', title: 'Claude subscription', line: 'Brilliant find. You’ve hit your usage limit. Try again at 4pm.' },
+    { id: 'cold-coffee', x: 300, y: 397, badge: 'COF', colour: '#ffc977', title: 'Cold coffee', line: 'Still technically a drink.' },
+    { id: 'final-final', x: 300, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
   ];
 
   // The lift stands against the wall that ends each floor. `car` is the middle of its doorway
@@ -413,11 +416,29 @@
     const secret = skills.reduce((highest, item) => item.y < highest.y ? item : highest);
     secret.secret = true;
     level.collectibles.forEach((c, i) => { c.id = level.id + '-pickup-' + i; c.collected = false; });
-    // No idea hangs in a lift doorway. Dropping them after the IDs are set keeps old saves valid.
+    // No idea hangs in a lift doorway, across the words of a sign or inside a ledge. Dropping them
+    // after the IDs are set keeps old saves valid.
+    const placed = level.collectibles;
     if (level.floorDoors) level.collectibles = level.collectibles.filter(c => c.kind !== 'coin' || !besideLift(level, c));
+    const signs = level.decor.filter(d => d.type === 'sign');
+    const fixed = level.platforms.filter(p => !p.rangeX && !p.rangeY && p.type !== 'furniture');
+    level.collectibles = level.collectibles.filter(c => c.kind !== 'coin' || !(
+      signs.some(d => c.x > d.x - 12 && c.x < d.x + SIGN.w + 12 && c.y > d.y - SIGN.top - 12 && c.y < d.y - SIGN.bottom + 12)
+      || fixed.some(p => c.x > p.x && c.x < p.x + p.w && c.y > p.y && c.y < p.y + p.h)));
+    // An old save may hold one of the dropped ideas. It still counts, so the IDs are kept.
+    level.retiredPickups = placed.filter(c => !level.collectibles.includes(c)).map(c => c.id);
     // The original pickup IDs remain stable for saved checkpoints.
     level.collectibles.push({ ...bonusItems[levelIndex], kind: 'bonus', collected: false });
     level.checkpoints.forEach((c, i) => { c.id = 'checkpoint-' + i; c.active = false; });
+    // Two save points in sight of each other are one too many. The earlier one goes, after the
+    // IDs are set, and a game saved at it resumes at the one that stays.
+    level.checkpointAliases = {};
+    level.checkpoints = level.checkpoints.filter((c, i, all) => {
+      const next = all[i + 1];
+      if (!next || next.x - c.x >= 500) return true;
+      level.checkpointAliases[c.id] = next.id;
+      return false;
+    });
     level.springs.forEach((s, i) => { s.id = 'spring-' + i; });
     level.boosts.forEach((b, i) => { b.id = 'boost-' + i; });
     (level.crushers || []).forEach((c, i) => { c.id = 'crusher-' + i; c.h = 40; });
