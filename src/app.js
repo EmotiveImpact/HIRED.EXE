@@ -176,6 +176,7 @@
       licensee:E.applicant, organisation:E.company||'',
       items:{
         'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
+        ...(E.readme?{'home-readme':{label:'README.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\README.TXT',workdir:'C:\\HIRE',runs:['readme.txt','readme'],open:()=>H.notepad('README.TXT',E.readme)}}:{}),
         'home-cv':{label:E.applicant+'’s CV',icon:'<span class="pm-glyph pm-glyph-cv">CV</span>',href:offlineCv||'cv.html',linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.WRI',workdir:'C:\\HIRE',runs:['cv.wri','cv'],open:openCv},
         'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_CV_TXT)},
         'skip-portfolio':{label:'Portfolio',icon:DOC_ICON,command:'C:\\HIRE\\PORTFOLI.WRI',workdir:'C:\\HIRE',runs:['portfoli.wri','portfoli','portfolio'],open:()=>showPortfolio('home')},
@@ -188,7 +189,7 @@
       },
       groups:[
         // Only the applicant's own group starts open; the rest wait as icons along the bottom.
-        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:['start-game','home-cv','home-cv-txt','skip-portfolio','desk-setup']},
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv','home-cv-txt','skip-portfolio','desk-setup']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
         {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon','desk-sub']},
         ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[]),
@@ -226,7 +227,7 @@
       layer.className='overlay game-title';
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
       $('title-play').onclick=play;
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
@@ -394,7 +395,7 @@
     const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
     const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
       `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
-    open(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">${desk?'Close':'Back'}</button></div>`,true,back);
+    open(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>AI-native product builder & creative director</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">${desk?'Close':'Back'}</button></div>`,true,back);
     (desk?H.wm.get('portfolio').el:$('overlay')).querySelector('#portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
@@ -508,7 +509,7 @@
       }
       if(e.type==='skill'){
         const note = e.item.secret && E.fieldNotes?.[e.skill.id];
-        toast(note ? 'Field note · ' + note : [e.skill.title,E.skillProjects?.[e.skill.id]].filter(Boolean).join(' · '),note?6000:3700);
+        toast(note ? 'Field note · ' + note : [E.skillTitles?.[e.skill.id]||e.skill.title,E.skillProjects?.[e.skill.id]].filter(Boolean).join(' · '),note?6000:3700);
       }
       if(e.type==='bonus')toast(e.item.title+' · '+e.item.line,3800);
       if(e.type==='checkpoint'){

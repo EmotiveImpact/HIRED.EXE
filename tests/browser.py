@@ -62,7 +62,7 @@ def run(profile, base):
         assert page.evaluate(below) and page.evaluate(snug)
         # The Internet group links Edem's own sites, and Working On the projects in progress.
         for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
-                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers-coral.vercel.app/',
+                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers.dev/',
                           '#desk-work-drafthr':'https://drafthr.io/', '#desk-work-lumalook':'https://lumalook.app/', '#desk-work-commune':'https://ourcommune.io/'}.items():
             expect(page.locator(item)).to_have_attribute('href', url)
             expect(page.locator(item)).to_have_attribute('target', '_blank')
@@ -93,12 +93,19 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # README.TXT is the first icon: the application in the advert's own two headings.
+        assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
+        open_item('#home-readme')
+        notepad = page.locator('.notepad-window')
+        expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
+        for line in ('1. WHAT I HAVE BUILT', 'vlumeaudio.com', '2. WHAT I HAVE DONE THAT IS ABNORMAL', 'Right to work in the UK: yes, unrestricted.'):
+            assert line in notepad.locator('.notepad-text').input_value(), line
+        activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
         open_item('#home-cv-txt')
-        notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
         expect(notepad.locator('.notepad-text')).to_have_value(re.compile(r'^AUGUSTUS EDEM'))
-        for line in ('CURRENTLY WORKING ON', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):
+        for line in ('IN THE WORKS', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):
             assert line in notepad.locator('.notepad-text').input_value(), line
         assert notepad.locator('.notepad-text').evaluate('a => a.readOnly') == mobile
         activate('#notepad-search')
@@ -296,7 +303,8 @@ def run(profile, base):
             page.set_viewport_size(options['viewport'])
         page.goto(base+'/cv.html')
         expect(page.locator('h1')).to_have_text('Augustus Edem')
-        expect(page.get_by_role('heading', name='Selected products')).to_be_visible()
+        for heading in ('The abnormal bit', 'Shipped', 'In the works', 'Build, automate, grow', 'Experience'):
+            expect(page.get_by_role('heading', name=heading, exact=True)).to_be_visible()
         with page.expect_download() as download:
             activate('a[download]')
         assert download.value.suggested_filename == 'Augustus-Edem-CV.pdf'
@@ -417,7 +425,22 @@ def run(profile, base):
         page.select_option('#layout','touch' if mobile else 'keyboard')
         page.click('#run')
         result = page.locator('#status')
-        page.wait_for_function("['PASS','FAIL'].some(s=>document.querySelector('#status').textContent.startsWith(s))",timeout=320000)
+        crashed = []
+        page.on('crash', lambda _: crashed.append('page crashed'))
+        try:
+            page.wait_for_function("['PASS','FAIL'].some(s=>document.querySelector('#status').textContent.startsWith(s))",timeout=320000)
+        except Exception as error:
+            # Say where the run was and whether frames were still arriving, so a timeout can be told from a stall.
+            where = ['no report from the page']
+            try:
+                where = [result.inner_text(), page.locator('#results').inner_text(), 'frames in 2 s: ' + str(page.evaluate(
+                    "() => new Promise(done => { let n = 0; const tick = () => { n++; requestAnimationFrame(tick); }; requestAnimationFrame(tick); setTimeout(() => done(n), 2000); })"))]
+                page.screenshot(path=OUT/'stalled.jpg')
+            except Exception as second:
+                where.append(f'could not read the page: {second}')
+            report = '\n'.join(['Playthrough did not finish', *crashed, *where])
+            (OUT/'result.txt').write_text(report)
+            raise AssertionError(report) from error
         report = result.inner_text() + '\n' + page.locator('#results').inner_text()
         (OUT/'result.txt').write_text(report)
         print(report, flush=True)

@@ -3,41 +3,67 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="assets/production/enemies/icons/terminal.png">
-  <meta name="theme-color" content="#f4f2f8">
-  <meta name="description" content="CV of Augustus Edem, AI-native product builder and creative director in London.">
+  <meta name="theme-color" content="#edf0f3">
+  <meta name="description" content="CV of Augustus Edem, AI-Native Builder and Creative Founder in London.">
   <title>Augustus Edem | CV</title>
   <style>
-    :root { color-scheme:light; --ink:#221b35; --muted:#514961; --accent:#51317e; }
+    :root { color-scheme:light; --ink:#1d1b1c; --text:#454547; --soft:#85858a; --rule:#e3e5e8; }
     * { box-sizing:border-box; }
-    body { margin:0; background:#f4f2f8; color:var(--ink); font:100%/1.55 system-ui,sans-serif; }
-    a { color:var(--accent); text-underline-offset:.2em; }
-    a:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
-    .page { width:min(calc(100% - 2rem), 50rem); margin:2rem auto 4rem; }
-    nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem; margin-bottom:1rem; font-size:.875rem; }
-    .download { display:inline-block; padding:.55rem 1rem; background:var(--accent); color:white; border-radius:.25rem; font-weight:650; text-decoration:none; }
-    main { background:white; border-top:5px solid var(--accent); padding:clamp(1.25rem,5vw,3.5rem); }
-    h1,h2,h3,p { margin:0; }
-    h1 { font-size:clamp(2.25rem,7vw,3.5rem); line-height:1; letter-spacing:-.05em; }
-    .role { margin-top:.65rem; font-size:clamp(1rem,3.5vw,1.25rem); font-weight:700; }
-    .contact { display:flex; flex-wrap:wrap; gap:.25rem 1rem; margin-top:.6rem; color:var(--muted); font-size:.875rem; }
-    .profile { margin-top:1.25rem; }
-    section { margin-top:1.45rem; }
-    h2 { padding-bottom:.3rem; border-bottom:1px solid #dcd6e7; font-size:1.1rem; }
-    article { margin-top:.75rem; }
-    h3 { font-size:.98rem; }
-    article p, section > p { color:var(--muted); font-size:.93rem; margin-top:.18rem; }
-    .dates { font-size:.8rem; color:var(--muted); font-weight:500; }
+    body { margin:0; background:#edf0f3; color:var(--text); font:300 100%/1.5 Inter,system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
+    a { color:inherit; text-decoration-color:#b9bbc0; text-underline-offset:.2em; }
+    a:focus-visible { outline:3px solid var(--ink); outline-offset:3px; }
+    .page { width:min(calc(100% - 2rem), 56rem); margin:2rem auto 4rem; }
+    nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.75rem; margin-bottom:1rem; font-size:.875rem; font-weight:400; }
+    .download { display:inline-block; padding:.55rem 1rem; background:var(--ink); color:white; font-weight:600; text-decoration:none; }
+    main { background:white; padding:clamp(1.5rem,7vw,5.5rem) clamp(1.25rem,7vw,5.5rem); box-shadow:0 1px 3px rgb(20 30 40 / .08), 0 12px 40px rgb(20 30 40 / .06); }
+    h1,h2,h3,p,ul { margin:0; }
+    ul { list-style:none; padding:0; }
+    h1 { color:var(--ink); font-size:clamp(2.4rem,9vw,4rem); font-weight:600; line-height:1; letter-spacing:.09em; text-transform:uppercase; }
+    .role { margin-top:.7rem; color:#6b6b6f; font-size:clamp(1.05rem,3.6vw,1.4rem); font-weight:500; letter-spacing:.02em; }
+    .contact { display:flex; flex-wrap:wrap; margin-top:.55rem; color:var(--soft); font-size:.92rem; }
+    .contact > * + *::before { content:"•"; margin:0 .65em; color:#b9bbc0; }
+    .sheet { display:grid; grid-template-columns:minmax(0,29fr) minmax(0,65fr); column-gap:6%; margin-top:clamp(2rem,6vw,3.5rem); }
+    h2 { color:var(--ink); font-size:1.15rem; font-weight:600; letter-spacing:.11em; text-transform:uppercase; }
+    section + section { margin-top:1.9rem; }
+    article, .item { margin-top:1.1rem; }
+    h2 + article, h2 + .item, h2 + p, h2 + ul { margin-top:.7rem; }
+    h3, .item b, .label { display:block; color:var(--ink); font-size:.95rem; font-weight:600; }
+    .meta { color:var(--soft); font-size:.8rem; }
+    .beta { color:var(--soft); font-weight:400; }
+    p, li { font-size:.95rem; }
+    .lead { color:var(--ink); font-weight:500; }
+    .runin { color:var(--ink); font-weight:600; }
+    .cta { margin-top:.75rem; }
+    aside .item { margin-top:.55rem; }
+    aside .group { margin-top:.9rem; }
+    aside h2 + .group { margin-top:.7rem; }
+    @media (max-width:44rem) {
+      .sheet { display:flex; flex-direction:column; }
+      .sheet > aside { order:2; margin-top:1.9rem; }
+    }
     @media print {
-      @page { size:A4; margin:14mm; }
-      body { background:white; font-size:10pt; }
+      @page { size:A4; margin:17mm 19mm 12mm; }
+      body { background:white; font-size:9pt; line-height:1.45; }
       .page { width:auto; margin:0; }
       nav { display:none; }
-      main { padding:12pt 0 0; }
-      h1 { font-size:28pt; }
-      .role,h2 { font-size:12pt; }
-      article p,section > p,h3 { font-size:10pt; }
-      section { margin-top:8pt; }
-      article { margin-top:5pt; break-inside:avoid; }
+      main { padding:0; box-shadow:none; }
+      h1 { font-size:31pt; }
+      .role { font-size:12.5pt; margin-top:6pt; }
+      .contact { font-size:9pt; margin-top:5pt; }
+      .sheet { display:grid; margin-top:23pt; column-gap:5.5%; }
+      .sheet.p2 { break-before:page; margin-top:0; }
+      h2 { font-size:11pt; break-after:avoid; }
+      section + section { margin-top:15pt; }
+      article, .item { margin-top:8pt; break-inside:avoid; }
+      h2 + article, h2 + .item, h2 + p, h2 + ul { margin-top:5.5pt; }
+      h3, .item b, .label { font-size:9.2pt; }
+      .meta { font-size:7.8pt; }
+      p, li { font-size:9pt; }
+      aside .item { margin-top:4.5pt; }
+      aside .group { margin-top:7pt; }
+      aside h2 + .group { margin-top:5.5pt; }
+      a { text-decoration:none; }
+      .cta { margin-top:7pt; }
     }
   </style>
 </head>
@@ -50,52 +76,154 @@
     <main>
       <header>
         <h1>Augustus Edem</h1>
-        <p class="role">AI-native product builder &amp; creative director</p>
-        <p class="contact"><span>London, UK</span><a href="mailto:emotiveimpact@gmail.com">emotiveimpact@gmail.com</a><a href="https://vimeo.com/emotiveimpact">Film portfolio</a></p>
-        <p class="profile">I take products from an initial brief to a working release. I design the experience, map how the interface, APIs and database work together, and direct Codex and Claude Code through the build. I review changes and test the flows customers use. I bring more than 20 years in film and editing, with experience leading creative teams, managing budgets and delivering client work.</p>
+        <p class="role">AI-Native Builder &amp; Creative Founder</p>
+        <p class="contact"><span>London, remote</span><span>Right to work in the UK</span><a href="mailto:emotiveimpact@gmail.com">emotiveimpact@gmail.com</a><a href="https://hireexe.me/">hireexe.me</a></p>
       </header>
-      <section aria-labelledby="projects">
-        <h2 id="projects">Selected products</h2>
-        <article>
-          <h3><a href="https://vlumeaudio.com/">Vlume</a> · Released macOS audio mixer</h3>
-          <p>Designed and led the build from menu-bar controls to download and checkout. The app gives users per-app and per-output volume controls. SwiftUI, Core Audio, Next.js and Polar.</p>
-        </article>
-        <article>
-          <h3><a href="https://saleane.vercel.app/demo">SALEANE</a> · Appointment booking demo</h3>
-          <p>Designed the workflow that connects a customer’s booking request to a small business owner’s diary. The demo shows the customer and business views.</p>
-        </article>
-        <article>
-          <h3>Commune · Shared-living product in development</h3>
-          <p>Led the homepage and journal, checked navigation on desktop and mobile, and used interactive examples to explain household splits and repayments. React, TypeScript, Neon and Vercel.</p>
-        </article>
-        <article>
-          <h3>Cairn · macOS storage utility in development</h3>
-          <p>Designed reviewable cleanup plans, protected-file safeguards and receipts that show the actual change in free space. SwiftUI and SQLite.</p>
-          <p><a href="https://cairnmac.com/">Visit Cairn</a></p>
-        </article>
-      </section>
-      <section aria-labelledby="experience">
-        <h2 id="experience">Experience</h2>
-        <article>
-          <h3>Founder &amp; Creative Director · Emotive Impact</h3>
-          <p class="dates">November 2022 to present</p>
-          <p>Lead product prototypes and client film projects. Set scope, manage budgets and schedules, mentor editors and review the work before delivery.</p>
-        </article>
-        <article>
-          <h3>Head of Digital Media · Digital Smart Web</h3>
-          <p class="dates">November 2019 to January 2021</p>
-          <p>Led web and digital delivery. Used analytics and A/B tests to refine websites and conversion funnels.</p>
-        </article>
-        <article>
-          <h3>Freelance Video Editor &amp; Director · OMNi Digital Media</h3>
-          <p class="dates">December 2009 to January 2022</p>
-          <p>Directed and edited client films, shaping story, pacing and sound from rough cut to delivery.</p>
-        </article>
-      </section>
-      <section aria-labelledby="education">
-        <h2 id="education">Education</h2>
-        <p>BA Interaction Design, Ravensbourne College of Art and Design<br>Multimedia Design, Southwark College</p>
-      </section>
+      <div class="sheet">
+        <aside>
+          <section aria-labelledby="links">
+            <h2 id="links">Links</h2>
+            <p class="item"><b>HIRE.EXE</b><a href="https://hireexe.me/">hireexe.me</a></p>
+            <p class="item"><b>Vlume</b><a href="https://vlumeaudio.com/">vlumeaudio.com</a></p>
+            <p class="item"><b>Cairn</b><a href="https://cairnmac.com/">cairnmac.com</a></p>
+            <p class="item"><b>NoSpoilers <span class="beta">(beta)</span></b><a href="https://nospoilers.dev/">nospoilers.dev</a></p>
+            <p class="item"><b>Commune <span class="beta">(beta)</span></b><a href="https://ourcommune.io/">ourcommune.io</a></p>
+            <p class="item"><b>Lumalook <span class="beta">(beta)</span></b><a href="https://lumalook.app/">lumalook.app</a></p>
+            <p class="item"><b>DraftHR <span class="beta">(beta)</span></b><a href="https://drafthr.io/">drafthr.io</a></p>
+            <p class="item"><b>SALEANE <span class="beta">(beta)</span></b><a href="https://saleane.vercel.app/demo">saleane.vercel.app/demo</a></p>
+            <p class="item"><b>Film portfolio</b><a href="https://vimeo.com/emotiveimpact">vimeo.com/emotiveimpact</a></p>
+          </section>
+          <section aria-labelledby="tools">
+            <h2 id="tools">Tools</h2>
+            <p>I direct AI coding agents to build, integrate and test products using the technologies below.</p>
+            <div class="group"><span class="label">AI agents</span><ul><li>Claude Code and Codex</li><li>Cursor and Antigravity</li></ul></div>
+            <div class="group"><span class="label">Technologies I’ve worked with</span><ul><li>React, Next.js and TypeScript</li><li>HTML, CSS, Tailwind and Vite</li><li>Swift and SwiftUI</li><li>React Native and Expo</li><li>Node.js, PHP and SQL</li><li>Postgres on Neon and Supabase</li><li>SQLite</li><li>Vercel, Git and GitHub checks</li><li>REST APIs and WebSockets</li></ul></div>
+            <div class="group"><span class="label">Auth, payments, automation</span><ul><li>OAuth, WorkOS and webhooks</li><li>Stripe and Polar</li><li>n8n and Make.com</li></ul></div>
+          </section>
+        </aside>
+        <div class="col">
+          <section aria-labelledby="abnormal">
+            <h2 id="abnormal">The abnormal bit</h2>
+            <article>
+              <h3>HIRE.EXE | My job application, as a video game</h3>
+              <p class="meta"><a href="https://hireexe.me/">hireexe.me</a> | First commit 19 November 2026</p>
+              <p><span class="lead">You asked what I have done that is abnormal. I built my job application as a video game.</span> A CV gets skimmed. A game gets played. Playable within a day: four worlds, a working Windows 3.1 desktop holding my live work, and a bonus submarine game. I directed the story, characters and sound and built it with Claude Code and Codex. A bot playtests every change on desktop, Android and iPhone.</p>
+              <p class="lead cta">Play it first: <a href="https://hireexe.me/">hireexe.me</a></p>
+            </article>
+          </section>
+          <section aria-labelledby="profile">
+            <h2 id="profile">Profile</h2>
+            <p>I have a million ideas an hour. The challenge is getting the right ones out of my head and into something people can use. AI agents have closed that gap, and twenty years in creative production taught me what makes the finished thing worth using. Film taught me one rule: bored people leave. Graphic design taught me where the eye goes first. Websites taught me where people get stuck. Claude Code and Codex are open every hour of every day: I plan what happens on screen and behind it, direct the agents, read the code and test the result. What ships is mine to answer for.</p>
+          </section>
+          <section aria-labelledby="live">
+            <h2 id="live">Shipped</h2>
+            <article>
+              <h3>Vlume | macOS audio utility, on sale</h3>
+              <p class="meta"><a href="https://vlumeaudio.com/">vlumeaudio.com</a> | SwiftUI, Core Audio, Next.js, Payload CMS and Polar</p>
+              <p><span class="lead">First sale on 16 November 2026, and I am counting it.</span> The real feature is hearing the call over the music. Vlume turns one app up without the rest, with up to 3× boost, EQ, delay and multi-output. I built the lot, from the menu bar to the site, licensing and checkout.</p>
+            </article>
+            <article>
+              <h3>Cairn | Mac storage cleaner for developers</h3>
+              <p class="meta"><a href="https://cairnmac.com/">cairnmac.com</a> | SwiftUI and SQLite | Works inside Claude Code, Codex and Cursor</p>
+              <p>Deleting files is easy. Trusting the delete is the product. Cairn shows its working: a plan you approve first, files it never touches and a receipt that measures the space you really got back.</p>
+            </article>
+          </section>
+          <section aria-labelledby="how">
+            <h2 id="how">Build, automate, grow</h2>
+            <article>
+              <p><b class="runin">Build.</b> I start with the complaint, because that is where the product is. I look for ideas nobody has built, or mine customer reviews and Reddit for what existing products miss. A Codex deep dive ends in a PRD. In Claude Code I fill its gaps with research and a design system. Then I direct the build with a designer’s eye and a filmmaker and marketer’s feel for the customer journey.</p>
+            </article>
+            <article>
+              <p><b class="runin">Automate.</b> If I do something twice, an agent does it the third time. Agents test my software, handle data, run bug sweeps and code reviews, hand work to each other and brief me each day on what to fix.</p>
+            </article>
+            <article>
+              <p><b class="runin">Grow.</b> Twenty years of holding attention, in the edit and on the web, plus analytics on how people move through sites and funnels.</p>
+            </article>
+          </section>
+        </div>
+      </div>
+      <div class="sheet p2">
+        <aside>
+          <section aria-labelledby="range">
+            <h2 id="range">Creative range</h2>
+            <p>I also write stories, build fictional worlds and make music. All of it goes into interactive work: how a scene sets up a decision, how a space invites exploration and how sound tells you something has changed.</p>
+            <p class="item"><b>Creative tools</b>Final Cut Pro, Premiere Pro, After Effects and Photoshop.</p>
+          </section>
+          <section aria-labelledby="practical">
+            <h2 id="practical">Practicalities</h2>
+            <p class="item"><b>Right to work in the UK</b>Unrestricted.</p>
+            <p class="item"><b>Where</b>London, working remotely. I use long stretches of focus to research hard problems, learn new tools and test ideas, then share progress through written updates, demos and clear decisions. Happy to meet in person now and then.</p>
+            <p class="item"><b>Hours</b>Full time.</p>
+            <p class="item"><b>Source code</b>Private. The live links are the evidence, and I will walk you through any of the code on a call.</p>
+          </section>
+          <section aria-labelledby="education">
+            <h2 id="education">Education</h2>
+            <p>BA Interaction Design, Ravensbourne College of Art and Design.</p>
+            <p>Multimedia Design, Southwark College.</p>
+          </section>
+        </aside>
+        <div class="col">
+          <section aria-labelledby="experience">
+            <h2 id="experience">Experience</h2>
+            <p>More than twenty years as a graphic designer, film editor and web designer, alongside creative direction.</p>
+            <article>
+              <h3>Founder &amp; Creative Director | Emotive Impact</h3>
+              <p class="meta">London and remote | November 2022 to present</p>
+              <p>Founded a creative and product studio and own everything it puts out: the brief, the direction, the client relationship, the scope, the quality and the final output. I turn early ideas into prototypes, decide what a first release has to do and take my own builds through review and release. Client film work runs from discovery through scripts, storyboards, production and post, with scope, schedules and budgets in my hands.</p>
+            </article>
+            <article>
+              <h3>Freelance Video Editor &amp; Director | OMNi Digital Media</h3>
+              <p class="meta">London | December 2009 to January 2022</p>
+              <p>Directed and edited client projects from brief and story through picture, music, sound, post-production and delivery. The feedback, the assets, the client’s expectations and the deadlines were mine to handle.</p>
+            </article>
+            <article>
+              <h3>Head of Digital Media | Digital Smart Web</h3>
+              <p class="meta">London | November 2019 to January 2021</p>
+              <p>Responsible for digital delivery across sites, landing pages, conversion funnels and campaigns, keeping design and development pointed at the commercial goal. Used analytics, A/B tests and stakeholder feedback to decide page structure, copy and what visitors should do next.</p>
+            </article>
+            <article>
+              <h3>Freelance Designer | Self-employed</h3>
+              <p class="meta">London | Before 2009 | Graphic design, film editing and websites for my own clients</p>
+            </article>
+          </section>
+          <section aria-labelledby="works">
+            <h2 id="works">In the works</h2>
+            <article>
+              <h3>SALEANE | AI receptionist for salons, barbers and clinics</h3>
+              <p class="meta"><a href="https://saleane.vercel.app/demo">saleane.vercel.app/demo</a> | In development</p>
+              <p><span class="lead">Selected for the FIRST 1000 programme.</span> Booking, rescheduling, cancellations and reminders, with a one-click sample studio.</p>
+            </article>
+            <article>
+              <h3>Commune | Shared living</h3>
+              <p class="meta"><a href="https://ourcommune.io/">ourcommune.io</a> | In development</p>
+              <p>Costs, household tasks and group information, with interactive examples that explain splits and repayments.</p>
+            </article>
+            <article>
+              <h3>NoSpoilers | Release checks for software teams</h3>
+              <p class="meta"><a href="https://nospoilers.dev/">nospoilers.dev</a> | In development</p>
+              <p>Catches source maps, secrets and internal files before a release ships.</p>
+            </article>
+            <article>
+              <h3>DraftHR | HR letters for the UK and US</h3>
+              <p class="meta"><a href="https://drafthr.io/">drafthr.io</a> | In development</p>
+              <p>Written section by section, checked, with a record of every step.</p>
+            </article>
+            <article>
+              <h3>Lumalook | Film looks for iPhone photos and video</h3>
+              <p class="meta"><a href="https://lumalook.app/">lumalook.app</a></p>
+              <p>Tuned on deep skin first.</p>
+            </article>
+            <article>
+              <h3>Not public yet</h3>
+              <p>Fenny, Life 1.0 (an offline-first personal OS), Bounty (resale research) and Assistant Central (a multi-agent platform).</p>
+            </article>
+          </section>
+          <section aria-labelledby="next">
+            <h2 id="next">Your move</h2>
+            <p>Play HIRE.EXE at <a href="https://hireexe.me/">hireexe.me</a>. Clear the four worlds, then take the submarine out. After that, thirty minutes on a call is all I ask.</p>
+          </section>
+        </div>
+      </div>
     </main>
   </div>
 </body>
