@@ -60,7 +60,11 @@
   background:radial-gradient(ellipse at 50% 28%,#443275,#201737 73%);
   align-items:center;
 }
+/* The panel art gives up height first, so the Next button is always on screen,
+   however long the dialogue runs. The buttons also stay pinned if the card must scroll. */
 .comic {
+  display:flex;
+  flex-direction:column;
   width:min(100%,850px);
   max-height:100%;
   overflow:auto;
@@ -154,7 +158,10 @@
 .comic-dialogue {border-top:4px solid #251a43;background:#fff8e7;padding:11px 16px 12px}
 .comic-dialogue strong {display:block;color:#543781;font-size:12px;margin-bottom:3px}
 .comic-dialogue p {margin:0;font:600 clamp(14px,1.7vw,19px)/1.35 system-ui,sans-serif}
-.comic-actions {flex-wrap:wrap}
+.comic-actions {flex-wrap:wrap;position:sticky;bottom:0;z-index:2;background:#fff1cf;border-top:1px solid #e5d3a6}
+.comic-header,.comic-dialogue,.comic-actions {flex:none}
+.comic-art {flex:0 1 auto;min-height:90px}
+.comic-illustration {max-height:100%}
 .comic-actions .btn {padding:7px 10px;min-height:38px;font-size:12px}
 .comic-skip {background:none;border:0;margin-left:auto;min-height:38px;padding:5px;font-size:12px;text-decoration:underline}
 .experience-list {display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;list-style:none;margin:0 0 16px;padding:0}
@@ -615,3 +622,9 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .setup-buttons a:active{box-shadow:inset 1px 1px var(--w31-shadow)}
 .setup-buttons a:focus-visible{outline:1px dotted #000;outline-offset:-5px}
 .setup-done{display:flex;gap:16px;align-items:flex-start}
+/* A game dialog's closing row of buttons stays pinned to the bottom of the window,
+   so Got it, Back to desktop and the like are on screen even when the text scrolls. */
+.overlay .modal-window > .modal-body > .modal-actions:last-child{position:sticky;bottom:0;z-index:2;background:#e1dded;padding:8px 0;margin-bottom:0;box-shadow:0 -8px 8px -6px #e1dded}
+/* A phone turned sideways has little height: lay the pause buttons and interview topics
+   side by side so they all fit without scrolling. */
+@media (orientation:landscape) and (max-height:500px){.overlay .pause-actions{grid-template-columns:1fr 1fr}.overlay .interview-answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}}
