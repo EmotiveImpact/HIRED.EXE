@@ -9,7 +9,7 @@ THE ABNORMAL BIT
 
 HIRE.EXE: My job application, as a video game
 hireexe.me | First commit 19 November 2026
-You asked for a CV. I built you a video game. A CV gets skimmed. A game gets played. Playable a day after the first commit: four worlds, a working Windows 3.1 desktop and a submarine, with my portfolio as the prize. I directed the story, characters and sound and built it with Claude Code and Codex. A bot plays it on desktop, Android and iPhone on every pull request.
+You asked for a CV. I built you a video game. A CV gets skimmed. A game gets played. Playable a day after the first commit: four worlds, a working Windows 3.1 desktop holding my live work, and a bonus submarine game. I directed the story, characters and sound and built it with Claude Code and Codex. A bot plays it on desktop, Android and iPhone on every pull request.
 
 Play it first: hireexe.me
 
@@ -125,5 +125,5 @@ Multimedia Design, Southwark College.
 
 YOUR MOVE
 
-Play HIRE.EXE at hireexe.me. Reach the end and my portfolio is the prize. After that, thirty minutes on a call is all I ask.
+Play HIRE.EXE at hireexe.me. Clear the four worlds, then take the submarine out. After that, thirty minutes on a call is all I ask.
 `;

@@ -46,7 +46,7 @@ const solvedEdition = {
 
 You asked for a CV. I built you a video game.
 
-It was playable a day after the first commit. Four worlds, a working Windows 3.1 and a submarine, with my portfolio as the prize.
+It was playable a day after the first commit. Four worlds, a working Windows 3.1 with my live work in its Internet folder, and a submarine game as the bonus.
 
 Your advert asks for two things and no long cover note. Both are below, and reading them takes less time than World 1.
 
@@ -92,7 +92,7 @@ Right to work in the UK: yes, unrestricted.
 Where: London, working remotely. Happy to meet in person now and then.
 Hours: full time.
 
-Now close this and double-click HIRE.EXE. The portfolio is at the end.
+Now close this and double-click HIRE.EXE. My live work is in the Internet folder, and the submarine is in Games.
 
 Augustus Edem
 emotiveimpact@gmail.com
