@@ -13,6 +13,7 @@ THE ABNORMAL BIT
 HIRE.EXE: my job application, as a video game
 hireexe.me
 You asked for a CV. I built you a video game. A CV gets skimmed. A game gets played. The first commit was on 19 November 2026 and it was playable a day later: four worlds, a working Windows 3.1 desktop and a submarine, with my portfolio as the prize. I directed the story, characters and sound and built it with Claude Code and Codex. A bot plays it on desktop, Android and iPhone on every pull request.
+
 Play it first: hireexe.me
 
 
