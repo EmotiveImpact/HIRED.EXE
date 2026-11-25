@@ -105,7 +105,7 @@ def run(profile, base):
         open_item('#home-cv-txt')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
         expect(notepad.locator('.notepad-text')).to_have_value(re.compile(r'^AUGUSTUS EDEM'))
-        for line in ('CURRENTLY WORKING ON', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):
+        for line in ('IN THE WORKS', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):
             assert line in notepad.locator('.notepad-text').input_value(), line
         assert notepad.locator('.notepad-text').evaluate('a => a.readOnly') == mobile
         activate('#notepad-search')
