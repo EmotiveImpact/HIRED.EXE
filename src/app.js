@@ -407,7 +407,7 @@
     $('status').textContent=storageAvailable?'World complete. Progress saved on this browser.':'World complete. Progress kept for this session.';
     const last=s.levelIndex===3;
     const bonus=s.world.collectibles.find(item=>item.kind==='bonus'&&item.collected);
-    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':(['Application received.','Shipped. On time. No ocean.'][s.levelIndex]||'Good work. Onwards.')}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div>${bonus?`<p class="bonus-result">Found · ${esc(bonus.title)}</p>`:''}<div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button></div><div class="modal-actions"><button class="btn" id="replay-world">Replay this world</button></div>`,false,showWorlds);
+    modal('World complete',`<p class="eyebrow">${esc(s.world.name)}</p><h2>${last?'You made it to the room.':(['Application received.','Shipped. On time. No ocean.'][s.levelIndex]||'Good work. Onwards.')}</h2><p>${last?'One final conversation. Choose what you would like to explore about the person behind the game.':'The route is clear. There is more to build, explore and talk about in the next world.'}</p><div class="result-strip"><div class="result-stat"><strong>${s.coins}</strong><span>IDEAS COLLECTED</span></div><div class="result-stat"><strong>${s.skills.length}/3</strong><span>SKILL TOKENS</span></div><div class="result-stat"><strong>${Math.round(s.time)}s</strong><span>YOUR TIME</span></div></div>${bonus?`<p class="bonus-result">Found · ${esc(bonus.title)}</p>`:''}<div class="modal-actions"><button class="btn primary" id="next-world">${last?'Enter the interview':'Next world'}</button><button class="btn" id="complete-worlds">World directory</button><button class="btn" id="replay-world">Replay this world</button></div>`,false,showWorlds);
     bindActions({'next-world':()=>beginScene(s.levelIndex+1),'complete-worlds':showWorlds,'replay-world':()=>startLevel(s.levelIndex)});
   }
   function beginInterview() {
@@ -437,29 +437,35 @@
       draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><div class="modal-actions">${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}</div><div class="modal-actions"><button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p>`,false,showHome);
+    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p><div class="modal-actions">${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}<button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div>`,false,showHome);
     bindActions({'final-worlds':showWorlds,'final-home':showHome});
   }
 
   // Music and effects: Sea Trial's 16-bit engine (src/sea-sound.js) playing a theme for each
   // world from src/game-sound.js. No audio files or network requests.
-  const audio={enabled:!progress.muted,engine:null,at:0,chime:false,
+  const audio={enabled:!progress.muted,engine:null,at:0,chime:0,
     get running(){return this.engine?.state==='running';},
-    async start(){
+    // gesture: a click, tap or key press is behind this call. Without one (on opening the page)
+    // the browser is only asked, and may well leave sound locked until the first press.
+    async start(gesture=true){
       if(!this.enabled)return;
       try{
         this.engine ||= H.gameSound();
-        await this.engine.unlock();
+        await (gesture?this.engine.unlock():this.engine.wake());
         this.syncMusic();
-        if(this.chime)this.system('SystemStart');
+        const due=this.chime;this.chime=0;
+        if(due>performance.now())this.system('SystemStart');
       }catch(_){this.enabled=false;updateSound();}
     },
-    // The desktop's system sounds (src/win-sound.js). A browser keeps sound locked until the
-    // first click, tap or key press, so a start-up fanfare that comes too early waits for it.
+    // The desktop's system sounds (src/win-sound.js). The start-up fanfare belongs to the
+    // moment the desktop appears. Sound that is still starting then (asked for on opening, or
+    // unlocked by the press that skipped the start-up) gets a second to begin; a browser that
+    // keeps sound locked gets silence. The fanfare never plays late: a press on the desktop
+    // drops one that is still waiting (see unlockAudio).
     system(event){
       if(!this.enabled)return;
-      if(!this.running){if(event==='SystemStart')this.chime=true;return;}
-      this.chime=false;
+      if(!this.running){if(event==='SystemStart')this.chime=performance.now()+1000;return;}
+      this.chime=0;
       winSounds.play(event,this.engine);
     },
     // The world's theme plays during play. A pause remembers the bar to carry on from,
@@ -585,6 +591,8 @@
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
   updateSound();
   const unlockAudio=event=>{
+    // A fanfare still waiting belongs to the desktop appearing, not to this press.
+    audio.chime=0;
     if(audio.enabled && !audio.running && !event.target.closest?.('#sound-button'))audio.start();
   };
   document.addEventListener('click',unlockAudio,true);
@@ -731,6 +739,8 @@
   }
   async function boot(){
     renderer=new H.Renderer($('game'));
+    // Ask for sound now, so that a browser that allows it has the fanfare ready for the desktop.
+    audio.start(false);
     await runStartup();
     ready=true;$('loading').classList.add('hidden');showHome();
     audio.system('SystemStart');

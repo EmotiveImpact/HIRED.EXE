@@ -18,7 +18,9 @@ def run(profile, base):
         mobile = profile != 'desktop'
         engine = pw.webkit if profile == 'iphone' else pw.chromium
         options = pw.devices[{'iphone':'iPhone 13', 'android':'Pixel 7'}[profile]] if mobile else {'viewport': {'width':1280,'height':800}}
-        browser = engine.launch()
+        # Chromium keeps sound locked until a press, as a visitor's browser usually does.
+        locked = [] if profile == 'iphone' else ['--autoplay-policy=document-user-activation-required']
+        browser = engine.launch(args=locked)
         context = browser.new_context(**options)
         page = context.new_page()
         errors = []
@@ -127,10 +129,14 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
-        # The first press on the desktop let the Windows 3.1 fanfare play. (WebKit may keep audio locked.)
+        # Windows started by itself, and with sound locked the desktop appeared in silence. The
+        # presses since then unlocked sound, and must not have set off a late start-up fanfare.
+        # (WebKit may keep audio locked.)
         chimes = profile != 'iphone'
         if chimes:
-            page.wait_for_function("HIRED_APP.sound?.log.includes('win:SystemStart')")
+            page.wait_for_function("HIRED_APP.sound?.state === 'running'")
+            page.wait_for_timeout(1200)
+            assert 'win:SystemStart' not in page.evaluate('HIRED_APP.sound.log')
         # The portfolio window is gone from the desktop; the film work is the Video Portfolio link.
         expect(page.locator('#skip-portfolio')).to_have_count(0)
         expect(page.locator('#desk-link-vimeo')).to_contain_text('Video Portfolio')
@@ -491,7 +497,7 @@ def run(profile, base):
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-2\.webp'))
         page.screenshot(path=OUT/'james.jpg', animations='disabled')
         activate('#scene-skip')
-        for answer in (0, 0, 1):
+        for answer in (0, 1):
             activate(f'#answer-{answer}')
             activate('#interview-next')
         expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
@@ -567,6 +573,15 @@ def run(profile, base):
         assert not external_requests, external_requests
         assert not errors, errors
         browser.close()
+        if chimes:
+            # A browser that lets a page play sound on opening gets the fanfare as the desktop
+            # appears, with no press at all.
+            browser = engine.launch(args=['--autoplay-policy=no-user-gesture-required'])
+            page = browser.new_context(**options).new_page()
+            page.goto(base)
+            page.locator('#start-game').wait_for()
+            page.wait_for_function("HIRED_APP.sound?.log.includes('win:SystemStart')", timeout=2000)
+            browser.close()
 
 
 if __name__ == '__main__':
