@@ -753,11 +753,11 @@
       const ctx = this.ctx, t = this.time, body = this.images.feedBody;
       const x = right - m.edge, y = round(-10 + 5 * Math.sin(t * 2.6));
       if (x > left) {
-        ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, x + 48 - left, HGT);
+        ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, x + m.join - left, HGT);
         if (body) {
           const bw = m.body.size[0], bh = m.body.size[1], scroll = round(t * 110) % bh;
-          ctx.save(); ctx.beginPath(); ctx.rect(left, 0, x + 48 - left, HGT); ctx.clip();
-          for (let bx = x + 48 - bw; bx > left - bw; bx -= bw) for (let by = -scroll; by < HGT; by += bh) ctx.drawImage(body, bx, by);
+          ctx.save(); ctx.beginPath(); ctx.rect(left, 0, x + m.join - left, HGT); ctx.clip();
+          for (let bx = x + m.join - bw; bx > left - bw; bx -= bw) for (let by = -scroll; by < HGT; by += bh) ctx.drawImage(body, bx, by);
           ctx.restore();
         }
       }

@@ -508,14 +508,14 @@
     {
       "path": "assets/production/enemies/feed-atlas.json",
       "role": "production-asset",
-      "bytes": 1220,
-      "sha256": "a59ef17de960ec257523443c3692ce2948173ce4d49bf3ac5242f72142a8be10"
+      "bytes": 1238,
+      "sha256": "586efccc3d0c89046b27120ce22786b9de516b3ca4f8a546184a0627cadb1d89"
     },
     {
       "path": "assets/production/enemies/feed-atlas.png",
       "role": "production-asset",
-      "bytes": 184364,
-      "sha256": "16de3dadd33d431520dd34a7795a2b420b7bda39db381d8446cb0cf2b37f61b2"
+      "bytes": 569937,
+      "sha256": "fd0f28137cb73728e4e840047474635bca1b2613fe78b6b8b04e0f3990da22a5"
     },
     {
       "path": "assets/production/enemies/feed-body.webp",

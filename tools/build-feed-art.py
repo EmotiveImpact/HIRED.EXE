@@ -13,7 +13,7 @@ Outputs:
 The atlas notes where the leading face stands in the art (`edge`), which the game lines up with
 the Feed's position, and the tip of the crest (`crest`), where the icons fly from.
 
-Usage: python3 tools/build-feed-art.py [front]      front is a, b or c; the default is FRONT
+Usage: python3 tools/build-feed-art.py [front]      front is a name from FRONTS; the default is FRONT
 Requires Pillow and NumPy, used for build tooling only.
 """
 from pathlib import Path
@@ -25,7 +25,16 @@ from PIL import Image, ImageFilter
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'assets/source/feed'
 OUT = ROOT / 'assets/production/enemies'
-FRONT = 'a'
+FRONT = 'a-alt'
+# Front -> the part of its picture that is used, as fractions (left, top, right, bottom); how far
+# across that part the leading face stands, where the art does not show it plainly; and how many
+# pixels of its left-hand side melt into the body.
+FRONTS = {
+    'a': {'box': (0, 0.045, 1, 1), 'join': 48},
+    'b': {'box': (0, 0.045, 1, 1), 'join': 48},
+    # An ocean wave whose foot runs on along the bottom of the picture: only the breaking part is used.
+    'a-alt': {'box': (0, 0.19, 0.76, 0.55), 'face': 0.94, 'join': 0},
+}
 FRONT_HEIGHT = 560           # a little taller than the screen, so it can bob without showing an end
 ICONS = [['heart', 'like', 'bell'], ['badge', 'bubble', 'share']]
 ICON_HEIGHT = 26
@@ -75,31 +84,33 @@ def cut(rgb, alpha, box):
 
 
 def build_front(which):
-    path = SRC / f'feed-front-{which}.png'
+    path, front = SRC / f'feed-front-{which}.png', FRONTS[which]
     rgb, alpha = matte(Image.open(path))
     height, width = alpha.shape
-    # The badge in the top left corner sits on the art, so the picture starts below it.
-    top = int(MARKS[0][3] * height)
-    solid = alpha > 0.5
-    columns = np.nonzero(solid[top:].any(axis=0))[0]
-    right = int(columns.max()) + 1
-    art = cut(rgb, alpha, (0, top, right, height))
+    x0, y0, x1, y1 = (round(v * size) for v, size in zip(front['box'], (width, height, width, height)))
+    solid = alpha[y0:y1, x0:x1] > 0.5
+    x1 = x0 + int(np.nonzero(solid.any(axis=0))[0].max()) + 1
+    art = cut(rgb, alpha, (x0, y0, x1, y1))
     scale = FRONT_HEIGHT / art.height
     art = art.resize((round(art.width * scale), FRONT_HEIGHT), Image.Resampling.LANCZOS)
     # Melt the cut left-hand side into the body that scrolls behind it.
     a = np.asarray(art).copy()
-    fade = min(48, art.width // 4)
-    a[:, :fade, 3] = (a[:, :fade, 3] * np.linspace(0, 1, fade)[None, :]).astype(np.uint8)
+    fade = front['join']
+    if fade:
+        a[:, :fade, 3] = (a[:, :fade, 3] * np.linspace(0, 1, fade)[None, :]).astype(np.uint8)
     art = Image.fromarray(a, 'RGBA')
-    # Where the leading face stands: the usual reach of the lower two thirds of the picture.
     shape = np.asarray(art)[..., 3] > 127
-    reach = [np.nonzero(row)[0].max() for row in shape[FRONT_HEIGHT // 3:] if row.any()]
-    edge = int(np.percentile(reach, 60))
+    if 'face' in front:
+        edge = round(front['face'] * art.width)
+    else:
+        # Where the leading face stands: the usual reach of the lower two thirds of the picture.
+        reach = [np.nonzero(row)[0].max() for row in shape[FRONT_HEIGHT // 3:] if row.any()]
+        edge = int(np.percentile(reach, 60))
     # The tip of the crest: the furthest point forward in the upper half.
     upper = shape[: FRONT_HEIGHT // 2]
     tip_x = int(np.nonzero(upper.any(axis=0))[0].max())
     tip_y = int(np.nonzero(upper[:, tip_x])[0].mean())
-    return art, edge, [tip_x, tip_y], str(path.relative_to(ROOT))
+    return art, edge, [tip_x, tip_y], front['join'], str(path.relative_to(ROOT))
 
 
 def build_icons():
@@ -129,7 +140,7 @@ def build_body():
 
 def main():
     which = sys.argv[1] if len(sys.argv) > 1 else FRONT
-    front, edge, crest, front_source = build_front(which)
+    front, edge, crest, join, front_source = build_front(which)
     icons, icon_source = build_icons()
     body_size = build_body()
     pad = 2
@@ -137,7 +148,7 @@ def main():
     canvas = Image.new('RGBA', (width, FRONT_HEIGHT))
     canvas.alpha_composite(front, (0, 0))
     meta = {
-        'image': 'assets/production/enemies/feed-atlas.png', 'size': list(canvas.size), 'edge': edge, 'crest': crest,
+        'image': 'assets/production/enemies/feed-atlas.png', 'size': list(canvas.size), 'edge': edge, 'crest': crest, 'join': join,
         'body': {'image': 'assets/production/enemies/feed-body.webp', 'size': list(body_size)},
         'frames': {'front': {'x': 0, 'y': 0, 'w': front.width, 'h': front.height, 'source': front_source}},
     }
