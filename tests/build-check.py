@@ -142,6 +142,7 @@ def expected_images():
         'enemies': 'assets/production/enemies/enemy-atlas.json',
         'terrain': 'assets/production/environment/terrain-atlas.json',
         'props': 'assets/production/environment/props-atlas.json',
+        'furniture': 'assets/production/environment/furniture-atlas.json',
     }.items():
         metadata[name] = json.loads((ROOT / path).read_text())
     runtime = {entry['image'] for entry in metadata.values()}

@@ -493,6 +493,11 @@
   }
   let taunts=0;
   const bark = type => H.BARKS?.[type];
+  // The HQ lift: a two-note chime when it arrives, a low slide for its doors and a hum as it leaves.
+  const liftNotes={liftDing:[[1319,.45,'sine',.06],[1047,.6,'sine',.055]],liftDoor:[[150,.3,'triangle',.05,110]],liftMove:[[70,.8,'triangle',.06,140]]};
+  function liftSound(type){
+    if(audio.tone)liftNotes[type].forEach((note,i)=>setTimeout(()=>audio.tone(...note),i*170));
+  }
   function events() {
     let gameOver=null;
     for(const e of game.drainEvents()) {
@@ -525,6 +530,7 @@
       if(e.type==='crash')toast('All-time high! Hold on…',2000);
       if(e.type==='key')toast(e.count<e.total?`Keyword found: ${e.word}. ${e.total-e.count} to go.`:`Keyword found: ${e.word}. The filter now believes you are qualified.`,2400);
       if(e.type==='gateOpen')toast(e.label+' open. Onwards.',2200);
+      if(liftNotes[e.type])liftSound(e.type);
       if(e.type==='chaseStart')toast('The Feed is behind you. Run!',2600);
       if(e.type==='chaseEnd')toast('You outran the Feed. It will have forgotten you by tomorrow.',3000);
       if(e.type==='bossPhase')toast(e.name+' has escalated this to a second stage. Faster warnings, shorter openings.',3000);

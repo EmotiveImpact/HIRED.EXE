@@ -1,0 +1,230 @@
+{
+  "image": "assets/production/environment/furniture-atlas.png",
+  "size": [
+    512,
+    326
+  ],
+  "frames": {
+    "desk": {
+      "x": 0,
+      "y": 0,
+      "w": 88,
+      "h": 48,
+      "source": "assets/source/hq-rooms/furniture-workshop.png",
+      "sourceRect": [
+        55,
+        143,
+        455,
+        363
+      ]
+    },
+    "chest": {
+      "x": 90,
+      "y": 0,
+      "w": 90,
+      "h": 48,
+      "source": "assets/source/hq-rooms/furniture-workshop.png",
+      "sourceRect": [
+        530,
+        188,
+        857,
+        363
+      ]
+    },
+    "stool": {
+      "x": 182,
+      "y": 0,
+      "w": 34,
+      "h": 44,
+      "source": "assets/source/hq-rooms/furniture-workshop.png",
+      "sourceRect": [
+        967,
+        173,
+        1115,
+        363
+      ]
+    },
+    "bin": {
+      "x": 218,
+      "y": 0,
+      "w": 30,
+      "h": 50,
+      "source": "assets/source/hq-rooms/furniture-workshop.png",
+      "sourceRect": [
+        157,
+        527,
+        334,
+        813
+      ]
+    },
+    "shelf": {
+      "x": 250,
+      "y": 0,
+      "w": 90,
+      "h": 100,
+      "source": "assets/source/hq-rooms/furniture-workshop.png",
+      "sourceRect": [
+        517,
+        477,
+        827,
+        819
+      ]
+    },
+    "lamp": {
+      "x": 342,
+      "y": 0,
+      "w": 26,
+      "h": 36,
+      "source": "assets/source/hq-rooms/furniture-workshop.png",
+      "sourceRect": [
+        931,
+        533,
+        1136,
+        807
+      ]
+    },
+    "table": {
+      "x": 0,
+      "y": 102,
+      "w": 272,
+      "h": 46,
+      "source": "assets/source/hq-rooms/furniture-boardroom.png",
+      "sourceRect": [
+        109,
+        191,
+        1091,
+        357
+      ]
+    },
+    "chair_side": {
+      "x": 274,
+      "y": 102,
+      "w": 38,
+      "h": 66,
+      "source": "assets/source/hq-rooms/furniture-boardroom.png",
+      "sourceRect": [
+        61,
+        569,
+        238,
+        870
+      ]
+    },
+    "chair": {
+      "x": 314,
+      "y": 102,
+      "w": 42,
+      "h": 66,
+      "source": "assets/source/hq-rooms/furniture-boardroom.png",
+      "sourceRect": [
+        355,
+        569,
+        548,
+        870
+      ]
+    },
+    "palm": {
+      "x": 358,
+      "y": 102,
+      "w": 64,
+      "h": 104,
+      "source": "assets/source/hq-rooms/furniture-boardroom.png",
+      "sourceRect": [
+        631,
+        479,
+        869,
+        870
+      ]
+    },
+    "sideboard": {
+      "x": 424,
+      "y": 102,
+      "w": 80,
+      "h": 112,
+      "source": "assets/source/hq-rooms/furniture-boardroom.png",
+      "sourceRect": [
+        931,
+        533,
+        1169,
+        870
+      ]
+    },
+    "reception": {
+      "x": 0,
+      "y": 216,
+      "w": 130,
+      "h": 64,
+      "source": "assets/source/hq-rooms/furniture-reception.png",
+      "sourceRect": [
+        31,
+        127,
+        500,
+        357
+      ]
+    },
+    "armchair": {
+      "x": 132,
+      "y": 216,
+      "w": 70,
+      "h": 62,
+      "source": "assets/source/hq-rooms/furniture-reception.png",
+      "sourceRect": [
+        542,
+        104,
+        827,
+        356
+      ]
+    },
+    "coffee_table": {
+      "x": 204,
+      "y": 216,
+      "w": 74,
+      "h": 36,
+      "source": "assets/source/hq-rooms/furniture-reception.png",
+      "sourceRect": [
+        871,
+        210,
+        1169,
+        356
+      ]
+    },
+    "planter": {
+      "x": 280,
+      "y": 216,
+      "w": 86,
+      "h": 50,
+      "source": "assets/source/hq-rooms/furniture-reception.png",
+      "sourceRect": [
+        61,
+        605,
+        473,
+        842
+      ]
+    },
+    "tree": {
+      "x": 368,
+      "y": 216,
+      "w": 64,
+      "h": 100,
+      "source": "assets/source/hq-rooms/furniture-reception.png",
+      "sourceRect": [
+        571,
+        485,
+        803,
+        842
+      ]
+    },
+    "floor_lamp": {
+      "x": 434,
+      "y": 216,
+      "w": 56,
+      "h": 110,
+      "source": "assets/source/hq-rooms/furniture-reception.png",
+      "sourceRect": [
+        917,
+        434,
+        1125,
+        842
+      ]
+    }
+  }
+}
