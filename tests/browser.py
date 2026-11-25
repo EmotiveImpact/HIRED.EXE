@@ -37,6 +37,37 @@ def run(profile, base):
             page.mouse.move(x+label['width']-1,y,steps=8)
             page.mouse.up()
             assert page.evaluate("window.getSelection().toString()") == ''
+        # Accidental browser gestures: nothing reloads, bounces, zooms or selects the page, and a long
+        # press raises no browser menu. A mouse keeps its right-click.
+        gestures = page.evaluate("""() => {
+            const html = getComputedStyle(document.documentElement), body = getComputedStyle(document.body), item = document.querySelector('#start-game');
+            const menu = pointerType => !item.dispatchEvent(new PointerEvent('contextmenu', {bubbles:true, cancelable:true, pointerType}));
+            return {over: [html.overscrollBehaviorY, body.overscrollBehaviorY], touch: html.touchAction, select: body.userSelect || body.webkitUserSelect,
+                    scale: document.querySelector('meta[name=viewport]').content.includes('maximum-scale=1'), menus: [menu('touch'), menu('mouse')],
+                    all: !document.body.dispatchEvent(new KeyboardEvent('keydown', {key:'a', ctrlKey:true, bubbles:true, cancelable:true}))}; }""")
+        assert gestures == {'over':['none','none'], 'touch':'pan-x pan-y', 'select':'none', 'scale':True, 'menus':[True, False], 'all':True}, gestures
+        if profile == 'android':
+            # On a touch screen the page itself cannot scroll, so there is nothing to pull.
+            assert page.evaluate("getComputedStyle(document.documentElement).overflowY") == 'hidden'
+            touches = context.new_cdp_session(page)
+            def swipe(x, y, dy, fingers=1):
+                """A real swipe from (x, y). Returns True when the page cancelled every move of it."""
+                page.evaluate("() => { if (!window.__moves) window.addEventListener('touchmove', e => window.__moves.push(e.defaultPrevented)); window.__moves = []; }")
+                at = lambda k: [{'x': x + i*80, 'y': y + dy*k/6, 'id': i} for i in range(fingers)]
+                touches.send('Input.dispatchTouchEvent', {'type':'touchStart', 'touchPoints':at(0)})
+                for k in range(1, 7):
+                    touches.send('Input.dispatchTouchEvent', {'type':'touchMove', 'touchPoints':at(k)})
+                    page.wait_for_timeout(16)
+                touches.send('Input.dispatchTouchEvent', {'type':'touchEnd', 'touchPoints':[]})
+                page.wait_for_timeout(200)
+                moves = page.evaluate("window.__moves")
+                return bool(moves) and all(moves)
+            def centre(selector):
+                box = page.locator(selector).bounding_box()
+                return box['x'] + box['width']/2, box['y'] + box['height']/2
+            # A pull down on the desktop, on an icon, or with two fingers goes nowhere.
+            assert swipe(200, 500, 250) and swipe(*centre('#games-group'), 200) and swipe(150, 400, 120, fingers=2)
+            assert page.evaluate("scrollY + document.body.scrollTop") == 0
         page.screenshot(path=OUT/'title.jpg')
         activate = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
         # As in Windows 3.1, a program item opens with a double-click (a tap on a phone).
@@ -124,6 +155,19 @@ def run(profile, base):
         for line in ('IN THE WORKS', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):
             assert line in notepad.locator('.notepad-text').input_value(), line
         assert notepad.locator('.notepad-text').evaluate('a => a.readOnly') == mobile
+        # The CV is there to be read and copied: its text can be selected and scrolled by touch,
+        # but a pull down from its top is not passed on to the browser.
+        assert notepad.locator('.notepad-text').evaluate("a => (getComputedStyle(a).userSelect || getComputedStyle(a).webkitUserSelect) === 'text'")
+        assert notepad.locator('.notepad-text').evaluate("a => a.dispatchEvent(new PointerEvent('contextmenu', {bubbles:true, cancelable:true, pointerType:'touch'}))")
+        if profile == 'android':
+            box = notepad.locator('.notepad-text').bounding_box()
+            x, y = box['x'] + box['width']/2, box['y'] + box['height']/2
+            assert swipe(x, y, 150)
+            assert not swipe(x, y + 60, -150)
+            assert notepad.locator('.notepad-text').evaluate('a => a.scrollTop') > 50
+            # Let the fling run out: a tap during one only stops it.
+            page.wait_for_timeout(1200)
+            notepad.locator('.notepad-text').evaluate('a => { a.scrollTop = 0; }')
         activate('#notepad-search')
         activate('#notepad-find-menu')
         page.locator('#notepad-find').fill('ravensbourne')
@@ -230,6 +274,8 @@ def run(profile, base):
         page.screenshot(path=OUT/'setup-complete.jpg')
         activate('#setup-email')
         expect(page.locator('#setup-address')).to_have_value(re.compile(r'^[^@\s]+@[^@\s]+$'))
+        # The address can be selected by hand as well as with Copy.
+        assert page.locator('#setup-address').evaluate("a => (getComputedStyle(a).userSelect || getComputedStyle(a).webkitUserSelect) === 'text'")
         activate('#setup-copy')
         expect(page.locator('#setup-copied')).not_to_be_empty()
         activate('#setup-email-ok')
@@ -301,6 +347,10 @@ def run(profile, base):
                 page.wait_for_function('HIRED_APP.state.player.x>140 && HIRED_APP.state.player.dashCooldown>0')
                 cdp.send('Input.dispatchTouchEvent',{'type':'touchCancel','touchPoints':[]})
                 assert page.locator('.is-held').count() == 0
+                # A thumb sliding off the controls, or a swipe on the picture, moves the game and not the page.
+                assert swipe(*centre('[data-control="down"]'), -120) and swipe(*centre('[data-control="jump"]'), -200) and swipe(*centre('#game'), 200)
+                assert swipe(*centre('#game-window .titlebar'), 250)
+                assert page.evaluate("scrollY + document.body.scrollTop") == 0
         else:
             page.keyboard.down('ArrowRight')
             page.wait_for_function('HIRED_APP.state.player.x>170')
