@@ -35,6 +35,8 @@
     const company = E.company || 'your company';
     const folder = 'C:\\' + ((E.company || 'Work').split(/\s+/)[0].replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase() || 'WORK');
     const email = safeLink(E.contactUrl);
+    // The address on its own, shown in a box to copy rather than fired at a mail program.
+    const address = /^mailto:/i.test(email || '') ? decodeURIComponent(email.slice(7).split('?')[0]) : '';
     const steps = Array.isArray(E.setupSteps) && E.setupSteps.length ? E.setupSteps : STEPS;
     let stage = 'welcome', paused = false, asking = false, target = folder;
 
@@ -164,12 +166,33 @@
       if (win.isConnected && stage !== 'done') complete();
     }
 
+    function showEmail() {
+      H.track?.('Email address shown');
+      let copied = false;
+      wm.dialog({
+        title: 'Send an Email', owner: win, className: 'setup-email-box',
+        body: '<p>To reach ' + esc(first) + ', copy this address into your email:</p>' +
+          '<input class="setup-address" id="setup-address" name="address" value="' + esc(address) + '" readonly spellcheck="false" aria-label="Email address">' +
+          '<p class="setup-copied" id="setup-copied" aria-live="polite"></p>',
+        buttons: [{label: '&Copy', value: 'copy', id: 'setup-copy', default: true}, {label: 'OK', value: 'ok', id: 'setup-email-ok', cancel: true}],
+        init(box) { const field = box.querySelector('.setup-address'); field.addEventListener('focus', () => field.select()); },
+        async onButton(value, v, box) {
+          if (value !== 'copy') return true;
+          H.track?.('Email address copied');
+          const field = box.querySelector('.setup-address');
+          field.focus(); field.select();
+          try { await navigator.clipboard.writeText(address); copied = true; } catch (_) { copied = document.execCommand?.('copy') || false; }
+          box.querySelector('.setup-copied').textContent = copied ? 'Copied to the Clipboard.' : 'Press Ctrl+C to copy.';
+          return false;
+        }
+      });
+    }
+
     function complete() {
       stage = 'done';
       H.track?.('Setup completed');
       const list = [];
-      if (email) list.push({label: 'Send an Email', id: 'setup-email', href: email, default: true});
-      if (openInternet) list.push({label: 'Open Internet', id: 'setup-internet', default: !email, action: () => { wm.close(ID); openInternet(); }});
+      if (address) list.push({label: 'Send an Email', id: 'setup-email', default: true, action: showEmail});
       list.push({label: 'Close', id: 'setup-close', default: !list.length, action: () => wm.close(ID)});
       screen('Setup Complete',
         '<div class="setup-done"><span class="w31-icon w31-icon-info" aria-hidden="true">i</span><div>' +

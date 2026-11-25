@@ -452,6 +452,9 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .w31-field{display:grid;grid-template-columns:minmax(120px,auto) 1fr;align-items:center;gap:8px;margin:0 0 8px}
 .w31-field input,.w31-field select,.help-search input{min-width:0;width:100%;padding:2px 4px;border:1px solid #000;background:#fff;color:#000;font:13px Arial,Helvetica,sans-serif;border-radius:0}
 .w31-field input[readonly]{background:#fff;color:#000}
+.setup-email-box .w31-dialog-main{min-width:min(320px,76vw)}
+.setup-email-box .setup-address{display:block;box-sizing:border-box;width:100%;margin:6px 0 4px;padding:3px 5px;border:1px solid #000;background:#fff;color:#000;font:bold 14px Arial,Helvetica,sans-serif;border-radius:0;user-select:text;-webkit-user-select:text}
+.setup-email-box .setup-copied{min-height:1.2em;margin:4px 0 0;font-weight:normal}
 .w31-check-row{display:flex;align-items:center;gap:6px;margin:4px 0}
 .w31-group{border:1px solid #000;padding:6px 12px;margin:0}
 .w31-group legend{padding:0 4px}

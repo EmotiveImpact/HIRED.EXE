@@ -216,10 +216,18 @@ def run(profile, base):
         disk.wait_for(timeout=30000)
         disk.locator('.w31-buttons button').click()
         page.locator('#setup-email').wait_for(timeout=40000)
-        expect(page.locator('#setup-email')).to_have_attribute('href', re.compile(r'^mailto:'))
+        # Send an Email shows the address in a box to copy; there is no Internet button.
+        expect(page.locator('#setup-internet')).to_have_count(0)
         page.screenshot(path=OUT/'setup-complete.jpg')
-        activate('#setup-internet')
+        activate('#setup-email')
+        expect(page.locator('#setup-address')).to_have_value(re.compile(r'^[^@\s]+@[^@\s]+$'))
+        activate('#setup-copy')
+        expect(page.locator('#setup-copied')).not_to_be_empty()
+        activate('#setup-email-ok')
+        expect(page.locator('.setup-email-box')).to_have_count(0)
+        activate('#setup-close')
         expect(page.locator('.setup-window')).to_have_count(0)
+        open_item('#internet-group')
         expect(page.locator('#desk-link-vimeo')).to_have_attribute('href', 'https://vimeo.com/emotiveimpact')
         # Each Internet item's command line opens its own page from File > Run.
         assert page.evaluate(r'''() => { const seen = []; const real = window.open; window.open = u => { seen.push(u); return null; };
@@ -467,7 +475,7 @@ def run(profile, base):
         (OUT/'result.txt').write_text(report)
         print(report, flush=True)
         assert report.startswith('PASS'), report
-        page.frame_locator('iframe').locator('#final-portfolio').wait_for()
+        page.frame_locator('iframe').locator('#final-worlds').wait_for()
         page.locator('iframe').screenshot(path=OUT/'ending.jpg')
         # WebKit's offline transport also rejects a file:// main document.
         # Load the actual files while denying and recording every HTTP(S) request.
