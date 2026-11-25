@@ -59,7 +59,7 @@
       return new Promise(resolve => {
         let left = ms, last = performance.now();
         (function tick() {
-          if (!win.isConnected) return resolve();
+          if (!win.isConnected || stage === 'done') return resolve();
           const now = performance.now();
           if (!paused) left -= now - last;
           last = now;
@@ -113,7 +113,8 @@
         '<p class="setup-file">Copying file: <span></span></p>' +
         '<div class="setup-news" role="status"><p class="setup-act"></p><p class="setup-aside"></p></div>' +
         '<div class="setup-gauge" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span>0%</span><span class="setup-fill" aria-hidden="true">0%</span></div>',
-        [{label: 'Cancel', id: 'setup-cancel', default: true, action: confirmExit}]);
+        [{label: 'Skip', id: 'setup-skip', action: () => { if (!asking) complete(); }},
+         {label: 'Cancel', id: 'setup-cancel', default: true, action: confirmExit}]);
       const file = main.querySelector('.setup-file span'), act = main.querySelector('.setup-act'), aside = main.querySelector('.setup-aside');
       const gauge = main.querySelector('.setup-gauge');
       let shown = 0;
@@ -125,7 +126,7 @@
       };
       async function fill(to, ms) {
         const from = shown, n = Math.max(1, Math.round(ms / 140));
-        for (let i = 1; i <= n; i++) { await wait(ms / n); if (!win.isConnected) return; set(Math.round(from + (to - from) * i / n)); }
+        for (let i = 1; i <= n; i++) { await wait(ms / n); if (!win.isConnected || stage === 'done') return; set(Math.round(from + (to - from) * i / n)); }
       }
       // Files arrive compressed (EDITING.DL_) and are expanded as they are copied (EDITING.DLL).
       const step = s => {
@@ -133,7 +134,8 @@
         act.textContent = s.act; aside.textContent = '';
       };
       for (const s of steps) {
-        if (!win.isConnected) return;
+        // Skip jumps straight to Setup Complete, so the rest of the install stops here.
+        if (!win.isConnected || stage === 'done') return;
         if (s.disk) {
           // A minimised Setup waits for its window before asking for the disk.
           while (win.isConnected && wm.get(ID)?.state === 'min') await wait(250);
@@ -142,7 +144,7 @@
           await wm.message({title: 'Hire Augustus Setup', icon: 'info', owner: win, buttons: ['OK'],
             text: 'Please insert the disk labelled:<br><br>Hire Augustus Disk 2 (References)<br><br>into drive A:'});
           paused = false;
-          if (!win.isConnected) return;
+          if (!win.isConnected || stage === 'done') return;
         }
         step(s);
         const half = shown + Math.round((s.to - shown) / 2);
@@ -159,7 +161,7 @@
           await fill(s.to, 1700);
         }
       }
-      if (win.isConnected) complete();
+      if (win.isConnected && stage !== 'done') complete();
     }
 
     function complete() {
