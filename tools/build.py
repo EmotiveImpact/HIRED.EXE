@@ -61,7 +61,9 @@ game_html=game_html.replace('<link rel="stylesheet" href="styles.css">','<style>
 cv_pdf = ROOT/'assets/cv/Augustus-Edem-CV.pdf'
 cv_uri = data_uri(cv_pdf)
 game_html=bind_static_images(game_html,runtime_map,'HIRED_EMBEDDED_ASSETS')
-game_html=game_html.replace('globalThis.HIRED_EMBEDDED_ASSETS =', f'globalThis.HIRED_EMBEDDED_CV = "{cv_uri}";\nglobalThis.HIRED_EMBEDDED_ASSETS =', 1)
+# The desktop's system sounds travel inside the single-file edition too.
+sound_map={str(p.relative_to(ROOT)):data_uri(p) for p in sorted((ROOT/'assets/sounds/windows31').glob('*.wav'))}
+game_html=game_html.replace('globalThis.HIRED_EMBEDDED_ASSETS =', f'globalThis.HIRED_EMBEDDED_CV = "{cv_uri}";\nglobalThis.HIRED_EMBEDDED_SOUNDS = {json.dumps(sound_map,separators=(",",":"))};\nglobalThis.HIRED_EMBEDDED_ASSETS =', 1)
 game_html=re.sub(r'href="cv.html"(?: target="_blank" rel="noopener")?>View CV',
                  f'href="{cv_uri}" download="{cv_pdf.name}">Download CV (PDF)', game_html)
 game_html=re.sub(r'<script src="([^"]+)"></script>',lambda m:'<script>\n'+(ROOT/m.group(1)).read_text().replace('</script','<\\/script')+'\n</script>',game_html)

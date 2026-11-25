@@ -317,6 +317,22 @@
         if (!build() || !effectMap()[name]) return;
         effectMap()[name](ctx.currentTime + 0.005 + delay);
       },
+      // Recorded sounds (the desktop's system sounds, src/win-sound.js): decode a sound file's
+      // bytes, then play the result on the effects bus, so the mute and the limiter cover it too.
+      decode(bytes) {
+        if (!build()) return Promise.reject(new Error('No sound'));
+        return new Promise((resolve, reject) => ctx.decodeAudioData(bytes, resolve, reject));
+      },
+      sample(buffer, vol = 1, name = '') {
+        if (name) log.push(name);
+        if (!build()) return null;
+        const s = ctx.createBufferSource(), g = ctx.createGain();
+        s.buffer = buffer; g.gain.value = vol;
+        s.connect(g); g.connect(sfxBus);
+        s.onended = () => g.disconnect();
+        s.start(ctx.currentTime + 0.005);
+        return s;
+      },
       // Start a song from the top (or from step `from`), or switch to silence with null.
       music(name, level = 0, delay = 0, from = 0) {
         if (name) log.push('music:' + name);

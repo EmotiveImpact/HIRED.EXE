@@ -190,6 +190,7 @@
 
     function complete() {
       stage = 'done';
+      wm.sound?.('SetupComplete');
       H.track?.('Setup completed');
       const list = [];
       if (address) list.push({label: 'Send an Email', id: 'setup-email', default: true, action: showEmail});
