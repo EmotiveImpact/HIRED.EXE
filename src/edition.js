@@ -90,7 +90,7 @@ Automation: agents test my software, handle the data and hand work to each other
 Before this: twenty years directing and editing film. My own content starts at the end of 2026.
 Right to work in the UK: yes, unrestricted.
 Where: London, working remotely. Happy to meet in person now and then.
-Days: two to five. Your call.
+Hours: full time.
 
 Now close this and double-click HIRE.EXE. The portfolio is at the end.
 

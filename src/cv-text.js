@@ -113,7 +113,7 @@ PRACTICALITIES
 
 Right to work in the UK: unrestricted.
 Where: London, working remotely. I use long stretches of focus to research hard problems, learn new tools and test ideas, then share progress through written updates, demos and clear decisions. Happy to meet in person now and then.
-Days: two to five a week.
+Hours: full time.
 Source code: private. The live links are the evidence, and I will walk you through any of the code on a call.
 
 
