@@ -55,6 +55,9 @@ Head of Digital Media, Digital Smart Web
 London | November 2019 to January 2021
 Responsible for digital delivery across sites, landing pages, conversion funnels and campaigns, keeping design and development pointed at the commercial goal. Used analytics, A/B tests and stakeholder feedback to decide page structure, copy and what visitors should do next.
 
+Freelance Designer, Self-employed
+London | Before 2009 | Graphic design, film editing and websites for my own clients
+
 
 IN THE WORKS
 
@@ -79,7 +82,7 @@ lumalook.app
 Tuned on deep skin first.
 
 Not public yet
-Fenny, Life 1.0 (an offline-first personal OS), Bounty (a resale research workbench) and Assistant Central (a multi-agent platform with owner approvals).
+Fenny, Life 1.0 (an offline-first personal OS), Bounty (resale research) and Assistant Central (a multi-agent platform).
 
 
 TOOLS
