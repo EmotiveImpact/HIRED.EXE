@@ -142,7 +142,7 @@
         "pose": "idle_1",
         "prop": "finalreview",
         "effect": "",
-        "reply": "You asked for a CV and I built you a video game."
+        "reply": "You asked what was abnormal, so I built you a video game."
       },
       {
         "panel": "p18-strength",

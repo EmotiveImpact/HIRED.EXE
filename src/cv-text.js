@@ -1,7 +1,7 @@
 // CV.TXT, the plain text version of the CV that opens in Notepad on the desktop.
 // Generated from cv.html by tools/cv-text.py: edit cv.html, then run that script.
 globalThis.HIRED_CV_TXT = `AUGUSTUS EDEM
-AI-Native Builder & Creative Founder
+AI-Native Builder & Creative Founder | Filmmaker
 London, remote | Right to work in the UK | emotiveimpact@gmail.com | hireexe.me
 
 
@@ -34,7 +34,7 @@ BUILD, AUTOMATE, GROW
 
 Build. I start with the complaint, because that is where the product is. I look for ideas nobody has built, or mine customer reviews and Reddit for what existing products miss. A Codex deep dive ends in a PRD. In Claude Code I fill its gaps with research and a design system. Then I direct the build with a designer's eye and a filmmaker and marketer's feel for the customer journey.
 
-Automate. If I do something twice, an agent does it the third time. Agents test my software, handle data, run bug sweeps and code reviews, hand work to each other and brief me each day on what to fix.
+Automate. Do something twice and it becomes a skill. Do it a third time and it becomes a scheduled agent. Agents test my software, run bug sweeps and code reviews, and brief me daily on what to fix.
 
 Grow. Twenty years of holding attention, in the edit and on the web, plus analytics on how people move through sites and funnels.
 
@@ -62,7 +62,7 @@ London | Before 2009 | Graphic design, film editing and websites for my own clie
 IN THE WORKS
 
 SALEANE: AI receptionist for salons, barbers and clinics
-saleane.vercel.app/demo | In development
+saleane.vercel.app | In development
 Selected for the FIRST 1000 programme. Booking, rescheduling, cancellations and reminders, with a one-click sample studio.
 
 Commune: Shared living
@@ -102,7 +102,7 @@ NoSpoilers (beta): nospoilers.dev
 Commune (beta): ourcommune.io
 Lumalook (beta): lumalook.app
 DraftHR (beta): drafthr.io
-SALEANE (beta): saleane.vercel.app/demo
+SALEANE (beta): saleane.vercel.app
 Film portfolio: vimeo.com/emotiveimpact
 
 
