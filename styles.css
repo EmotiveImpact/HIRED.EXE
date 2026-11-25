@@ -594,3 +594,9 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .setup-buttons a:active{box-shadow:inset 1px 1px var(--w31-shadow)}
 .setup-buttons a:focus-visible{outline:1px dotted #000;outline-offset:-5px}
 .setup-done{display:flex;gap:16px;align-items:flex-start}
+/* A game dialog's closing row of buttons stays pinned to the bottom of the window,
+   so Got it, Back to desktop and the like are on screen even when the text scrolls. */
+.overlay .modal-window > .modal-body > .modal-actions:last-child{position:sticky;bottom:0;z-index:2;background:#e1dded;padding:8px 0;margin-bottom:0;box-shadow:0 -8px 8px -6px #e1dded}
+/* A phone turned sideways has little height: lay the pause buttons and interview topics
+   side by side so they all fit without scrolling. */
+@media (orientation:landscape) and (max-height:500px){.overlay .pause-actions{grid-template-columns:1fr 1fr}.overlay .interview-answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}}
