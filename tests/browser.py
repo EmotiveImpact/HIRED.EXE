@@ -59,7 +59,9 @@ def run(profile, base):
         below = '''() => { const icons = [...document.querySelectorAll('.pm-group-icon')].filter(i => i.offsetParent).map(i => i.getBoundingClientRect());
             return [...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => icons.every(i => w.getBoundingClientRect().bottom <= i.top + 1)); }'''
         snug = "[...document.querySelectorAll('.pm-group-win:not([hidden]) .pm-items')].every(b => b.scrollHeight <= b.clientHeight + 1)"
-        assert page.evaluate(below) and page.evaluate(snug)
+        # A group opens as a compact block, at most four icons across, never one long row.
+        compact = "[...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => w.offsetWidth <= 4 * 90 + 16)"
+        assert page.evaluate(below) and page.evaluate(snug) and page.evaluate(compact)
         # The Internet group links Edem's own sites, and Working On the projects in progress.
         for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
                           '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers.dev/',
@@ -93,6 +95,15 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # The portfolio opens at a set size and scrolls inside, however long its text is.
+        open_item('#skip-portfolio')
+        portfolio = page.locator('.w31-app[data-win="portfolio"]')
+        expect(portfolio).to_be_visible()
+        box, screen = portfolio.bounding_box(), page.viewport_size
+        assert box['height'] <= 461 and box['width'] <= 641 and box['y'] >= 0 and box['y'] + box['height'] <= screen['height'], box
+        assert page.evaluate("(() => { const b = document.querySelector('.w31-app[data-win=portfolio] .modal-body'); return b.scrollHeight > b.clientHeight; })()")
+        activate('.w31-app[data-win="portfolio"] #dialog-close')
+        expect(portfolio).to_have_count(0)
         # README.TXT is the first icon: the application in the advert's own two headings.
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
         # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
@@ -125,7 +136,7 @@ def run(profile, base):
         # Accessories starts as a group icon. Opened, it sits clear of the main group and shows all it holds.
         open_item('#accessories-group')
         expect(page.locator('#accessories-window')).to_be_visible()
-        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
+        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug) and page.evaluate(compact)
         open_item('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
@@ -146,7 +157,7 @@ def run(profile, base):
         expect(page.locator('#accessories-group')).to_be_visible()
         # Games holds Jargon: a group of two or more matching buzzwords clears, and Undo brings it back.
         open_item('#games-group')
-        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
+        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug) and page.evaluate(compact)
         open_item('#desk-jargon')
         tiles = page.locator('.jargon-window .jg-tile')
         expect(tiles).to_have_count(108)

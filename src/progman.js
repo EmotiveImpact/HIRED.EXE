@@ -199,11 +199,12 @@
   }
 
   // Until a group is moved or sized by hand, the open groups keep themselves tidy:
-  // side by side in rows, each just large enough for its icons, so none overlaps
-  // another. Rows that do not fit are reached by scrolling the workspace.
+  // side by side in rows, so none overlaps another. A group opens as a compact
+  // block, at most four icons across, and never stretches to fill the row. Rows
+  // that do not fit are reached by scrolling the workspace.
   function tidyGroups() {
     const W = workspace.clientWidth, gap = W < 500 ? 4 : 8, usable = W - gap * 2;
-    const maxCols = Math.max(1, Math.floor((usable - 16) / 90));
+    const maxCols = Math.max(1, Math.min(4, Math.floor((usable - 16) / 90)));
     const rows = [];
     for (const g of state.groups) {
       const win = g.state === 'normal' && workspace.querySelector('#' + g.id + '-window');
@@ -220,8 +221,6 @@
     }
     let y = gap;
     for (const row of rows) {
-      // A full row is squared off to the edge; a group on its own keeps the width of its icons.
-      if (row.list.length > 1) row.list.at(-1).w += usable - row.w;
       let h = 0;
       for (const c of row.list) {
         // The icons wrap to the new width before their height is read.
