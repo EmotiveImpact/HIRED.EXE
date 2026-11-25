@@ -46,48 +46,41 @@ const solvedEdition = {
 
 You asked what I have done that is abnormal. I built my job application as a video game.
 
-It was playable a day after the first commit. Four worlds, a working Windows 3.1 with my live work in its Internet folder, and a submarine game as the bonus.
-
-Your advert asks for two things and no long cover note. Both are below, and reading them takes less time than World 1.
+The CV in this folder has the facts. This file has the parts a CV is too polite to say.
 
 
 1. WHAT I HAVE BUILT
 
-Shipped:
+Vlume, a Mac audio mixer, on sale: vlumeaudio.com
+Cairn, a Mac storage cleaner for developers: cairnmac.com
+HIRE.EXE, the thing you are sitting in: hireexe.me
 
-Vlume, a Mac audio mixer. On sale now.
-vlumeaudio.com
-
-Cairn, a Mac storage cleaner for developers.
-cairnmac.com
-
-HIRE.EXE, the thing you are in.
-hireexe.me
-
-Shipping next:
-
-SALEANE, appointment booking: saleane.vercel.app/demo
-NoSpoilers, release checks: nospoilers.dev
-DraftHR, HR letters: drafthr.io
-Lumalook, film looks for iPhone: lumalook.app
-Commune, shared living: ourcommune.io
-Fenny: no link yet.
-
-Each one is an icon in the Internet and Working On groups. Double-click it and it opens.
+Five more are in beta. They are in the Internet and Working On groups. Double-click one and it opens.
 
 
 2. WHAT I HAVE DONE THAT IS ABNORMAL
 
-You are sitting in it.
-
-Nobody asked for a game. Hand me a problem and making something is what I do first. This one has four worlds, a working Windows 3.1 and a submarine that was ordered by mistake. The first commit was on 19 November 2026 and it was playable the next day. A bot plays all four worlds on desktop, Android and iPhone on every pull request.
+Nobody asked for a game. Hand me a problem and making something is what I do first. The first commit was on 19 November 2026 and it was playable the next day. A bot plays all four worlds on desktop, Android and iPhone every time I change it. The submarine was ordered by mistake, and I kept it.
 
 
-3. THE REST
+3. WHY THIS JOB
 
-Tools: Claude Code and Codex, every hour of every day.
-Automation: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me on the code every day with things to fix. If I do something twice, they do it the third time.
-Before this: twenty years directing and editing film.
+Most adverts describe a job. Yours describes how I already spend my days: think of something, build it, ship it, find out if anyone wants it, then do the next one.
+
+I have spent more than twenty years making things for other people's companies. A studio that tests a new bet every few months, working directly with the founder, is the job I would have written for myself. I would rather answer for the product than for the meeting about it.
+
+
+4. WHAT I BRING WITH ME
+
+A pipeline. SALEANE, an AI receptionist for salons, barbers and clinics, was picked for the FIRST 1000 programme. DraftHR writes HR letters for UK and US teams. Both are built and in beta. If either fits the studio, they are yours to test.
+
+The work would be the work. These would just turn up early.
+
+And the other way round: point me at any of Solved's bets and I will start building on day one.
+
+
+5. THE PRACTICAL BITS
+
 Right to work in the UK: yes, unrestricted.
 Where: London, working remotely. Happy to meet in person now and then.
 Hours: full time.
