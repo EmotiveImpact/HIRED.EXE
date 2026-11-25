@@ -330,6 +330,8 @@ def run(profile, base):
         assert all(width >= 640 for _, width in decoded)
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
         page.get_by_role('link', name='Play HIRE.EXE').click()
+        page.wait_for_url(re.compile(r'/(index\.html)?(\?.*)?$'))
+        power_on()
         launch()
         activate('#title-play')
         assert page.locator('#comic-title').inner_text() == 'One PDF'
