@@ -50,3 +50,5 @@ The two offline editions are generated in `dist/`. Open `HIRE-EXE-v0.4-PLAY.html
 | [Playtest report](docs/PLAYTEST.md) | Browser captures, automated routes and device coverage. |
 
 The approved concept boards are in [`references/`](references/) and the asset inventory is [`assets/manifest.json`](assets/manifest.json).
+
+The desktop's system sounds in [`assets/sounds/windows31/`](assets/sounds/windows31/) are the four recordings shipped with Microsoft Windows 3.1 (TADA, CHIMES, CHORD and DING). They are Microsoft's, and are used here as a homage on a personal, non-commercial site.

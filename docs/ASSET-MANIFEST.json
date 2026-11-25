@@ -884,6 +884,30 @@
       "sha256": "7f3fd39e4c4c177180c822082f44e7ce66a4ab91957d5a82e346c760aa747ab2"
     },
     {
+      "path": "assets/sounds/windows31/chimes.wav",
+      "role": "production-asset",
+      "bytes": 15920,
+      "sha256": "84798041819704f56ec141ecf2cdc12b95eb8b2c5b4315ba84cab89b820e6060"
+    },
+    {
+      "path": "assets/sounds/windows31/chord.wav",
+      "role": "production-asset",
+      "bytes": 24982,
+      "sha256": "e30478918dbcbc8b514915b721992f9f76c2e19b72ef0f418dd1bf8b3c38afd5"
+    },
+    {
+      "path": "assets/sounds/windows31/ding.wav",
+      "role": "production-asset",
+      "bytes": 11598,
+      "sha256": "b5ad2d751f7cab05d61b372d6a41ce00a49ca653a9cbfaf6f6e093bf01415cd9"
+    },
+    {
+      "path": "assets/sounds/windows31/tada.wav",
+      "role": "production-asset",
+      "bytes": 27804,
+      "sha256": "e78187f27ea746aee7ceda0d8daf701d8d3dc469b24c7b25b71fa32bf773b136"
+    },
+    {
       "path": "assets/source/background-prompts.json",
       "role": "generated-source",
       "bytes": 4180,

@@ -164,6 +164,7 @@
 
     function complete() {
       stage = 'done';
+      wm.sound?.('SetupComplete');
       const list = [];
       if (email) list.push({label: 'Send an Email', id: 'setup-email', href: email, default: true});
       if (openInternet) list.push({label: 'Open Internet', id: 'setup-internet', default: !email, action: () => { wm.close(ID); openInternet(); }});

@@ -93,6 +93,10 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # The first press on the desktop let the Windows 3.1 fanfare play. (WebKit may keep audio locked.)
+        chimes = profile != 'iphone'
+        if chimes:
+            page.wait_for_function("HIRED_APP.sound?.log.includes('win:SystemStart')")
         # README.TXT is the first icon: the application in the advert's own two headings.
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
         # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
@@ -206,8 +210,13 @@ def run(profile, base):
         expect(gauge).to_have_attribute('aria-valuenow', '46')
         disk = page.locator('.w31-message', has_text='Disk 2')
         disk.wait_for(timeout=30000)
+        # A message box arrives with its icon's sound, and Setup ends on the fanfare.
+        if chimes:
+            page.wait_for_function("HIRED_APP.sound.log.includes('win:SystemAsterisk')")
         disk.locator('.w31-buttons button').click()
         page.locator('#setup-email').wait_for(timeout=40000)
+        if chimes:
+            page.wait_for_function("HIRED_APP.sound.log.includes('win:SetupComplete')")
         expect(page.locator('#setup-email')).to_have_attribute('href', re.compile(r'^mailto:'))
         page.screenshot(path=OUT/'setup-complete.jpg')
         activate('#setup-internet')

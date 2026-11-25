@@ -213,6 +213,15 @@ def main():
     assert cv_mime == 'application/pdf' and cv_bytes == (ROOT / pdf).read_bytes(), 'Embedded CV is stale'
     assert (DIST / pdf).read_bytes() == cv_bytes, 'Published CV differs from the standalone download'
     assert extract_assignment(play, 'HIRED_ASSET_META') == metadata, 'Embedded atlas metadata is stale'
+    # The desktop's four system sounds are embedded whole, and the site publishes the same files.
+    sounds = extract_assignment(play, 'HIRED_EMBEDDED_SOUNDS')
+    assert set(sounds) == {f'assets/sounds/windows31/{name}.wav' for name in ('tada', 'chimes', 'chord', 'ding')}, 'System sounds missing'
+    for path, value in sounds.items():
+        header, payload = value.split(',', 1)
+        raw = base64.b64decode(payload, validate=True)
+        assert header.startswith('data:audio/') and raw[:4] == b'RIFF' and raw[8:12] == b'WAVE', f'{path}: not a WAV'
+        assert raw == (ROOT / path).read_bytes() == (DIST / path).read_bytes(), f'{path}: embedded sound differs from source'
+    report['game']['sounds'] = len(sounds)
 
     # Check literal runtime image URLs and the complete enumerated background set.
     runtime_literals = set()
