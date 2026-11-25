@@ -74,8 +74,6 @@ I have spent more than twenty years making things for other people's companies. 
 
 A pipeline. SALEANE, an AI receptionist for salons, barbers and clinics, was picked for the FIRST 1000 programme. DraftHR writes HR letters for UK and US teams. Both are built and in beta. If either fits the studio, they are yours to test.
 
-The work would be the work. These would just turn up early.
-
 And the other way round: point me at any of Solved's bets and I will start building on day one.
 
 
