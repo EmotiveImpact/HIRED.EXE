@@ -143,9 +143,11 @@ def expected_images():
         'terrain': 'assets/production/environment/terrain-atlas.json',
         'props': 'assets/production/environment/props-atlas.json',
         'furniture': 'assets/production/environment/furniture-atlas.json',
+        'feed': 'assets/production/enemies/feed-atlas.json',
     }.items():
         metadata[name] = json.loads((ROOT / path).read_text())
     runtime = {entry['image'] for entry in metadata.values()}
+    runtime.update(entry['body']['image'] for entry in metadata.values() if 'body' in entry)
     for folder, pattern in [('assets/production/backgrounds', '*.webp'), ('assets/production/enemies/icons', '*.png')]:
         runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).glob(pattern))
     runtime.add('assets/production/characters/portrait-reference.png')

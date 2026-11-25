@@ -20,12 +20,14 @@ meta_paths = {
     'enemies':'assets/production/enemies/enemy-atlas.json',
     'terrain':'assets/production/environment/terrain-atlas.json',
     'props':'assets/production/environment/props-atlas.json',
-    'furniture':'assets/production/environment/furniture-atlas.json'
+    'furniture':'assets/production/environment/furniture-atlas.json',
+    'feed':'assets/production/enemies/feed-atlas.json'
 }
 meta = {k:json.loads((ROOT/p).read_text()) for k,p in meta_paths.items()}
 (ROOT/'src/assets.js').write_text('globalThis.HIRED_ASSET_META = '+json.dumps(meta,separators=(',',':'))+';\n')
 
 runtime_paths = {v['image'] for v in meta.values()}
+runtime_paths.update(v['body']['image'] for v in meta.values() if 'body' in v)
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.webp'))
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/enemies/icons').glob('*.png'))
 runtime_paths.add('assets/production/characters/portrait-reference.png')
