@@ -9,14 +9,14 @@ THE ABNORMAL BIT
 
 HIRE.EXE: My job application, as a video game
 hireexe.me | First commit 19 November 2026
-You asked for a CV. I built you a video game. A CV gets skimmed. A game gets played. Playable a day after the first commit: four worlds, a working Windows 3.1 desktop holding my live work, and a bonus submarine game. I directed the story, characters and sound and built it with Claude Code and Codex. A bot plays it on desktop, Android and iPhone on every pull request.
+You asked what I have done that is abnormal. I built my job application as a video game. A CV gets skimmed. A game gets played. Playable within a day: four worlds, a working Windows 3.1 desktop holding my live work, and a bonus submarine game. I directed the story, characters and sound and built it with Claude Code and Codex. A bot playtests every change on desktop, Android and iPhone.
 
 Play it first: hireexe.me
 
 
 PROFILE
 
-I have a million ideas an hour. The challenge is getting the right ones out of my head and into something people can use. AI agents have closed that gap, and twenty years in creative production taught me what makes the finished thing worth using. Film taught me one rule: bored people leave. Graphic design taught me where the eye goes first. Websites taught me where people get stuck. Claude Code and Codex are open every hour of every day: I plan what happens on screen and behind it, direct the agents, read the code and test the result. What ships is my call, and the finished product is mine to answer for.
+I have a million ideas an hour. The challenge is getting the right ones out of my head and into something people can use. AI agents have closed that gap, and twenty years in creative production taught me what makes the finished thing worth using. Film taught me one rule: bored people leave. Graphic design taught me where the eye goes first. Websites taught me where people get stuck. Claude Code and Codex are open every hour of every day: I plan what happens on screen and behind it, direct the agents, read the code and test the result. What ships is mine to answer for.
 
 
 SHIPPED

@@ -9,7 +9,7 @@ const solvedEdition = {
   intro: 'I’m Augustus Edem. Most people attach a CV. I got carried away and made Solved Studio a four-world adventure. Play through my application or go straight to the work.',
   finish: 'Thanks for playing, Solved Studio. Nobody asked me for a game. You asked what I had done that was abnormal, and this seemed quicker than explaining. I’d love to walk you through the work you picked.',
   // The line under the title. Other editions keep "A playable application by <name>".
-  tagline: 'You asked for a CV.\nAugustus Edem built this.',
+  tagline: 'You asked what was abnormal.\nAugustus Edem built this.',
   skillProjects: {
     "creative-direction": "Emotive Impact",
     "product-thinking": "Commune",
@@ -44,7 +44,7 @@ const solvedEdition = {
   // Keep the lists in step with links and working below, and with src/cv-text.js.
   readme: `README.TXT
 
-You asked for a CV. I built you a video game.
+You asked what I have done that is abnormal. I built my job application as a video game.
 
 It was playable a day after the first commit. Four worlds, a working Windows 3.1 with my live work in its Internet folder, and a submarine game as the bonus.
 
