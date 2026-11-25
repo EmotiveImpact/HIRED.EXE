@@ -25,8 +25,22 @@ def run(profile, base):
         page.on('pageerror', lambda error: errors.append(str(error)))
         page.on('response', lambda response: errors.append(f'{response.status} {response.url}') if response.status >= 400 else None)
         page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
+        # With sound on, the PC stops at "Press any key to continue" before it starts Windows,
+        # so that the browser will let the start-up fanfare play as the desktop appears.
+        def power_on():
+            page.locator('.dos-waiting, #start-game').first.wait_for()
+            if page.locator('.dos-waiting').count():
+                page.locator('#dos-start').tap(position={'x': 150, 'y': 150}) if mobile else page.keyboard.press('Space')
         page.goto(base)
+        expect(page.locator('.dos-waiting')).to_contain_text('to continue . . .')
+        page.wait_for_timeout(1500)
+        expect(page.locator('#desktop')).to_have_attribute('inert', '')
+        power_on()
         page.locator('#start-game').wait_for()
+        # The Windows 3.1 fanfare plays as the desktop appears. (WebKit may keep audio locked.)
+        chimes = profile != 'iphone'
+        if chimes:
+            page.wait_for_function("HIRED_APP.sound?.log.includes('win:SystemStart')")
         assert page.locator('#desktop').evaluate("el => (getComputedStyle(el).userSelect || getComputedStyle(el).webkitUserSelect) === 'none'")
         assert page.locator('#start-game img').evaluate("img => !img.dispatchEvent(new Event('dragstart', {bubbles:true, cancelable:true}))")
         if not mobile:
@@ -127,10 +141,6 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
-        # The first press on the desktop let the Windows 3.1 fanfare play. (WebKit may keep audio locked.)
-        chimes = profile != 'iphone'
-        if chimes:
-            page.wait_for_function("HIRED_APP.sound?.log.includes('win:SystemStart')")
         # The portfolio window is gone from the desktop; the film work is the Video Portfolio link.
         expect(page.locator('#skip-portfolio')).to_have_count(0)
         expect(page.locator('#desk-link-vimeo')).to_contain_text('Video Portfolio')
@@ -320,6 +330,8 @@ def run(profile, base):
         assert all(width >= 640 for _, width in decoded)
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
         page.get_by_role('link', name='Play HIRE.EXE').click()
+        page.wait_for_url(re.compile(r'/(index\.html)?(\?.*)?$'))
+        power_on()
         launch()
         activate('#title-play')
         assert page.locator('#comic-title').inner_text() == 'One PDF'
@@ -394,6 +406,7 @@ def run(profile, base):
 
         # Picking a later world must offer its intro once, including after reload.
         page.goto(base)
+        power_on()
         launch()
         activate('#choose-world')
         activate('#world-2')
@@ -401,6 +414,7 @@ def run(profile, base):
         activate('#scene-skip')
         assert page.evaluate('HIRED_APP.state.levelIndex === 2')
         page.reload()
+        power_on()
         launch()
         activate('#choose-world')
         activate('#world-2')
@@ -411,6 +425,7 @@ def run(profile, base):
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
+        power_on()
         launch()
         activate('#title-play')
         expect(page.locator('#comic-title')).to_have_text('A quick addition')
@@ -482,6 +497,7 @@ def run(profile, base):
                 0:{completed:true},1:{completed:true},2:{completed:true},3:{completed:true}
             }}))''')
         page.reload()
+        power_on()
         launch()
         activate('#title-play')
         expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
@@ -544,6 +560,7 @@ def run(profile, base):
             route.abort()
         context.route(re.compile(r'^https?://'), reject_network)
         page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
+        power_on()
         page.locator('#start-game').wait_for()
         # CV.TXT and CV.PDF replace the old CV web page icon.
         expect(page.locator('#home-cv')).to_have_count(0)
