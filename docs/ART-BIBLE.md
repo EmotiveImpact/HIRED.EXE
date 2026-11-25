@@ -106,6 +106,8 @@ The concept boards in `references/` are never loaded by the game. Everything the
 | `assets/production/backgrounds/*.webp` | The 960 × 540 copies the game loads | 960 × 540 |
 | `assets/production/backgrounds/interview-room-2.webp` to `-4.webp` | The back walls of the workshop, boardroom and reception | 1190 × 448 |
 | `assets/production/environment/furniture-atlas.png` | Seventeen pieces of room furniture at the size they are drawn | 512 wide |
+| `assets/art-book/*.webp` | The Art Book's copies of the four concept boards, and four pictures taken from the running game | 1672 × 941, 1254 × 1254 and 960 × 540 |
+| `assets/art-book/thumbs/*.webp` | One thumbnail for each picture in the Art Book | Up to 176 × 112 |
 | `assets/source/hq-rooms/` | Generated wall and furniture sources, their provenance, and the earlier room paintings | Variable |
 | `assets/source-atlases/terrain-4x4.png`, `props-4x4.png` | Generated source sheets for the two environment atlases | 1254 × 1254 |
 
@@ -175,3 +177,5 @@ python3 tools/build.py
 ```
 
 `build-environment-atlas.py` reproduces the committed terrain and prop atlases byte for byte from `assets/source-atlases/`. `build-character-atlas.py` expects the generated hero and enemy sheets (`hero-source.png` and `enemy-cutout.png`), which are not in this repository, so the committed hero and enemy atlases are the working originals. When artwork changes, add the new generated source as a new file and keep the approved boards untouched.
+
+The Art Book on the desktop shows the boards, the four backdrops, four pictures of the game in play and the sprite sheets. `node tools/art-book-captures.js` takes the in-play pictures from a served copy of the game, and `python3 tools/build-art-book.py` remakes the web-sized board copies and every thumbnail. The boards in `references/` are read and never changed.

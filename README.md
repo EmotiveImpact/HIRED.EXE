@@ -6,7 +6,7 @@ Play it at [hireexe.me](https://hireexe.me).
 
 ## Play
 
-Open `index.html` from a complete checkout, or run `python3 -m http.server 8000` and visit `http://localhost:8000/`. Open `art-book.html` for the original concept boards, transparent production atlases and captured gameplay.
+Open `index.html` from a complete checkout, or run `python3 -m http.server 8000` and visit `http://localhost:8000/`. The Art Book group on the desktop shows the concept boards, world paintings, pictures of the game in play and the sprite sheets in a picture viewer, and opens the art bible, level design and engine notes in Write. `art-book.html` is the older catalogue page of the same art.
 
 | World | What to do |
 | --- | --- |

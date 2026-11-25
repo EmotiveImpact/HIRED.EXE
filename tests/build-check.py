@@ -152,6 +152,7 @@ def expected_images():
     runtime.add('assets/production/story/manga-panels.webp')
     runtime.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/directors-board').rglob('*.webp'))
     runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / 'assets/production/story/panels-v2').glob('*.jpg'))
+    runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / 'assets/art-book').rglob('*.webp'))
     gallery = {path for path in runtime if not path.endswith('.webp') and '/story/panels-v2/' not in path}
     gallery.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/backgrounds').glob('*.png'))
     for folder in ('references', 'assets/previews'):
@@ -222,6 +223,24 @@ def main():
         assert header.startswith('data:audio/') and raw[:4] == b'RIFF' and raw[8:12] == b'WAVE', f'{path}: not a WAV'
         assert raw == (ROOT / path).read_bytes() == (DIST / path).read_bytes(), f'{path}: embedded sound differs from source'
     report['game']['sounds'] = len(sounds)
+
+    # The Art Book: every picture it names, and a thumbnail for each, is on the site and in the
+    # single-file edition; so is every document Write opens.
+    book = (ROOT / 'src/art-book.js').read_text()
+    pictures = re.findall(r"\{ id: '([a-z0-9-]+)', file: '[A-Z0-9]+\.BMP', title: '[^']*', src: (BOOK \+ )?'([^']+)'", book)
+    assert len(pictures) >= 16, 'Art Book pictures not found'
+    for name, in_book, src in pictures:
+        for path in (('assets/art-book/' if in_book else '') + src, f'assets/art-book/thumbs/{name}.webp'):
+            assert path in runtime and (DIST / path).is_file(), f'Art Book picture missing: {path}'
+    for original in re.findall(r"original: '([^']+)'", book):
+        assert (DIST / original).is_file(), f'Art Book original missing: {original}'
+    docs = extract_assignment(play, 'HIRED_EMBEDDED_DOCS')
+    named = set(re.findall(r"'(docs/[^']+\.md)'", (ROOT / 'src/write.js').read_text()))
+    assert named and set(docs) == named, 'Write documents differ from the embedded set'
+    for path, text in docs.items():
+        assert text == (ROOT / path).read_text() == (DIST / path).read_text(), f'{path}: embedded document differs from source'
+    report['game']['art_book_pictures'] = len(pictures)
+    report['game']['documents'] = len(docs)
 
     # Check literal runtime image URLs and the complete enumerated background set.
     runtime_literals = set()

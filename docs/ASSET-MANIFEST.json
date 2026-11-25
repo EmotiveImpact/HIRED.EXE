@@ -2,6 +2,156 @@
   "format": 1,
   "assets": [
     {
+      "path": "assets/art-book/concept-alley.webp",
+      "role": "production-asset",
+      "bytes": 443300,
+      "sha256": "218c52e1cfe3527ec07385719477cea976e68cee86a2efb15ab87a1e5e6640b7"
+    },
+    {
+      "path": "assets/art-book/concept-augustus.webp",
+      "role": "production-asset",
+      "bytes": 284750,
+      "sha256": "d1116c286619ced8f56b20cdbd4240805054a841ccd241e5d3440128c59ab42a"
+    },
+    {
+      "path": "assets/art-book/concept-enemies.webp",
+      "role": "production-asset",
+      "bytes": 321060,
+      "sha256": "17e1e04e3caf8b8a594fd721f822c8b7190221b2b1f1c4eeedf7b03f0674f4f5"
+    },
+    {
+      "path": "assets/art-book/concept-environment.webp",
+      "role": "production-asset",
+      "bytes": 410960,
+      "sha256": "df4d48b23b2b95d9682a33ed906312e232502770841ef055d616b6f3b3371026"
+    },
+    {
+      "path": "assets/art-book/play-1.webp",
+      "role": "production-asset",
+      "bytes": 197488,
+      "sha256": "3d68d4f7c66df013e07c82a32e49d70beaafe8ae85282685f5db2daa898b2e09"
+    },
+    {
+      "path": "assets/art-book/play-2.webp",
+      "role": "production-asset",
+      "bytes": 184592,
+      "sha256": "1f4b03a93bbf3d86c95cd60f3799b286091f7e1e26dc12c0983206597e15c229"
+    },
+    {
+      "path": "assets/art-book/play-3.webp",
+      "role": "production-asset",
+      "bytes": 186942,
+      "sha256": "2e31e4ea8223f8a98cd25c24679e7cb21bf4c1fd9d8ca44d7df89d8f750ba236"
+    },
+    {
+      "path": "assets/art-book/play-4.webp",
+      "role": "production-asset",
+      "bytes": 268882,
+      "sha256": "c7d565ea66d4b3069d96efa5a72e217e1c16ff6a9316255b424a303c68924f4e"
+    },
+    {
+      "path": "assets/art-book/thumbs/concept-alley.webp",
+      "role": "production-asset",
+      "bytes": 8962,
+      "sha256": "cc96ae991ed15c0bb9729258dfe7d1b513d19017a04aacb54e11ffa86b670d21"
+    },
+    {
+      "path": "assets/art-book/thumbs/concept-augustus.webp",
+      "role": "production-asset",
+      "bytes": 6168,
+      "sha256": "6f0060b1ac53aeaf042eba3aa22813a5e1b0c9dca2ba954d75bd996b606e8190"
+    },
+    {
+      "path": "assets/art-book/thumbs/concept-enemies.webp",
+      "role": "production-asset",
+      "bytes": 5336,
+      "sha256": "3ed6236113800beb41734c6a72bd809ba65bf757e17b72db51a975177855950d"
+    },
+    {
+      "path": "assets/art-book/thumbs/concept-environment.webp",
+      "role": "production-asset",
+      "bytes": 6558,
+      "sha256": "c0910bb20bd15a3c71ca433782f4223d907e74d8a1a19443713abc5b921ce0f3"
+    },
+    {
+      "path": "assets/art-book/thumbs/play-1.webp",
+      "role": "production-asset",
+      "bytes": 8078,
+      "sha256": "1b557a12caf4a282d1a88466acaec45fdfe54c50180c5019853428f7347476f7"
+    },
+    {
+      "path": "assets/art-book/thumbs/play-2.webp",
+      "role": "production-asset",
+      "bytes": 7248,
+      "sha256": "5f8cc8d31ab2dfa06d61d7da6f3d3b54c7275b284b627240a5fe545740419135"
+    },
+    {
+      "path": "assets/art-book/thumbs/play-3.webp",
+      "role": "production-asset",
+      "bytes": 7882,
+      "sha256": "84e4fc589d46b3ad4ef7efa485862a35b7b6cf757fdfbc926327aff0eddd9729"
+    },
+    {
+      "path": "assets/art-book/thumbs/play-4.webp",
+      "role": "production-asset",
+      "bytes": 9298,
+      "sha256": "79c5267fddfa894a8405d08a6d44d249e0138f4e7a77ee6737dce489a7c11aa2"
+    },
+    {
+      "path": "assets/art-book/thumbs/sprites-augustus.webp",
+      "role": "production-asset",
+      "bytes": 13680,
+      "sha256": "8d892ceb7d321d786451a64b77a1f015f23d5e936fc709912ab3ce28b8717e49"
+    },
+    {
+      "path": "assets/art-book/thumbs/sprites-enemies.webp",
+      "role": "production-asset",
+      "bytes": 14226,
+      "sha256": "383f3497c60b8290cf8c2007f7a7903ae038feb3ce227c8a757f59c9ec984bf7"
+    },
+    {
+      "path": "assets/art-book/thumbs/sprites-furniture.webp",
+      "role": "production-asset",
+      "bytes": 10348,
+      "sha256": "a0c6bbecc4d08739b0eb398807eaeca35d41b432718349c07c59d1ca654e8e5a"
+    },
+    {
+      "path": "assets/art-book/thumbs/sprites-props.webp",
+      "role": "production-asset",
+      "bytes": 10596,
+      "sha256": "d16700cc96232b0bb83f08aaf4d11d32667237c06a67bd0cad81f86dbd824c4f"
+    },
+    {
+      "path": "assets/art-book/thumbs/sprites-terrain.webp",
+      "role": "production-asset",
+      "bytes": 10278,
+      "sha256": "560906493e8549c5f0726f5e4ee648ae99861f402a8da011ed8216eda4181dba"
+    },
+    {
+      "path": "assets/art-book/thumbs/world-alley.webp",
+      "role": "production-asset",
+      "bytes": 8210,
+      "sha256": "d572d3a1d70e231d1a16b2c75a6f1d05473d044e12ff6a2f173dd9c76325812f"
+    },
+    {
+      "path": "assets/art-book/thumbs/world-city.webp",
+      "role": "production-asset",
+      "bytes": 7452,
+      "sha256": "35eaa92b73b3e3582ca718503721dde14ad42be62b50235971934408d3c38f4a"
+    },
+    {
+      "path": "assets/art-book/thumbs/world-growth.webp",
+      "role": "production-asset",
+      "bytes": 8596,
+      "sha256": "4b11203bcb7d2c98448b1789df21acb9a08a3f754694924b37ababff7df288f1"
+    },
+    {
+      "path": "assets/art-book/thumbs/world-hq.webp",
+      "role": "production-asset",
+      "bytes": 9320,
+      "sha256": "840700105b5ef33d9e5eb01daaee6918cef48cf0bb6ff9f0ed4bdd9b7390446e"
+    },
+    {
       "path": "assets/cutscenes/PANEL-BRIEF.md",
       "role": "production-asset",
       "bytes": 35819,

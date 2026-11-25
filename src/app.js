@@ -172,6 +172,8 @@
     // Projects in progress get a group of their own, one icon each.
     const working=linkItems(E.working,'desk-work-');
     const internetItems=[...(internet?['desk-netscape']:[]),...platforms.map(l=>l.id)];
+    // The documents behind the art, named as the Write files they open as.
+    const ART_DOCS=Object.entries(H.write.docs).map(([path,label])=>({id:'desk-doc-'+label.split('.')[0].toLowerCase(),label,path}));
     H.wm.init($('os-shell'),$('os-dialog'));
     H.progman($('os-files'),{
       licensee:E.applicant, organisation:E.company||'',
@@ -184,6 +186,9 @@
         'desk-sub':{label:'Submarine (final).exe',icon:SUB_ICON,command:'C:\\HIRE\\SUBMARIN.EXE',workdir:'C:\\HIRE',runs:['submarin.exe','submarin','submarine'],open:()=>H.seaTrial(desktopApp('sea-trial',{icon:SUB_ICON,iconId:'sea-icon'}),()=>{progress.delivered=true;save();})},
         'desk-setup':{label:'Hire Augustus.exe',icon:H.setupIcon,command:'A:\\SETUP.EXE',workdir:'A:\\',runs:['setup.exe','setup','hireaug.exe','hireaug','hireaugustus','hireedem.exe','hireedem'],open:()=>H.hireSetup({E,safeLink,openInternet:internetItems.length?()=>H.progman.openGroup('internet'):null})},
         'desk-jargon':{label:'Jargon',icon:H.jargonIcon,command:'JARGON.EXE',workdir:'C:\\WINDOWS',runs:['jargon.exe','jargon'],open:()=>H.jargon()},
+        // The Art Book group: the picture viewer, and the documents behind the art as Write files.
+        'desk-artbook':{label:'Art Book',icon:H.artBook.icon,command:'C:\\HIRE\\ART\\ARTBOOK.EXE',workdir:'C:\\HIRE\\ART',runs:['artbook.exe','artbook'],open:()=>H.artBook()},
+        ...Object.fromEntries(ART_DOCS.map((d,i)=>[d.id,{label:d.label,icon:H.write.icon,command:'WRITE.EXE C:\\HIRE\\ART\\'+d.label,workdir:'C:\\HIRE\\ART',runs:[d.label.toLowerCase(),...(i?[]:['write.exe','write'])],open:()=>H.write(d.path)}])),
         'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
         ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
         ...Object.fromEntries([...platforms,...working].map(l=>[l.id,{label:l.name,icon:H.linkIcon?.(l.icon)||`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
@@ -193,6 +198,7 @@
         {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv-txt','home-cv-pdf','desk-setup']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
         {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon','desk-sub']},
+        {id:'artbook',title:'Art Book',file:'ARTBOOK.GRP',items:['desk-artbook',...ART_DOCS.map(d=>d.id)]},
         ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[]),
         ...(working.length?[{id:'working',title:'Working On',file:'WORKING.GRP',items:working.map(l=>l.id)}]:[])
       ],
