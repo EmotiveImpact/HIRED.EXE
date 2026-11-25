@@ -445,20 +445,23 @@
   // world from src/game-sound.js. No audio files or network requests.
   const audio={enabled:!progress.muted,engine:null,at:0,chime:0,
     get running(){return this.engine?.state==='running';},
-    async start(){
+    // gesture: a click, tap or key press is behind this call. Without one (on opening the page)
+    // the browser is only asked, and may well leave sound locked until the first press.
+    async start(gesture=true){
       if(!this.enabled)return;
       try{
         this.engine ||= H.gameSound();
-        await this.engine.unlock();
+        await (gesture?this.engine.unlock():this.engine.wake());
         this.syncMusic();
         const due=this.chime;this.chime=0;
         if(due>performance.now())this.system('SystemStart');
       }catch(_){this.enabled=false;updateSound();}
     },
     // The desktop's system sounds (src/win-sound.js). The start-up fanfare belongs to the
-    // moment the desktop appears: sound unlocked by the press that skipped the start-up may
-    // take an instant to begin, so the fanfare is held for a second, and after that it is
-    // dropped. It never plays late, on some later click.
+    // moment the desktop appears. Sound that is still starting then (asked for on opening, or
+    // unlocked by the press that skipped the start-up) gets a second to begin; a browser that
+    // keeps sound locked gets silence. The fanfare never plays late: a press on the desktop
+    // drops one that is still waiting (see unlockAudio).
     system(event){
       if(!this.enabled)return;
       if(!this.running){if(event==='SystemStart')this.chime=performance.now()+1000;return;}
@@ -588,6 +591,8 @@
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
   updateSound();
   const unlockAudio=event=>{
+    // A fanfare still waiting belongs to the desktop appearing, not to this press.
+    audio.chime=0;
     if(audio.enabled && !audio.running && !event.target.closest?.('#sound-button'))audio.start();
   };
   document.addEventListener('click',unlockAudio,true);
@@ -603,63 +608,34 @@
   // straight to the blank screen and the splash.
   function dosStartup(typed=false){
     return new Promise(resolve=>{
-      const screen=$('dos-start'), prompt=$('dos-prompt'), state=$('dos-state'), skip=$('dos-skip');
+      const prompt=$('dos-prompt'), state=$('dos-state'), skip=$('dos-skip');
       const timers=[], shift=typed?-1300:0;
-      // The line the PC waits on, while it waits (see below).
-      let pause=null;
-      const waiting=()=>!!pause?.classList.contains('dos-waiting');
       function finish(){
         timers.forEach(clearTimeout);
         document.removeEventListener('keydown',shortcut);
-        screen.removeEventListener('click',tap);
-        pause?.classList.remove('dos-waiting');
         skip.onclick=null;
         if(!typed){prompt.textContent='C:\\>WIN';state.textContent='Starting Windows…';}
         skip.hidden=true;
         resolve();
       }
       const skipped=()=>{if(!typed)H.track('Startup skipped');finish();};
-      function shortcut(e){
-        if(e.target===skip)return;
-        if(e.key==='Escape'||(e.key==='Enter'&&!waiting())){e.preventDefault();skipped();return;}
-        if(waiting()&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!['Tab','Shift','Control','Alt','Meta','CapsLock'].includes(e.key)){e.preventDefault();resume();}
-      }
-      const tap=e=>{if(!e.target.closest('button'))resume();};
-      function resume(){
-        if(!waiting())return;
-        pause.classList.remove('dos-waiting');
-        screen.removeEventListener('click',tap);
-        run();
-      }
-      function run(){
-        if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
-        if(!typed){
-          ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
-            timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
-          });
-          timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
-        }
-        // As in 1992: WIN clears the screen to black, the splash holds while
-        // Windows loads, then the screen blanks again before Program Manager.
-        timers.push(setTimeout(()=>{screen.classList.add('windows-blank');},1500+shift));
-        timers.push(setTimeout(()=>{screen.classList.add('windows-splash');},1850+shift));
-        timers.push(setTimeout(()=>{screen.classList.remove('windows-splash');},4350+shift));
-        timers.push(setTimeout(finish,4600+shift));
-      }
+      function shortcut(e){if(e.key==='Enter'||e.key==='Escape'){e.preventDefault();skipped();}}
       skip.hidden=false;
       skip.onclick=skipped;
       setTimeout(()=>document.addEventListener('keydown',shortcut));
-      // A browser keeps sound locked until a key press, click or tap. So that the start-up
-      // fanfare can play as the desktop appears, the PC stops here the way a PAUSE in
-      // AUTOEXEC.BAT stopped it, and carries on at any key. With sound off, or once it is
-      // unlocked, there is nothing to wait for.
-      if(!typed&&audio.enabled&&!audio.running){
-        pause=document.createElement('p');
-        pause.className='dos-pause dos-waiting';pause.setAttribute('role','status');
-        pause.textContent=matchMedia('(hover: none) and (pointer: coarse)').matches?'Tap the screen to continue . . .':'Press any key to continue . . .';
-        prompt.before(pause);
-        screen.addEventListener('click',tap);
-      }else run();
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return;}
+      if(!typed){
+        ['C:\\>','C:\\>W','C:\\>WI','C:\\>WIN'].forEach((line,i)=>{
+          timers.push(setTimeout(()=>{prompt.textContent=line;},450+180*i));
+        });
+        timers.push(setTimeout(()=>{state.textContent='Starting Windows…';},1300));
+      }
+      // As in 1992: WIN clears the screen to black, the splash holds while
+      // Windows loads, then the screen blanks again before Program Manager.
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-blank');},1500+shift));
+      timers.push(setTimeout(()=>{$('dos-start').classList.add('windows-splash');},1850+shift));
+      timers.push(setTimeout(()=>{$('dos-start').classList.remove('windows-splash');},4350+shift));
+      timers.push(setTimeout(finish,4600+shift));
     });
   }
 
@@ -670,9 +646,8 @@
     $('desktop').inert=false;
   }
 
-  // Windows boots on every page load, as a real PC did. With sound on it first waits for
-  // any key. Skip startup or Escape cut it short (and Enter, once it is under way), and
-  // Options > Replay startup runs it again.
+  // Windows boots on every page load, as a real PC did. Skip startup, Enter or
+  // Escape cut it short, and Options > Replay startup runs it again.
   async function runStartup(){
     const screen=$('dos-start');
     screen.hidden=false;screen.classList.remove('windows-splash','windows-blank','dos-shell');
@@ -764,6 +739,8 @@
   }
   async function boot(){
     renderer=new H.Renderer($('game'));
+    // Ask for sound now, so that a browser that allows it has the fanfare ready for the desktop.
+    audio.start(false);
     await runStartup();
     ready=true;$('loading').classList.add('hidden');showHome();
     audio.system('SystemStart');

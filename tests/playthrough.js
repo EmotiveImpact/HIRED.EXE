@@ -59,9 +59,6 @@ async function run() {
   let win = frame.contentWindow;
   const app = () => win.HIRED_APP;
   const byId = id => win.document.getElementById(id);
-  // The PC waits for a key before it starts Windows; the runner skips the start-up instead.
-  const powerOn = () => byId('dos-skip')?.click();
-  powerOn();
   const click = id => { const el=byId(id); check(el && !el.disabled,'Missing control: '+id); el.click(); };
   const shots = new Set();
   function capture(world) {
@@ -118,7 +115,7 @@ async function run() {
             const id = s.checkpoint.id, coins = app().progress.checkpoint.collected.length;
             controls.release();
             const load = new Promise(resolve => frame.addEventListener('load',resolve,{once:true}));
-            win.location.reload(); await load; powerOn(); await until(()=>app()?.mode==='home','Checkpoint reload failed');
+            win.location.reload(); await load; await until(()=>app()?.mode==='home','Checkpoint reload failed');
             check(byId('start-game').textContent.includes('checkpoint'),'Resume action missing');
             click('start-game'); await until(()=>app().mode==='title','Title screen missing'); click('title-play');
             check(app().state.checkpoint.id===id && app().state.world.collectibles.filter(i=>i.collected).length===coins,'Checkpoint snapshot lost');
@@ -160,7 +157,7 @@ async function run() {
     notes('PASS three interview answers, matching project and contextual email');
     const before=app().progress;
     const reloaded=new Promise(resolve=>frame.addEventListener('load',resolve,{once:true}));
-    win.location.reload(); await reloaded; powerOn();
+    win.location.reload(); await reloaded;
     await until(()=>app()?.mode==='home','Reload did not return to title');
     check(Object.keys(app().progress.results).length===4 && JSON.stringify(before.results)===JSON.stringify(app().progress.results),'Results did not survive reload ('+win.HIRED_EDITION.id+', '+Object.keys(app().progress.results).length+' saved worlds)');
     notes('PASS saved results after reload');

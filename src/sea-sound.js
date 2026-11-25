@@ -302,6 +302,13 @@
       get position() { return song ? song.pos : 0; },
       // Call from any tap, click or key press: browsers only let sound start from one.
       // Resolves once the sound is running (or the browser has said no).
+      // Ask for sound with no tap, click or key press behind the request: a browser that lets a
+      // page play on opening starts it, and any other leaves it locked until unlock(). Resolves
+      // once the sound is running, or the browser has said no, or (often) not until unlock().
+      wake() {
+        if (!build()) return Promise.resolve();
+        return ctx.state !== 'running' && ctx.resume ? ctx.resume().then(tick, () => {}) : Promise.resolve();
+      },
       unlock() {
         if (!build()) return Promise.resolve();
         let ready = Promise.resolve();
