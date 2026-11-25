@@ -22,8 +22,8 @@
     {
       "path": "assets/cv/Augustus-Edem-CV.pdf",
       "role": "production-asset",
-      "bytes": 46264,
-      "sha256": "fb12ba1f667e12cea4dd99343c06273588a02df7381fa272a68ac55241dbf624"
+      "bytes": 121329,
+      "sha256": "c1c658f7324529a0ea134eefb66a4c6fcd502ac8c5e57a67ed7604b8770097c1"
     },
     {
       "path": "assets/directors-board/alley-1.webp",
@@ -434,24 +434,6 @@
       "sha256": "94cc61839da6d5791c9d752390e76095815621ddd5ab90cc2ed7913e51fd96a7"
     },
     {
-      "path": "assets/production/backgrounds/interview-floor-2.webp",
-      "role": "production-asset",
-      "bytes": 145504,
-      "sha256": "22c5f598d3ca3769051740756ca00bee689138f7670fe6b003a8ff5b157618d7"
-    },
-    {
-      "path": "assets/production/backgrounds/interview-floor-3.webp",
-      "role": "production-asset",
-      "bytes": 117832,
-      "sha256": "74fdbfcab55326ed6d4cbd6cdc7a7218dff6bf39cbfdebde5a011e0973a079e7"
-    },
-    {
-      "path": "assets/production/backgrounds/interview-floor-4.webp",
-      "role": "production-asset",
-      "bytes": 138306,
-      "sha256": "a04bc95f75db1e1b223708b1cd1dd24faf8e1ac5eec59f2ade16e44ecd22942f"
-    },
-    {
       "path": "assets/production/backgrounds/interview-hq.png",
       "role": "production-asset",
       "bytes": 2883966,
@@ -462,6 +444,24 @@
       "role": "production-asset",
       "bytes": 296004,
       "sha256": "33033f2ac216e17c353e148e8920e8fcd6f57cf7e4c8e8c038703a0c0f746c93"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-room-2.webp",
+      "role": "production-asset",
+      "bytes": 86174,
+      "sha256": "d31109bba2bc9748f271d40d6b1baad7397d2e4d3004d9092e3ccb99da79fe60"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-room-3.webp",
+      "role": "production-asset",
+      "bytes": 105106,
+      "sha256": "bb29fa9044ebd822420e905c055b4944ba78e9e8f338c63dbf984554e9841c0a"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-room-4.webp",
+      "role": "production-asset",
+      "bytes": 84400,
+      "sha256": "494494591bcba11262ca05061bce0f41a191d69a56a99ceff6cee295e7d59cd6"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city.png",
@@ -552,6 +552,18 @@
       "role": "production-asset",
       "bytes": 16931,
       "sha256": "ce0d6525f3ba26621878f67c90129314e407480e7714ecd44982dfcbd6674f80"
+    },
+    {
+      "path": "assets/production/environment/furniture-atlas.json",
+      "role": "production-asset",
+      "bytes": 4054,
+      "sha256": "0c2b3d8d81edaa37574b861bc8844317ebd562c72dc65af5ce82207a004ded19"
+    },
+    {
+      "path": "assets/production/environment/furniture-atlas.png",
+      "role": "production-asset",
+      "bytes": 141081,
+      "sha256": "969efc69ea2f44c9cb4a3eed9c6986dabb11e9caf9ff15006a87df693ba0b852"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -888,6 +900,84 @@
       "role": "generated-source",
       "bytes": 3527,
       "sha256": "cc1663c32ca85e634affa17b5a0f573b24e69124aa5e02829866a59d1e8624fc"
+    },
+    {
+      "path": "assets/source/hq-rooms/README.md",
+      "role": "generated-source",
+      "bytes": 1702,
+      "sha256": "75e859fcb5ac4d49fd466abc061b80488edd3da45cbb90afd9dae1af96b356a6"
+    },
+    {
+      "path": "assets/source/hq-rooms/furniture-boardroom.png",
+      "role": "generated-source",
+      "bytes": 1032147,
+      "sha256": "981f6fc999e47476ebbcf71fe59af60c66dd07835a591ee1f0b20b1a7b353e76"
+    },
+    {
+      "path": "assets/source/hq-rooms/furniture-reception.png",
+      "role": "generated-source",
+      "bytes": 1106222,
+      "sha256": "a01fb450865a71a8471fe9806ccee4cbe86a6264be19f15b5039cde2a3018bcd"
+    },
+    {
+      "path": "assets/source/hq-rooms/furniture-workshop.png",
+      "role": "generated-source",
+      "bytes": 1039223,
+      "sha256": "82fcc71afde243ca01d1243f93089b39389bb0dd382c5af31e652ff00336e048"
+    },
+    {
+      "path": "assets/source/hq-rooms/previous/interview-floor-2.webp",
+      "role": "generated-source",
+      "bytes": 145504,
+      "sha256": "22c5f598d3ca3769051740756ca00bee689138f7670fe6b003a8ff5b157618d7"
+    },
+    {
+      "path": "assets/source/hq-rooms/previous/interview-floor-3.webp",
+      "role": "generated-source",
+      "bytes": 117832,
+      "sha256": "74fdbfcab55326ed6d4cbd6cdc7a7218dff6bf39cbfdebde5a011e0973a079e7"
+    },
+    {
+      "path": "assets/source/hq-rooms/previous/interview-floor-4.webp",
+      "role": "generated-source",
+      "bytes": 138306,
+      "sha256": "a04bc95f75db1e1b223708b1cd1dd24faf8e1ac5eec59f2ade16e44ecd22942f"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-boardroom-b.png",
+      "role": "generated-source",
+      "bytes": 1537487,
+      "sha256": "cf29031ea466e2b72c0c401a706416012b3cb387ac34b5b58f2630b39f30dd73"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-boardroom.png",
+      "role": "generated-source",
+      "bytes": 1638705,
+      "sha256": "347c20f9cc0c1587cdc028365a4ac6ea4c86c62717f8ad184fdbd910e58f3a58"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-reception-b.png",
+      "role": "generated-source",
+      "bytes": 1487106,
+      "sha256": "eb66ce75944b473cfa6590356b265203fa9e58907900008d6fac581454ddaf12"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-reception.png",
+      "role": "generated-source",
+      "bytes": 1554759,
+      "sha256": "df99d8669164ea03f8a2e0deee07b25d3aa06be68e92f5eb0c048bdd52bbebd1"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-workshop-b.png",
+      "role": "generated-source",
+      "bytes": 1384262,
+      "sha256": "97b47a88a893c9ef439e3892a6040483d103f8f8a543d30dad3cdd56ca3ac396"
+    },
+    {
+      "path": "assets/source/hq-rooms/wall-workshop.png",
+      "role": "generated-source",
+      "bytes": 1397886,
+      "sha256": "6a056fc0ad547b205f3612d373a2a98bd960c1332116d175c03b9b83b9ac86e0"
     },
     {
       "path": "assets/source-atlases/props-4x4.png",

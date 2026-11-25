@@ -17,7 +17,7 @@ These measurements come from the delivered `src/levels.js`. Coordinates are logi
 | Application Alley | 9350 | 440, 420, 200 | 1370, 1810, 4620, 6730, 7990 | 540, 3106, 4110 |
 | Ship It City | 12880 | 440, 400, 384 | 1100, 2560, 4850, 7460, 8410, 9920, 11560 | 682, 2176, 4370 |
 | Growth Run | 12920 | 440, bars 400 to 200 | 1250, 1590, 3300, 4690, 6890, 8470, 11800 | 524, 2906, 7866 |
-| Final Interview HQ | 10150 | 440, 400, 360, 350, 340, 330, 320 | 750, 1950, 2930, 5130, 6130, 7180, 8240, 9320 | 466, 2586, 4766 |
+| Final Interview HQ | 10500 | 440, 400, 360, 350 on floor 1; 440 in each room | 750, 1950, 2930, 5118, 5160, 6360, 7860, 9360 | 466, 2586, 4766 |
 
 Final coordinates are produced when the level loads: `INSERTS` in `src/levels.js` splices each added stretch into the authored layout and moves everything after it to the right. Read live values from `Hired.LEVELS` when exact numbers matter.
 
@@ -32,7 +32,7 @@ Each world carries three set pieces and one secret room, none of which adds a ne
 | Application Alley | Keyword Gate | `gates` with `needs: 'keys'`, three `key` collectibles | A solid gate before the arena opens when all three keyword tags are collected. The keys sit low, on a ledge and above a spring within one courtyard, so backtracking is never more than a screen and a half. |
 | Ship It City | Phase 2 | signs only | The 'NEARLY DONE' and 'PHASE 2 (QUICK TWEAK)' signs mark where the level used to end, and a second half of lifts and terraces leads to the arena. The decoy finish portal was removed after playtesting because it read as a bug. |
 | Growth Run | The Feed | `chase` | A wall of content pursues the player from x 4560 to x 7440 at 4.7 pixels per tick against a run speed of 6.2. It never trails by more than 380 pixels. Being overtaken returns the player to the checkpoint before the sprint and resets the wall. Assist mode slows it by a fifth. |
-| Final Interview HQ | Three rounds | `rounds`, `gates` with a round index | One-hit rematches with the CV Filter, Scope Creep and the Algorithm, each in its own terrace arena behind a gate, before the host welcomes the player without combat. |
+| Final Interview HQ | Three rounds | `rounds`, `gates` with a round index | One-hit rematches with the CV Filter, Scope Creep and the Algorithm, each on its own floor and reached by lift, before the host welcomes the player without combat. |
 
 | Application Alley | Cover Letter Climb | a 240-pixel rooftop | Taller than a single jump, so it needs the second jump or the lift and ledge before it. |
 | Application Alley | The Spam Folder | secret room | See secret rooms below. The first design was a basement, but the camera does not scroll vertically, so it is a walled room above the street. |
@@ -41,7 +41,8 @@ Each world carries three set pieces and one secret room, none of which adds a ne
 | Growth Run | A/B test | spring, upper ledges with boosts | Lane A is high and fast with gaps; lane B stays on the ground with more ideas and two enemies. Both rejoin. |
 | Growth Run | Bar chart climb | five rising grounds, `crumble` ledge | Bars rise 50 pixels at a time. The ledge at the top holds for 26 ticks, then drops its rider safely to the floor. |
 | Final Interview HQ | Waiting room | gate with `needs: 'keys'`, a `key` flagged `bell` | The door opens when the bell on the high ledge is collected. |
-| Final Interview HQ | The lift | `lift`, gate with `needs: 'lift'` | Three floors of 230 ticks each. Passengers board at the door further from the player and leave when the floor changes. The doors open after the third floor whatever happens, so it cannot be failed permanently. |
+| Final Interview HQ | The lift | `floorDoors`, `floorScenes`, gate with a round index | One lift at the end of each of floors 1 to 3. Clearing the round calls it: the car comes down the shaft, the indicator counts, it chimes and the doors open. Walking up to the open doors boards it. The player steps in, the doors close, the car leaves, and the doors open on the next floor, where the player steps out beside a save point. Input is ignored for the ride, about three seconds. The gate behind the lift is the wall that ends the floor and never opens. Floors 2 to 4 are rooms with one unbroken floor at 440, and nothing is placed in a lift doorway. |
+| Final Interview HQ | Furnished rooms | decor and platforms of type `furniture` | Floor 2 is a workshop, floor 3 a boardroom and floor 4 the reception. The back wall of each is a plate with no furniture painted on it, fixed to the floor and made of two different stretches of wall so nothing repeats across the room. The furniture is separate: every piece stands on the floor at a size that suits the hero, and the flat-topped ones (shelf, plan chest, desk, boardroom table, sideboard, coffee table, reception desk) can be stood on from above and walked past from the side. Furniture sits between the arriving lift and the round, so the arena stays clear. `FURNITURE` and `ROOMS` in `src/levels.js` hold the sizes and the layout. |
 
 Secret rooms: each world has one walled room on a ledge 232 pixels above the ground, holding eight ideas. Its front panel is a `breakable` wall that is solid to a walk and breaks to a dash (event `secret`, 300 points). The panel shows a crack and, when the player stands beside it, the label "LOOKS THIN. DASH?".
 

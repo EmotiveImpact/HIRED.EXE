@@ -247,8 +247,7 @@
         ground(2640, 540, 360), ground(3340, 900, 350), ground(4400, 900, 340), ground(5460, 900, 330),
         ground(6520, 900, 320), ledge(370, 338, 192),
         ledge(850, 290), moving(1210, 250, 144, 80, 0, 0.02), ledge(1640, 222, 192),
-        ledge(2160, 292), moving(2460, 270, 144, 0, 65, 0.02), ledge(2910, 242, 192),
-        ledge(6790, 210, 144)],
+        ledge(2160, 292), moving(2460, 270, 144, 0, 65, 0.02), ledge(2910, 242, 192)],
       enemies: [enemy('cv', 850, 400, 770, 1030), enemy('plane', 1180, 266, 1010, 1320, 1.6),
         enemy('inbox', 1570, 360, 1470, 1830), enemy('cv', 2270, 400, 2100, 2440, 1.3),
         enemy('plane', 2790, 246, 2690, 3030, 1.6), enemy('inbox', 3000, 360, 2820, 3100)],
@@ -266,7 +265,7 @@
           arena: [4560, 5220] },
         { type: 'algorithm', name: 'Round 3 · The panel', x: 5950, floor: 295, w: 88, h: 76, health: 3, interviewRound: true }
       ],
-      gates: [gate(4190, 350, 0, 'DOOR TO FLOOR 2'), gate(5250, 340, 1, 'DOOR TO FLOOR 3'), gate(6310, 330, 2, 'DOOR TO FLOOR 4')],
+      gates: [gate(4190, 350, 0, 'LIFT TO FLOOR 2'), gate(5250, 340, 1, 'LIFT TO FLOOR 3'), gate(6310, 330, 2, 'LIFT TO FLOOR 4')],
       boss: { type: 'finalreview', name: 'Interview host', x: 6950, floor: 320, w: 84, h: 88, health: 3 },
       decor: [{ type: 'sign', x: 90, y: 440, text: 'FINAL INTERVIEW HQ' }, { type: 'tree', x: 520, y: 440 },
         { type: 'terminal', x: 1110, y: 400 }, { type: 'banner', x: 1460, y: 360 },
@@ -274,7 +273,7 @@
         { type: 'sign', x: 3160 - 180, y: 360, text: 'JUST THREE MORE ROUNDS' },
         { type: 'sign', x: 6550, y: 320, text: 'BRING YOUR STORY' }, { type: 'banner', x: 7150, y: 320 }],
       hints: [{ x: 100, text: 'The final climb. Checkpoints keep your progress safe.' },
-        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then enter the door on the right.' },
+        { x: 3300, text: 'Floor 1 of 4 · Phone screen. Clear the round, then take the lift on the right.' },
         { x: 6540, text: 'The interview host has your file. Head through the doors and choose what to talk about.' }]
     }
   ];
@@ -286,6 +285,9 @@
     { id: 'final-final', x: 189, y: 397, badge: 'ZIP', colour: '#cbb7fa', title: 'FINAL_final_ACTUALLY_FINAL.zip', line: 'There’s a v2.' }
   ];
 
+  // The lift stands against the wall that ends each floor. `car` is the middle of its doorway
+  // on the floor you leave and `arrival` the same spot on the floor you reach.
+  const LIFT = { reach: 64, clear: 132, landing: 200 };
   function configureInterviewDoors(level) {
     level.floorDoors = level.gates.filter(g => typeof g.needs === 'number').map(g => ({
       x: g.x, y: g.y + g.h, landing: level.checkpoints.find(cp => cp.x > g.x), round: g.needs
@@ -296,6 +298,73 @@
     level.floorScenes = titles.map((title, i) => ({
       title, start: starts[i], end: level.floorDoors[i] ? level.floorDoors[i].x + 48 : level.width
     }));
+    level.floorDoors.forEach((door, i) => {
+      door.car = door.x - LIFT.reach;
+      door.arrival = { x: starts[i + 1] + 24 + LIFT.reach, y: door.landing.y };
+      door.called = 0;
+    });
+  }
+  // Floors 2 to 4 are rooms, so their floor sits at floor height with the painted room standing
+  // behind it, and the save point, signs and ideas keep clear of the lift you arrive in.
+  function settleInterviewRooms(level) {
+    const starts = level.floorScenes.map(room => room.start);
+    level.floorScenes.slice(1).forEach((room, index) => {
+      const from = room.start, to = starts[index + 2] ?? Infinity;
+      const drop = 440 - level.platforms.find(p => p.type === 'ground' && p.x === from).y;
+      const inRoom = item => item.x >= from && item.x < to;
+      for (const name of LISTS) for (const item of level[name] || []) {
+        if (!inRoom(item)) continue;
+        for (const field of ['y', 'baseY', 'floor']) if (field in item) item[field] += drop;
+        if (item.type === 'ground') item.h = 680 - item.y;
+      }
+      if (inRoom(level.boss)) level.boss.floor += drop;
+      level.floorDoors[index].landing.x = from + LIFT.landing;
+      for (const sign of level.decor) if (inRoom(sign) && sign.x < from + LIFT.landing + 40) sign.x = from + LIFT.landing + 42;
+    });
+  }
+  const besideLift = (level, item) => level.floorDoors.some(door =>
+    Math.abs(item.x - door.car) < LIFT.reach + 12 || (item.x >= door.arrival.x - LIFT.reach - 24 && item.x < door.arrival.x + LIFT.reach + 12));
+
+  // Furniture is part of the level, not the backdrop: it stands on the room's floor at the hero's
+  // scale. `top` is the height of a flat top above the floor; those pieces can be stood on, and a
+  // piece without one is never drawn with a level top. Sizes match the cut-outs in the atlas.
+  // Sizes match the furniture atlas that tools/build-room-art.py cuts; `top` is how far above
+  // the floor a piece can be stood on. The hero is 58 tall.
+  const FURNITURE = {
+    desk: { w: 88, h: 48, top: 48 }, chest: { w: 90, h: 48, top: 48 }, stool: { w: 34, h: 44 },
+    bin: { w: 30, h: 50 }, shelf: { w: 90, h: 100, top: 100 }, lamp: { w: 26, h: 36 },
+    table: { w: 272, h: 46, top: 46 }, chair_side: { w: 38, h: 66 }, chair: { w: 42, h: 66 },
+    palm: { w: 64, h: 104 }, sideboard: { w: 80, h: 112, top: 49 },
+    reception: { w: 130, h: 64, top: 64 }, armchair: { w: 70, h: 62 }, coffee_table: { w: 74, h: 36, top: 36 },
+    planter: { w: 86, h: 50 }, tree: { w: 64, h: 100 }, floor_lamp: { w: 56, h: 110 }
+  };
+  // Each room, from its left wall: [piece, x, flipped, the piece it stands on]. Later pieces are
+  // drawn in front. An enemy paces the tops from its first named piece to its last.
+  const ROOMS = [
+    { furniture: [['shelf', 244], ['chest', 344], ['desk', 434], ['lamp', 492, true, 'desk'], ['stool', 530], ['bin', 568]],
+      enemy: ['cv', 'chest', 'desk'], ideas: [[289, 144], [389, 116], [478, 116]] },
+    { furniture: [['sideboard', 236], ['chair_side', 326], ['chair', 380], ['chair', 444], ['chair', 508], ['chair', 572], ['table', 362],
+      ['chair_side', 632, true], ['palm', 1090]],
+      enemy: ['inbox', 'table', 'table'], ideas: [[276, 150], [436, 106], [498, 106], [560, 106]] },
+    { furniture: [['floor_lamp', 420], ['armchair', 462], ['coffee_table', 536], ['armchair', 614], ['tree', 682], ['reception', 738],
+      ['planter', 962]],
+      ideas: [[573, 80], [780, 108], [824, 108]] }
+  ];
+  // Furnishing a room adds each piece as decor, a one-way top for the ones that have one,
+  // an enemy pacing the named piece, and ideas above the tops.
+  function furnishRoom(level, room, start, floor) {
+    const placed = {};
+    for (const [piece, x, flip, on] of room.furniture) {
+      const { w, h, top } = FURNITURE[piece], y = floor - (on ? FURNITURE[on].top : 0);
+      const item = { type: 'furniture', piece, x: start + x, y, w, h, flip: Boolean(flip) };
+      level.decor.push(item); placed[piece] = item;
+      if (top) level.platforms.push({ ...rect(start + x + 4, floor - top, w - 8, 20, 'furniture'), piece });
+    }
+    if (room.enemy) {
+      const [type, first, last] = room.enemy, from = placed[first].x + 6, to = placed[last].x + placed[last].w - 6;
+      level.enemies.push(enemy(type, (from + to) / 2, floor - FURNITURE[first].top, from, to, 0.9));
+    }
+    for (const [x, up] of room.ideas) level.collectibles.push({ x: start + x, y: floor - up, kind: 'coin' });
   }
 
   const LEVELS = definitions.map((level, levelIndex) => {
@@ -324,31 +393,18 @@
       }
     }
     if (level.id === 'final-interview') {
-      // Extend the upper rooms from right to left so earlier door coordinates stay stable.
+      // Lengthen the upper rooms from right to left so earlier door coordinates stay stable.
+      // A room has one unbroken floor: the stretch between its lift and its arena holds the furniture.
       const floorStarts = level.floorScenes.slice(1).map(room => room.start);
-      floorStarts.reverse().forEach((start, index) => {
+      floorStarts.reverse().forEach(start => {
         const approach = level.platforms.find(p => p.type === 'ground' && p.x === start);
-        const split = start + 305;
-        const remaining = approach.w - (split - start);
-        const y = approach.y;
-        shiftRight(level, split, 440);
-        if (index === 0) {
-          approach.w += 440;
-          level.platforms.push(ledge(split + 100, y - 64, 180), ledge(split + 302, y - 80, 124));
-          level.collectibles.push(...arc(split + 92, y - 105, 7, 42));
-          return;
-        }
-        const rise = 42;
-        approach.w = split - start;
-        level.platforms.push(
-          ground(split + 118, 220, y - rise),
-          ground(split + 440, remaining, y)
-        );
-        level.enemies.push(enemy(index === 1 ? 'inbox' : 'cv', split + 210, y - rise,
-          split + 134, split + 325, 1.05));
-        level.collectibles.push(...arc(split + 15, y - 104, 5, 42));
+        shiftRight(level, start + 305, 440);
+        approach.w += 440;
       });
       configureInterviewDoors(level);
+      settleInterviewRooms(level);
+      configureInterviewDoors(level);
+      level.floorScenes.slice(1).forEach((room, index) => furnishRoom(level, ROOMS[index], room.start, 440));
     }
     level.platforms.forEach((p, i) => { p.id = 'platform-' + i; p.dx = 0; p.dy = 0; });
     level.enemies.forEach((e, i) => { e.id = 'enemy-' + i; e.baseY = e.y; e.alive = true; e.phase = 0; });
@@ -357,6 +413,8 @@
     const secret = skills.reduce((highest, item) => item.y < highest.y ? item : highest);
     secret.secret = true;
     level.collectibles.forEach((c, i) => { c.id = level.id + '-pickup-' + i; c.collected = false; });
+    // No idea hangs in a lift doorway. Dropping them after the IDs are set keeps old saves valid.
+    if (level.floorDoors) level.collectibles = level.collectibles.filter(c => c.kind !== 'coin' || !besideLift(level, c));
     // The original pickup IDs remain stable for saved checkpoints.
     level.collectibles.push({ ...bonusItems[levelIndex], kind: 'bonus', collected: false });
     level.checkpoints.forEach((c, i) => { c.id = 'checkpoint-' + i; c.active = false; });

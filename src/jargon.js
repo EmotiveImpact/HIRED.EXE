@@ -18,12 +18,12 @@
     {id: 'coin', word: 'Competitive salary', lines: [
       '‘Competitive salary’ removed. Competitive with what, nobody said.',
       '‘Competitive salary’ removed. Still no number.']},
-    {id: 'hat', word: 'Wear many hats', lines: [
-      '‘Wear many hats’ removed. Three jobs, one salary.',
-      '‘Wear many hats’ removed. Hats not provided.']},
-    {id: 'bolt', word: 'Fast-paced', lines: [
-      '‘Fast-paced’ removed. It meant short-staffed.',
-      '‘Fast-paced’ removed. Lunch is still at your desk.']}
+    {id: 'table', word: 'Ping-pong table', lines: [
+      '‘Ping-pong table’ removed. It was where people ate lunch.',
+      '‘Ping-pong table’ removed. Nobody had played since the induction.']},
+    {id: 'shirt', word: 'Company swag', lines: [
+      '‘Company swag’ removed. That tote bag was the bonus.',
+      '‘Company swag’ removed. The hoodie only came in XL.']}
   ];
   const LEVELS = [
     {id: 'junior', label: '&Junior', kinds: 3},
@@ -35,8 +35,8 @@
     star: '<polygon points="8,0.8 10.2,5.8 15.4,6 11.3,9.4 12.8,14.8 8,11.7 3.2,14.8 4.7,9.4 0.6,6 5.8,5.8" fill="#ffff00" stroke="#000"/>',
     heart: '<path d="M8 14.6 1.9 8.4C.3 6.8.4 3.9 2.4 2.7 4.4 1.5 6.8 2.4 8 4.4 9.2 2.4 11.6 1.5 13.6 2.7 15.6 3.9 15.7 6.8 14.1 8.4Z" fill="#ff0000" stroke="#000"/>',
     coin: '<circle cx="8" cy="8" r="7" fill="#008000" stroke="#000"/><path d="M10.6 5.2C10.3 4.1 9.5 3.6 8.5 3.6 7 3.6 6.2 4.6 6.2 6V11.4M4.7 8H9.3M4.6 11.6H11.4" fill="none" stroke="#fff" stroke-width="1.6"/>',
-    hat: '<rect x="4.5" y="1.5" width="7" height="10" fill="#0000ff" stroke="#000"/><rect x="5" y="8" width="6" height="2" fill="#000080"/><rect x="0.5" y="11.5" width="15" height="3" fill="#0000ff" stroke="#000"/>',
-    bolt: '<polygon points="9.6,0.5 2.4,9 7,9 5.4,15.5 13.6,6 9,6 11.2,0.5" fill="#00ffff" stroke="#000"/>'
+    table: '<rect x="2.5" y="9" width="2" height="5.5" fill="#000080" stroke="#000"/><rect x="11.5" y="9" width="2" height="5.5" fill="#000080" stroke="#000"/><rect x="0.5" y="6.5" width="15" height="3" fill="#0000ff" stroke="#000"/><rect x="7" y="3.5" width="2" height="3" fill="#fff" stroke="#000"/><circle cx="3.6" cy="3" r="1.7" fill="#fff" stroke="#000"/>',
+    shirt: '<polygon points="5,1.5 6.6,3.2 9.4,3.2 11,1.5 15.5,4.6 13.6,8 11.5,6.9 11.5,14.5 4.5,14.5 4.5,6.9 2.4,8 0.5,4.6" fill="#00ffff" stroke="#000"/>'
   };
   const SYMBOLS = '<svg class="jg-defs" aria-hidden="true" focusable="false">' +
     KINDS.map(k => '<symbol id="jg-' + k.id + '" viewBox="0 0 16 16">' + ART[k.id] + '</symbol>').join('') + '</svg>';
@@ -44,7 +44,7 @@
   // The Program Manager icon draws its own pictures, as it sits outside the game window.
   H.jargonIcon = '<span class="pm-glyph pm-glyph-jargon" aria-hidden="true"><svg viewBox="0 0 32 32">' +
     '<rect x="0.5" y="0.5" width="31" height="31" fill="#fff" stroke="#000"/>' +
-    [['star', 1, 1], ['heart', 16, 1], ['coin', 1, 16], ['hat', 16, 16]].map(([id, x, y]) =>
+    [['star', 1, 1], ['heart', 16, 1], ['coin', 1, 16], ['table', 16, 16]].map(([id, x, y]) =>
       '<g transform="translate(' + x + ' ' + y + ')"><rect width="15" height="15" fill="#c0c0c0"/><path d="M0 15V0H15" fill="none" stroke="#fff"/><path d="M15 0V15H0" fill="none" stroke="#808080"/><g transform="translate(2 2) scale(.69)">' + ART[id] + '</g></g>').join('') +
     '</svg></span>';
 

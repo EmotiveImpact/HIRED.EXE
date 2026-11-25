@@ -47,8 +47,30 @@ def run(profile, base):
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
         expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
-        # Submarine (final).exe is on the desktop from the start, with no save needed.
-        expect(page.locator('#desk-sub')).to_be_visible()
+        # Submarine (final).exe is there from the start, with no save needed, in the Games group.
+        expect(page.locator('#games-window #desk-sub')).to_have_count(1)
+        # Only the main group starts open. The others wait as icons, clear of it.
+        expect(page.locator('#main-window')).to_be_visible()
+        for name in ('accessories', 'games', 'internet', 'working'):
+            expect(page.locator(f'#{name}-window')).to_be_hidden()
+            expect(page.locator(f'#{name}-group')).to_be_visible()
+        apart = '''() => { const r = [...document.querySelectorAll('.pm-group-win:not([hidden])')].map(w => w.getBoundingClientRect());
+            return r.every((a, i) => r.every((b, j) => i >= j || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)); }'''
+        below = '''() => { const icons = [...document.querySelectorAll('.pm-group-icon')].filter(i => i.offsetParent).map(i => i.getBoundingClientRect());
+            return [...document.querySelectorAll('.pm-group-win:not([hidden])')].every(w => icons.every(i => w.getBoundingClientRect().bottom <= i.top + 1)); }'''
+        snug = "[...document.querySelectorAll('.pm-group-win:not([hidden]) .pm-items')].every(b => b.scrollHeight <= b.clientHeight + 1)"
+        assert page.evaluate(below) and page.evaluate(snug)
+        # The Internet group links Edem's own sites, and Working On the projects in progress.
+        for item, url in {'#desk-link-vimeo':'https://vimeo.com/emotiveimpact', '#desk-link-vlume':'https://vlumeaudio.com/', '#desk-link-cairn':'https://cairnmac.com/',
+                          '#desk-link-emotive-impact':'https://emotiveimpact.io/', '#desk-work-saleane':'https://saleane.vercel.app/demo', '#desk-work-nospoilers':'https://nospoilers.dev/',
+                          '#desk-work-drafthr':'https://drafthr.io/', '#desk-work-lumalook':'https://lumalook.app/', '#desk-work-commune':'https://ourcommune.io/'}.items():
+            expect(page.locator(item)).to_have_attribute('href', url)
+            expect(page.locator(item)).to_have_attribute('target', '_blank')
+            # Each link has a picture of its own, drawn in the sixteen Windows colours.
+            expect(page.locator(f'{item} .pm-glyph-art svg')).to_have_count(1)
+        assert page.evaluate("new Set([...document.querySelectorAll('[id^=desk-link-] .pm-glyph-art, [id^=desk-work-] .pm-glyph-art')].map(g => g.innerHTML)).size") == 9
+        expect(page.locator('#internet-window .pm-item')).to_have_count(5)
+        expect(page.locator('#working-window .pm-item')).to_have_count(5)
         # Program Manager's menus drop over the group window without moving it.
         group = page.locator('#main-window')
         before = group.bounding_box()
@@ -71,11 +93,26 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
+        # README.TXT is the first icon: the application in the advert's own two headings.
+        assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
+        # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
+        expect(page.locator('#home-cv-pdf')).to_contain_text('CV.PDF')
+        expect(page.locator('#home-cv-pdf .pm-glyph-art svg')).to_have_count(1)
+        assert page.locator('#home-cv-pdf').get_attribute('href') == 'assets/cv/Augustus-Edem-CV.pdf'
+        assert page.locator('#home-cv-pdf').get_attribute('target') == '_blank'
+        assert page.request.get(base+'/assets/cv/Augustus-Edem-CV.pdf').body().startswith(b'%PDF-')
+        open_item('#home-readme')
+        notepad = page.locator('.notepad-window')
+        expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
+        for line in ('1. WHAT I HAVE BUILT', 'vlumeaudio.com', '2. WHAT I HAVE DONE THAT IS ABNORMAL', 'Right to work in the UK: yes, unrestricted.'):
+            assert line in notepad.locator('.notepad-text').input_value(), line
+        activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
         open_item('#home-cv-txt')
-        notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
         expect(notepad.locator('.notepad-text')).to_have_value(re.compile(r'^AUGUSTUS EDEM'))
+        for line in ('IN THE WORKS', 'NoSpoilers:', 'drafthr.io', 'lumalook.app', 'ourcommune.io'):
+            assert line in notepad.locator('.notepad-text').input_value(), line
         assert notepad.locator('.notepad-text').evaluate('a => a.readOnly') == mobile
         activate('#notepad-search')
         activate('#notepad-find-menu')
@@ -85,8 +122,10 @@ def run(profile, base):
         activate('#notepad-file')
         activate('#notepad-exit')
         expect(notepad).to_have_count(0)
-        # Accessories starts as a group icon at the foot of Program Manager.
+        # Accessories starts as a group icon. Opened, it sits clear of the main group and shows all it holds.
         open_item('#accessories-group')
+        expect(page.locator('#accessories-window')).to_be_visible()
+        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
         open_item('#desk-calc')
         expect(page.locator('#game-window')).to_be_hidden()
         for key in ('2', '+', '2', '='):
@@ -102,11 +141,12 @@ def run(profile, base):
         page.get_by_role('button', name='MR', exact=True).click()
         expect(page.locator('.calc-display')).to_have_text('4')
         activate('#dialog-close')
-        # Accessories opened over the main group, so put it back to an icon.
+        # Put Accessories back to an icon.
         activate('#accessories-window .w31-min')
         expect(page.locator('#accessories-group')).to_be_visible()
         # Games holds Jargon: a group of two or more matching buzzwords clears, and Undo brings it back.
         open_item('#games-group')
+        assert page.evaluate(apart) and page.evaluate(below) and page.evaluate(snug)
         open_item('#desk-jargon')
         tiles = page.locator('.jargon-window .jg-tile')
         expect(tiles).to_have_count(108)
@@ -241,14 +281,27 @@ def run(profile, base):
             page.wait_for_function('HIRED_APP.state.player.x>170')
             page.keyboard.up('ArrowRight')
         page.screenshot(path=OUT/'gameplay.jpg')
+        # The world's theme plays on Sea Trial's sound engine. Pausing stops it, the sound
+        # button silences everything, and resuming carries on. (WebKit may keep audio locked.)
+        hears = profile != 'iphone'
+        if hears:
+            page.wait_for_function("HIRED_APP.sound?.state === 'running' && HIRED_APP.sound.song === 'alley'")
+        if profile == 'android':
+            assert 'jump' in page.evaluate('HIRED_APP.sound.log')
         page.locator('#pause-button').click()
         page.locator('#resume-game').wait_for()
+        if hears:
+            page.wait_for_function('HIRED_APP.sound.song === null')
         page.locator('#sound-button').click()
         assert page.locator('#sound-button').get_attribute('aria-pressed') == 'false'
+        if hears:
+            assert page.evaluate('HIRED_APP.sound.muted')
         page.locator('#sound-button').click()
         if mobile:
             page.set_viewport_size({'width':844,'height':390})
             page.locator('#resume-game').tap()
+            if hears:
+                page.wait_for_function("HIRED_APP.sound.song === 'alley' && !HIRED_APP.sound.muted")
             for control in ['left','right','jump','dash','down']:
                 box = page.locator(f'[data-control="{control}"]').bounding_box()
                 assert box and box['x'] >= 0 and box['y'] + box['height'] <= 391
@@ -256,7 +309,8 @@ def run(profile, base):
             page.set_viewport_size(options['viewport'])
         page.goto(base+'/cv.html')
         expect(page.locator('h1')).to_have_text('Augustus Edem')
-        expect(page.get_by_role('heading', name='Selected products')).to_be_visible()
+        for heading in ('The abnormal bit', 'Shipped', 'In the works', 'Build, automate, grow', 'Experience'):
+            expect(page.get_by_role('heading', name=heading, exact=True)).to_be_visible()
         with page.expect_download() as download:
             activate('a[download]')
         assert download.value.suggested_filename == 'Augustus-Edem-CV.pdf'
@@ -291,6 +345,7 @@ def run(profile, base):
         assert page.evaluate("HIRED_APP.progress.pendingScene === undefined")
         activate('#pause-button')
         activate('#pause-home')
+        open_item('#games-group')
         open_item('#desk-sub')
         # The window is just the game. Its controls live on the canvas: Space or the left half
         # dives, X or the right half fires, so the submarine can dive and shoot together.
@@ -376,7 +431,22 @@ def run(profile, base):
         page.select_option('#layout','touch' if mobile else 'keyboard')
         page.click('#run')
         result = page.locator('#status')
-        page.wait_for_function("['PASS','FAIL'].some(s=>document.querySelector('#status').textContent.startsWith(s))",timeout=320000)
+        crashed = []
+        page.on('crash', lambda _: crashed.append('page crashed'))
+        try:
+            page.wait_for_function("['PASS','FAIL'].some(s=>document.querySelector('#status').textContent.startsWith(s))",timeout=320000)
+        except Exception as error:
+            # Say where the run was and whether frames were still arriving, so a timeout can be told from a stall.
+            where = ['no report from the page']
+            try:
+                where = [result.inner_text(), page.locator('#results').inner_text(), 'frames in 2 s: ' + str(page.evaluate(
+                    "() => new Promise(done => { let n = 0; const tick = () => { n++; requestAnimationFrame(tick); }; requestAnimationFrame(tick); setTimeout(() => done(n), 2000); })"))]
+                page.screenshot(path=OUT/'stalled.jpg')
+            except Exception as second:
+                where.append(f'could not read the page: {second}')
+            report = '\n'.join(['Playthrough did not finish', *crashed, *where])
+            (OUT/'result.txt').write_text(report)
+            raise AssertionError(report) from error
         report = result.inner_text() + '\n' + page.locator('#results').inner_text()
         (OUT/'result.txt').write_text(report)
         print(report, flush=True)
@@ -394,6 +464,8 @@ def run(profile, base):
         page.locator('#start-game').wait_for()
         assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
+        assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
+        assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         launch()
         activate('#title-play')
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0

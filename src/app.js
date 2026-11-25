@@ -135,10 +135,11 @@
   // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
   const CALC_ICON='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">';
   const SUB_ICON='<span class="pm-glyph pm-glyph-sub">⚓</span>', DOC_ICON='<span class="pm-glyph pm-glyph-doc">▤</span>';
+  const CV_PDF='assets/cv/Augustus-Edem-CV.pdf';
   let desktopLaunch=null;
-  function openCv(){
+  function openCv(path='cv.html'){
     const offline=globalThis.HIRED_EMBEDDED_CV, a=document.createElement('a');
-    a.href=offline||'cv.html';
+    a.href=offline||path;
     if(offline)a.download='Augustus-Edem-CV.pdf';else{a.target='_blank';a.rel='noopener';}
     a.click();
   }
@@ -165,29 +166,37 @@
     const offlineCv=globalThis.HIRED_EMBEDDED_CV;
     const internet=E.id==='solved-001';
     // One Internet group icon per platform in the edition.
-    const platforms=(E.links||[]).filter(l=>l&&l.name&&safeLink(l.url)?.startsWith('https://'))
-      .map(l=>({id:'desk-link-'+l.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:l.name,url:l.url}));
+    const linkItems=(list,prefix)=>(list||[]).filter(l=>l&&l.name&&safeLink(l.url)?.startsWith('https://'))
+      .map(l=>({id:prefix+l.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:l.name,url:l.url}));
+    const platforms=linkItems(E.links,'desk-link-');
+    // Projects in progress get a group of their own, one icon each.
+    const working=linkItems(E.working,'desk-work-');
     const internetItems=[...(internet?['desk-netscape']:[]),...platforms.map(l=>l.id)];
     H.wm.init($('os-shell'),$('os-dialog'));
     H.progman($('os-files'),{
       licensee:E.applicant, organisation:E.company||'',
       items:{
         'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
-        'home-cv':{label:E.applicant+'’s CV',icon:'<span class="pm-glyph pm-glyph-cv">CV</span>',href:offlineCv||'cv.html',linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.WRI',workdir:'C:\\HIRE',runs:['cv.wri','cv'],open:openCv},
+        ...(E.readme?{'home-readme':{label:'README.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\README.TXT',workdir:'C:\\HIRE',runs:['readme.txt','readme'],open:()=>H.notepad('README.TXT',E.readme)}}:{}),
+        'home-cv':{label:E.applicant+'’s CV',icon:'<span class="pm-glyph pm-glyph-cv">CV</span>',href:offlineCv||'cv.html',linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.WRI',workdir:'C:\\HIRE',runs:['cv.wri','cv'],open:()=>openCv()},
         'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_CV_TXT)},
+        // The CV as the PDF itself: it opens in the browser's own viewer, or downloads from the single-file build.
+        'home-cv-pdf':{label:'CV.PDF',icon:H.linkIcon('CV.PDF'),href:offlineCv||CV_PDF,linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.PDF',workdir:'C:\\HIRE',runs:['cv.pdf'],open:()=>openCv(CV_PDF)},
         'skip-portfolio':{label:'Portfolio',icon:DOC_ICON,command:'C:\\HIRE\\PORTFOLI.WRI',workdir:'C:\\HIRE',runs:['portfoli.wri','portfoli','portfolio'],open:()=>showPortfolio('home')},
         'desk-sub':{label:'Submarine (final).exe',icon:SUB_ICON,command:'C:\\HIRE\\SUBMARIN.EXE',workdir:'C:\\HIRE',runs:['submarin.exe','submarin','submarine'],open:()=>H.seaTrial(desktopApp('sea-trial',{icon:SUB_ICON,iconId:'sea-icon'}),()=>{progress.delivered=true;save();})},
         'desk-setup':{label:'Hire Edem.exe',icon:H.setupIcon,command:'A:\\SETUP.EXE',workdir:'A:\\',runs:['setup.exe','setup','hireedem.exe','hireedem'],open:()=>H.hireSetup({E,safeLink,openInternet:internetItems.length?()=>H.progman.openGroup('internet'):null})},
         'desk-jargon':{label:'Jargon',icon:H.jargonIcon,command:'JARGON.EXE',workdir:'C:\\WINDOWS',runs:['jargon.exe','jargon'],open:()=>H.jargon()},
         'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
         ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
-        ...Object.fromEntries(platforms.map(l=>[l.id,{label:l.name,icon:`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
+        ...Object.fromEntries([...platforms,...working].map(l=>[l.id,{label:l.name,icon:H.linkIcon?.(l.name)||`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
       },
       groups:[
-        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:['start-game','home-cv','home-cv-txt','skip-portfolio','desk-sub','desk-setup']},
+        // Only the applicant's own group starts open; the rest wait as icons along the bottom.
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv','home-cv-txt','home-cv-pdf','skip-portfolio','desk-setup']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
-        {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon']},
-        ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[])
+        {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon','desk-sub']},
+        ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[]),
+        ...(working.length?[{id:'working',title:'Working On',file:'WORKING.GRP',items:working.map(l=>l.id)}]:[])
       ],
       hooks:{
         replayStartup:async()=>{await runStartup();H.progman.focus();},
@@ -221,7 +230,7 @@
       layer.className='overlay game-title';
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>A playable application by ${esc(E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true">${comicSprite('hero','run_0','title-actor')}</div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
       $('title-play').onclick=play;
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
@@ -328,7 +337,7 @@
   }
   function startLevel(index, checkpoint=null) {
     if(!assetReport)return;
-    audio.beat=0;
+    audio.at=0;
     game.start(index,{assist:progress.assist});
     if (!game.restoreCheckpoint(checkpoint)) delete progress.checkpoint;
     delete progress.pendingScene;
@@ -338,7 +347,7 @@
     $('level-ribbon').textContent=`${String(index+1).padStart(2,'0')} / ${H.LEVELS[index].name.toUpperCase()}`;
     $('level-ribbon').classList.remove('hidden');
     clearTimeout(ribbonTimeout);ribbonTimeout=setTimeout(()=>$('level-ribbon').classList.add('hidden'),3200);
-    if(audio.enabled && audio.ctx?.state!=='running')audio.start();
+    if(audio.enabled && !audio.running)audio.start();
     updateHud();
   }
   function resume() {
@@ -389,7 +398,7 @@
     const skills = new Set([...Object.values(progress.results).flatMap(result=>result.skills), ...(game.state?.skills || [])]);
     const notes = [...skills].filter(id => E.fieldNotes?.[id]).map(id =>
       `<p><strong>${esc(E.skillProjects?.[id])}</strong> · ${esc(E.fieldNotes[id])}</p>`).join('');
-    open(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>Creative director & AI-native product builder</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">${desk?'Close':'Back'}</button></div>`,true,back);
+    open(E.applicant+' / Portfolio',`<div class="profile-heading"><img src="${asset('assets/production/characters/portrait-reference.png')}" alt="${esc(E.applicant)}"><div><p class="eyebrow">THE PERSON BEHIND THE PIXELS</p><h2>${esc(E.applicant)}</h2><p>AI-native product builder & creative director</p></div></div><p>${esc(E.profile)}</p><ul class="experience-list">${(E.experience||[]).map(e=>`<li><strong>${esc(e.role)}</strong><span>${esc(e.company)}</span></li>`).join('')}</ul><div class="portfolio-grid">${E.portfolio.map(p=>`<article class="project-card"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.work?`<p class="project-work">${esc(p.work)}</p>`:''}${safeLink(p.url)?`<a href="${esc(p.url)}" target="_blank" rel="noopener">Open ${esc(p.name)}</a>`:''}</article>`).join('')}</div>${notes?`<details class="field-notes"><summary>Your discovered field notes</summary>${notes}</details>`:''}<p class="tiny-note">Project walkthroughs are available on request.</p><div class="modal-actions">${contact?`<a class="btn primary" href="${esc(contact)}">Let's talk</a>`:''}${cvLink('portfolio-cv','btn')}<button class="btn" id="portfolio-back">${desk?'Close':'Back'}</button></div>`,true,back);
     (desk?H.wm.get('portfolio').el:$('overlay')).querySelector('#portfolio-back').addEventListener('click',back);
   }
   function finishLevel(event) {
@@ -444,38 +453,35 @@
     bindActions({'final-portfolio':()=>showPortfolio('finish'),'final-worlds':showWorlds,'final-home':showHome});
   }
 
-  // Small original synthesised score and effects. No audio files or network requests.
-  // Each phrase uses MIDI pitches, with zero marking a rest. Bass changes every four steps.
-  const scores=[
-    {bpm:116,voice:'triangle',lead:[72,0,76,79,0,76,74,72,71,0,74,77,0,74,71,67,69,72,0,76,79,0,77,76,74,0,71,67,0,71,74,0],bass:[48,55,43,50,45,52,43,55]},
-    {bpm:96,voice:'square',lead:[0,62,0,65,67,0,69,0,0,67,65,0,62,60,0,0,0,65,0,69,72,0,70,69,67,0,65,62,0,60,62,0],bass:[38,45,43,41,41,48,43,45]},
-    {bpm:150,voice:'sawtooth',lead:[64,67,71,76,71,67,64,67,62,66,69,74,69,66,62,66,60,64,67,72,76,72,67,64,59,63,66,71,78,75,71,0],bass:[40,47,38,45,36,43,35,42]},
-    {bpm:84,voice:'sine',lead:[67,0,0,71,74,0,69,0,66,0,69,0,73,0,0,0,67,0,71,74,78,0,76,0,74,0,71,0,67,0,0,0],bass:[43,50,42,49,40,47,43,50]}
-  ];
-  const hz = note => 440 * 2 ** ((note-69)/12);
-  const audio={enabled:!progress.muted,ctx:null,timer:null,beat:0,
+  // Music and effects: Sea Trial's 16-bit engine (src/sea-sound.js) playing a theme for each
+  // world from src/game-sound.js. No audio files or network requests.
+  const audio={enabled:!progress.muted,engine:null,at:0,
+    get running(){return this.engine?.state==='running';},
     async start(){
       if(!this.enabled)return;
       try{
-        this.ctx ||= new (window.AudioContext||window.webkitAudioContext)();
-        await this.ctx.resume();
+        this.engine ||= H.gameSound();
+        await this.engine.unlock();
         this.syncMusic();
       }catch(_){this.enabled=false;updateSound();}
     },
+    // The world's theme plays during play. A pause remembers the bar to carry on from,
+    // and the fanfare for a cleared world is left to ring out over the results.
     syncMusic(){
-      clearTimeout(this.timer);
-      if(this.enabled && this.ctx?.state==='running' && uiMode==='playing')this.music();
+      const sound=this.engine;
+      if(!sound)return;
+      sound.setMuted(!this.enabled);
+      if(sound.log.length>200)sound.log.splice(0,100);
+      const song=this.enabled&&this.running&&uiMode==='playing'&&game.state?H.gameSound.worlds[game.state.levelIndex]:null;
+      if(song){if(sound.song!==song)sound.music(song,0,0,this.at);return;}
+      if(H.gameSound.worlds.includes(sound.song)){this.at=sound.position-sound.position%16;sound.music(null);}
+      else if(!this.enabled)sound.music(null);
     },
-    tone(freq,duration=.09,type='square',volume=.025,slide=0){if(!this.enabled||!this.ctx||this.ctx.state!=='running')return;const t=this.ctx.currentTime,o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,slide),t+duration);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(volume,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(this.ctx.destination);o.onended=()=>{o.disconnect();g.disconnect();};o.start(t);o.stop(t+duration+.015);},
-    music(){
-      const score=scores[game.state.levelIndex], step=this.beat++ % score.lead.length;
-      const seconds=30/score.bpm, note=score.lead[step];
-      if(note)this.tone(hz(note),seconds*.82,score.voice,score.voice==='square'||score.voice==='sawtooth'?.011:.033);
-      if(step%4===0)this.tone(hz(score.bass[step/4]),seconds*2.5,'triangle',.047);
-      if(step%4===2)this.tone(90,.055,'sine',.035,38);
-      this.timer=setTimeout(()=>this.music(),seconds*1000);
-    },
-    effect(type){const fx={jump:[400,.11,'square',.02,760],dash:[880,.1,'sawtooth',.012,220],coin:[1046,.09,'square',.018,1568],skill:[784,.22,'triangle',.06,1568],hurt:[220,.18,'sawtooth',.025,85],checkpoint:[523,.25,'triangle',.05,1046],stomp:[260,.1,'square',.03,120],bossHit:[140,.19,'square',.025,450],complete:[523,.45,'triangle',.06,1046],spring:[240,.2,'square',.02,980],bonus:[660,.28,'triangle',.05,1320],scene:[180,.32,'triangle',.04,540]};if(fx[type])this.tone(...fx[type]);}
+    effect(type){
+      if(!this.enabled||!this.running)return;
+      if(type==='complete'){this.at=0;this.engine.music('clear');return;}
+      this.engine.effect(type);
+    }
   };
   function updateSound() {$('sound-button').textContent=audio.enabled?'Sound on':'Sound off';$('sound-button').setAttribute('aria-pressed',String(audio.enabled));}
   function updateHud() {
@@ -506,7 +512,7 @@
       }
       if(e.type==='skill'){
         const note = e.item.secret && E.fieldNotes?.[e.skill.id];
-        toast(note ? 'Field note · ' + note : [e.skill.title,E.skillProjects?.[e.skill.id]].filter(Boolean).join(' · '),note?6000:3700);
+        toast(note ? 'Field note · ' + note : [E.skillTitles?.[e.skill.id]||e.skill.title,E.skillProjects?.[e.skill.id]].filter(Boolean).join(' · '),note?6000:3700);
       }
       if(e.type==='bonus')toast(e.item.title+' · '+e.item.line,3800);
       if(e.type==='checkpoint'){
@@ -580,7 +586,7 @@
   $('pause-button').addEventListener('click',()=>{if(uiMode==='playing')showPause();else if(uiMode==='pause')resume();});
   updateSound();
   const unlockAudio=event=>{
-    if(audio.enabled && audio.ctx?.state!=='running' && !event.target.closest?.('#sound-button'))audio.start();
+    if(audio.enabled && !audio.running && !event.target.closest?.('#sound-button'))audio.start();
   };
   document.addEventListener('click',unlockAudio,true);
   document.addEventListener('keydown',unlockAudio,true);
@@ -725,7 +731,7 @@
     renderer=new H.Renderer($('game'));
     await runStartup();
     ready=true;$('loading').classList.add('hidden');showHome();
-    globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return assetReport;},get progress(){return JSON.parse(JSON.stringify(progress));}};
+    globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return assetReport;},get progress(){return JSON.parse(JSON.stringify(progress));},get sound(){const s=audio.engine;return s?{state:s.state,muted:s.muted,song:s.song,position:s.position,log:s.log.slice()}:null;}};
     requestAnimationFrame(frame);
   }
   boot();

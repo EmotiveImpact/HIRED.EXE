@@ -1,6 +1,7 @@
 // Sea Trial's sound: 16-bit style music and effects, synthesised live with Web Audio.
 // No sound files. Each instrument is a few oscillators or a burst of noise, run through a
 // shared echo the way the cartridge consoles did it, so the whole thing stays dependency-free.
+// The main game uses the same engine with its own songs and effects (src/game-sound.js).
 (function (H) {
   'use strict';
   const NOTE = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
@@ -68,7 +69,7 @@
       last = {inst: spec.lead, note: midi(tok) + shift, len: 2, vel: 1};
       if (i * 2 < steps) grid[i * 2].push(last);
     });
-    const groove = GROOVE[spec.groove || 'none'];
+    const groove = typeof spec.groove === 'object' ? spec.groove : GROOVE[spec.groove || 'none'];
     bars.forEach((b, bar) => {
       const s = bar * 16, lastBar = bar === bars.length - 1;
       const r = b.root, fifth = b.root + 7;
@@ -87,8 +88,11 @@
   }
 
   // Build the sound engine. context: an AudioContext (or OfflineAudioContext for tests);
-  // without one, it makes its own on the first call to unlock().
-  H.seaSound = function ({context = null, muted = false} = {}) {
+  // without one, it makes its own on the first call to unlock(). songs and effects replace
+  // Sea Trial's own: songs in the format above, effects as kit => ({name(t) {...}}), where
+  // kit holds the tone and hiss building blocks.
+  H.seaSound = function ({context = null, muted = false, songs = null, effects = null} = {}) {
+    const book = songs || SONGS;
     let ctx = context, out = null, musicBus = null, sfxBus = null, echo = null, noise = null, pulse = null, pulse12 = null;
     let song = null, songGain = null, songName = null, timer = 0, hidden = false;
     const log = [];
@@ -246,6 +250,17 @@
       }
     };
 
+    let fx = null;
+    const kit = {tone, hiss, hz, get pulse() { return pulse; }, get pulse12() { return pulse12; }};
+    const effectMap = () => fx || (fx = effects ? effects(kit) : EFFECTS);
+    // A song, with Sea Trial's per-level key and pace applied to its level theme.
+    function prepare(name, level) {
+      const feel = name === 'level' && !songs ? LEVEL_FEEL[level] || LEVEL_FEEL[0] : {};
+      const s = compile(Object.assign({}, book[name], feel.bpm ? {bpm: feel.bpm} : {}, feel.lead ? {lead: feel.lead} : {}), feel.shift || 0);
+      s.gain = book[name].gain || 1;
+      return s;
+    }
+
     // The sequencer looks a little ahead on a timer, so music keeps time even if a frame stutters.
     function tick() {
       if (!song || !ctx) return;
@@ -283,30 +298,33 @@
       get muted() { return muted; },
       get state() { return ctx ? ctx.state : 'none'; },
       get song() { return songName; },
+      // The next step of the song, so a paused song can carry on from where it was.
+      get position() { return song ? song.pos : 0; },
       // Call from any tap, click or key press: browsers only let sound start from one.
+      // Resolves once the sound is running (or the browser has said no).
       unlock() {
-        if (!build()) return;
-        if (ctx.state !== 'running' && ctx.resume) ctx.resume().then(tick, () => {});
+        if (!build()) return Promise.resolve();
+        let ready = Promise.resolve();
+        if (ctx.state !== 'running' && ctx.resume) ready = ctx.resume().then(tick, () => {});
         if (!api.unlocked) {
           api.unlocked = true;
           const s = ctx.createBufferSource(); s.buffer = ctx.createBuffer(1, 1, 22050); s.connect(ctx.destination); s.start(0);
         }
+        return ready;
       },
       effect(name, delay = 0) {
         log.push(name);
-        if (!build() || !EFFECTS[name]) return;
-        EFFECTS[name](ctx.currentTime + 0.005 + delay);
+        if (!build() || !effectMap()[name]) return;
+        effectMap()[name](ctx.currentTime + 0.005 + delay);
       },
-      // Start a song from the top, or switch to silence with null.
-      music(name, level = 0, delay = 0) {
+      // Start a song from the top (or from step `from`), or switch to silence with null.
+      music(name, level = 0, delay = 0, from = 0) {
         if (name) log.push('music:' + name);
         stopSong(name ? 0.05 : 0.3);
         if (!name || !build()) return;
-        const feel = name === 'level' ? LEVEL_FEEL[level] || LEVEL_FEEL[0] : {};
-        const spec = Object.assign({}, SONGS[name], feel.bpm ? {bpm: feel.bpm} : {}, feel.lead ? {lead: feel.lead} : {});
-        song = compile(spec, feel.shift || 0);
-        song.pos = 0; song.next = ctx.currentTime + 0.05 + delay;
-        songGain = ctx.createGain(); songGain.connect(musicBus);
+        song = prepare(name, level);
+        song.pos = from % song.steps; song.next = ctx.currentTime + 0.05 + delay;
+        songGain = ctx.createGain(); songGain.gain.value = song.gain; songGain.connect(musicBus);
         songName = name;
         tick(); timer = setInterval(tick, 25);
       },
@@ -332,13 +350,12 @@
       // For tests: schedule a whole song from time t on an offline context.
       render(name, t = 0, level = 0) {
         build();
-        const feel = name === 'level' ? LEVEL_FEEL[level] || LEVEL_FEEL[0] : {};
-        const s = compile(Object.assign({}, SONGS[name], feel.bpm ? {bpm: feel.bpm} : {}, feel.lead ? {lead: feel.lead} : {}), feel.shift || 0);
-        const g = ctx.createGain(); g.connect(musicBus);
+        const s = prepare(name, level);
+        const g = ctx.createGain(); g.gain.value = s.gain; g.connect(musicBus);
         s.grid.forEach((list, i) => list.forEach(e => INSTRUMENTS[e.inst](t + i * s.step, e.note, e.len * s.step, e.vel, g)));
         return s.steps * s.step;
       },
-      renderEffect(name, t = 0) { build(); EFFECTS[name](t); }
+      renderEffect(name, t = 0) { build(); effectMap()[name](t); }
     };
     return api;
   };

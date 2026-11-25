@@ -79,7 +79,7 @@ async function run() {
     check(byId('os-dialog').textContent.includes('OMNi Digital Media'),'Experience missing from portfolio');
     check(byId('portfolio-cv').getAttribute('href')==='cv.html','CV is missing from the portfolio');
     click('portfolio-back'); click('start-game'); await until(()=>app().mode==='title','Title screen missing'); click('title-play');
-    check(!app().assets.failed.length && app().assets.loaded.length===11,'Missing runtime art');
+    check(!app().assets.failed.length && app().assets.loaded.length===12,'Missing runtime art');
     check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
     click('scene-next');
     check(byId('overlay').textContent.includes('copy to mark mine against'),'Missing opening dialogue');
