@@ -729,7 +729,7 @@
         if (c.active) { ctx.fillStyle = `rgba(255,131,180,${.2 + .2 * Math.sin(this.time * 9)})`; ctx.fillRect(left + 10, 0, 10, HGT); }
         return;
       }
-      // Outrun, it stops where it stands and drops out of the picture.
+      // Outrun, it falls behind and drops out of the picture.
       const leaving = c.active ? 0 : c.gone / H.FEED.leave;
       ctx.save(); ctx.globalAlpha = 1 - leaving; ctx.translate(0, round(HGT * leaving * leaving));
       // Its glow runs ahead of it, so the wall never reads as the edge of the screen.

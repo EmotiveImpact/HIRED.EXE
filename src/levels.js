@@ -227,14 +227,15 @@
       springs: [{ x: 1690, y: 440, w: 44, h: 16 }],
       boosts: [{ x: 300, y: 440, w: 280 }, { x: 1720, y: 440, w: 380 }, { x: 3300, y: 440, w: 390 },
         { x: 4700, y: 440, w: 320 }, { x: 6240, y: 440, w: 320 }],
-      chase: { startX: 4560, endX: 7440, speed: 4.7, lead: 260, trail: 380 },
+      // The chase ends as you pass the sign that says so.
+      chase: { startX: 4560, endX: 7300, speed: 4.7, lead: 260, trail: 380 },
       boss: { type: 'algorithm', name: 'The Algorithm', x: 8070, floor: 405, w: 88, h: 76, health: 4 },
       decor: [{ type: 'sign', x: 90, y: 440, text: 'GROWTH RUN' }, { type: 'banner', x: 330, y: 440 },
         { type: 'satellite', x: 890, y: 440 }, { type: 'terminal', x: 1260, y: 440 },
         { type: 'banner', x: 1790, y: 440 }, { type: 'satellite', x: 2580, y: 440 },
         { type: 'terminal', x: 3480, y: 440 }, { type: 'sign', x: 4340, y: 440, text: 'DO NOT STOP SCROLLING' },
         { type: 'banner', x: 5120, y: 440 }, { type: 'satellite', x: 5900, y: 440 }, { type: 'banner', x: 6600, y: 440 },
-        { type: 'sign', x: 7000, y: 440, text: 'YOU’RE ALL CAUGHT UP' },
+        { type: 'sign', x: 7210, y: 440, text: 'YOU’RE ALL CAUGHT UP' },
         { type: 'sign', x: 7760, y: 440, text: 'READ THE PATTERN' }],
       hints: [{ x: 100, text: 'Cyan lanes give you a burst of speed. Jump before the edge.' },
         { x: 2460, text: 'Planes are safe to stomp from above. Keep one jump in reserve.' },
@@ -417,12 +418,15 @@
     level.collectibles.forEach((c, i) => { c.id = level.id + '-pickup-' + i; c.collected = false; });
     // No idea hangs in a lift doorway, across the words of a sign or inside a ledge. Dropping them
     // after the IDs are set keeps old saves valid.
+    const placed = level.collectibles;
     if (level.floorDoors) level.collectibles = level.collectibles.filter(c => c.kind !== 'coin' || !besideLift(level, c));
     const signs = level.decor.filter(d => d.type === 'sign');
     const fixed = level.platforms.filter(p => !p.rangeX && !p.rangeY && p.type !== 'furniture');
     level.collectibles = level.collectibles.filter(c => c.kind !== 'coin' || !(
       signs.some(d => c.x > d.x - 12 && c.x < d.x + SIGN.w + 12 && c.y > d.y - SIGN.top - 12 && c.y < d.y - SIGN.bottom + 12)
       || fixed.some(p => c.x > p.x && c.x < p.x + p.w && c.y > p.y && c.y < p.y + p.h)));
+    // An old save may hold one of the dropped ideas. It still counts, so the IDs are kept.
+    level.retiredPickups = placed.filter(c => !level.collectibles.includes(c)).map(c => c.id);
     // The original pickup IDs remain stable for saved checkpoints.
     level.collectibles.push({ ...bonusItems[levelIndex], kind: 'bonus', collected: false });
     level.checkpoints.forEach((c, i) => { c.id = 'checkpoint-' + i; c.active = false; });

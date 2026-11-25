@@ -343,13 +343,50 @@ test('the Feed arrives from off screen, stays in sight on any view and drops awa
     assert.equal(s.deaths, 0);
     assert.ok(Math.min(...edges) > 20, `At ${view} wide the Feed left the screen (${Math.min(...edges).toFixed(0)})`);
     assert.ok(Math.max(...edges) - Math.min(...edges) > 15, `At ${view} wide the Feed sat still against the edge of the screen`);
-    // It does not vanish: it stops where it stands and is drawn until it has dropped away.
-    const stopped = c.x;
+    // It does not vanish: it falls behind, harmless, and stays in the picture until it has dropped away.
     assert.equal(c.done, true); assert.equal(c.gone, 1);
-    tick(g, { right: true }, FEED.leave - 2);
-    assert.equal(c.gone, FEED.leave - 1); assert.equal(c.x, stopped);
-    tick(g, { right: true }, 5);
-    assert.equal(c.gone, FEED.leave);
+    const sign = s.world.decor.find(d => d.text === 'YOU’RE ALL CAUGHT UP');
+    assert.ok(c.endX > sign.x && c.endX < sign.x + 180, 'The chase should end at the sign that says so');
+    let gap = s.player.x - c.x;
+    while (c.gone < FEED.leave) {
+      g.step(controller(g));
+      assert.ok(c.x > s.camera.x, `At ${view} wide the Feed left the screen ${c.gone} ticks into dropping away`);
+      assert.ok(s.player.x - c.x >= gap, 'The Feed should only fall further behind once outrun'); gap = s.player.x - c.x;
+    }
+    tick(g, {}, 200);
+    assert.equal(s.deaths, 0); assert.equal(c.gone, FEED.leave);
+  }
+});
+
+test('a player who stops has the same time before the Feed arrives on a wide and a narrow screen', () => {
+  const caught = [960, 480].map(view => {
+    const g = new Game(); g.viewWidth = view; g.start(2);
+    const s = g.state, c = s.chase;
+    // Run until the Feed has settled in behind, at the same point of its surge, then stand still.
+    for (let frame = 0; frame < 9000 && !(c.active && c.age === 200); frame++) g.step(controller(g));
+    assert.equal(c.age, 200);
+    let ticks = 0;
+    while (s.deaths === 0 && ticks < 600) { g.step({}); ticks++; }
+    assert.equal(s.deaths, 1, `At ${view} wide the Feed never caught a player who stopped`);
+    return ticks;
+  });
+  assert.ok(Math.abs(caught[0] - caught[1]) <= 8, `Caught after ${caught[0]} ticks on a wide screen and ${caught[1]} on a narrow one`);
+});
+
+test('a game saved with ideas the level no longer holds keeps them', () => {
+  for (const [index, level] of LEVELS.entries()) {
+    assert.ok(level.retiredPickups.length > 0);
+    assert.ok(level.retiredPickups.every(id => !level.collectibles.some(c => c.id === id)));
+    const first = level.checkpoints[0], kept = level.collectibles.find(c => c.kind === 'coin');
+    const old = { level: index, checkpoint: first.id, collected: [kept.id, ...level.retiredPickups.slice(0, 3)], score: 400, time: 12, deaths: 0 };
+    const g = gameAtStart(index);
+    assert.equal(g.restoreCheckpoint(old), true);
+    assert.equal(g.state.coins, 4);
+    // Saving again does not forget them.
+    const again = g.checkpointRecord();
+    assert.deepEqual([...again.collected].sort(), [...old.collected].sort());
+    const h = gameAtStart(index);
+    assert.equal(h.restoreCheckpoint(again), true); assert.equal(h.state.coins, 4);
   }
 });
 
