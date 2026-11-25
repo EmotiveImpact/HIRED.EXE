@@ -549,6 +549,9 @@
           if (world.floorScenes && p.x >= world.floorScenes[1].start) continue;
           const x = p.x + p.w - 82;
           if (!this.visible(x, 80) || x > world.boss.x - 160) continue;
+          // Never in front of a sign or a save point.
+          if (world.decor.some(d => d.type === 'sign' && d.y === p.y && x > d.x - 52 && x < d.x + 232)
+            || world.checkpoints.some(c => c.y === p.y && Math.abs(c.x + 10 - x) < 80)) continue;
           const prop = this.levelIndex === 2 ? 'pink_tree' : 'lamp';
           this.sprite('props', prop, x, p.y + 2, prop === 'lamp' ? 103 : 98, false, .88);
         }
@@ -719,13 +722,20 @@
 
     feed(state) {
       const c = state.chase;
-      if (!c || !c.active) return;
+      if (!c || !(c.active || c.gone < H.FEED.leave)) return;
       const ctx = this.ctx, right = round(c.x), left = round(this.camera) - 10;
       if (right < left) {
-        // Off screen: an edge glow warns that the Feed is closing in.
-        ctx.fillStyle = `rgba(255,131,180,${.2 + .2 * Math.sin(this.time * 9)})`; ctx.fillRect(left + 10, 0, 10, HGT);
+        // Still off screen: the edge glows where it is about to arrive.
+        if (c.active) { ctx.fillStyle = `rgba(255,131,180,${.2 + .2 * Math.sin(this.time * 9)})`; ctx.fillRect(left + 10, 0, 10, HGT); }
         return;
       }
+      // Outrun, it stops where it stands and drops out of the picture.
+      const leaving = c.active ? 0 : c.gone / H.FEED.leave;
+      ctx.save(); ctx.globalAlpha = 1 - leaving; ctx.translate(0, round(HGT * leaving * leaving));
+      // Its glow runs ahead of it, so the wall never reads as the edge of the screen.
+      const glow = ctx.createLinearGradient(right, 0, right + 70, 0);
+      glow.addColorStop(0, 'rgba(255,131,180,.42)'); glow.addColorStop(1, 'rgba(255,131,180,0)');
+      ctx.fillStyle = glow; ctx.fillRect(right, 0, 70, HGT);
       ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, right - left, HGT);
       const cards = ['#ff83b4', '#6af4ff', '#ffda5e', '#bb8cff'];
       const scroll = (this.time * 260) % 132;
@@ -741,12 +751,16 @@
         }
       }
       ctx.restore();
+      // A torn leading edge that licks forward as it comes.
       for (let y = 0; y < HGT; y += 18) {
-        const jag = 6 + 6 * Math.sin(this.time * 10 + y * .3);
+        const jag = 10 + 8 * Math.sin(this.time * 10 + y * .3);
         ctx.fillStyle = '#ff83b4'; ctx.fillRect(right - 2, y, round(jag) + 2, 9);
-        ctx.fillStyle = '#fff1d0'; ctx.fillRect(right + round(jag), y + 2, 3, 3);
+        ctx.fillStyle = '#ffd0e2'; ctx.fillRect(right - 2, y + 9, round(jag * .45) + 2, 9);
+        ctx.fillStyle = '#fff1d0'; ctx.fillRect(right + round(jag), y + 2, 4, 4);
       }
-      this.label('THE FEED', right - 62, 118, '#ffd0e2', 13);
+      // Its name rides the leading edge, wherever a narrow view leaves the wall.
+      this.label('THE FEED', Math.max(right - 62, left + 62), 118, '#ffd0e2', 13);
+      ctx.restore();
     }
 
     enemy(e) {

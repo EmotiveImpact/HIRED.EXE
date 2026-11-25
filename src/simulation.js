@@ -11,6 +11,8 @@
   // The HQ lift, in ticks: how long it takes to answer a call, to work its doors, to leave a floor
   // and to pull in at the next, and how far a passenger steps each tick.
   const LIFT = Object.freeze({ call: 40, doors: 22, ride: 50, arrive: 26, step: 3 });
+  // The Feed, in ticks: how long it takes to arrive and to drop away, and how far and how fast it surges.
+  const FEED = Object.freeze({ arrive: 50, leave: 40, surge: 0.14, pulse: 0.05 });
 
   class Game {
     constructor() {
@@ -47,7 +49,10 @@
     restoreCheckpoint(record) {
       const s = this.state;
       if (!record || record.level !== s.levelIndex) return false;
-      const cp = s.world.checkpoints.find(point => point.id === record.checkpoint);
+      // A save made at a save point that has since been removed resumes at the one that replaced it.
+      let id = record.checkpoint;
+      while (s.world.checkpointAliases?.[id]) id = s.world.checkpointAliases[id];
+      const cp = s.world.checkpoints.find(point => point.id === id);
       if (!cp) return false;
       const picked = new Set(Array.isArray(record.collected) ? record.collected : []);
       const defeated = new Set(Array.isArray(record.defeated) ? record.defeated : []);
@@ -301,14 +306,22 @@
         }
       }
       if (c && !c.done) {
-        if (!c.active && p.x > c.startX) { c.active = true; c.x = c.startX - c.lead; this.emit('chaseStart'); }
+        // The Feed arrives from off screen, then keeps a set distance behind a runner. That distance
+        // shrinks to fit a narrow view, so the wall is always in sight, and it surges and eases so it
+        // reads as something in the world giving chase.
+        const reach = Math.min(c.trail, this.viewWidth / 2 - 40);
+        if (!c.active && p.x > c.startX) { c.active = true; c.age = 0; c.x = p.x - reach - c.lead; this.emit('chaseStart'); }
         if (c.active) {
-          // The Feed never falls far behind, so there is always pressure, and never gains on a runner.
-          c.x = Math.max(c.x + (s.assist ? c.speed * 0.8 : c.speed), p.x - c.trail);
-          if (p.x > c.endX) { c.active = false; c.done = true; this.emit('chaseEnd'); }
+          c.age++;
+          const arriving = c.lead * Math.max(0, 1 - c.age / FEED.arrive) ** 2;
+          const surge = reach * FEED.surge * (1 - Math.cos(c.age * FEED.pulse)) / 2;
+          c.x = Math.max(c.x + (s.assist ? c.speed * 0.8 : c.speed), p.x - reach - arriving + surge);
+          if (p.x > c.endX) { c.active = false; c.done = true; c.gone = 0; this.emit('chaseEnd'); }
           else if (c.x > p.x + 6) this.respawn('feed');
         }
       }
+      // Outrun, the Feed stops where it is and drops away.
+      if (c?.gone < FEED.leave) c.gone++;
     }
     cameraTarget() {
       const s = this.state, p = s.player;
@@ -546,6 +559,6 @@
     }
   }
   H.Game = Game;
-  H.LIFT = LIFT; H.PHYSICS = PHYSICS; H.WIDTH = WIDTH; H.HEIGHT = HEIGHT;
+  H.LIFT = LIFT; H.FEED = FEED; H.PHYSICS = PHYSICS; H.WIDTH = WIDTH; H.HEIGHT = HEIGHT;
   if (typeof module !== 'undefined' && module.exports) module.exports = { Game, PHYSICS, overlaps };
 })(typeof globalThis !== 'undefined' ? globalThis : window);

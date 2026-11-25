@@ -8,6 +8,7 @@ require('../src/levels.js');
 const { Game, PHYSICS } = require('../src/simulation.js');
 const { LEVELS } = globalThis.Hired;
 const tick = (game, input = {}, count = 1) => { for (let i = 0; i < count; i++) game.step(input); };
+const controller = require('./route-controller.js');
 const gameAtStart = (index = 0, options = {}) => { const game = new Game(); game.start(index, options); tick(game, {}, 2); game.drainEvents(); return game; };
 
 test('four level layouts have distinct topology, regular checkpoints and three skills', () => {
@@ -106,9 +107,9 @@ test('stomps defeat enemies and bounce the player', () => {
 });
 
 test('checkpoints heal and retries preserve collected work', () => {
-  const g = gameAtStart(), p = g.state.player;
-  Object.assign(p, { x: 1370, y: 382, health: 1 }); g.step({});
-  assert.equal(g.state.checkpoint.id, 'checkpoint-0'); assert.equal(p.health, 3);
+  const g = gameAtStart(), p = g.state.player, first = g.state.world.checkpoints[0];
+  Object.assign(p, { x: first.x, y: 382, health: 1 }); g.step({});
+  assert.equal(g.state.checkpoint.id, first.id); assert.equal(p.health, 3);
   const coin = g.state.world.collectibles.find(c => c.kind === 'coin' && !c.collected);
   Object.assign(p, { x: coin.x - 17, y: coin.y - 30, vy: 0 }); g.step({});
   const coins = g.state.coins;
@@ -122,8 +123,9 @@ test('checkpoints heal and retries preserve collected work', () => {
 test('each death costs a life and the last one restarts the world', () => {
   const g = gameAtStart(0), p = g.state.player;
   assert.equal(g.state.lives, PHYSICS.lives);
-  Object.assign(p, { x: 1370, y: 382 }); g.step({});
-  assert.equal(g.state.checkpoint.id, 'checkpoint-0');
+  const first = g.state.world.checkpoints[0];
+  Object.assign(p, { x: first.x, y: 382 }); g.step({});
+  assert.equal(g.state.checkpoint.id, first.id);
   g.drainEvents();
   for (let left = PHYSICS.lives - 1; left > 0; left--) {
     g.state.player.y = 710; g.step({});
@@ -178,8 +180,6 @@ test('bosses accept a stomp only during their opening', () => {
     assert.equal(p.health, 3);
   }
 });
-
-const controller = require('./route-controller.js');
 
 test('input-only controller can cross every layout, defeat its boss and reach the exit', () => {
   for (let level = 0; level < LEVELS.length; level++) {
@@ -323,6 +323,62 @@ test('the Feed catches a player who stops and resets for the retry', () => {
   for (let i = 0; i < 400 && g.state.deaths === 0; i++) g.step({});
   assert.equal(g.state.deaths, 1); assert.equal(c.active, false);
   assert.ok(g.drainEvents().some(e => e.type === 'respawn' && e.reason === 'feed'));
+});
+
+test('the Feed arrives from off screen, stays in sight on any view and drops away once outrun', () => {
+  const { FEED } = globalThis.Hired;
+  for (const view of [960, 480]) {
+    const g = new Game(); g.viewWidth = view; g.start(2, { assist: true });
+    const s = g.state, c = s.chase, edges = [];
+    let ended = -1;
+    for (let frame = 0; frame < 9000 && ended < 0; frame++) {
+      const was = c.active;
+      g.step(controller(g));
+      if (c.active) {
+        if (!was) assert.ok(c.x < s.camera.x, `At ${view} wide the Feed should start off screen`);
+        if (c.age > FEED.arrive + 30) edges.push(c.x - s.camera.x);
+      } else if (was) ended = frame;
+    }
+    assert.ok(ended > 0, `At ${view} wide the route should outrun the Feed`);
+    assert.equal(s.deaths, 0);
+    assert.ok(Math.min(...edges) > 20, `At ${view} wide the Feed left the screen (${Math.min(...edges).toFixed(0)})`);
+    assert.ok(Math.max(...edges) - Math.min(...edges) > 15, `At ${view} wide the Feed sat still against the edge of the screen`);
+    // It does not vanish: it stops where it stands and is drawn until it has dropped away.
+    const stopped = c.x;
+    assert.equal(c.done, true); assert.equal(c.gone, 1);
+    tick(g, { right: true }, FEED.leave - 2);
+    assert.equal(c.gone, FEED.leave - 1); assert.equal(c.x, stopped);
+    tick(g, { right: true }, 5);
+    assert.equal(c.gone, FEED.leave);
+  }
+});
+
+test('signs stay readable, pickups stay out of ledges and no two save points share a screen', () => {
+  LEVELS.forEach((level, index) => {
+    const signs = level.decor.filter(d => d.type === 'sign');
+    for (const sign of signs) {
+      const legs = [sign.x + 15, sign.x + 165];
+      const stands = level.platforms.some(p => p.y === sign.y && legs.every(x => x >= p.x && x <= p.x + p.w));
+      assert.ok(stands, `${level.name}: "${sign.text}" has a leg over a gap`);
+      const covered = level.collectibles.find(c => c.kind !== 'skill' && c.x > sign.x - 10 && c.x < sign.x + 190 && c.y > sign.y - 95 && c.y < sign.y - 18);
+      assert.ok(!covered, `${level.name}: a ${covered?.kind} covers "${sign.text}"`);
+      const save = level.checkpoints.find(cp => cp.y === sign.y && cp.x + 40 > sign.x && cp.x - 8 < sign.x + 180);
+      assert.ok(!save, `${level.name}: a save point stands in front of "${sign.text}"`);
+    }
+    const fixed = level.platforms.filter(p => !p.rangeX && !p.rangeY && p.type !== 'furniture');
+    const buried = level.collectibles.find(c => fixed.some(p => c.x > p.x && c.x < p.x + p.w && c.y > p.y && c.y < p.y + p.h));
+    assert.ok(!buried, `${level.name}: a ${buried?.kind} at x ${buried?.x} is inside a platform`);
+    level.checkpoints.forEach((cp, i) => {
+      const next = level.checkpoints[i + 1];
+      assert.ok(!next || next.x - cp.x >= 500, `${level.name}: save points at ${cp.x} and ${next?.x} share a screen`);
+    });
+    // A game saved at a save point that has gone resumes at the one that stayed.
+    for (const [old, kept] of Object.entries(level.checkpointAliases)) {
+      const g = gameAtStart(index);
+      assert.equal(g.restoreCheckpoint({ level: index, checkpoint: old }), true);
+      assert.equal(g.state.checkpoint.id, kept);
+    }
+  });
 });
 
 test('main bosses escalate after two hits and interview rounds run in order', () => {

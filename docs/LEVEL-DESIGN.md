@@ -14,12 +14,14 @@ These measurements come from the delivered `src/levels.js`. Coordinates are logi
 
 | World | Width | Ground heights | Checkpoints x | Optional skills x |
 | --- | ---: | --- | --- | --- |
-| Application Alley | 9350 | 440, 420, 200 | 1370, 1810, 4620, 6730, 7990 | 540, 3106, 4110 |
+| Application Alley | 9350 | 440, 420, 200 | 1810, 4620, 6730, 7990 | 540, 3106, 4110 |
 | Ship It City | 12880 | 440, 400, 384 | 1100, 2560, 4850, 7460, 8410, 9920, 11560 | 682, 2176, 4370 |
-| Growth Run | 12920 | 440, bars 400 to 200 | 1250, 1590, 3300, 4690, 6890, 8470, 11800 | 524, 2906, 7866 |
-| Final Interview HQ | 10500 | 440, 400, 360, 350 on floor 1; 440 in each room | 750, 1950, 2930, 5118, 5160, 6360, 7860, 9360 | 466, 2586, 4766 |
+| Growth Run | 12920 | 440, bars 400 to 200 | 1590, 3300, 4690, 6890, 8470, 11800 | 524, 2906, 7866 |
+| Final Interview HQ | 10500 | 440, 400, 360, 350 on floor 1; 440 in each room | 750, 1950, 2930, 5160, 6360, 7860, 9360 | 466, 2586, 4766 |
 
 Final coordinates are produced when the level loads: `INSERTS` in `src/levels.js` splices each added stretch into the authored layout and moves everything after it to the right. Read live values from `Hired.LEVELS` when exact numbers matter.
+
+The level build keeps signs readable and save points apart. An idea that would hang across a sign's words or inside a ledge is dropped, a street lamp or tree is not drawn in front of a sign or a save point, and of two save points fewer than 500 pixels apart the earlier one is removed (`checkpointAliases` sends an old save made there to the one that stays). A test fails if a sign has a leg over a gap, or a pickup or save point in front of it.
 
 The exit sits at `world.width - 160`. Defeating the boss opens it; score and skill counts do not gate completion. The largest main-route ground gap is 200 pixels. Raised optional routes supply additional movement challenges. Checkpoints heal on activation. A fall or loss of health returns the player to the most recent checkpoint while preserving collected ideas, skills, defeated enemies and boss damage within that level session.
 
@@ -31,7 +33,7 @@ Each world carries three set pieces and one secret room, none of which adds a ne
 | --- | --- | --- | --- |
 | Application Alley | Keyword Gate | `gates` with `needs: 'keys'`, three `key` collectibles | A solid gate before the arena opens when all three keyword tags are collected. The keys sit low, on a ledge and above a spring within one courtyard, so backtracking is never more than a screen and a half. |
 | Ship It City | Phase 2 | signs only | The 'NEARLY DONE' and 'PHASE 2 (QUICK TWEAK)' signs mark where the level used to end, and a second half of lifts and terraces leads to the arena. The decoy finish portal was removed after playtesting because it read as a bug. |
-| Growth Run | The Feed | `chase` | A wall of content pursues the player from x 4560 to x 7440 at 4.7 pixels per tick against a run speed of 6.2. It never trails by more than 380 pixels. Being overtaken returns the player to the checkpoint before the sprint and resets the wall. Assist mode slows it by a fifth. |
+| Growth Run | The Feed | `chase` | A wall of content pursues the player from x 4560 to x 7440 (authored; 8760 to 11640 once the level is built) at 4.7 pixels per tick against a run speed of 6.2. It slides in from off screen over 50 ticks, then keeps at most 380 pixels behind a runner, or half the view less 40 on a narrow screen, so it is always in sight. It surges forward by up to 14% of that distance and eases back, so it never sits still against the edge of the screen. Being overtaken returns the player to the checkpoint before the sprint and resets the wall. Once outrun it stops where it stands, by the YOU’RE ALL CAUGHT UP sign, and drops out of view over 40 ticks. Assist mode slows it by a fifth. |
 | Final Interview HQ | Three rounds | `rounds`, `gates` with a round index | One-hit rematches with the CV Filter, Scope Creep and the Algorithm, each on its own floor and reached by lift, before the host welcomes the player without combat. |
 
 | Application Alley | Cover Letter Climb | a 240-pixel rooftop | Taller than a single jump, so it needs the second jump or the lift and ledge before it. |
