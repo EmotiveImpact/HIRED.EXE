@@ -87,7 +87,7 @@ Nobody asked for a game. Hand me a problem and making something is what I do fir
 
 Tools: Claude Code and Codex, every hour of every day.
 Automation: agents test my software, handle the data and hand work to each other. They also run bug sweeps and code reviews, and brief me on the code every day with things to fix. If I do something twice, they do it the third time.
-Before this: twenty years directing and editing film. My own content starts at the end of 2026.
+Before this: twenty years directing and editing film.
 Right to work in the UK: yes, unrestricted.
 Where: London, working remotely. Happy to meet in person now and then.
 Hours: full time.

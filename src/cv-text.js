@@ -18,16 +18,14 @@ Play it first: hireexe.me
 
 PROFILE
 
-I have ADHD and a million ideas an hour. The trouble is that good ideas die between the idea and the working thing. AI agents closed that gap, and twenty years taught me what makes the working thing worth using. Film taught me one rule: bored people leave. Graphic design taught me where the eye goes first. Websites taught me where people get stuck. Claude Code and Codex are open every hour of every day: I plan what happens on screen and behind it, direct the agents, read the code and test the result. What ships is my call, and the finished product is mine to answer for.
+I have a million ideas an hour. The challenge is getting the right ones out of my head and into something people can use. AI agents have closed that gap, and twenty years in creative production taught me what makes the finished thing worth using. Film taught me one rule: bored people leave. Graphic design taught me where the eye goes first. Websites taught me where people get stuck. Claude Code and Codex are open every hour of every day: I plan what happens on screen and behind it, direct the agents, read the code and test the result. What ships is my call, and the finished product is mine to answer for.
 
 
 SHIPPED
 
-Two shipped. Six on the way. One sale so far, and I am counting it.
-
 Vlume: macOS audio utility, on sale
 vlumeaudio.com
-On sale. First sale recorded on 16 November 2026. The real feature is hearing the call over the music. Vlume turns one app up without the rest, with up to 3x boost, EQ, delay and multi-output. I built the lot, from the menu bar to the site, licensing and checkout.
+On sale. First sale on 16 November 2026, and I am counting it. The real feature is hearing the call over the music. Vlume turns one app up without the rest, with up to 3x boost, EQ, delay and multi-output. I built the lot, from the menu bar to the site, licensing and checkout.
 SwiftUI and Core Audio on the Mac. Next.js and Payload CMS on Vercel. Polar checkout and payment webhooks.
 
 Cairn: Mac storage cleaner for developers
@@ -66,7 +64,7 @@ Build: I start with the complaint, because that is where the product is. I look 
 
 Automate: If I do something twice, an agent does it the third time. Agents test my software, handle data, run bug sweeps and code reviews, hand work to each other and brief me each day on what to fix.
 
-Grow: Twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels. My own content starts in late 2026.
+Grow: Twenty years of cutting film to hold attention, then analytics and A/B tests on landing pages and funnels.
 
 Tools: I direct AI coding agents to build, integrate and test products using the technologies below.
 AI agents: Claude Code, Codex, Cursor and Antigravity.
