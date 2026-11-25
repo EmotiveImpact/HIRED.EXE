@@ -72,7 +72,7 @@ async function run() {
     await until(()=>win.location.search === '?edition=portfolio' && app()?.mode === 'home','Title did not load');
     // The runner uses session-specific storage, including across the reload assertion.
     check(win.HIRED_EDITION.id === 'portfolio','Playtest storage must be isolated');
-    check(byId('home-cv').getAttribute('href')==='cv.html','CV is missing from the title');
+    check(byId('home-cv-pdf').getAttribute('href').endsWith('Augustus-Edem-CV.pdf'),'CV.PDF is missing from the title');
     click('skip-portfolio');
     check(byId('os-dialog').querySelector('a[href="https://vlumeaudio.com/"]'),'Verified portfolio link missing');
     check(byId('os-dialog').querySelector('a[href^="mailto:"]'),'Contact action missing');

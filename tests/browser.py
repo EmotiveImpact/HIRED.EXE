@@ -462,8 +462,8 @@ def run(profile, base):
         context.route(re.compile(r'^https?://'), reject_network)
         page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
-        assert page.locator('#home-cv').get_attribute('href').startswith('data:application/pdf;base64,')
-        assert page.locator('#home-cv').get_attribute('download') == 'Augustus-Edem-CV.pdf'
+        # CV.TXT and CV.PDF replace the old CV web page icon.
+        expect(page.locator('#home-cv')).to_have_count(0)
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         launch()

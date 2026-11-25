@@ -178,7 +178,6 @@
       items:{
         'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
         ...(E.readme?{'home-readme':{label:'README.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\README.TXT',workdir:'C:\\HIRE',runs:['readme.txt','readme'],open:()=>H.notepad('README.TXT',E.readme)}}:{}),
-        'home-cv':{label:E.applicant+'’s CV',icon:'<span class="pm-glyph pm-glyph-cv">CV</span>',href:offlineCv||'cv.html',linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.WRI',workdir:'C:\\HIRE',runs:['cv.wri','cv'],open:()=>openCv()},
         'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_CV_TXT)},
         // The CV as the PDF itself: it opens in the browser's own viewer, or downloads from the single-file build.
         'home-cv-pdf':{label:'CV.PDF',icon:H.linkIcon('CV.PDF'),href:offlineCv||CV_PDF,linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.PDF',workdir:'C:\\HIRE',runs:['cv.pdf'],open:()=>openCv(CV_PDF)},
@@ -192,7 +191,7 @@
       },
       groups:[
         // Only the applicant's own group starts open; the rest wait as icons along the bottom.
-        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv','home-cv-txt','home-cv-pdf','skip-portfolio','desk-setup']},
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv-txt','home-cv-pdf','skip-portfolio','desk-setup']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
         {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon','desk-sub']},
         ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[]),
