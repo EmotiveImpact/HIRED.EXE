@@ -68,7 +68,7 @@ def run(profile, base):
             expect(page.locator(item)).to_have_attribute('target', '_blank')
             # Each link has a picture of its own, drawn in the sixteen Windows colours.
             expect(page.locator(f'{item} .pm-glyph-art svg')).to_have_count(1)
-        assert page.evaluate("new Set([...document.querySelectorAll('.pm-glyph-art')].map(g => g.innerHTML)).size") == 9
+        assert page.evaluate("new Set([...document.querySelectorAll('[id^=desk-link-] .pm-glyph-art, [id^=desk-work-] .pm-glyph-art')].map(g => g.innerHTML)).size") == 9
         expect(page.locator('#internet-window .pm-item')).to_have_count(5)
         expect(page.locator('#working-window .pm-item')).to_have_count(5)
         # Program Manager's menus drop over the group window without moving it.
@@ -97,6 +97,7 @@ def run(profile, base):
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
         # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
         expect(page.locator('#home-cv-pdf')).to_contain_text('CV.PDF')
+        expect(page.locator('#home-cv-pdf .pm-glyph-art svg')).to_have_count(1)
         assert page.locator('#home-cv-pdf').get_attribute('href') == 'assets/cv/Augustus-Edem-CV.pdf'
         assert page.locator('#home-cv-pdf').get_attribute('target') == '_blank'
         assert page.request.get(base+'/assets/cv/Augustus-Edem-CV.pdf').body().startswith(b'%PDF-')
