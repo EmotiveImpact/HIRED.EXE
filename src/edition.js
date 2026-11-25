@@ -104,7 +104,7 @@ Augustus Edem
   ],
   contactUrl: 'mailto:emotiveimpact@gmail.com?subject=HIRE.EXE%20-%20Let%27s%20talk',
   // Each platform becomes an icon in the desktop's Internet group (https:// links only).
-  // Add more here once Edem confirms them; Hire Edem.exe sends people to that group.
+  // Add more here once Edem confirms them; Hire Augustus.exe sends people to that group.
   links: [
     { name: 'Vimeo', url: 'https://vimeo.com/emotiveimpact' },
     { name: 'Vlume', url: 'https://vlumeaudio.com/' },
@@ -120,7 +120,7 @@ Augustus Edem
     { name: 'Lumalook', url: 'https://lumalook.app/' },
     { name: 'Commune', url: 'https://ourcommune.io/' }
   ],
-  // Hire Edem.exe's install steps for this employer. They answer the Solved advert line by line:
+  // Hire Augustus.exe's install steps for this employer. They answer the Solved advert line by line:
   // no fancy office, Claude Code and Codex, automate the third time, a salary with a number in it,
   // no ping-pong table, no detailed instructions and no long cover note.
   setupSteps: [

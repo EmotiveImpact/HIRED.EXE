@@ -191,7 +191,7 @@ def run(profile, base):
         activate('.jargon-window #dialog-close')
         activate('#games-window .w31-min')
         expect(page.locator('#games-group')).to_be_visible()
-        # Hire Edem.exe runs Setup, asks for Disk 2, and ends with email and the Internet group.
+        # Hire Augustus.exe runs Setup, asks for Disk 2, and ends with email and the Internet group.
         open_item('#desk-setup')
         activate('#setup-continue')
         # Minimised, Setup copies up to Disk 2 and then holds the prompt until its window is back.
@@ -200,7 +200,7 @@ def run(profile, base):
         expect(gauge).to_have_attribute('aria-valuenow', '46', timeout=30000)
         page.wait_for_timeout(1000)
         expect(page.locator('.w31-message')).to_have_count(0)
-        # Opening Hire Edem.exe again brings back the same install, not a new Welcome screen.
+        # Opening Hire Augustus.exe again brings back the same install, not a new Welcome screen.
         open_item('#desk-setup')
         expect(gauge).to_be_visible()
         expect(gauge).to_have_attribute('aria-valuenow', '46')

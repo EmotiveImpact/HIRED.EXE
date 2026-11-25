@@ -557,7 +557,7 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .jg-legend li{display:flex;align-items:center;gap:6px}
 .jg-legend svg{flex:none;width:16px;height:16px}
 
-/* Hire Edem.exe: Setup runs full screen on a banded blue backdrop, like a 1992 installer */
+/* Hire Augustus.exe: Setup runs full screen on a banded blue backdrop, like a 1992 installer */
 .setup-window{width:min(640px,100%);height:min(480px,100%)}
 .setup-window .modal-body{padding:0;overflow:auto;background:#000}
 .setup-stage{display:flex;flex-direction:column;min-height:100%;padding:12px 16px 20px;background:linear-gradient(#0000ff 0 6.25%,#0000ef 0 12.5%,#0000df 0 18.75%,#0000cf 0 25%,#0000bf 0 31.25%,#0000af 0 37.5%,#00009f 0 43.75%,#00008f 0 50%,#00007f 0 56.25%,#00006f 0 62.5%,#00005f 0 68.75%,#00004f 0 75%,#00003f 0 81.25%,#00002f 0 87.5%,#00001f 0 93.75%,#00000f 0)}
