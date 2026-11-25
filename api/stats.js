@@ -31,6 +31,8 @@ function page(rows, days, key) {
     if (name !== 'Arrived' && name !== 'Away') v.moments.push({name, detail, secs: Number(secs) || 0});
   }
   const list = [...visits.values()];
+  // Notes sent close together can reach the database out of turn, so each visit is put back in the order it happened.
+  for (const v of list) v.moments.sort((a, b) => a.secs - b.secs);
   const did = test => list.filter(v => v.moments.some(test)).length;
   const tiles = [
     ['Visits', list.length],
