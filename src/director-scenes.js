@@ -58,7 +58,7 @@ const directorScenes = [
     title:'Thursday at James’s',place:'James’s office · fictionalised Solved Studio meeting',cue:'After the fourth world, cut to Thursday in a working design studio. The orange visitor’s chair, blue partition and print proofs establish a new room. James has actually played the game within this story.',
     shots:[
       ['office-1','The visitor’s chair','James|Did the submarine ever ship?','Augustus|Still in beta.'],
-      ['office-2','The interview','James|What would you say is your biggest weakness?','Augustus|You asked for a CV and I built you a video game.'],
+      ['office-2','The interview','James|What would you say is your biggest weakness?','Augustus|You asked what was abnormal, so I built you a video game.'],
       ['office-3','The diary','James|Biggest strength?','Augustus|Same answer.','James|Can you do Monday?'],
       ['office-4','The handshake']
     ]
