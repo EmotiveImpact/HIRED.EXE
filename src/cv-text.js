@@ -62,7 +62,7 @@ London | Before 2009 | Graphic design, film editing and websites for my own clie
 IN THE WORKS
 
 SALEANE: AI receptionist for salons, barbers and clinics
-saleane.vercel.app/demo | In development
+saleane.vercel.app | In development
 Selected for the FIRST 1000 programme. Booking, rescheduling, cancellations and reminders, with a one-click sample studio.
 
 Commune: Shared living
@@ -102,7 +102,7 @@ NoSpoilers (beta): nospoilers.dev
 Commune (beta): ourcommune.io
 Lumalook (beta): lumalook.app
 DraftHR (beta): drafthr.io
-SALEANE (beta): saleane.vercel.app/demo
+SALEANE (beta): saleane.vercel.app
 Film portfolio: vimeo.com/emotiveimpact
 
 

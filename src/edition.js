@@ -98,7 +98,7 @@ Augustus Edem
     { name:'Commune', description:'A shared-living product for household costs, tasks and group information.',
       work:'I directed the homepage and journal, reviewed navigation on desktop and mobile, and used interactive examples to explain splits and repayments.', url:'https://ourcommune.io/' },
     { name:'SALEANE', description:'A booking assistant that connects customer requests with a small business owner’s diary.',
-      work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/demo' },
+      work:'I designed the flow around what the customer asks for and what the owner needs to see in their diary.', url:'https://saleane.vercel.app/' },
     { name:'Cairn', description:'A Mac storage utility that helps people decide what to clear.',
       work:'I designed protected-file safeguards, reviewable cleanup plans and receipts that show the actual change in free space.', url:'https://cairnmac.com/' }
   ],
@@ -114,7 +114,7 @@ Augustus Edem
   // Projects in progress: one icon each in the desktop's Working On group (https:// links only).
   // Keep the list in step with CURRENTLY WORKING ON in src/cv-text.js.
   working: [
-    { name: 'SALEANE', url: 'https://saleane.vercel.app/demo' },
+    { name: 'SALEANE', url: 'https://saleane.vercel.app/' },
     { name: 'NoSpoilers', url: 'https://nospoilers.dev/' },
     { name: 'DraftHR', url: 'https://drafthr.io/' },
     { name: 'Lumalook', url: 'https://lumalook.app/' },
