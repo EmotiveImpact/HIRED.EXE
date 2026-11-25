@@ -303,6 +303,9 @@ input, textarea, .notepad-text, .help-topic, .setup-email-box .setup-address {
 #dos-start:not([hidden]){position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;background:#0b0b0b;color:#ddd;padding:clamp(20px,5vw,70px);font:clamp(16px,2vw,24px)/1.45 "Courier New",monospace}
 .dos-log p{margin:0 0 .65em}
 #dos-prompt:not(:empty)::after{content:'▮'}
+.dos-waiting::after{content:'▮';animation:dos-cursor 1s steps(1) infinite}
+@keyframes dos-cursor{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.dos-waiting::after{animation:none}}
 #dos-skip{background:transparent;color:#ddd;border:1px solid #777;padding:8px 14px;font:inherit;font-size:14px}
 #os-dialog .modal-window:has(.standard-calc){width:min(362px,100%);background:#c8c7cc}
 #os-dialog .modal-window:has(.standard-calc)>.modal-body{padding:12px;background:#c8c7cc}
