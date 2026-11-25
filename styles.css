@@ -213,16 +213,44 @@
 .comic-dialogue .comic-after { margin-top:.4em; font-style:italic; font-size:.9em; }
 .comic-dialogue:empty { display:none; }
 
-#desktop {
+/* Accidental browser gestures (see src/gestures.js for the part CSS cannot do).
+   No pull-to-refresh or edge bounce, no pinch or double-tap zoom, no text selection,
+   long-press callout or picture dragging anywhere on the page. */
+html, body {
+  overscroll-behavior: none;
+}
+html {
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
 }
-#desktop img, #desktop a {
+img, a, svg {
   -webkit-user-drag: none;
 }
-#game {
+/* Text that is there to be read and copied keeps its selection and its callout. */
+input, textarea, .notepad-text, .help-topic, .setup-email-box .setup-address {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+/* Scrolling inside a window stops at its edge and is not passed on to the page. */
+.pm-workspace, .pm-items, .w31-listbox, .help-topic, .notepad-text, .calc-history, .modal-body, .overlay {
+  overscroll-behavior: contain;
+}
+/* The game and its controls take every touch for themselves. */
+#game, #hud, #touch-controls, #touch-controls button {
   touch-action: none;
+}
+/* On a touch screen the page itself never scrolls, so the browser has nothing to pull or bounce;
+   anything taller than the screen scrolls inside body. */
+@media (pointer:coarse) {
+  html { height: 100%; overflow: hidden; }
+  body { height: 100%; min-height: 0; overflow: auto; }
 }
 
 .overlay.home-overlay {padding:0;display:block;background:#255c74}
