@@ -93,7 +93,7 @@ def run(profile, base):
         expect(page.locator('#exit-cancel')).to_be_visible()
         activate('#exit-cancel')
         expect(page.locator('#start-game')).to_be_visible()
-        # README.TXT is the first icon: the application in the advert's own two headings.
+        # README.TXT is the first icon: why this job, what Edem would build first and the partnering offer.
         assert page.locator('#main-window .pm-item').first.get_attribute('id') == 'home-readme'
         # CV.PDF is the CV as the PDF itself, opened in the browser's own viewer.
         expect(page.locator('#home-cv-pdf')).to_contain_text('CV.PDF')
@@ -104,7 +104,7 @@ def run(profile, base):
         open_item('#home-readme')
         notepad = page.locator('.notepad-window')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
-        for line in ('1. WHAT I HAVE BUILT', 'vlumeaudio.com', '2. WHAT I HAVE DONE THAT IS ABNORMAL', 'Right to work in the UK: yes, unrestricted.'):
+        for line in ('1. WHY THIS JOB', '2. WHAT I WOULD BUILD FIRST', '3. PARTNERING, BOTH WAYS', 'SALEANE', 'double-click HIRE.EXE'):
             assert line in notepad.locator('.notepad-text').input_value(), line
         activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.

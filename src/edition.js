@@ -44,49 +44,39 @@ const solvedEdition = {
   // Keep the lists in step with links and working below, and with src/cv-text.js.
   readme: `README.TXT
 
-You asked what I have done that is abnormal. I built my job application as a video game.
-
-The CV in this folder has the facts. This file has the parts a CV is too polite to say.
+You have my CV. You have had the email. This is the part that would not fit in either.
 
 
-1. WHAT I HAVE BUILT
+1. WHY THIS JOB
 
-Vlume, a Mac audio mixer, on sale: vlumeaudio.com
-Cairn, a Mac storage cleaner for developers: cairnmac.com
-HIRE.EXE, the thing you are sitting in: hireexe.me
+Most adverts describe a job. Yours describes how I already spend my days: think of something, build it, put it in front of real people, keep what works and start the next one.
 
-Five more are in beta. They are in the Internet and Working On groups. Double-click one and it opens.
+I have spent more than twenty years making things for other people's companies. A studio with more ideas than hands, run by a founder who builds every day, is the job I would have written for myself if I had thought anyone would read it.
 
 
-2. WHAT I HAVE DONE THAT IS ABNORMAL
+2. WHAT I WOULD BUILD FIRST
 
-Nobody asked for a game. Hand me a problem and making something is what I do first. The first commit was on 19 November 2026 and it was playable the next day. A bot plays all four worlds on desktop, Android and iPhone every time I change it. The submarine was ordered by mistake, and I kept it.
+Ideas, not promises. I have not seen inside any of these, so treat them as opening offers.
 
+UK tax savings: a "what have I missed?" check. Upload last year's figures, get a plain-English list of the reliefs you could have claimed, and a nudge well before 31 January rather than on it.
 
-3. WHY THIS JOB
+Site selection: a one-page site report people can forward. The final decision is usually made by someone who never opened the map, so give them the map's conclusion, including why the other sites lost.
 
-Most adverts describe a job. Yours describes how I already spend my days: think of something, build it, ship it, find out if anyone wants it, then do the next one.
+AI-to-human tasks: the handover. When the AI gets stuck, it writes the brief for the human, including what it has already tried. Better briefs, quicker jobs, fewer "what did you mean by this?" messages.
 
-I have spent more than twenty years making things for other people's companies. A studio that tests a new bet every few months, working directly with the founder, is the job I would have written for myself. I would rather answer for the product than for the meeting about it.
-
-
-4. WHAT I BRING WITH ME
-
-A pipeline. SALEANE, an AI receptionist for salons, barbers and clinics, was picked for the FIRST 1000 programme. DraftHR writes HR letters for UK and US teams. Both are built and in beta. If either fits the studio, they are yours to test.
-
-And the other way round: point me at any of Solved's bets and I will start building on day one.
+Content brand: one recording in, a week of clips, posts and a newsletter out, cut by someone who knows where viewers stop watching. The agents do the chopping. I do the taste.
 
 
-5. THE PRACTICAL BITS
+3. PARTNERING, BOTH WAYS
 
-Right to work in the UK: yes, unrestricted.
-Where: London, working remotely. Happy to meet in person now and then.
-Hours: full time.
+Point me at any of the above and I will start building on day one.
 
-Now close this and double-click HIRE.EXE. My live work is in the Internet folder, and the submarine is in Games.
+And the other way round: SALEANE, an AI receptionist for salons, barbers and clinics, and DraftHR, which writes HR letters for UK and US teams, are both built and in beta. If either fits the studio, they are yours to test.
+
+
+Now close this and double-click HIRE.EXE. The submarine is in Games.
 
 Augustus Edem
-emotiveimpact@gmail.com
 `,
   profile: 'I build and ship products with Claude Code and Codex, every day. Two are out, six are on the way, and I do the lot: the idea, the interface, the database, the checkout and the deploy. Before this I spent twenty years directing and editing film, which is where I learned what keeps people watching.',
   experience: [
