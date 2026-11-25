@@ -241,14 +241,27 @@ def run(profile, base):
             page.wait_for_function('HIRED_APP.state.player.x>170')
             page.keyboard.up('ArrowRight')
         page.screenshot(path=OUT/'gameplay.jpg')
+        # The world's theme plays on Sea Trial's sound engine. Pausing stops it, the sound
+        # button silences everything, and resuming carries on. (WebKit may keep audio locked.)
+        hears = profile != 'iphone'
+        if hears:
+            page.wait_for_function("HIRED_APP.sound?.state === 'running' && HIRED_APP.sound.song === 'alley'")
+        if profile == 'android':
+            assert 'jump' in page.evaluate('HIRED_APP.sound.log')
         page.locator('#pause-button').click()
         page.locator('#resume-game').wait_for()
+        if hears:
+            page.wait_for_function('HIRED_APP.sound.song === null')
         page.locator('#sound-button').click()
         assert page.locator('#sound-button').get_attribute('aria-pressed') == 'false'
+        if hears:
+            assert page.evaluate('HIRED_APP.sound.muted')
         page.locator('#sound-button').click()
         if mobile:
             page.set_viewport_size({'width':844,'height':390})
             page.locator('#resume-game').tap()
+            if hears:
+                page.wait_for_function("HIRED_APP.sound.song === 'alley' && !HIRED_APP.sound.muted")
             for control in ['left','right','jump','dash','down']:
                 box = page.locator(f'[data-control="{control}"]').bounding_box()
                 assert box and box['x'] >= 0 and box['y'] + box['height'] <= 391
