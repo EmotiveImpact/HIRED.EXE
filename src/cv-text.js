@@ -98,11 +98,11 @@ LINKS
 HIRE.EXE: hireexe.me
 Vlume: vlumeaudio.com
 Cairn: cairnmac.com
-NoSpoilers: nospoilers.dev
-Commune: ourcommune.io
-Lumalook: lumalook.app
-DraftHR: drafthr.io
-SALEANE: saleane.vercel.app/demo
+NoSpoilers (beta): nospoilers.dev
+Commune (beta): ourcommune.io
+Lumalook (beta): lumalook.app
+DraftHR (beta): drafthr.io
+SALEANE (beta): saleane.vercel.app/demo
 Film portfolio: vimeo.com/emotiveimpact
 
 
