@@ -1,0 +1,8 @@
+16-bit SNES-style pixel art sprite sheet of four collectable items for a side-scrolling platform game, in a tidy grid of 2 columns by 2 rows, evenly spaced with wide clear gaps, nothing touching, nothing in the top-left or bottom-right corner. Each item is drawn large, seen straight on, chunky and easy to read at a small size.
+Match the STYLE of the reference sprite sheet exactly (its light bulb, heart, palette and briefcase icons): chunky pixels, thick dark violet outlines, flat cel shading with a small highlight. Use it only for style.
+Top left: a subscription membership card in pale mint and white, landscape, with rounded corners, a dark stripe across its upper part, a small white speech bubble with a sparkle in it as its emblem, and a wide blank pale label across its lower half.
+Top right: a subscription membership card in warm terracotta orange and cream, landscape, with rounded corners, a dark stripe across its upper part, a small cream sun-like spark as its emblem, and a wide blank cream label across its lower half.
+Bottom left: a cold cup of coffee: a white takeaway mug, coffee gone flat and grey-brown, no steam at all, one small blue ice crystal on the rim.
+Bottom right: a zipped file folder: a lilac document folder with a silver zip running down its middle and a small zip pull.
+Background: one perfectly flat, uniform, pure magenta #ff00ff everywhere. No gradient, no shadows, no ground, no grid lines, no frames, no labels.
+No readable text, no letters, no numbers, no real company logos, no watermark, no border.

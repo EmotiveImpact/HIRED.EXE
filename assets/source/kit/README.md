@@ -39,3 +39,13 @@ What the tool changes on the way in, and why:
 - The warning sign's right corner lay under the logo. It is its left corner, mirrored.
 - The two subscription cards have a blank label. The game writes GPT and CLD on them.
 - The title hero is reduced to 96 colours so it stays sharp when the page enlarges it.
+
+## Prompts and layout sketches
+
+`prompts/` holds the exact text each picture was asked for with, and `prompts/jobs.json` says
+which reference pictures went with it. `layouts/` holds the flat-colour sketches that fix where a
+skyline, bridge or bank of treetops sits. The style references are the game's own plates and
+atlases, so they are not copied here.
+
+The `city-*` and `growth-*` prompts are for Ship It City and Growth Run. Their pictures have not
+been made yet.

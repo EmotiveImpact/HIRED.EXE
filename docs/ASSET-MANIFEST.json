@@ -1102,8 +1102,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 1919,
-      "sha256": "0501b9ab1e4c0f370c39963962a6bbce5c24eba8f77cacfe36944fcf8587a79d"
+      "bytes": 3149,
+      "sha256": "648a2b4bd58dd1d634c1b44641aab97b0007565b8ff1ca8c43db335ab45cebd4"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1130,6 +1130,30 @@
       "sha256": "18e4598cc8319bc45e624a76d7786889c907b4c6cdce3b5e7631edb9f6bd5d51"
     },
     {
+      "path": "assets/source/kit/layouts/layout-far.png",
+      "role": "generated-source",
+      "bytes": 12470,
+      "sha256": "5331240cdd3f4ea8c4adb7bb91b48a701a934a476fb15ae20c7ab4c562783e11"
+    },
+    {
+      "path": "assets/source/kit/layouts/layout-near-city.png",
+      "role": "generated-source",
+      "bytes": 17972,
+      "sha256": "496ba87af4e9a3a64977dc958acc40244003ce9c49c795bc68f46a4cea8c63a5"
+    },
+    {
+      "path": "assets/source/kit/layouts/layout-near-growth.png",
+      "role": "generated-source",
+      "bytes": 17081,
+      "sha256": "6679c23fa8492d7fe3f21879fb097ae636af266492d4545af12d1aafe9265f0a"
+    },
+    {
+      "path": "assets/source/kit/layouts/layout-near.png",
+      "role": "generated-source",
+      "bytes": 17067,
+      "sha256": "f428ba7c39fa9555b3d206a3f9c2872bbf28cca18ce37f5638480e270d9e7936"
+    },
+    {
       "path": "assets/source/kit/machinery-a.png",
       "role": "generated-source",
       "bytes": 1656752,
@@ -1146,6 +1170,114 @@
       "role": "generated-source",
       "bytes": 1175672,
       "sha256": "4a1a64e0bb0a06bebb356b5419802c03c2bfd5f1bd264b1eafd4a6e9b4387068"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-far.txt",
+      "role": "generated-source",
+      "bytes": 1456,
+      "sha256": "db2a93d30b7cb0777537ad7554250484089c5a9756da39d2e9a374584a1b1c77"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-movers.txt",
+      "role": "generated-source",
+      "bytes": 1869,
+      "sha256": "77b86b55afd8dcbf64622822f88c26e302c20382b2b68e5f7f0580e503b41c64"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-near.txt",
+      "role": "generated-source",
+      "bytes": 1700,
+      "sha256": "1cc90ee94181b3c6bfafc07c4bf7f02bb6fa76c029362d68fede46d6b748f13b"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-sky.txt",
+      "role": "generated-source",
+      "bytes": 932,
+      "sha256": "ad91d676f112ec27f992500df637d605fb1a6f10f47aabe1a05522b872eb522a"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-far.txt",
+      "role": "generated-source",
+      "bytes": 1776,
+      "sha256": "c723140bdacc5550b51dee5c093ecc594d0471853a40f3a8a5b911847352cdb4"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-movers.txt",
+      "role": "generated-source",
+      "bytes": 1897,
+      "sha256": "7cb7cd80c4572a3bd65f10f54cfc309ec2340c81e19f57a686c54657599866d8"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near.txt",
+      "role": "generated-source",
+      "bytes": 2154,
+      "sha256": "4c6d59999dbb491e8855fcbdcfc1bb2b9ee88f6f7b5f67de940f41a3a7c5b8c6"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-sky.txt",
+      "role": "generated-source",
+      "bytes": 1037,
+      "sha256": "e378f641f1d9537117e6cb649d610106fa65a278ca94d4f00903b74b4710efdf"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-far.txt",
+      "role": "generated-source",
+      "bytes": 1782,
+      "sha256": "821710bca9494a021cf9211e654d5ea6729bd44f8c20325c90c1c772082ab5dd"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-movers.txt",
+      "role": "generated-source",
+      "bytes": 1982,
+      "sha256": "5add3f4ad1fdab05a6cf4dcbdadf3b53e9272e8de8ad0cf2f55f931e83b84603"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-near.txt",
+      "role": "generated-source",
+      "bytes": 2254,
+      "sha256": "75006a100511d1bae71790286fe940e7dcca677b8ed7b0608341736992fb8f0c"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-sky.txt",
+      "role": "generated-source",
+      "bytes": 1070,
+      "sha256": "3747e102a02cde31b1141d206852c4f54b7ef16d5d11de04811a7a3f41f77914"
+    },
+    {
+      "path": "assets/source/kit/prompts/jobs.json",
+      "role": "generated-source",
+      "bytes": 2813,
+      "sha256": "e39670a313c138b0588eed6fe1b5bba2edfd45a9324ec28b8920b2e40e52478a"
+    },
+    {
+      "path": "assets/source/kit/prompts/machinery-a.txt",
+      "role": "generated-source",
+      "bytes": 2238,
+      "sha256": "71a0aff908f9a6beacc6a65834a9a8f1e24c328f8d5da913fe5e30b908f766fb"
+    },
+    {
+      "path": "assets/source/kit/prompts/machinery-b.txt",
+      "role": "generated-source",
+      "bytes": 1653,
+      "sha256": "36a35e7ae8a9b096d7d9ec2100298edafaefef8fbf1a029c0ce13c4e48b16583"
+    },
+    {
+      "path": "assets/source/kit/prompts/pickups.txt",
+      "role": "generated-source",
+      "bytes": 1546,
+      "sha256": "100504fd3548322c361f61429747f19095eacbffedc23f61f10cfa5ccf88c0cd"
+    },
+    {
+      "path": "assets/source/kit/prompts/signs.txt",
+      "role": "generated-source",
+      "bytes": 1653,
+      "sha256": "d2b5548233154a186722719cccfa806104d60f00e64f6321e78c274d090ff663"
+    },
+    {
+      "path": "assets/source/kit/prompts/title-hero.txt",
+      "role": "generated-source",
+      "bytes": 1485,
+      "sha256": "d76eb261988de43a239c4bc13b69ac6d2ebb546324ebe9cdfd113f0105eeb009"
     },
     {
       "path": "assets/source/kit/signs.png",

@@ -1,0 +1,154 @@
+{
+ "model": "Seedream 5.0 Lite, 2K (6 credits an image)",
+ "cap_images": 17,
+ "jobs": [
+  {
+   "name": "alley-sky",
+   "prompt": "prompts/alley-sky.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/application-alley.jpg"
+   ]
+  },
+  {
+   "name": "alley-far",
+   "prompt": "prompts/alley-far.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/application-alley.jpg",
+    "refs/layout-far.png"
+   ]
+  },
+  {
+   "name": "alley-near",
+   "prompt": "prompts/alley-near.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/application-alley.jpg",
+    "refs/layout-near.png"
+   ]
+  },
+  {
+   "name": "alley-movers",
+   "prompt": "prompts/alley-movers.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/enemy-atlas.png",
+    "refs/application-alley.jpg"
+   ]
+  },
+  {
+   "name": "signs",
+   "prompt": "prompts/signs.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/props-atlas.png"
+   ]
+  },
+  {
+   "name": "machinery-a",
+   "prompt": "prompts/machinery-a.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/props-atlas.png",
+    "refs/enemy-atlas.png"
+   ]
+  },
+  {
+   "name": "machinery-b",
+   "prompt": "prompts/machinery-b.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/props-atlas.png",
+    "refs/enemy-atlas.png"
+   ]
+  },
+  {
+   "name": "pickups",
+   "prompt": "prompts/pickups.txt",
+   "aspect": "4:3",
+   "refs": [
+    "refs/enemy-atlas.png"
+   ]
+  },
+  {
+   "name": "title-hero",
+   "prompt": "prompts/title-hero.txt",
+   "aspect": "3:4",
+   "refs": [
+    "refs/hero-model-sheet.jpg",
+    "refs/hero-atlas.png"
+   ]
+  },
+  {
+   "name": "city-sky",
+   "prompt": "prompts/city-sky.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/ship-it-city.jpg"
+   ]
+  },
+  {
+   "name": "city-far",
+   "prompt": "prompts/city-far.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/ship-it-city.jpg",
+    "refs/layout-far.png"
+   ]
+  },
+  {
+   "name": "city-near",
+   "prompt": "prompts/city-near.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/ship-it-city.jpg",
+    "refs/layout-near-city.png"
+   ]
+  },
+  {
+   "name": "city-movers",
+   "prompt": "prompts/city-movers.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/enemy-atlas.png",
+    "refs/ship-it-city.jpg"
+   ]
+  },
+  {
+   "name": "growth-sky",
+   "prompt": "prompts/growth-sky.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/growth-run.jpg"
+   ]
+  },
+  {
+   "name": "growth-far",
+   "prompt": "prompts/growth-far.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/growth-run.jpg",
+    "refs/layout-far.png"
+   ]
+  },
+  {
+   "name": "growth-near",
+   "prompt": "prompts/growth-near.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/growth-run.jpg",
+    "refs/layout-near-growth.png"
+   ]
+  },
+  {
+   "name": "growth-movers",
+   "prompt": "prompts/growth-movers.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/enemy-atlas.png",
+    "refs/growth-run.jpg"
+   ]
+  }
+ ]
+}

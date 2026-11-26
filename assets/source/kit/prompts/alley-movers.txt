@@ -1,0 +1,9 @@
+16-bit SNES-style pixel art sprite sheet for a side-scrolling game: five separate objects, all seen exactly side-on, evenly spaced with wide clear gaps, nothing touching or overlapping, nothing in the top-left or bottom-right corner.
+Reference 1 shows the STYLE and palette to match: chunky pixels, thick dark violet outlines, flat cel shading with small highlights. Reference 2 shows the commuter train to redraw (the white train on the viaduct). Use the references only for style and for the train's design.
+Top row, left: a small friendly vintage propeller aeroplane flying to the RIGHT, cream body with a red nose, red tail fin and red stripe, one pilot in goggles in the open cockpit, a small ring at the very back of the tail for a tow rope.
+Top row, right: a long blank advertising banner made of cream cloth, a plain horizontal rectangle about six times as wide as it is tall, with a neat red stitched border all the way round and a completely empty cream middle. At its RIGHT end two short brown ropes come together at a small ring. Its LEFT end is cut into a swallow tail. Flat and straight, not waving. Nothing written on it.
+Middle row, across the full width: a modern commuter train facing RIGHT, three carriages, white and pale lilac body with a violet stripe, a row of lit yellow windows, a rounded cab at the right-hand end, small wheels along a perfectly straight, level bottom.
+Bottom row, left: two small white seagulls flying to the right, the first with wings up, the second with wings down.
+Bottom row, right: a hot-air balloon with purple and yellow vertical stripes and a small wicker basket.
+Background: one perfectly flat, uniform, pure chroma-key green #00ff00 everywhere. No gradient, no shadows, no sky, no clouds, no ground, no grid lines, no frames, no labels.
+No readable text, no letters, no numbers, no logos, no watermark, no border.

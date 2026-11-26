@@ -1,0 +1,6 @@
+16-bit SNES-style pixel art game background layer for parallax scrolling: ONLY a daytime sky, nothing else.
+A bright blue sky, deeper blue at the top and paler towards the bottom, filled with big fluffy cumulus clouds: white tops with soft lilac and pink-violet shading underneath, exactly like the sky and clouds in the reference image.
+Match the reference image's style, palette, cloud shapes and chunky pixel size. Use it only for style: do not copy its buildings, railway or trees.
+Layout: clouds spread evenly across the full width, running off the left and right edges. The biggest clouds sit in the upper two thirds. The lowest quarter of the picture is pale, hazy sky with only a few small wispy clouds.
+No buildings, no skyline, no trees, no hills, no ground, no horizon line, no sun, no birds, no aircraft: nothing but sky and clouds from edge to edge.
+No text, no letters, no logos, no watermark, no border, no vignette.

@@ -1,0 +1,10 @@
+16-bit SNES-style pixel art sprite sheet for a side-scrolling platform game: exactly five separate objects, evenly spaced with wide clear gaps, nothing touching, nothing in the top-left or bottom-right corner. All seen straight on.
+Match the STYLE of the reference sprite sheets exactly: chunky pixels, thick dark violet outlines, flat cel shading with small highlights. Use them only for style.
+On the left, taking the full height of the picture: a tall, narrow security gate pillar, like an automatic barrier tower at an office entrance, about six times as tall as it is wide. Violet steel with riveted bands, a gold cap on top, a column of small amber indicator lights down its front and a glowing red scanner strip down its left edge. Perfectly upright, flat at the bottom.
+To the right of it, four smaller objects in a grid of 2 columns by 2 rows:
+Top left: a blank yellow paper luggage tag lying flat, a rectangle about three times as wide as tall with the two left-hand corners cut off at an angle and a small punched hole with a metal ring at the left end. Completely blank, nothing written on it.
+Top right: a brass reception desk bell, the kind you tap for service, a shiny dome with a small button on top on a dark round base.
+Bottom left: a chunky gold padlock, closed.
+Bottom right: a yellow triangular warning sign with a thick dark border and one bold dark exclamation mark.
+Background: one perfectly flat, uniform, pure chroma-key green #00ff00 everywhere. No gradient, no shadows, no ground, no grid lines, no frames, no labels. Nothing green on the objects.
+No readable text, no letters, no numbers, no logos, no watermark, no border.
