@@ -1,0 +1,83 @@
+{
+  "image": "assets/production/environment/kit-atlas.png",
+  "size": [
+    512,
+    58
+  ],
+  "frames": {
+    "balloon": {
+      "x": 0,
+      "y": 0,
+      "w": 40,
+      "h": 58
+    },
+    "banner": {
+      "x": 429,
+      "y": 0,
+      "w": 24,
+      "h": 28
+    },
+    "gull_0": {
+      "x": 454,
+      "y": 0,
+      "w": 26,
+      "h": 19
+    },
+    "gull_1": {
+      "x": 481,
+      "y": 0,
+      "w": 26,
+      "h": 19
+    },
+    "plane": {
+      "x": 41,
+      "y": 0,
+      "w": 76,
+      "h": 53,
+      "tow": 24
+    },
+    "train": {
+      "x": 118,
+      "y": 0,
+      "w": 310,
+      "h": 36
+    }
+  },
+  "banner": {
+    "left": 8,
+    "right": 8,
+    "tow": 14,
+    "line": 14,
+    "hem": 4
+  },
+  "scenery": {
+    "0": {
+      "layers": [
+        {
+          "image": "assets/production/backgrounds/application-alley-sky.webp",
+          "speed": 0.02,
+          "drift": 3
+        },
+        {
+          "image": "assets/production/backgrounds/application-alley-far.webp",
+          "speed": 0.07
+        },
+        {
+          "image": "assets/production/backgrounds/application-alley-near.webp",
+          "speed": 0.18
+        },
+        {
+          "image": "assets/production/backgrounds/application-alley-trees.webp",
+          "speed": 0.3
+        }
+      ],
+      "behind": 2,
+      "rail": 308,
+      "balloon": [
+        260,
+        104
+      ],
+      "gulls": 150
+    }
+  }
+}

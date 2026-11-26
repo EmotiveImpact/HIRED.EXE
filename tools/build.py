@@ -21,7 +21,8 @@ meta_paths = {
     'terrain':'assets/production/environment/terrain-atlas.json',
     'props':'assets/production/environment/props-atlas.json',
     'furniture':'assets/production/environment/furniture-atlas.json',
-    'feed':'assets/production/enemies/feed-atlas.json'
+    'feed':'assets/production/enemies/feed-atlas.json',
+    'kit':'assets/production/environment/kit-atlas.json'
 }
 meta = {k:json.loads((ROOT/p).read_text()) for k,p in meta_paths.items()}
 (ROOT/'src/assets.js').write_text('globalThis.HIRED_ASSET_META = '+json.dumps(meta,separators=(',',':'))+';\n')

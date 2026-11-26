@@ -410,6 +410,30 @@
       "sha256": "87663ad8e0b14b3f20ddb65240d252d4545736ef8640f1ce4e3d0802b0d8103d"
     },
     {
+      "path": "assets/production/backgrounds/application-alley-far.webp",
+      "role": "production-asset",
+      "bytes": 156724,
+      "sha256": "b32b41f078c9c73bede0c22a65cb15a5275d5aa80880dfceae41a8e9b1bc144b"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley-near.webp",
+      "role": "production-asset",
+      "bytes": 199530,
+      "sha256": "e5a301461366b0e596aa9e3e04ef1172724df0c252a9855c35dbd7af0af6a229"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley-sky.webp",
+      "role": "production-asset",
+      "bytes": 64146,
+      "sha256": "15110a7f33127ef7ca903717780afb184a94118049bddbae3cce23797d38b3b8"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley-trees.webp",
+      "role": "production-asset",
+      "bytes": 190976,
+      "sha256": "5a155601d62254c7b460c7bcdb33f3a6df38665dae3339156f59d0210e43889e"
+    },
+    {
       "path": "assets/production/backgrounds/application-alley.png",
       "role": "production-asset",
       "bytes": 2267319,
@@ -582,6 +606,18 @@
       "role": "production-asset",
       "bytes": 141081,
       "sha256": "969efc69ea2f44c9cb4a3eed9c6986dabb11e9caf9ff15006a87df693ba0b852"
+    },
+    {
+      "path": "assets/production/environment/kit-atlas.json",
+      "role": "production-asset",
+      "bytes": 1405,
+      "sha256": "ecf7cc63062a35ec08513eceec82fcbdc476c6cc5f90208b1137cb86a50a1c3a"
+    },
+    {
+      "path": "assets/production/environment/kit-atlas.png",
+      "role": "production-asset",
+      "bytes": 35394,
+      "sha256": "6e3a5341c3e481c51d02b5eb26b13c6a31039f72328007032c854cde1485ec76"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -1056,6 +1092,60 @@
       "role": "generated-source",
       "bytes": 1397886,
       "sha256": "6a056fc0ad547b205f3612d373a2a98bd960c1332116d175c03b9b83b9ac86e0"
+    },
+    {
+      "path": "assets/source/kit/alley-far.png",
+      "role": "generated-source",
+      "bytes": 1977700,
+      "sha256": "1e4bee40e040d791afefc347e94c33f7912b9b978f5c8a451cd5b9976d1d847b"
+    },
+    {
+      "path": "assets/source/kit/alley-movers.png",
+      "role": "generated-source",
+      "bytes": 1867555,
+      "sha256": "c99ac1cc6f752e3d49d579124fef250ded003f1d76511cce3772bd5dac3b2c5b"
+    },
+    {
+      "path": "assets/source/kit/alley-near.png",
+      "role": "generated-source",
+      "bytes": 1939694,
+      "sha256": "133c8b9e7ec76aef7ebd60818e4471fe4fa585e973843693f8653404377050ac"
+    },
+    {
+      "path": "assets/source/kit/alley-sky.png",
+      "role": "generated-source",
+      "bytes": 2102174,
+      "sha256": "18e4598cc8319bc45e624a76d7786889c907b4c6cdce3b5e7631edb9f6bd5d51"
+    },
+    {
+      "path": "assets/source/kit/machinery-a.png",
+      "role": "generated-source",
+      "bytes": 1656752,
+      "sha256": "98f99b4f00d65b36af1997e8bd9c77fe3988e5bb80fdb528f74acc9d255c82ae"
+    },
+    {
+      "path": "assets/source/kit/machinery-b.png",
+      "role": "generated-source",
+      "bytes": 1558425,
+      "sha256": "3b372ab643675c3ef09cda00e2f43604b0051ccd892cd1a74e94476862ee4bb1"
+    },
+    {
+      "path": "assets/source/kit/pickups.png",
+      "role": "generated-source",
+      "bytes": 1175672,
+      "sha256": "4a1a64e0bb0a06bebb356b5419802c03c2bfd5f1bd264b1eafd4a6e9b4387068"
+    },
+    {
+      "path": "assets/source/kit/signs.png",
+      "role": "generated-source",
+      "bytes": 1284719,
+      "sha256": "61eacf1d2d21c94f4f43737ced24a7865731d47559a3f0fdd1af360a0f2829e3"
+    },
+    {
+      "path": "assets/source/kit/title-hero.png",
+      "role": "generated-source",
+      "bytes": 1533016,
+      "sha256": "be48038c45664f7a73f0fa2f57bff0bb806606811c103ade22e3d1c180dd8aaa"
     },
     {
       "path": "assets/source-atlases/props-4x4.png",

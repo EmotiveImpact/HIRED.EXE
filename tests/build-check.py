@@ -144,6 +144,7 @@ def expected_images():
         'props': 'assets/production/environment/props-atlas.json',
         'furniture': 'assets/production/environment/furniture-atlas.json',
         'feed': 'assets/production/enemies/feed-atlas.json',
+        'kit': 'assets/production/environment/kit-atlas.json',
     }.items():
         metadata[name] = json.loads((ROOT / path).read_text())
     runtime = {entry['image'] for entry in metadata.values()}

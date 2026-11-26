@@ -18,7 +18,7 @@
   const LIFT_ART = { half: 64, door: 40, height: 112, header: 28 };
   // Things that cross the sky behind the level. Speeds are pixels a second; `far` is how much of the
   // camera's travel they share, so distant things slide past more slowly than near ones.
-  const PLANE = { speed: 46, far: .06, wait: 4, rest: 620, y: 132, font: 'bold 13px monospace', ink: '#3b2148' };
+  const PLANE = { speed: 46, far: .06, wait: 4, rest: 620, y: 58, rope: 18, font: 'bold 13px monospace', ink: '#3b2148', hem: '#d6453d', cord: '#7a4a2a' };
   const TRAIN = { speed: 120, rest: 1500 };
 
   class Renderer {
@@ -49,13 +49,14 @@
         feed: this.meta.feed?.image || 'assets/production/enemies/feed-atlas.png',
         feedBody: this.meta.feed?.body?.image || 'assets/production/enemies/feed-body.webp'
       };
-      // The painted kit of scenery traffic and level machinery, once it has been built.
-      if (this.meta.kit) specs.kit = this.meta.kit.image;
+      // The painted kit: scenery traffic and level machinery.
+      specs.kit = this.meta.kit?.image || 'assets/production/environment/kit-atlas.png';
       // A world painted in layers lists them here, furthest first.
       for (const [world, scene] of Object.entries(this.meta.kit?.scenery || {})) {
         scene.layers.forEach((layer, i) => { specs['layer' + world + '_' + i] = layer.image; });
       }
-      BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
+      // The other worlds are still one painted plate each.
+      BACKGROUNDS.forEach((name, i) => { if (!this.meta.kit?.scenery?.[i]) specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
       for (let i = 2; i <= 4; i++) specs['hqRoom' + i] = 'assets/production/backgrounds/interview-room-' + i + '.webp';
       const results = await Promise.allSettled(Object.entries(specs).map(([key, path]) => new Promise((resolve, reject) => {
         const im = new root.Image();
@@ -67,7 +68,7 @@
         im.src = root.HIRED_EMBEDDED_ASSETS?.[path] || path;
       })));
       this.failed = results.flatMap((r, i) => r.status === 'rejected' ? [Object.entries(specs)[i][1]] : []);
-      for (const key of ['hero', 'enemies', 'terrain', 'props', 'furniture', 'feed']) {
+      for (const key of ['hero', 'enemies', 'terrain', 'props', 'furniture', 'feed', 'kit']) {
         if (!this.meta[key]?.frames) this.failed.push(key + ' frame metadata');
       }
       const report = { loaded: Object.keys(this.images), failed: [...this.failed] };
@@ -204,7 +205,7 @@
       if (scene?.gulls) {
         for (let i = 0; i < 3; i++) {
           const x = W + 40 - this.lap(t * 34 + cam * .08 + 260, W + 1300) + i * 26 + (i % 2) * 9;
-          draw('gull_' + (Math.floor(t * 5 + i * 1.7) & 1), x, scene.gulls + (i * 37) % 30 + Math.sin(t * 2 + i) * 3, true);
+          draw('gull_' + (Math.floor(t * 4 + i * 1.7) & 1), x, scene.gulls + (i * 37) % 30 + Math.sin(t * 2 + i) * 3);
         }
       }
       this.plane(root.HIRED_EDITION?.banners?.[this.levelIndex] || 'HIRE ' + String(root.HIRED_EDITION?.applicant || 'ME').split(' ')[0].toUpperCase() + '.');
@@ -225,18 +226,23 @@
     plane(text) {
       const f = this.frame('kit', 'plane'), cloth = this.banner(text), kit = this.images.kit;
       if (!f || !cloth || !kit) return;
-      const ctx = this.ctx, t = this.levelTime, length = cloth.width + f.w;
+      const ctx = this.ctx, t = this.levelTime, length = cloth.width + PLANE.rope + f.w;
       const nose = this.lap((t - PLANE.wait) * PLANE.speed - this.camera * PLANE.far, W + length + PLANE.rest);
       if (nose > W + length) return;
       const y = PLANE.y + Math.sin(t * 1.1) * 5, tail = nose - f.w;
-      const tow = this.meta.kit.banner.tow;
+      const tow = this.meta.kit.banner.tow, end = tail - PLANE.rope, top = round(y + f.tow - tow);
       for (let sx = 0; sx < cloth.width; sx += 3) {
-        const x = round(tail - cloth.width + sx);
+        const x = round(end - cloth.width + sx);
         if (x > W || x < -3) continue;
         const trail = cloth.width - sx;
         const lift = Math.sin(trail * .045 - t * 6) * Math.min(4, trail * .025);
-        ctx.drawImage(cloth, sx, 0, 3, cloth.height, x, round(y + f.tow - tow + lift), 3, cloth.height);
+        ctx.drawImage(cloth, sx, 0, 3, cloth.height, x, round(top + lift), 3, cloth.height);
       }
+      // Two cords run from the cloth's corners to the tail.
+      ctx.strokeStyle = PLANE.cord; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (const corner of [top + 2, top + cloth.height - 2]) { ctx.moveTo(round(end) - 1, corner + .5); ctx.lineTo(round(tail) + 3, round(y + f.tow) + .5); }
+      ctx.stroke();
       ctx.drawImage(kit, f.x, f.y, f.w, f.h, round(tail), round(y), f.w, f.h);
     }
 
@@ -262,6 +268,14 @@
         ctx.drawImage(kit, f.x + cut.left, f.y, w, f.h, x, 0, w, f.h);
       }
       ctx.drawImage(kit, f.x + f.w - cut.right, f.y, cut.right, f.h, cut.left + run, 0, cut.right, f.h);
+      // The hem is sewn here, so its stitches stay even however long the cloth is.
+      ctx.fillStyle = PLANE.hem;
+      for (let x = cut.hem + 1; x < cloth.width - cut.hem - 4; x += 7) {
+        ctx.fillRect(x, cut.hem, 4, 1); ctx.fillRect(x, f.h - cut.hem - 1, 4, 1);
+      }
+      for (let y = cut.hem + 3; y < f.h - cut.hem - 5; y += 6) {
+        ctx.fillRect(cut.hem, y, 1, 3); ctx.fillRect(cloth.width - cut.hem - 1, y, 1, 3);
+      }
       ctx.fillStyle = PLANE.ink; ctx.font = PLANE.font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(text, cut.left + run / 2, cut.line + 1);
       return this.banners[text] = cloth;

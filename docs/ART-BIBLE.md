@@ -74,7 +74,7 @@ The delivered environment kit uses 96 × 96 terrain textures and 192 × 192 prop
 | Growth Run | Fast, open, connected city | Violet and magenta twilight | Lit platforms and speed lanes | Rail lines, layered towers and cyan/violet signals |
 | Final Interview HQ | Clearer, calmer destination | Calm sunrise | Polished stone, glass and gold trim | HQ silhouette, glass, elevated gardens and spacious sky |
 
-Each world suggests distant atmosphere, a middle city and local decoration. The delivered backdrop is one painted plate per world, drifting at 0.12 of camera speed. Foreground props, platforms, actors and ambient particles are separate. Three independent background source layers were not generated. Keep playable surfaces in the clearest foreground plane; painted architecture does not define collision geometry.
+Each world suggests distant atmosphere, a middle city and local decoration. Application Alley is painted in four layers that slide at their own speeds: sky (0.02 of camera speed, with clouds that drift by themselves), far skyline (0.07), viaduct (0.18) and a nearer canopy of treetops (0.3). Behind the viaduct a train runs along its deck, a balloon and gulls cross the sky, and a plane tows a cloth banner whose line comes from `banners` in `src/edition.js`. The other three worlds are still one painted plate each, drifting at 0.12 of camera speed, and get the plane alone. Foreground props, platforms, actors and ambient particles are separate. Keep playable surfaces in the clearest foreground plane; painted architecture does not define collision geometry.
 
 The three upper floors of Final Interview HQ are rooms, and a room's backdrop is its back wall only: a flat elevation with windows, lamps and panelling, fixed to the floor. Furniture is never painted into a wall. It is cut from separate sheets into the furniture atlas and placed in the level, so anything that looks like a desk is a desk the hero can reach.
 
@@ -104,10 +104,13 @@ The concept boards in `references/` are never loaded by the game. Everything the
 | `assets/production/environment/props-atlas.png` | Sixteen props in 192 × 192 storage cells | 768 × 768 |
 | `assets/production/backgrounds/*.png` | One painted backdrop per world | 1672 × 941 |
 | `assets/production/backgrounds/*.webp` | The 960 × 540 copies the game loads | 960 × 540 |
+| `assets/production/backgrounds/application-alley-sky.webp`, `-far`, `-near`, `-trees` | Application Alley's four layers, each a strip as tall as the screen, clear where the layer behind shows through | 960, 960, 768 and 922 wide; 540 tall |
+| `assets/production/environment/kit-atlas.png` | The painted kit: plane, banner cloth, train, gulls and balloon, at the size they are drawn. Its JSON also says which layers a world has and where its traffic runs | 512 wide |
 | `assets/production/backgrounds/interview-room-2.webp` to `-4.webp` | The back walls of the workshop, boardroom and reception | 1190 × 448 |
 | `assets/production/environment/furniture-atlas.png` | Seventeen pieces of room furniture at the size they are drawn | 512 wide |
 | `assets/production/enemies/feed-atlas.png`, `feed-body.webp` | The Feed's leading edge and six icons, cut out, and one repeating tile of its wall of posts | 560 tall; 320 × 256 |
 | `assets/source/feed/` | Generated sources for the Feed on a flat green ground; `tools/build-feed-art.py` cuts them out | Variable |
+| `assets/source/kit/` | Generated sources for the layers and the kit, each on one flat key colour; `tools/build-art-kit.py` cuts them out | 2560 × 1440 and smaller |
 | `assets/source/hq-rooms/` | Generated wall and furniture sources, their provenance, and the earlier room paintings | Variable |
 | `assets/source-atlases/terrain-4x4.png`, `props-4x4.png` | Generated source sheets for the two environment atlases | 1254 × 1254 |
 
