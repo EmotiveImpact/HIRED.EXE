@@ -747,8 +747,10 @@
       ctx.restore();
     }
 
-    // The Feed's painted leading edge stands with its face on the Feed's position. Behind it a wall
-    // of posts scrolls upwards, the way a feed does, and likes and alerts fly off the front.
+    // The Feed's painted leading edge stands with its face on the Feed's position, and likes and
+    // alerts fly off the front. Where the art is narrower than the part of the Feed in view, a wall
+    // of posts scrolls upwards behind it, the way a feed does. The wave is wider than any view the
+    // chase gives, so with it that wall stays out of sight.
     feedArt(m, art, f, left, right, opacity) {
       const ctx = this.ctx, t = this.time, body = this.images.feedBody;
       const x = right - m.edge, y = round(-10 + 5 * Math.sin(t * 2.6));
