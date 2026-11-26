@@ -154,8 +154,11 @@
         // A world painted in layers: each slides at its own speed, the sky slowest, and the sky's
         // clouds drift by themselves. Traffic crosses in front of the layers named in `behind`.
         scene.layers.forEach((layer, i) => {
+          const offset = (this.camera - start) * layer.speed + (layer.drift || 0) * this.levelTime;
+          if (i === scene.rocket?.behind) this.rocket(scene.rocket, (this.camera - start) * layer.speed);
           if (i === scene.behind) this.traffic(scene);
-          this.strip(layers[i], (this.camera - start) * layer.speed + (layer.drift || 0) * this.levelTime, layers[i].width, HGT);
+          this.strip(layers[i], offset, layers[i].width, HGT);
+          if (i === scene.smoke?.layer) this.smoke(scene.smoke, offset, layers[i].width);
           if (layer.haze) { ctx.fillStyle = layer.haze; ctx.fillRect(0, 0, W, HGT); }
         });
         return;
@@ -188,24 +191,21 @@
     // A value that runs from 0 to `lap` and starts again, whatever the sign of what goes in.
     lap(value, lap) { return ((value % lap) + lap) % lap; }
 
-    // What moves behind the level: a balloon, gulls, a train along the viaduct where the world has
-    // one, and the plane with its banner. A world still on a single plate gets the plane alone.
+    // What moves behind the level: something that floats (a balloon, an airship), a small flock
+    // (gulls, delivery drones), a train along the world's bridge, and the plane with its banner.
+    // A world still on a single plate gets the plane alone.
     traffic(scene) {
       const t = this.levelTime, cam = this.camera;
-      const kit = this.images.kit, draw = (name, x, y, flip) => {
+      const draw = (name, x, y, flip) => {
         const f = this.frame('kit', name);
-        if (!f || !kit || x > W || x + f.w < 0) return;
-        const ctx = this.ctx;
-        ctx.save(); ctx.translate(round(x), round(y));
-        if (flip) { ctx.translate(f.w, 0); ctx.scale(-1, 1); }
-        ctx.drawImage(kit, f.x, f.y, f.w, f.h, 0, 0, f.w, f.h);
-        ctx.restore();
+        if (f && x <= W && x + f.w >= 0) this.kit(name, x, y, flip);
       };
-      if (scene?.balloon) draw('balloon', this.lap(scene.balloon[0] + t * 5 - cam * .05, W + 900) - 80, scene.balloon[1] + Math.sin(t * .5) * 6);
-      if (scene?.gulls) {
-        for (let i = 0; i < 3; i++) {
+      const float = scene?.float, flock = scene?.flock;
+      if (float) draw(float.sprite, this.lap(float.at[0] + t * 5 - cam * .05, W + 900) - 80, float.at[1] + Math.sin(t * .5) * 6);
+      if (flock) {
+        for (let i = 0; i < flock.count; i++) {
           const x = W + 40 - this.lap(t * 34 + cam * .08 + 260, W + 1300) + i * 26 + (i % 2) * 9;
-          draw('gull_' + (Math.floor(t * 4 + i * 1.7) & 1), x, scene.gulls + (i * 37) % 30 + Math.sin(t * 2 + i) * 3);
+          draw(flock.sprite + '_' + (Math.floor(t * flock.beat + i * 1.7) & 1), x, flock.y + (i * 37) % 30 + Math.sin(t * 2 + i) * 3);
         }
       }
       this.plane(root.HIRED_EDITION?.banners?.[this.levelIndex] || 'HIRE ' + String(root.HIRED_EDITION?.applicant || 'ME').split(' ')[0].toUpperCase() + '.');
@@ -219,6 +219,37 @@
           draw(scene.train || 'train', this.lap(x - slide + f.w, W + f.w) - f.w, scene.rail - f.h, back);
         }
       }
+    }
+
+    // Now and then a rocket climbs out from behind the skyline and leaves by the top of the screen.
+    rocket(rocket, slide) {
+      const f = this.frame('kit', rocket.sprite);
+      if (!f) return;
+      const since = this.lap(this.levelTime - rocket.every / 3, rocket.every);
+      if (since > rocket.climb) return;
+      const rise = since / rocket.climb, x = this.lap(rocket.x - slide + f.w, W + f.w) - f.w;
+      // It gathers speed as it goes, and trembles a little.
+      this.kit(rocket.sprite, x + Math.sin(this.levelTime * 31) * .6, HGT * .62 - (HGT * .62 + f.h) * rise * rise);
+    }
+
+    // Smoke from the chimneys of a layer: puffs leave each chimney in turn, rise, drift and thin.
+    // The layer is laid end to end with every other copy mirrored, so its chimneys are too.
+    smoke(smoke, offset, width) {
+      const ctx = this.ctx, t = this.levelTime, life = 3.6, gap = 1.2;
+      for (let tile = Math.floor(offset / width); tile * width - offset < W; tile++) {
+        smoke.from.forEach(([cx, cy], n) => {
+          const x = tile * width - offset + (tile & 1 ? width - cx : cx);
+          if (x < -40 || x > W + 40) return;
+          for (let k = 0; k < life / gap; k++) {
+            const age = this.lap(t + n * .7 + tile * .4 - k * gap, life), grown = age / life;
+            const name = 'puff_' + Math.min(2, Math.floor(grown * 3)), f = this.frame('kit', name);
+            if (!f) return;
+            ctx.globalAlpha = Math.min(1, (1 - grown) * 2.2);
+            this.kit(name, x - f.w / 2 + grown * 16 + Math.sin(age * 2 + n) * 2, cy - f.h - 2 - grown * 46);
+          }
+        });
+      }
+      ctx.globalAlpha = 1;
     }
 
     // The plane tows a cloth banner across the sky. The banner is cut to the length of its line,

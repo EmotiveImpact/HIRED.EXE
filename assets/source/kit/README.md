@@ -1,6 +1,6 @@
 # Sources for the layered backgrounds and the painted kit
 
-Nine pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
+Seventeen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
 game's existing art as reference. They are kept exactly as generated: the badge top left and the
 logo bottom right are the generator's own marks, and `tools/build-art-kit.py` cuts them away or
 paints them out.
@@ -16,6 +16,14 @@ paints them out.
 | `machinery-b.png` | Gate pillar, blank tag, bell, padlock, warning sign | green |
 | `pickups.png` | Two subscription cards, cold coffee, zipped folder | pink |
 | `title-hero.png` | The hero running, for the title screen | pink |
+| `city-sky.png` | Ship It City's evening sky | none: a full picture |
+| `city-far.png` | Its far skyline of cranes and works | green |
+| `city-near.png` | Its girder bridge, chimneys and treetops | magenta |
+| `city-movers.png` | Airship, two drones, freight train, three puffs of smoke | hot pink |
+| `growth-sky.png` | Growth Run's twilight sky | none: a full picture |
+| `growth-far.png` | Its far skyline of chart screens and dishes | green |
+| `growth-near.png` | Its monorail track, chart screens and blossom trees | green |
+| `growth-movers.png` | Chart airship, two couriers, rocket, bullet train | green |
 
 What the tool changes on the way in, and why:
 
@@ -28,6 +36,18 @@ What the tool changes on the way in, and why:
 - The balloon's basket lay half under the logo. Its clean left side is run out to the right.
 - The second gull is drawn at a different angle from the first, so the second beat of the wings is
   the first gull with its wings pressed flat.
+
+- Ship It City's bridge, chimneys and treetops came out as flat shapes. The bridge gets flanges
+  and rivets and the chimneys a lit side and courses of brick. The treetops take their leaves from
+  Application Alley's canopy, mirrored and turned green, which also serves as the nearer layer.
+- A rank of blank lilac blocks stands behind Ship It City's far skyline. It is melted most of the
+  way into the sky. A scrap of a building painted into its clouds is painted out.
+- Growth Run's back row of blossom is flat pink. It takes its light and shade from the blossom
+  drawn below it. Three of its eight identical chart screens are removed.
+- Growth Run's nearer layer is its own blossom trees twice over, a row and the same row again
+  lower and shifted along, with trunks, pillars and pale slivers kept out.
+- Growth Run's train is three carriages long as drawn. Its middle carriage rides three times.
+- Cut-outs with a green rim from the ground colour have it shaved off.
 
 - Signs are pressed to the height the levels allow: the frame keeps its thickness and the dark
   face is squeezed to two lines of text. The game writes the text.
@@ -47,5 +67,5 @@ which reference pictures went with it. `layouts/` holds the flat-colour sketches
 skyline, bridge or bank of treetops sits. The style references are the game's own plates and
 atlases, so they are not copied here.
 
-The `city-*` and `growth-*` prompts are for Ship It City and Growth Run. Their pictures have not
-been made yet.
+The `city-*` and `growth-*` prompts are for Ship It City and Growth Run. Each picture came from
+its prompt at the first attempt.
