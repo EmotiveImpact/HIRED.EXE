@@ -29,4 +29,13 @@ What the tool changes on the way in, and why:
 - The second gull is drawn at a different angle from the first, so the second beat of the wings is
   the first gull with its wings pressed flat.
 
-Signs, machinery, pickups and the title hero are not yet used by the game.
+- Signs are pressed to the height the levels allow: the frame keeps its thickness and the dark
+  face is squeezed to two lines of text. The game writes the text.
+- The press uses the lower half of its head, and its rod repeats up to the ceiling. The spring's
+  coil is pressed under a pad that keeps its thickness. The gate's shaft, the conveyor's chevrons
+  and the speed strip's arrows are each cut so they repeat end to end.
+- The keyword tag is drawn at a slant. It is turned to lie flat, and its plain middle stretches
+  to the length of the word, which the game writes.
+- The warning sign's right corner lay under the logo. It is its left corner, mirrored.
+- The two subscription cards have a blank label. The game writes GPT and CLD on them.
+- The title hero is reduced to 96 colours so it stays sharp when the page enlarges it.

@@ -152,6 +152,7 @@ def expected_images():
     for folder, pattern in [('assets/production/backgrounds', '*.webp'), ('assets/production/enemies/icons', '*.png')]:
         runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / folder).glob(pattern))
     runtime.add('assets/production/characters/portrait-reference.png')
+    runtime.add('assets/production/characters/title-hero.webp')
     runtime.add('assets/production/story/manga-panels.webp')
     runtime.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/directors-board').rglob('*.webp'))
     runtime.update(str(p.relative_to(ROOT)) for p in (ROOT / 'assets/production/story/panels-v2').glob('*.jpg'))

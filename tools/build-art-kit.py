@@ -116,6 +116,175 @@ def cut(sheet, box, **size):
     return sized(trim(sheet.crop(box))[0], **size)
 
 
+def banded(im, cuts, heights, width):
+    """A sprite rebuilt from horizontal bands, each scaled to its own height: `cuts` are the rows
+    where one band ends and the next begins, in the sprite's own pixels."""
+    rows = [0, *cuts, im.height]
+    out = Image.new('RGBA', (width, sum(heights)))
+    y = 0
+    for top, bottom, height in zip(rows, rows[1:], heights):
+        out.paste(sized(im.crop((0, top, im.width, bottom)), width=width, height=height), (0, y))
+        y += height
+    return out
+
+
+def tiled(im, box, width, height):
+    """A part of a sprite that repeats end to end, scaled to the size of one repeat."""
+    return sized(im.crop(box), width=width, height=height)
+
+
+# --- Signs ----------------------------------------------------------------------------------------
+
+SIGN = {'width': 186, 'frame': (16, 14), 'face': 38, 'legs': 22}
+
+
+def sign(sheet, box):
+    """One sign at the size the levels allow for it. Its frame keeps its thickness as far as there
+    is room, and its dark face is pressed to the height of two lines. Returns the sprite and where
+    the face is in it."""
+    im = trim(sheet.crop(box))[0]
+    data = np.asarray(im).astype(np.int32)
+    solid = data[..., 3] > 128
+    centre = data[im.height * 2 // 5, im.width // 2, :3]
+    face = (np.abs(data[..., :3] - centre).sum(axis=2) < 30) & solid
+
+    def run(counts, need, through):
+        """The unbroken stretch through `through` where the count stays above `need`."""
+        start = end = through
+        while start > 0 and counts[start - 1] > need: start -= 1
+        while end < len(counts) - 1 and counts[end + 1] > need: end += 1
+        return np.arange(start, end + 1)
+
+    rows = run(face.sum(axis=1), im.width * 0.4, im.height * 2 // 5)
+    cols = run(face[rows[0]: rows[-1] + 1].sum(axis=0), len(rows) * 0.4, im.width // 2)
+    wide = np.where(solid.sum(axis=1) > im.width * 0.6)[0]
+    board = wide[-1] + 1                           # below this there are only legs
+    scale = SIGN['width'] / im.width
+    top = min(SIGN['frame'][0], round(rows[0] * scale))
+    foot = min(SIGN['frame'][1], round((board - rows[-1] - 1) * scale))
+    out = banded(im, [rows[0], rows[-1] + 1, board], [top, SIGN['face'], foot, SIGN['legs']], SIGN['width'])
+    left, right = round(cols[0] * scale), round((cols[-1] + 1) * scale)
+    return out, {'face': [left, top, right - left, SIGN['face']]}
+
+
+def signs():
+    sheet = matte(Image.open(SRC / 'signs.png'))
+    boxes = [(470, 170, 1240, 690), (1310, 170, 2100, 690), (460, 770, 1240, 1280), (1310, 770, 2100, 1280)]
+    frames, extra = {}, {}
+    for world, box in enumerate(boxes):
+        frames[f'sign_{world}'], extra[f'sign_{world}'] = sign(sheet, box)
+    return frames, extra
+
+
+# --- Level machinery ------------------------------------------------------------------------------
+
+def level(im, keep=lambda r, g, b: (r > 190) & (g > 150) & (b < 120)):
+    """A sprite drawn at a slant turned to lie flat, by the long axis of its main colour (yellow
+    unless told otherwise)."""
+    data = np.asarray(im).astype(np.float32)
+    main = keep(data[..., 0], data[..., 1], data[..., 2]) & (data[..., 3] > 128)
+    ys, xs = np.where(main)
+    points = np.stack([xs - xs.mean(), ys - ys.mean()])
+    values, vectors = np.linalg.eigh(np.cov(points))
+    axis = vectors[:, np.argmax(values)]
+    angle = np.degrees(np.arctan2(axis[1], axis[0]))
+    return trim(im.rotate(angle, resample=Image.BICUBIC, expand=True))[0]
+
+
+def mirrored_right(im, box, clear):
+    """A sprite the same on both sides, whose right side lies partly under the logo: inside
+    `clear` (the logo's box, in the sheet's pixels) it is replaced by its left side, mirrored."""
+    data = np.asarray(im.crop(box)).copy()
+    solid = data[..., 3] > 128
+    cols = np.where(solid[: (clear[1] - box[1])].any(axis=0))[0]
+    axis = cols[0] + cols[-1]                       # a column x mirrors to axis - x
+    for y in range(max(0, clear[1] - box[1]), data.shape[0]):
+        for x in range(max(0, clear[0] - box[0]), data.shape[1]):
+            data[y, x] = data[y, axis - x] if 0 <= axis - x < clear[0] - box[0] else 0
+    return Image.fromarray(data, 'RGBA')
+
+
+def machinery():
+    a = matte(Image.open(SRC / 'machinery-a.png'))
+    b = matte(Image.open(SRC / 'machinery-b.png'), keep_marks=True)
+    frames, extra = {}, {}
+
+    # The press: the lower half of its head, and a rod that repeats up to the ceiling.
+    head = trim(a.crop((100, 140, 630, 700)))[0]
+    frames['press'] = sized(head.crop((0, head.height // 2, head.width, head.height)), width=102, height=50)
+    rod = trim(a.crop((880, 130, 1070, 700)))[0]
+    frames['rod'] = sized(rod.crop((0, 120, rod.width, 360)), width=34, height=48)
+    frames['rod_foot'] = sized(rod.crop((0, rod.height - 110, rod.width, rod.height)), width=34, height=22)
+
+    # The spring: its pad keeps its thickness and the coil is pressed under it.
+    spring = trim(a.crop((1330, 260, 1830, 690)))[0]
+    data = np.asarray(spring).astype(np.int32)
+    pad = np.where(((data[..., 0] > 200) & (data[..., 1] > 150) & (data[..., 2] < 110) & (data[..., 3] > 128)).sum(axis=1) > 20)[0]
+    under = int(pad[-1]) + 14
+    frames['spring'] = banded(spring, [under], [9, 13], 48)
+    frames['spring_down'] = banded(spring, [under], [9, 4], 48)
+
+    # The conveyor: its row of chevrons, from one gap to another, repeats along the belt.
+    belt = trim(a.crop((60, 940, 640, 1240)))[0]
+    frames['belt'] = tiled(belt, (95, 0, 445, 205), 132, 16)
+    # The speed strip: two ends, and one group of arrows that repeats between them.
+    strip = trim(a.crop((630, 950, 1320, 1240)))[0]
+    lane = (0, 0, strip.width, 132)
+    frames['boost_left'] = sized(strip.crop((0, 0, 70, 132)), width=7, height=11)
+    frames['boost'] = tiled(strip, (118, 0, 268, 132), 30, 11)
+    frames['boost_right'] = sized(strip.crop((strip.width - 70, 0, strip.width, 132)), width=7, height=11)
+
+    for name, box in (('orb_cyan', (1420, 910, 1800, 1290)), ('orb_purple', (2030, 910, 2420, 1290))):
+        frames[name] = cut(a, box, width=20)
+
+    # The gate: cap, a run of the shaft that repeats, and base.
+    pillar = b.crop((160, 60, 680, 1390))
+    gate = 44 / 378
+    frames['gate_cap'] = sized(trim(pillar.crop((0, 0, 520, 200)))[0], width=round(431 * gate) + 1)
+    frames['gate_shaft'] = sized(pillar.crop((234 - 160 - 4, 381 - 60, 612 - 160 + 4, 1001 - 60)), width=45, height=72)
+    frames['gate_base'] = sized(trim(pillar.crop((0, 1080, 520, 1330)))[0], width=round(482 * gate) + 1)
+
+    # The keyword tag, turned to lie flat with its string to the left: its two ends, and a plain
+    # run between them that stretches to the length of the word.
+    tag = level(trim(b.crop((700, 50, 1320, 630)))[0])
+    yellow = np.asarray(tag).astype(np.int32)
+    body = np.where(((yellow[..., 0] > 190) & (yellow[..., 1] > 150) & (yellow[..., 2] < 120)).sum(axis=0) > tag.height * 0.3)[0]
+    if body.mean() < tag.width / 2:                # the string is on the right: turn it round
+        tag = tag.transpose(Image.FLIP_LEFT_RIGHT)
+    small = sized(tag, height=26)
+    frames['tag_left'] = small.crop((0, 0, small.width - 22, 26))
+    frames['tag_mid'] = small.crop((small.width - 22, 0, small.width - 18, 26))
+    frames['tag_right'] = small.crop((small.width - 8, 0, small.width, 26))
+
+    frames['bell'] = cut(b, (1450, 40, 2040, 640), width=30)
+    frames['padlock'] = cut(b, (790, 740, 1250, 1380), width=28)
+    logo = marks(b)[1]
+    frames['warning'] = sized(trim(mirrored_right(b, (1450, 780, 2110, 1420), logo))[0], width=38)
+    return frames, extra
+
+
+# --- Pickups and the title screen -----------------------------------------------------------------
+
+def pickups():
+    sheet = matte(Image.open(SRC / 'pickups.png'))
+    frames = {
+        'pickup_gpt': cut(sheet, (230, 120, 1030, 790), width=40),
+        'pickup_cld': cut(sheet, (1280, 120, 2084, 790), width=40),
+        'pickup_cof': cut(sheet, (170, 880, 950, 1620), width=36),
+        'pickup_zip': cut(sheet, (1280, 940, 2084, 1728), width=38),
+    }
+    # Each card has a blank label, where the game writes the three letters it is known by.
+    extra = {name: {'label': [frames[name].width // 2, round(frames[name].height * 0.69)]} for name in ('pickup_gpt', 'pickup_cld')}
+    return frames, extra
+
+
+def title_hero():
+    hero = trim(matte(Image.open(SRC / 'title-hero.png')))[0]
+    # Few colours, as pixel art has: the picture stays sharp when the page enlarges it.
+    small = sized(hero, height=480).quantize(96, method=Image.FASTOCTREE, dither=Image.NONE).convert('RGBA')
+    small.save(TITLE_HERO, 'WEBP', lossless=True, method=6)
+
+
 # --- Application Alley's sky traffic -------------------------------------------------------------
 
 def balloon(sheet, box):
@@ -261,8 +430,16 @@ def treetops(im, start):
     data = np.asarray(im.convert('RGB'))[start:].astype(np.int32)
     r, g, b = (data[..., c] for c in range(3))
     leaf = (g > r + 12) & (g > b - 40) | (g > r + 40)                  # greens and the teal shade
-    petal = (r > g + 36) & (b > g + 24) & (b < r + 12)                 # the pinks `blossom` lays down
-    canopy = np.maximum.accumulate(leaf | petal, axis=0)
+    petal = (r > 140) & (r > g + 36) & (b > g + 24) & (b < r + 12)     # the pinks `blossom` lays down
+    # A column's canopy begins where leaves carry on for a while, so one stray pixel starts nothing.
+    found = (leaf | petal).astype(np.int32)
+    ahead = np.cumsum(np.concatenate([found, np.zeros((16, found.shape[1]), np.int32)]), axis=0)
+    steady = ((ahead[16:] - ahead[:-16] + found) >= 14) & (found > 0)
+    first = np.where(steady.any(axis=0), steady.argmax(axis=0), len(steady))
+    # No column starts higher than its neighbours do: a spike one pixel wide is not a tree.
+    near = np.pad(first, 4, mode='edge')
+    first = np.maximum(first, np.median(np.stack([near[i: i + len(first)] for i in range(9)]), axis=0).astype(int))
+    canopy = np.arange(len(steady))[:, None] >= first[None]
     out = np.dstack([data, np.where(canopy, 255, 0)]).astype(np.uint8)
     return Image.fromarray(out, 'RGBA')
 
@@ -279,6 +456,12 @@ def alley_layers():
     whole = blossom(unmarked(Image.open(SRC / 'alley-near.png')), (900, 1180), 240)
     # The viaduct's deck is drawn very deep: a plain band comes out of it.
     near = matte(without_rows(whole, 664, 752), keep_marks=True)
+    # The dark line round each arch picks up the red of the ground. It goes back to the stone's
+    # own dark violet.
+    data = np.asarray(near).copy()
+    r, g, b = (data[..., c].astype(np.int32) for c in range(3))
+    data[(data[..., 3] > 0) & (g < 45) & (r > b) & (r > 60)] = (62, 26, 98, 255)
+    near = Image.fromarray(data, 'RGBA')
     # The same canopy again, larger and nearer, in front of the viaduct's feet.
     trees = treetops(whole, 960)
     out = {
@@ -324,6 +507,10 @@ def pack(frames, extra):
 def main():
     BACKGROUNDS.mkdir(parents=True, exist_ok=True)
     frames, extra, banner = alley_traffic()
+    for more in (signs(), machinery(), pickups()):
+        frames.update(more[0])
+        extra.update(more[1])
+    title_hero()
     scenery = {'0': alley_layers()}
     sheet, meta = pack(frames, extra)
     sheet.save(ATLAS.with_suffix('.png'), optimize=True)

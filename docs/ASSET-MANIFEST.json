@@ -418,8 +418,8 @@
     {
       "path": "assets/production/backgrounds/application-alley-near.webp",
       "role": "production-asset",
-      "bytes": 199530,
-      "sha256": "e5a301461366b0e596aa9e3e04ef1172724df0c252a9855c35dbd7af0af6a229"
+      "bytes": 199200,
+      "sha256": "7b138da2de80e594a670c244eaec2dda688dd57cf9b83cb980ce09f85e565248"
     },
     {
       "path": "assets/production/backgrounds/application-alley-sky.webp",
@@ -430,8 +430,8 @@
     {
       "path": "assets/production/backgrounds/application-alley-trees.webp",
       "role": "production-asset",
-      "bytes": 190976,
-      "sha256": "5a155601d62254c7b460c7bcdb33f3a6df38665dae3339156f59d0210e43889e"
+      "bytes": 188942,
+      "sha256": "ea5225767f84f10692d7ba66013cce0903fb3fbbeca4a3fcb45ccac9e0256946"
     },
     {
       "path": "assets/production/backgrounds/application-alley.png",
@@ -516,6 +516,12 @@
       "role": "production-asset",
       "bytes": 55870,
       "sha256": "881e44e6f3f13cd1e1fa18bfa427e554af80d951263ff6e8314a8d3198971b1e"
+    },
+    {
+      "path": "assets/production/characters/title-hero.webp",
+      "role": "production-asset",
+      "bytes": 22910,
+      "sha256": "1623e8746cffa89143f093cc5bc3eea6905e09595a086b4419410afa36bcfa07"
     },
     {
       "path": "assets/production/enemies/enemy-atlas.json",
@@ -610,14 +616,14 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 1405,
-      "sha256": "ecf7cc63062a35ec08513eceec82fcbdc476c6cc5f90208b1137cb86a50a1c3a"
+      "bytes": 4188,
+      "sha256": "c3f1f194366b3631d839fcf93df3ac5b4adfb6323c21c24d646c899700f2a757"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
       "role": "production-asset",
-      "bytes": 35394,
-      "sha256": "6e3a5341c3e481c51d02b5eb26b13c6a31039f72328007032c854cde1485ec76"
+      "bytes": 164936,
+      "sha256": "930f9b15a1b52f9bf90bc22a5c0fb7098cee9672a9f1faca647b5adb0d9bd1c9"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -1092,6 +1098,12 @@
       "role": "generated-source",
       "bytes": 1397886,
       "sha256": "6a056fc0ad547b205f3612d373a2a98bd960c1332116d175c03b9b83b9ac86e0"
+    },
+    {
+      "path": "assets/source/kit/README.md",
+      "role": "generated-source",
+      "bytes": 1919,
+      "sha256": "0501b9ab1e4c0f370c39963962a6bbce5c24eba8f77cacfe36944fcf8587a79d"
     },
     {
       "path": "assets/source/kit/alley-far.png",

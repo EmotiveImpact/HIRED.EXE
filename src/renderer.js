@@ -366,19 +366,29 @@
       if (p.crumble && p.shake && p.y < p.crumble.to) ctx.restore();
     }
 
-    belt(p) {
-      // Moving chevrons along the running surface show which way the conveyor pulls.
-      const ctx = this.ctx, dir = Math.sign(p.belt), y = p.y;
-      ctx.fillStyle = '#231b3f'; ctx.fillRect(p.x, y - 2, p.w, 12);
-      ctx.fillStyle = '#ffd56b'; ctx.fillRect(p.x, y - 3, p.w, 2);
-      ctx.save(); ctx.beginPath(); ctx.rect(p.x, y - 2, p.w, 12); ctx.clip();
-      const offset = ((this.time * Math.abs(p.belt) * 60) % 28) * dir;
-      ctx.fillStyle = dir > 0 ? '#8af2bc' : '#ff9a8a';
-      for (let x = p.x - 28 + offset; x < p.x + p.w + 28; x += 28) {
-        for (let i = 0; i < 5; i++) ctx.fillRect(round(x + (dir > 0 ? i : 4 - i) * 2), y + 1 + i, 6, 1);
-        for (let i = 0; i < 4; i++) ctx.fillRect(round(x + (dir > 0 ? 3 - i : 1 + i) * 2), y + 6 + i, 6, 1);
-      }
+    // One sprite from the painted kit, at the size it was made for. Returns its frame.
+    kit(name, x, y, flip = false) {
+      const f = this.frame('kit', name), im = this.images.kit;
+      if (!f || !im) return null;
+      const ctx = this.ctx;
+      if (flip) { ctx.save(); ctx.translate(round(x) + f.w, round(y)); ctx.scale(-1, 1); ctx.drawImage(im, f.x, f.y, f.w, f.h, 0, 0, f.w, f.h); ctx.restore(); }
+      else ctx.drawImage(im, f.x, f.y, f.w, f.h, round(x), round(y), f.w, f.h);
+      return f;
+    }
+
+    // A kit sprite laid end to end from `from` to `to`, sliding by `shift`. Nothing shows outside.
+    run(name, from, to, y, shift = 0, flip = false) {
+      const f = this.frame('kit', name), ctx = this.ctx;
+      if (!f || to <= from) return;
+      ctx.save(); ctx.beginPath(); ctx.rect(from, y, to - from, f.h); ctx.clip();
+      for (let x = from - f.w + this.lap(shift, f.w); x < to; x += f.w) this.kit(name, x, y, flip);
       ctx.restore();
+    }
+
+    belt(p) {
+      // The chevrons run the way the conveyor pulls.
+      const dir = Math.sign(p.belt);
+      this.run('belt', p.x, p.x + p.w, p.y - 3, this.time * p.belt * 60, dir < 0);
     }
 
     wall(p, state) {
@@ -404,15 +414,14 @@
     }
 
     crusher(c) {
-      const ctx = this.ctx, x = round(c.x), bottom = round(c.top + c.h);
-      ctx.fillStyle = '#2b2350'; ctx.fillRect(x + c.w / 2 - 9, 0, 18, bottom - 36);
-      ctx.fillStyle = '#6b6f9c'; ctx.fillRect(x + c.w / 2 - 5, 0, 5, bottom - 36);
-      ctx.fillStyle = ink; ctx.fillRect(x - 3, bottom - 43, c.w + 6, 46);
-      ctx.fillStyle = '#51567f'; ctx.fillRect(x, bottom - 40, c.w, 40);
-      ctx.fillStyle = '#8a8fc0'; ctx.fillRect(x, bottom - 40, c.w, 5);
-      for (let i = 0; i < c.w; i += 24) {
-        ctx.fillStyle = i / 24 % 2 ? '#231b3f' : '#ffd56b'; ctx.fillRect(x + i, bottom - 10, Math.min(24, c.w - i), 10);
-      }
+      const ctx = this.ctx, x = round(c.x), bottom = round(c.top + c.h), cx = x + c.w / 2;
+      const head = this.frame('kit', 'press'), rod = this.frame('kit', 'rod'), foot = this.frame('kit', 'rod_foot');
+      if (!head || !rod || !foot) return;
+      // The rod runs up out of sight, however far the head has dropped.
+      const top = bottom - head.h, joint = top - foot.h + 3;
+      for (let y = joint - rod.h; y > -rod.h; y -= rod.h) this.kit('rod', cx - rod.w / 2, y);
+      this.kit('rod_foot', cx - foot.w / 2, joint);
+      this.kit('press', cx - head.w / 2, top);
       if (c.warn) {
         ctx.fillStyle = `rgba(255,120,120,${.3 + .3 * Math.sin(this.time * 24)})`; ctx.fillRect(x, c.floor - 4, c.w, 4);
         this.label('!', x + c.w / 2, bottom + 20, '#ffdc73', 14);
@@ -686,18 +695,16 @@
     }
 
     sign(d) {
-      const ctx = this.ctx;
-      const long = d.text.length > 25, width = long ? 180 : 174, height = long ? 58 : 65;
-      const x = round(d.x), y = round(d.y - height - 24);
-      ctx.fillStyle = '#3a325e'; ctx.fillRect(x + 12, y + height, 6, 25); ctx.fillRect(x + width - 18, y + height, 6, 25);
-      ctx.fillStyle = '#b4a4d7'; ctx.fillRect(x - 3, y - 3, width + 6, height + 6);
-      ctx.fillStyle = '#241e58'; ctx.fillRect(x, y, width, height);
-      ctx.fillStyle = '#7066ba'; ctx.fillRect(x, y, width, 4);
-      ctx.fillStyle = '#ffdc83'; ctx.fillRect(x + 8, y + 10, 4, 4); ctx.fillRect(x + width - 12, y + 10, 4, 4);
-      const lines = this.wrap(d.text, width - 22, long ? 10 : 13);
-      const lineH = long ? 12 : 15;
-      ctx.fillStyle = '#faf6ff'; ctx.font = 'bold ' + (long ? 10 : 13) + 'px monospace'; ctx.textAlign = 'center';
-      lines.forEach((line, i) => ctx.fillText(line, x + width / 2, y + (height - lines.length * lineH) / 2 + 13 + i * lineH));
+      // Each world has its own painted sign. The line is set on its dark face.
+      const ctx = this.ctx, f = this.frame('kit', 'sign_' + this.levelIndex);
+      if (!f) return;
+      const long = d.text.length > 25, size = long ? 10 : 13, lineH = long ? 12 : 15;
+      const x = round(d.x) - 3, y = round(d.y) + 1 - f.h;
+      this.kit('sign_' + this.levelIndex, x, y);
+      const [fx, fy, fw, fh] = f.face;
+      const lines = this.wrap(d.text, fw - 8, size);
+      ctx.fillStyle = '#faf6ff'; ctx.font = 'bold ' + size + 'px monospace'; ctx.textAlign = 'center';
+      lines.forEach((line, i) => ctx.fillText(line, x + fx + fw / 2, y + fy + (fh - lines.length * lineH) / 2 + size - 2 + i * lineH));
       ctx.textAlign = 'left';
     }
 
@@ -714,30 +721,17 @@
     }
 
     boost(b) {
-      const ctx = this.ctx;
-      ctx.fillStyle = '#1b3a64'; ctx.fillRect(b.x, b.y - 4, b.w, 7);
-      ctx.fillStyle = '#72f6ff'; ctx.fillRect(b.x, b.y - 5, b.w, 2);
-      ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y - 4, b.w, 7); ctx.clip();
-      const offset = (this.time * 36) % 32;
-      for (let x = b.x - 32 + offset; x < b.x + b.w; x += 32) {
-        ctx.fillStyle = '#d9feff';
-        ctx.fillRect(round(x), b.y - 3, 9, 2); ctx.fillRect(round(x + 7), b.y - 1, 7, 2);
-      }
-      ctx.restore();
+      // The strip's arrows run the way it throws you.
+      const left = this.frame('kit', 'boost_left'), right = this.frame('kit', 'boost_right'), y = b.y - 6;
+      if (!left || !right) return;
+      this.run('boost', b.x + left.w, b.x + b.w - right.w, y, this.time * 36);
+      this.kit('boost_left', b.x, y); this.kit('boost_right', b.x + b.w - right.w, y);
     }
 
     spring(s, state) {
-      const ctx = this.ctx;
       const compressed = state.player.springCooldown > 15 && Math.abs(state.player.x - s.x) < 80;
-      const height = compressed ? 9 : 18, y = s.y - height;
-      ctx.fillStyle = ink; ctx.fillRect(s.x - 2, y - 3, s.w + 4, 8);
-      ctx.fillStyle = '#ffda5e'; ctx.fillRect(s.x, y - 2, s.w, 5);
-      ctx.fillStyle = '#fff6b2'; ctx.fillRect(s.x + 2, y - 2, s.w - 4, 2);
-      ctx.strokeStyle = '#b8b9ef'; ctx.lineWidth = 3; ctx.beginPath();
-      ctx.moveTo(s.x + 9, y + 6); ctx.lineTo(s.x + s.w - 9, y + 10);
-      ctx.lineTo(s.x + 10, y + 14); ctx.lineTo(s.x + s.w - 10, s.y);
-      ctx.stroke();
-      ctx.fillStyle = '#473666'; ctx.fillRect(s.x + 3, s.y - 2, s.w - 6, 4);
+      const name = compressed ? 'spring_down' : 'spring', f = this.frame('kit', name);
+      if (f) this.kit(name, s.x + (s.w - f.w) / 2, s.y - f.h);
     }
 
     checkpoint(cp) {
@@ -766,35 +760,33 @@
       if (item.kind === 'key') {
         // A keyword tag: the only thing the CV Filter can read.
         if (item.bell) {
-          const bx = round(item.x), by = round(item.y + bob);
-          ctx.fillStyle = '#261a45'; ctx.fillRect(bx - 13, by + 6, 26, 6); ctx.fillRect(bx - 11, by - 8, 22, 15);
-          ctx.fillStyle = '#ffd36c'; ctx.fillRect(bx - 9, by - 6, 18, 12); ctx.fillRect(bx - 11, by + 7, 22, 3);
-          ctx.fillStyle = '#fff6c4'; ctx.fillRect(bx - 7, by - 5, 4, 8); ctx.fillRect(bx - 2, by - 11, 4, 4);
+          const f = this.frame('kit', 'bell');
+          if (f) this.kit('bell', item.x - f.w / 2, item.y + bob - f.h / 2);
           return;
         }
-        const x = round(item.x), y = round(item.y + bob), width = Math.max(58, item.word.length * 7 + 18);
-        ctx.fillStyle = 'rgba(255,224,112,.22)'; ctx.fillRect(x - width / 2 - 5, y - 16, width + 10, 32);
-        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 - 2, y - 13, width + 4, 26);
-        ctx.fillStyle = '#ffe070'; ctx.fillRect(x - width / 2, y - 11, width, 22);
-        ctx.fillStyle = '#fff6c4'; ctx.fillRect(x - width / 2, y - 11, width, 3);
-        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 + 4, y - 2, 4, 4);
-        ctx.save(); ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(item.word, x + 4, y + 4); ctx.restore();
+        // A luggage tag: its two painted ends, and a plain run between them as long as the word.
+        const left = this.frame('kit', 'tag_left'), mid = this.frame('kit', 'tag_mid'), right = this.frame('kit', 'tag_right'), art = this.images.kit;
+        if (!left || !mid || !right || !art) return;
+        const width = Math.max(66, item.word.length * 7 + 34);
+        const x = round(item.x - width / 2), y = round(item.y + bob - left.h / 2), span = width - left.w - right.w;
+        ctx.fillStyle = 'rgba(255,224,112,.2)'; ctx.fillRect(x + 4, y - 3, width, left.h + 6);
+        this.kit('tag_left', x, y);
+        ctx.drawImage(art, mid.x, mid.y, mid.w, mid.h, x + left.w, y, span, mid.h);
+        this.kit('tag_right', x + width - right.w, y);
+        ctx.save(); ctx.fillStyle = '#261a45'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(item.word, x + left.w - 5 + (span + 5) / 2, y + left.h / 2 + 4); ctx.restore();
         return;
       }
       if (item.kind === 'bonus') {
-        const x = round(item.x), y = round(item.y + bob);
-        ctx.fillStyle = '#261a45';
-        ctx.fillRect(x - 18, y - 14, 36, 28);
-        ctx.fillStyle = item.colour;
-        ctx.fillRect(x - 16, y - 12, 32, 24);
-        ctx.fillStyle = '#261a45';
-        ctx.fillRect(x - 16, y - 7, 32, 3);
-        ctx.save();
-        ctx.font = 'bold 10px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(item.badge, x, y + 7);
-        ctx.restore();
+        // The two subscriptions are cards with the letters they are known by; the others need none.
+        const name = 'pickup_' + String(item.badge).toLowerCase(), f = this.frame('kit', name);
+        if (!f) return;
+        const x = round(item.x - f.w / 2), y = round(item.y + bob - f.h / 2);
+        this.kit(name, x, y);
+        if (f.label) {
+          ctx.save(); ctx.fillStyle = '#261a45'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+          ctx.fillText(item.badge, x + f.label[0], y + f.label[1] + 3); ctx.restore();
+        }
         return;
       }
       const skill = item.kind === 'skill';
@@ -818,17 +810,17 @@
     }
 
     gate(g, state) {
-      const ctx = this.ctx, x = round(g.x), floor = g.y + g.h, top = floor - 250;
-      ctx.fillStyle = '#261a45'; ctx.fillRect(x - 4, top - 6, g.w + 8, 256);
-      ctx.fillStyle = '#5a4a9a'; ctx.fillRect(x, top, g.w, 250);
-      ctx.fillStyle = '#7d6cc4'; ctx.fillRect(x, top, 5, 250);
-      for (let y = top + 14; y < floor - 8; y += 34) {
-        ctx.fillStyle = '#3a2d70'; ctx.fillRect(x + 6, y, g.w - 12, 4);
-        ctx.fillStyle = '#ffd36c'; ctx.fillRect(x + 8, y + 9, 5, 5); ctx.fillRect(x + g.w - 13, y + 9, 5, 5);
-      }
-      ctx.fillStyle = '#ffd36c'; ctx.fillRect(x - 4, top - 10, g.w + 8, 6);
-      const pulse = .5 + .5 * Math.sin(this.time * 4);
-      ctx.fillStyle = `rgba(255,120,150,${.25 + pulse * .3})`; ctx.fillRect(x - 8, top, 3, 250);
+      // A painted pillar: its base on the floor, its cap 250 up, and the shaft run between.
+      const cx = round(g.x) + g.w / 2, floor = g.y + g.h, top = floor - 250;
+      const cap = this.frame('kit', 'gate_cap'), shaft = this.frame('kit', 'gate_shaft'), base = this.frame('kit', 'gate_base');
+      if (!cap || !shaft || !base) return;
+      const ctx = this.ctx, from = top + cap.h - 12, to = floor - base.h + 4;
+      ctx.save(); ctx.beginPath(); ctx.rect(cx - shaft.w / 2 - 1, from, shaft.w + 2, to - from); ctx.clip();
+      for (let y = from; y < to; y += shaft.h) this.kit('gate_shaft', cx - shaft.w / 2, y);
+      ctx.restore();
+      this.kit('gate_base', cx - base.w / 2, floor - base.h);
+      this.kit('gate_cap', cx - cap.w / 2, top - 8);
+      const x = cx - g.w / 2;
       this.label(g.label, x + g.w / 2, top + 44, '#ffe8ae', 11);
       if (g.needs === 'keys') {
         const keys = state.world.collectibles.filter(item => item.kind === 'key');
@@ -956,8 +948,8 @@
         for (let i = 1; i < b.maxHealth; i++) { ctx.fillStyle = ink; ctx.fillRect(cx - 48 + i * 96 / b.maxHealth, y + 1, 2, 7); }
         if (warning) {
           const wx = cx + b.facing * (b.w / 2 + 36), wy = feet - 60;
-          ctx.fillStyle = '#ffdc73'; ctx.beginPath(); ctx.moveTo(wx, wy - 22); ctx.lineTo(wx - 18, wy + 10); ctx.lineTo(wx + 18, wy + 10); ctx.closePath(); ctx.fill();
-          ctx.fillStyle = ink; ctx.font = 'bold 25px monospace'; ctx.textAlign = 'center'; ctx.fillText('!', wx, wy + 6); ctx.textAlign = 'left';
+          const sign = this.frame('kit', 'warning');
+          if (sign) this.kit('warning', wx - sign.w / 2, wy + 12 - sign.h);
         } else if (b.type === 'scopecreep' && !open) {
           this.label(b.phase === 'attack' ? 'JUMP OVER THE CHARGE' : 'WAIT FOR THE STOP', cx, feet + 23, '#ffdf9a', 10);
         } else if (open) {
@@ -977,11 +969,12 @@
 
     projectile(shot) {
       if (!this.visible(shot.x, 20)) return;
-      const ctx = this.ctx, col = shot.kind === 'purple' ? '#d7a0ff' : '#83f7ff';
-      ctx.fillStyle = 'rgba(132,218,255,.22)'; ctx.fillRect(round(shot.x - 4), round(shot.y - 4), 22, 22);
-      ctx.fillStyle = '#423171'; ctx.fillRect(round(shot.x - 1), round(shot.y - 1), 16, 16);
-      ctx.fillStyle = col; ctx.fillRect(round(shot.x + 2), round(shot.y + 2), 10, 10);
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(round(shot.x + 4), round(shot.y + 4), 4, 4);
+      const ctx = this.ctx, name = shot.kind === 'purple' ? 'orb_purple' : 'orb_cyan', f = this.frame('kit', name);
+      if (!f) return;
+      const cx = round(shot.x + 7), cy = round(shot.y + 7);
+      ctx.fillStyle = shot.kind === 'purple' ? 'rgba(215,160,255,.22)' : 'rgba(132,218,255,.22)';
+      ctx.beginPath(); ctx.arc(cx, cy, 13 + Math.sin(this.time * 14) * 1.5, 0, Math.PI * 2); ctx.fill();
+      this.kit(name, cx - f.w / 2, cy - f.h / 2);
     }
 
     player(p, state) {
@@ -1021,10 +1014,8 @@
       this.sprite('props', 'portal', cx, feet + 2, 116);
       this.label(unlocked ? (state.levelIndex === 3 ? 'FINISH THE STORY' : 'NEXT WORLD') : 'CLEAR THE REVIEW', cx, feet - 133, unlocked ? '#b6fff0' : '#efe0ff', 10);
       if (!unlocked) {
-        ctx.fillStyle = '#32235f'; ctx.fillRect(cx - 18, feet - 64, 36, 27);
-        ctx.strokeStyle = '#ffe09c'; ctx.lineWidth = 3; ctx.strokeRect(cx - 9, feet - 73, 18, 17);
-        ctx.fillStyle = '#ffd36c'; ctx.fillRect(cx - 13, feet - 63, 26, 20);
-        ctx.fillStyle = ink; ctx.fillRect(cx - 2, feet - 57, 4, 8);
+        const lock = this.frame('kit', 'padlock');
+        if (lock) this.kit('padlock', cx - lock.w / 2, feet - 38 - lock.h);
       } else {
         for (let i = 0; i < 5; i++) {
           const a = this.time * 1.8 + i * Math.PI * .4;

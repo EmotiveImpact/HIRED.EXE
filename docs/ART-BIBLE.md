@@ -105,7 +105,8 @@ The concept boards in `references/` are never loaded by the game. Everything the
 | `assets/production/backgrounds/*.png` | One painted backdrop per world | 1672 × 941 |
 | `assets/production/backgrounds/*.webp` | The 960 × 540 copies the game loads | 960 × 540 |
 | `assets/production/backgrounds/application-alley-sky.webp`, `-far`, `-near`, `-trees` | Application Alley's four layers, each a strip as tall as the screen, clear where the layer behind shows through | 960, 960, 768 and 922 wide; 540 tall |
-| `assets/production/environment/kit-atlas.png` | The painted kit: plane, banner cloth, train, gulls and balloon, at the size they are drawn. Its JSON also says which layers a world has and where its traffic runs | 512 wide |
+| `assets/production/environment/kit-atlas.png` | The painted kit, every piece at the size it is drawn: plane, banner cloth, train, gulls and balloon; a sign for each world; press, rod, spring, conveyor, speed strip, gate, keyword tag, bell, padlock, warning sign and the bosses' two shots; the four bonus pickups. Its JSON also says which layers a world has and where its traffic runs | 512 wide |
+| `assets/production/characters/title-hero.webp` | The hero on the title screen | 480 tall |
 | `assets/production/backgrounds/interview-room-2.webp` to `-4.webp` | The back walls of the workshop, boardroom and reception | 1190 × 448 |
 | `assets/production/environment/furniture-atlas.png` | Seventeen pieces of room furniture at the size they are drawn | 512 wide |
 | `assets/production/enemies/feed-atlas.png`, `feed-body.webp` | The Feed's leading edge and six icons, cut out, and one repeating tile of its wall of posts | 560 tall; 320 × 256 |
