@@ -1,0 +1,71 @@
+{
+  "image": "assets/production/enemies/feed-atlas.png",
+  "size": [
+    687,
+    560
+  ],
+  "edge": 615,
+  "crest": [
+    653,
+    256
+  ],
+  "join": 0,
+  "body": {
+    "image": "assets/production/enemies/feed-body.webp",
+    "size": [
+      320,
+      256
+    ]
+  },
+  "frames": {
+    "front": {
+      "x": 0,
+      "y": 0,
+      "w": 654,
+      "h": 560,
+      "source": "assets/source/feed/feed-front-a-alt.png"
+    },
+    "heart": {
+      "x": 656,
+      "y": 0,
+      "w": 29,
+      "h": 26,
+      "source": "assets/source/feed/feed-icons.png"
+    },
+    "like": {
+      "x": 656,
+      "y": 28,
+      "w": 26,
+      "h": 26,
+      "source": "assets/source/feed/feed-icons.png"
+    },
+    "bell": {
+      "x": 656,
+      "y": 56,
+      "w": 24,
+      "h": 26,
+      "source": "assets/source/feed/feed-icons.png"
+    },
+    "badge": {
+      "x": 656,
+      "y": 84,
+      "w": 28,
+      "h": 26,
+      "source": "assets/source/feed/feed-icons.png"
+    },
+    "bubble": {
+      "x": 656,
+      "y": 112,
+      "w": 31,
+      "h": 26,
+      "source": "assets/source/feed/feed-icons.png"
+    },
+    "share": {
+      "x": 656,
+      "y": 140,
+      "w": 27,
+      "h": 26,
+      "source": "assets/source/feed/feed-icons.png"
+    }
+  }
+}

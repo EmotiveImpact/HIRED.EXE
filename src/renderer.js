@@ -41,7 +41,9 @@
         enemies: this.meta.enemies?.image || 'assets/production/enemies/enemy-atlas.png',
         terrain: this.meta.terrain?.image || 'assets/production/environment/terrain-atlas.png',
         props: this.meta.props?.image || 'assets/production/environment/props-atlas.png',
-        furniture: this.meta.furniture?.image || 'assets/production/environment/furniture-atlas.png'
+        furniture: this.meta.furniture?.image || 'assets/production/environment/furniture-atlas.png',
+        feed: this.meta.feed?.image || 'assets/production/enemies/feed-atlas.png',
+        feedBody: this.meta.feed?.body?.image || 'assets/production/enemies/feed-body.webp'
       };
       BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
       for (let i = 2; i <= 4; i++) specs['hqRoom' + i] = 'assets/production/backgrounds/interview-room-' + i + '.webp';
@@ -55,7 +57,7 @@
         im.src = root.HIRED_EMBEDDED_ASSETS?.[path] || path;
       })));
       this.failed = results.flatMap((r, i) => r.status === 'rejected' ? [Object.entries(specs)[i][1]] : []);
-      for (const key of ['hero', 'enemies', 'terrain', 'props', 'furniture']) {
+      for (const key of ['hero', 'enemies', 'terrain', 'props', 'furniture', 'feed']) {
         if (!this.meta[key]?.frames) this.failed.push(key + ' frame metadata');
       }
       const report = { loaded: Object.keys(this.images), failed: [...this.failed] };
@@ -724,7 +726,9 @@
       const c = state.chase;
       if (!c || !(c.active || c.gone < H.FEED.leave)) return;
       const ctx = this.ctx, right = round(c.x), left = round(this.camera) - 10;
-      if (right < left) {
+      const m = this.meta.feed, art = this.images.feed, f = m?.frames?.front;
+      // Its crest overhangs its face, so it comes into view a little before the face does.
+      if (right + (art && f ? f.w - m.edge : 0) < left) {
         // Still off screen: the edge glows where it is about to arrive.
         if (c.active) { ctx.fillStyle = `rgba(255,131,180,${.2 + .2 * Math.sin(this.time * 9)})`; ctx.fillRect(left + 10, 0, 10, HGT); }
         return;
@@ -732,35 +736,47 @@
       // Outrun, it falls behind and drops out of the picture.
       const leaving = c.active ? 0 : c.gone / H.FEED.leave;
       ctx.save(); ctx.globalAlpha = 1 - leaving; ctx.translate(0, round(HGT * leaving * leaving));
-      // Its glow runs ahead of it, so the wall never reads as the edge of the screen.
-      const glow = ctx.createLinearGradient(right, 0, right + 70, 0);
-      glow.addColorStop(0, 'rgba(255,131,180,.42)'); glow.addColorStop(1, 'rgba(255,131,180,0)');
-      ctx.fillStyle = glow; ctx.fillRect(right, 0, 70, HGT);
-      ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, right - left, HGT);
-      const cards = ['#ff83b4', '#6af4ff', '#ffda5e', '#bb8cff'];
-      const scroll = (this.time * 260) % 132;
-      ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, HGT); ctx.clip();
-      for (let col = 0; col < 4; col++) {
-        const x = right - 112 - col * 118;
-        for (let y = -132 + scroll * (col % 2 ? 1 : -1) - 132; y < HGT + 132; y += 132) {
-          const tone = cards[Math.abs(Math.floor(y / 132) + col) % 4];
-          ctx.fillStyle = '#3a2d70'; ctx.fillRect(x, round(y), 104, 120);
-          ctx.fillStyle = tone; ctx.fillRect(x + 6, round(y) + 6, 92, 62);
-          ctx.fillStyle = '#d9d2ff'; ctx.fillRect(x + 6, round(y) + 76, 70, 6); ctx.fillRect(x + 6, round(y) + 90, 48, 6);
-          ctx.fillStyle = '#ff83b4'; ctx.fillRect(x + 84, round(y) + 98, 12, 12);
-        }
-      }
-      ctx.restore();
-      // A torn leading edge that licks forward as it comes.
-      for (let y = 0; y < HGT; y += 18) {
-        const jag = 10 + 8 * Math.sin(this.time * 10 + y * .3);
-        ctx.fillStyle = '#ff83b4'; ctx.fillRect(right - 2, y, round(jag) + 2, 9);
-        ctx.fillStyle = '#ffd0e2'; ctx.fillRect(right - 2, y + 9, round(jag * .45) + 2, 9);
-        ctx.fillStyle = '#fff1d0'; ctx.fillRect(right + round(jag), y + 2, 4, 4);
+      if (art && f) this.feedArt(m, art, f, left, right, 1 - leaving);
+      else {
+        // Without its art the Feed is a plain dark wall with a bright edge.
+        ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, right - left, HGT);
+        ctx.fillStyle = '#ff83b4'; ctx.fillRect(right - 4, 0, 4, HGT);
       }
       // Its name rides the leading edge, wherever a narrow view leaves the wall.
       this.label('THE FEED', Math.max(right - 62, left + 62), 118, '#ffd0e2', 13);
       ctx.restore();
+    }
+
+    // The Feed's painted leading edge stands with its face on the Feed's position, and likes and
+    // alerts fly off the front. Where the art is narrower than the part of the Feed in view, a wall
+    // of posts scrolls upwards behind it, the way a feed does. The wave is wider than any view the
+    // chase gives, so with it that wall stays out of sight.
+    feedArt(m, art, f, left, right, opacity) {
+      const ctx = this.ctx, t = this.time, body = this.images.feedBody;
+      const x = right - m.edge, y = round(-10 + 5 * Math.sin(t * 2.6));
+      if (x > left) {
+        ctx.fillStyle = '#1d1640'; ctx.fillRect(left, 0, x + m.join - left, HGT);
+        if (body) {
+          const bw = m.body.size[0], bh = m.body.size[1], scroll = round(t * 110) % bh;
+          ctx.save(); ctx.beginPath(); ctx.rect(left, 0, x + m.join - left, HGT); ctx.clip();
+          for (let bx = x + m.join - bw; bx > left - bw; bx -= bw) for (let by = -scroll; by < HGT; by += bh) ctx.drawImage(body, bx, by);
+          ctx.restore();
+        }
+      }
+      ctx.drawImage(art, f.x, f.y, f.w, f.h, x, y, f.w, f.h);
+      const icons = ['heart', 'like', 'bubble', 'badge', 'bell', 'share'];
+      for (let i = 0; i < 10; i++) {
+        const icon = m.frames[icons[i % icons.length]];
+        if (!icon) continue;
+        const life = (t * (.5 + i % 3 * .12) + i * .37) % 1;
+        // Every other one leaves the crest; the rest leave the face at a height of their own.
+        const fromX = i % 2 ? right - 6 : x + m.crest[0] - 14, fromY = i % 2 ? 110 + i * 97 % 330 : y + m.crest[1];
+        const reach = 56 + i * 29 % 60, rise = 26 + i * 17 % 34, scale = (.72 + i % 4 * .11) * (.75 + .25 * life);
+        ctx.globalAlpha = opacity * Math.min(1, life * 6) * (1 - life) ** .7;
+        ctx.drawImage(art, icon.x, icon.y, icon.w, icon.h, round(fromX + reach * life - icon.w * scale / 2),
+          round(fromY - rise * Math.sin(life * Math.PI) + 18 * life * life - icon.h * scale / 2), round(icon.w * scale), round(icon.h * scale));
+      }
+      ctx.globalAlpha = opacity;
     }
 
     enemy(e) {

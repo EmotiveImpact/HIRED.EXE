@@ -506,6 +506,24 @@
       "sha256": "d63758937a20b0d393c66ae32aaa7d66266e78bd9b256e21651c4e5cccdc6a20"
     },
     {
+      "path": "assets/production/enemies/feed-atlas.json",
+      "role": "production-asset",
+      "bytes": 1238,
+      "sha256": "586efccc3d0c89046b27120ce22786b9de516b3ca4f8a546184a0627cadb1d89"
+    },
+    {
+      "path": "assets/production/enemies/feed-atlas.png",
+      "role": "production-asset",
+      "bytes": 569937,
+      "sha256": "fd0f28137cb73728e4e840047474635bca1b2613fe78b6b8b04e0f3990da22a5"
+    },
+    {
+      "path": "assets/production/enemies/feed-body.webp",
+      "role": "production-asset",
+      "bytes": 14656,
+      "sha256": "f6d1f42b5a73720e113bd80c646687d93e99f926ca8f696c235da5fefd43f403"
+    },
+    {
       "path": "assets/production/enemies/icons/bricks.png",
       "role": "production-asset",
       "bytes": 11287,
@@ -930,6 +948,36 @@
       "role": "generated-source",
       "bytes": 3527,
       "sha256": "cc1663c32ca85e634affa17b5a0f573b24e69124aa5e02829866a59d1e8624fc"
+    },
+    {
+      "path": "assets/source/feed/feed-body.png",
+      "role": "generated-source",
+      "bytes": 1997378,
+      "sha256": "2ef92fcc5007667834d638bb8036f3136540a7f382ad43c450490afee74eb94f"
+    },
+    {
+      "path": "assets/source/feed/feed-front-a-alt.png",
+      "role": "generated-source",
+      "bytes": 4400322,
+      "sha256": "ace28e8cba7e1aae47d31b4b7c9215f228d2e34df03e7037e315314525cd2de8"
+    },
+    {
+      "path": "assets/source/feed/feed-front-a.png",
+      "role": "generated-source",
+      "bytes": 2279203,
+      "sha256": "f129fee6d3b5939c03dea5dced0059fd2362de3b53c74da4dd7b0b53aa189857"
+    },
+    {
+      "path": "assets/source/feed/feed-front-b.png",
+      "role": "generated-source",
+      "bytes": 2222809,
+      "sha256": "d03cb1a690e20835619c6277e897f1cfece8d0acd6e8e087dd06fa99c94a91ad"
+    },
+    {
+      "path": "assets/source/feed/feed-icons.png",
+      "role": "generated-source",
+      "bytes": 1510734,
+      "sha256": "bedfd5f0392c20ae3e251a90a83aec97585a624dd9220756d92421a3f97ed21e"
     },
     {
       "path": "assets/source/hq-rooms/README.md",

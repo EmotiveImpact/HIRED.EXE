@@ -106,6 +106,8 @@ The concept boards in `references/` are never loaded by the game. Everything the
 | `assets/production/backgrounds/*.webp` | The 960 × 540 copies the game loads | 960 × 540 |
 | `assets/production/backgrounds/interview-room-2.webp` to `-4.webp` | The back walls of the workshop, boardroom and reception | 1190 × 448 |
 | `assets/production/environment/furniture-atlas.png` | Seventeen pieces of room furniture at the size they are drawn | 512 wide |
+| `assets/production/enemies/feed-atlas.png`, `feed-body.webp` | The Feed's leading edge and six icons, cut out, and one repeating tile of its wall of posts | 560 tall; 320 × 256 |
+| `assets/source/feed/` | Generated sources for the Feed on a flat green ground; `tools/build-feed-art.py` cuts them out | Variable |
 | `assets/source/hq-rooms/` | Generated wall and furniture sources, their provenance, and the earlier room paintings | Variable |
 | `assets/source-atlases/terrain-4x4.png`, `props-4x4.png` | Generated source sheets for the two environment atlases | 1254 × 1254 |
 

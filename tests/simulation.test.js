@@ -587,3 +587,13 @@ test('cutscene panels: every ready panel exists and is used, and every beat id i
     assert.ok(fs.existsSync(path.join(__dirname, '..', PANELS.folder, id + '.jpg')), `${id}.jpg is missing`);
   }
 });
+
+test('the Feed has its art: a leading edge taller than the screen, its face inside it, and six icons', () => {
+  const feed = require('../assets/production/enemies/feed-atlas.json');
+  const front = feed.frames.front;
+  assert.ok(front.h >= 550, 'tall enough to bob without showing an end');
+  assert.ok(feed.edge > 100 && feed.edge < front.w, 'the face stands inside the picture, with the body behind it');
+  assert.ok(feed.crest[0] >= feed.edge && feed.crest[1] < front.h / 2, 'the crest leads from the upper half');
+  for (const icon of ['heart', 'like', 'bell', 'badge', 'bubble', 'share']) assert.ok(feed.frames[icon]?.w > 8, `${icon} is cut out`);
+  assert.ok(feed.body.size[0] >= 200 && feed.body.size[1] >= 200, 'the body tile is big enough to repeat quietly');
+});
