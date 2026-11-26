@@ -70,5 +70,6 @@ atlases, so they are not copied here.
 The `city-*` and `growth-*` prompts are for Ship It City and Growth Run. Each picture came from
 its prompt at the first attempt.
 
-`city-far-2` and `city-near-2` ask again for Ship It City's skyline and bridge without the layout
-sketch, which made the first pictures come back as flat shapes. They have not been run yet.
+`city-far-2`, `city-near-2` and `growth-near-2` ask again for Ship It City's skyline and bridge
+and Growth Run's track without the layout sketch, which made the first pictures come back as flat
+shapes. They have not been run yet.
