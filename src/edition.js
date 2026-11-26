@@ -10,6 +10,13 @@ const solvedEdition = {
   finish: 'Thanks for playing, Solved Studio. Nobody asked me for a game. You asked what I had done that was abnormal, and this seemed quicker than explaining. I’d love to walk you through the work you picked.',
   // The line under the title. Other editions keep "A playable application by <name>".
   tagline: 'You asked what was abnormal.\nAugustus Edem built this.',
+  // What the plane's banner says as it crosses each world, in order. Capitals, one line each.
+  banners: [
+    'HIRE AUGUSTUS. THE PLANE IS BY THE HOUR.',
+    'STILL AVAILABLE. THE PILOT HAS STARTED ASKING QUESTIONS.',
+    'HE HAS ALSO EMAILED. HE IS NOTHING IF NOT THOROUGH.',
+    'HE’S IN THE BUILDING. THIS IS NOW JUST SHOWING OFF.'
+  ],
   skillProjects: {
     "creative-direction": "Emotive Impact",
     "product-thinking": "Commune",
@@ -147,6 +154,8 @@ const editions = new Map([
   [solvedEdition.id, solvedEdition],
   ['portfolio', { ...solvedEdition, id: 'portfolio', company: '', interviewer: null, role: 'Product builder',
     editionLabel: 'PORTFOLIO EDITION', setupSteps: null, skillTitles: null, readme: null, tagline: null,
+    banners: ['HIRE AUGUSTUS. THE PLANE IS BY THE HOUR.', 'STILL AVAILABLE. THE PILOT HAS STARTED ASKING QUESTIONS.',
+      'REFERENCES AVAILABLE. THE PILOT SAYS HE’S FINE.', 'CHEAPER THAN A RECRUITER. SLIGHTLY.'],
     interview: [
     {question:'What would you like to explore first?', answers:[
       {label:'The creative background', text:'Over 20 years of video production, editing and creative direction. I care about how an idea feels, how clearly it communicates and whether it works for the people using it.'},

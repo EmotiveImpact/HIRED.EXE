@@ -16,6 +16,10 @@
   // An HQ room's back wall is a flat plate that stands on the floor and scrolls with it.
   const ROOM_WALL = { height: 448, floor: 440, base: ['#3d6f7c', '#a488cf', '#cbbbe6'] };
   const LIFT_ART = { half: 64, door: 40, height: 112, header: 28 };
+  // Things that cross the sky behind the level. Speeds are pixels a second; `far` is how much of the
+  // camera's travel they share, so distant things slide past more slowly than near ones.
+  const PLANE = { speed: 46, far: .06, wait: 4, rest: 620, y: 132, font: 'bold 13px monospace', ink: '#3b2148' };
+  const TRAIN = { speed: 120, rest: 1500 };
 
   class Renderer {
     constructor(canvas) {
@@ -45,6 +49,12 @@
         feed: this.meta.feed?.image || 'assets/production/enemies/feed-atlas.png',
         feedBody: this.meta.feed?.body?.image || 'assets/production/enemies/feed-body.webp'
       };
+      // The painted kit of scenery traffic and level machinery, once it has been built.
+      if (this.meta.kit) specs.kit = this.meta.kit.image;
+      // A world painted in layers lists them here, furthest first.
+      for (const [world, scene] of Object.entries(this.meta.kit?.scenery || {})) {
+        scene.layers.forEach((layer, i) => { specs['layer' + world + '_' + i] = layer.image; });
+      }
       BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
       for (let i = 2; i <= 4; i++) specs['hqRoom' + i] = 'assets/production/backgrounds/interview-room-' + i + '.webp';
       const results = await Promise.allSettled(Object.entries(specs).map(([key, path]) => new Promise((resolve, reject) => {
@@ -75,6 +85,8 @@
       this.time = Number(realTimeSeconds) || 0;
       this.camera = state?.camera?.x || 0;
       this.levelIndex = state?.levelIndex || 0;
+      // The sky keeps the level's own clock, so it stops when the game is paused.
+      this.levelTime = state?.time ?? this.time;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = 1;
       ctx.imageSmoothingEnabled = false;
@@ -135,25 +147,124 @@
       const ctx = this.ctx, im = this.images['background' + this.levelIndex];
       // Indoors the room's own wall, drawn with the world, is the whole backdrop.
       if (floor) { ctx.fillStyle = ROOM_WALL.base[floor - 1]; ctx.fillRect(0, 0, W, HGT); return; }
+      const scene = this.meta.kit?.scenery?.[this.levelIndex];
+      const layers = scene ? scene.layers.map((layer, i) => this.images['layer' + this.levelIndex + '_' + i]) : [];
+      if (scene && layers.every(Boolean)) {
+        // A world painted in layers: each slides at its own speed, the sky slowest, and the sky's
+        // clouds drift by themselves. Traffic crosses in front of the layers named in `behind`.
+        scene.layers.forEach((layer, i) => {
+          if (i === scene.behind) this.traffic(scene);
+          this.strip(layers[i], (this.camera - start) * layer.speed + (layer.drift || 0) * this.levelTime, layers[i].width, HGT);
+          if (layer.haze) { ctx.fillStyle = layer.haze; ctx.fillRect(0, 0, W, HGT); }
+        });
+        return;
+      }
       if (!im) {
         ctx.fillStyle = ['#88c7ff', '#e5abc4', '#7773dc', '#a3ceec'][this.levelIndex];
         ctx.fillRect(0, 0, W, HGT); return;
       }
-      // One painted plate drifts slowly behind the physical world. Alternating
-      // mirrored copies share an edge without pretending it is a layered source.
-      const width = Math.ceil(HGT * im.width / im.height);
-      const offset = (this.camera - start) * 0.12;
-      const first = Math.floor(offset / width);
-      for (let i = first; i <= first + 2; i++) {
-        const x = round(i * width - offset);
-        ctx.save();
-        if (i % 2) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, width, HGT); }
-        else ctx.drawImage(im, x, 0, width, HGT);
-        ctx.restore();
-      }
+      // One painted plate drifts slowly behind the physical world.
+      this.strip(im, (this.camera - start) * 0.12, Math.ceil(HGT * im.width / im.height), HGT);
       // Push the painted city slightly into the distance. Collision art stays crisp.
       ctx.fillStyle = this.levelIndex === 2 ? 'rgba(28,26,84,.08)' : 'rgba(230,239,255,.09)';
       ctx.fillRect(0, 0, W, HGT);
+      this.traffic(null);
+    }
+
+    // One picture laid end to end across the view. Every other copy is mirrored, so neighbours
+    // share an edge without the picture having to repeat cleanly.
+    strip(im, offset, width, height) {
+      const ctx = this.ctx, first = Math.floor(offset / width);
+      for (let i = first; i * width - offset < W; i++) {
+        const x = round(i * width - offset);
+        ctx.save();
+        if (i & 1) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, width, height); }
+        else ctx.drawImage(im, x, 0, width, height);
+        ctx.restore();
+      }
+    }
+
+    // A value that runs from 0 to `lap` and starts again, whatever the sign of what goes in.
+    lap(value, lap) { return ((value % lap) + lap) % lap; }
+
+    // What moves behind the level: a balloon, gulls, a train along the viaduct where the world has
+    // one, and the plane with its banner. A world still on a single plate gets the plane alone.
+    traffic(scene) {
+      const t = this.levelTime, cam = this.camera;
+      const kit = this.images.kit, draw = (name, x, y, flip) => {
+        const f = this.frame('kit', name);
+        if (!f || !kit || x > W || x + f.w < 0) return;
+        const ctx = this.ctx;
+        ctx.save(); ctx.translate(round(x), round(y));
+        if (flip) { ctx.translate(f.w, 0); ctx.scale(-1, 1); }
+        ctx.drawImage(kit, f.x, f.y, f.w, f.h, 0, 0, f.w, f.h);
+        ctx.restore();
+      };
+      if (scene?.balloon) draw('balloon', this.lap(scene.balloon[0] + t * 5 - cam * .05, W + 900) - 80, scene.balloon[1] + Math.sin(t * .5) * 6);
+      if (scene?.gulls) {
+        for (let i = 0; i < 3; i++) {
+          const x = W + 40 - this.lap(t * 34 + cam * .08 + 260, W + 1300) + i * 26 + (i % 2) * 9;
+          draw('gull_' + (Math.floor(t * 5 + i * 1.7) & 1), x, scene.gulls + (i * 37) % 30 + Math.sin(t * 2 + i) * 3, true);
+        }
+      }
+      this.plane(root.HIRED_EDITION?.banners?.[this.levelIndex] || 'HIRE ' + String(root.HIRED_EDITION?.applicant || 'ME').split(' ')[0].toUpperCase() + '.');
+      if (scene?.rail) {
+        // The train runs one way, rests out of sight, then comes back the other way.
+        const f = this.frame('kit', scene.train || 'train');
+        if (f) {
+          const lap = W + f.w + TRAIN.rest, run = t * TRAIN.speed, back = Math.floor(run / lap) & 1;
+          const along = this.lap(run, lap) - f.w, slide = this.lap(cam * scene.layers[scene.behind].speed, W + f.w);
+          const x = back ? W - f.w - along : along;
+          draw(scene.train || 'train', this.lap(x - slide + f.w, W + f.w) - f.w, scene.rail - f.h, back);
+        }
+      }
+    }
+
+    // The plane tows a cloth banner across the sky. The banner is cut to the length of its line,
+    // and ripples more the further it trails from the tow rope.
+    plane(text) {
+      const f = this.frame('kit', 'plane'), cloth = this.banner(text), kit = this.images.kit;
+      if (!f || !cloth || !kit) return;
+      const ctx = this.ctx, t = this.levelTime, length = cloth.width + f.w;
+      const nose = this.lap((t - PLANE.wait) * PLANE.speed - this.camera * PLANE.far, W + length + PLANE.rest);
+      if (nose > W + length) return;
+      const y = PLANE.y + Math.sin(t * 1.1) * 5, tail = nose - f.w;
+      const tow = this.meta.kit.banner.tow;
+      for (let sx = 0; sx < cloth.width; sx += 3) {
+        const x = round(tail - cloth.width + sx);
+        if (x > W || x < -3) continue;
+        const trail = cloth.width - sx;
+        const lift = Math.sin(trail * .045 - t * 6) * Math.min(4, trail * .025);
+        ctx.drawImage(cloth, sx, 0, 3, cloth.height, x, round(y + f.tow - tow + lift), 3, cloth.height);
+      }
+      ctx.drawImage(kit, f.x, f.y, f.w, f.h, round(tail), round(y), f.w, f.h);
+    }
+
+    // The banner for one line: the painted cloth's two ends with its plain middle run out between
+    // them, and the line set on it. Made once for each line and kept.
+    banner(text) {
+      const f = this.frame('kit', 'banner'), kit = this.images.kit, cut = this.meta.kit?.banner;
+      if (!f || !kit || !cut || !root.document) return null;
+      this.banners = this.banners || {};
+      if (this.banners[text]) return this.banners[text];
+      const measure = this.ctx;
+      measure.save(); measure.font = PLANE.font;
+      const run = Math.ceil(measure.measureText(text).width) + 16;
+      measure.restore();
+      const cloth = root.document.createElement('canvas');
+      cloth.width = cut.left + run + cut.right; cloth.height = f.h;
+      const ctx = cloth.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(kit, f.x, f.y, cut.left, f.h, 0, 0, cut.left, f.h);
+      const middle = f.w - cut.left - cut.right;
+      for (let x = cut.left; x < cut.left + run; x += middle) {
+        const w = Math.min(middle, cut.left + run - x);
+        ctx.drawImage(kit, f.x + cut.left, f.y, w, f.h, x, 0, w, f.h);
+      }
+      ctx.drawImage(kit, f.x + f.w - cut.right, f.y, cut.right, f.h, cut.left + run, 0, cut.right, f.h);
+      ctx.fillStyle = PLANE.ink; ctx.font = PLANE.font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(text, cut.left + run / 2, cut.line + 1);
+      return this.banners[text] = cloth;
     }
 
     ambient() {
