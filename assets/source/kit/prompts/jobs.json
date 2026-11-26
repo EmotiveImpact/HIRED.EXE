@@ -1,6 +1,6 @@
 {
  "model": "Seedream 5.0 Lite, 2K (6 credits an image)",
- "cap_images": 17,
+ "cap_images": 19,
  "jobs": [
   {
    "name": "alley-sky",
@@ -148,6 +148,22 @@
    "refs": [
     "refs/enemy-atlas.png",
     "refs/growth-run.jpg"
+   ]
+  },
+  {
+   "name": "city-far-2",
+   "prompt": "prompts/city-far-2.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/ship-it-city.jpg"
+   ]
+  },
+  {
+   "name": "city-near-2",
+   "prompt": "prompts/city-near-2.txt",
+   "aspect": "16:9",
+   "refs": [
+    "refs/ship-it-city.jpg"
    ]
   }
  ]
