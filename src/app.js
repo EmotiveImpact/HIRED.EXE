@@ -231,16 +231,20 @@
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
       layer.innerHTML=`<div class="title-hero" aria-hidden="true"><img class="title-actor" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""></div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div><p class="title-any" id="title-any">Press any button to continue</p></section>`;
-      // The title waits for any key, click or tap, then offers its menu.
+      // The title waits for any key, click or tap, then offers its menu. It listens for the
+      // finished click, never the press: a finger's click lands after the press, and would
+      // fall on whichever menu button had just appeared beneath it.
       const wake=e=>{
         if(e&&e.type==='keydown'&&(e.metaKey||e.ctrlKey||e.altKey||e.key==='Tab'||e.key==='Escape'))return;
+        // The click that skipped the intro is still on its way up: it is not a press on the title.
+        if(e?.type==='click'&&!layer.contains(e.target))return;
         titleWake?.();
         if(uiMode!=='title'||!layer.classList.contains('title-wait'))return;
         if(e?.type==='keydown'){e.preventDefault();e.stopPropagation();}
         woken=true;layer.classList.remove('title-wait');focusDialog();
       };
-      titleWake=()=>{document.removeEventListener('keydown',wake,true);layer.removeEventListener('pointerdown',wake);layer.removeEventListener('click',wake);};
-      if(!woken){document.addEventListener('keydown',wake,true);layer.addEventListener('pointerdown',wake);layer.addEventListener('click',wake);}
+      titleWake=()=>{document.removeEventListener('keydown',wake,true);layer.removeEventListener('click',wake);};
+      if(!woken){document.addEventListener('keydown',wake,true);layer.addEventListener('click',wake);}
       $('title-play').onclick=()=>{H.track(continuing?'Game continued':'Game started');play();};
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);

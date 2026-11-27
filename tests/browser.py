@@ -88,6 +88,9 @@ def run(profile, base):
                 expect(page.locator('#title-any')).to_have_text('Press any button to continue')
                 expect(page.locator('#title-play')).to_be_hidden()
                 activate('#title-any')
+                # The tap that wakes the title presses nothing on the menu that appears under it.
+                expect(page.locator('#title-play')).to_be_visible()
+                assert page.evaluate("HIRED_APP.mode === 'title'")
         def title_play():
             title_menu()
             activate('#title-play')

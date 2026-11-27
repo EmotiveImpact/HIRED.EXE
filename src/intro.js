@@ -8,15 +8,16 @@
 (function (H) {
   'use strict';
   const FOLDER = 'assets/production/intro/';
-  // A line is [speaker, words, second of the clip at which it is spoken].
+  // A line is [speaker, words, second of the clip at which it is spoken]. A channel is left at
+  // `end`, the second its last word lands, as someone hopping channels would leave it.
   const BEATS = [
-    {channel: 1, art: 'news', lines: [
+    {channel: 1, art: 'news', end: 9.8, lines: [
       ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0],
       ['Newsreader', 'Applicants are asked to bring their old lanyard.', 7.3]]},
-    {channel: 2, art: 'tech', lines: [
+    {channel: 2, art: 'tech', end: 9.4, lines: [
       ['Presenter', 'Forty thousand new apps launched this morning.', 0],
       ['Presenter', 'Anyone can build one now. And, looking at them, anyone has.', 4.3]]},
-    {channel: 3, art: 'antiques', lines: [
+    {channel: 3, art: 'antiques', end: 9.85, lines: [
       ['Expert', 'A cover letter. Written by a person.', 0],
       ['Owner', 'Is it worth anything?', 5.3],
       ['Expert', 'Not since about 2023.', 7.4]]},
@@ -150,10 +151,11 @@
           mine.onplaying = null;
           if (heard && voice) speech = voice.play(heard);
         };
-        mine.onended = () => { clearTimeout(timer); timer = setTimeout(cut, 350); };
+        mine.onended = () => { clearTimeout(timer); timer = setTimeout(cut, b.channel ? 0 : 350); };
         const follow = () => {
           if (over || film !== mine) return;
           const at = mine.currentTime;
+          if (b.end && at >= b.end) { cut(); return; }
           let now = 0;
           b.lines.forEach((l, i) => { if (at >= l[2] - 0.12) now = i; });
           if (at < b.lines[0][2] - 0.12) now = -1;
