@@ -24,7 +24,7 @@
       ['Expert', 'A cover letter. Written by a person.', 0.4],
       ['Owner', 'Is it worth anything?', 4.4],
       ['Expert', 'Not since about 2023.', 6.95]]},
-    {art: 'studio', end: 8.1, lines: [
+    {art: 'studio', end: 7.5, lines: [
       ['Augustus', 'Pepper. We need a job. We’re too good not to be shipping.', 0.4],
       ['Pepper', 'On it.', 5.7],
       ['Doorbell', 'Ding dong.', 6.5]]},
@@ -107,8 +107,8 @@
             .then(bytes => voice.decode(bytes)).catch(() => null)
           : Promise.resolve(null);
       }
-      // The doorbell is the two-note chime that came with the first room clip. Where it cannot
-      // be had, as in the single offline file, the game's own two notes ring.
+      // The doorbell is one note: the second of the chime that came with the first room clip.
+      // Where it cannot be had, as in the single offline file, the game's own note rings.
       const chime = filmed && voice
         ? fetch(asset(FOLDER + 'doorbell.mp3')).then(reply => reply.ok ? reply.arrayBuffer() : Promise.reject())
           .then(bytes => voice.decode(bytes)).catch(() => null)

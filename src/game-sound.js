@@ -164,10 +164,8 @@
       tone(t + 0.03, {type: 'sine', f0: 2400, f1: 180, dur: 0.5, vol: 0.07});
     },
     'intro-bell'(t) {
-      tone(t, {type: 'sine', f0: hz(76), dur: 0.7, vol: 0.16, send: 0.5});
-      tone(t, {type: 'triangle', f0: hz(88), dur: 0.2, vol: 0.05});
-      tone(t + 0.42, {type: 'sine', f0: hz(72), dur: 1, vol: 0.16, send: 0.5});
-      tone(t + 0.42, {type: 'triangle', f0: hz(84), dur: 0.25, vol: 0.05});
+      tone(t, {type: 'sine', f0: hz(72), dur: 1, vol: 0.16, send: 0.5});
+      tone(t, {type: 'triangle', f0: hz(84), dur: 0.25, vol: 0.05});
     }
   });
 

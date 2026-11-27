@@ -748,8 +748,8 @@
     {
       "path": "assets/production/intro/doorbell.mp3",
       "role": "production-asset",
-      "bytes": 19480,
-      "sha256": "42e72115e7caf80c6b3fec38f043414d66f8e35be45c4efaae987a24050d5a66"
+      "bytes": 10492,
+      "sha256": "3cb1d4abef022aa5e857779401fafada409b9dc50e6e76d947e7069b37b5b545"
     },
     {
       "path": "assets/production/intro/driver.mp3",
