@@ -418,8 +418,8 @@
     {
       "path": "assets/production/backgrounds/application-alley-near.webp",
       "role": "production-asset",
-      "bytes": 199200,
-      "sha256": "7b138da2de80e594a670c244eaec2dda688dd57cf9b83cb980ce09f85e565248"
+      "bytes": 233888,
+      "sha256": "202e97cc9b64ddeb02d8d7b3cd2fa2923888fb585706a98f5664c0b3bbb369d6"
     },
     {
       "path": "assets/production/backgrounds/application-alley-sky.webp",
@@ -430,8 +430,8 @@
     {
       "path": "assets/production/backgrounds/application-alley-trees.webp",
       "role": "production-asset",
-      "bytes": 188942,
-      "sha256": "ea5225767f84f10692d7ba66013cce0903fb3fbbeca4a3fcb45ccac9e0256946"
+      "bytes": 27534,
+      "sha256": "c4d04fe829b6ccc25b5676ff34468c2ffcc2b4aa052ecfd7acbb0265083a377e"
     },
     {
       "path": "assets/production/backgrounds/application-alley.png",
@@ -480,6 +480,18 @@
       "role": "production-asset",
       "bytes": 218544,
       "sha256": "94cc61839da6d5791c9d752390e76095815621ddd5ab90cc2ed7913e51fd96a7"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-hq-atrium.webp",
+      "role": "production-asset",
+      "bytes": 244270,
+      "sha256": "2a7b88f4251660c066a101fb0a030e8869c88b2f7d7f9be2df76b4c25026b267"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-hq-view.webp",
+      "role": "production-asset",
+      "bytes": 88566,
+      "sha256": "466c3781cfd6f8958b329d09149d2ec5ee92257eb10b71d50d738f7e370e4831"
     },
     {
       "path": "assets/production/backgrounds/interview-hq.png",
@@ -556,8 +568,8 @@
     {
       "path": "assets/production/characters/hero-atlas.png",
       "role": "production-asset",
-      "bytes": 149242,
-      "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+      "bytes": 132432,
+      "sha256": "ce99aac7087ca956c2884fdb76d8cdbdc54a1ddefe1a7b830e9980a6463f9c7f"
     },
     {
       "path": "assets/production/characters/portrait-reference.png",
@@ -568,8 +580,8 @@
     {
       "path": "assets/production/characters/title-hero.webp",
       "role": "production-asset",
-      "bytes": 22910,
-      "sha256": "1623e8746cffa89143f093cc5bc3eea6905e09595a086b4419410afa36bcfa07"
+      "bytes": 20928,
+      "sha256": "b7a816f3f428bf6ab1b3d28bbbf0cca21607e5e58197a01919efb10e7a099e1c"
     },
     {
       "path": "assets/production/enemies/enemy-atlas.json",
@@ -664,14 +676,14 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 7397,
-      "sha256": "6f124a7dd532fbe0526432410c7cdf6f78436d4a8347b8fce11bc79d53b105df"
+      "bytes": 10328,
+      "sha256": "f43404f5417a07a1b4223d67d39dd8c9a898fa68ac139b48d66d0b71d9ffd777"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
       "role": "production-asset",
-      "bytes": 183200,
-      "sha256": "ff7f5d1f3f2a05e75efac7d5541d2858d290e14d9eaeadd7b6984c6261ce1a19"
+      "bytes": 661031,
+      "sha256": "0b665b527e68cf0464e5d54c1cdfee0c28cfff2c4b35525d5a9a63c7e79e44cc"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -1160,6 +1172,18 @@
       "sha256": "674fad30db628ab44e3b9e3c5d9ec5f5270b715bf3b5f3504dfc1447db4955d6"
     },
     {
+      "path": "assets/source/characters/hero-atlas-v1.png",
+      "role": "generated-source",
+      "bytes": 149242,
+      "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+    },
+    {
+      "path": "assets/source/characters/title-hero-v1.webp",
+      "role": "generated-source",
+      "bytes": 22910,
+      "sha256": "1623e8746cffa89143f093cc5bc3eea6905e09595a086b4419410afa36bcfa07"
+    },
+    {
       "path": "assets/source/environment-prompts.json",
       "role": "generated-source",
       "bytes": 3527,
@@ -1360,8 +1384,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 6115,
-      "sha256": "2be2cde01c76e31fc7b92e9a5bfe86cf5ebf47b048033f4e142a3126fd2c679d"
+      "bytes": 8279,
+      "sha256": "f3706a8f22a83ab5b95992ed19a670d037ebb522e14218543d57520c2b055a31"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1376,6 +1400,24 @@
       "sha256": "c99ac1cc6f752e3d49d579124fef250ded003f1d76511cce3772bd5dac3b2c5b"
     },
     {
+      "path": "assets/source/kit/alley-near-2.png",
+      "role": "generated-source",
+      "bytes": 2489079,
+      "sha256": "5666df6bbc9ee3ce8c3c3db7663373834bf2e834458086959c1e42aa97df4b50"
+    },
+    {
+      "path": "assets/source/kit/alley-near-3.png",
+      "role": "generated-source",
+      "bytes": 2533458,
+      "sha256": "8df901c0234ab891143fe67c89c38ce0114ba544b1f9d85cbf60f5d85e9be48d"
+    },
+    {
+      "path": "assets/source/kit/alley-near-4.png",
+      "role": "generated-source",
+      "bytes": 2420342,
+      "sha256": "59dd79ee5e4ba4599328fa1fd00ca0b06afa5a30092e8b0c1b97c444018f1747"
+    },
+    {
       "path": "assets/source/kit/alley-near.png",
       "role": "generated-source",
       "bytes": 1939694,
@@ -1386,6 +1428,36 @@
       "role": "generated-source",
       "bytes": 2102174,
       "sha256": "18e4598cc8319bc45e624a76d7786889c907b4c6cdce3b5e7631edb9f6bd5d51"
+    },
+    {
+      "path": "assets/source/kit/alley-trees-1.png",
+      "role": "generated-source",
+      "bytes": 2097911,
+      "sha256": "1d44c629c9fa17a823200f47ee3a0bfb15a976878135db859cfe812da1400189"
+    },
+    {
+      "path": "assets/source/kit/boss-algorithm.png",
+      "role": "generated-source",
+      "bytes": 1844125,
+      "sha256": "36158aa6df7fe1b9b2697ef51d298bec58f86e8f8d0d80de7e09f587264921c5"
+    },
+    {
+      "path": "assets/source/kit/boss-finalreview.png",
+      "role": "generated-source",
+      "bytes": 2158373,
+      "sha256": "bd8829d5e581298d27c1367ddeed751468e92abe313d44a864576311039a682f"
+    },
+    {
+      "path": "assets/source/kit/boss-recruitmentbot.png",
+      "role": "generated-source",
+      "bytes": 1577283,
+      "sha256": "9efaecd526692dae1250e269bdaf913846e04d24f74e28a0dcd33e7fda18da49"
+    },
+    {
+      "path": "assets/source/kit/boss-scopecreep.png",
+      "role": "generated-source",
+      "bytes": 1196660,
+      "sha256": "8bac69fd09834a89cb0d7b78c17ef8c4c28df201675e686bc616f2fd1bf23b1e"
     },
     {
       "path": "assets/source/kit/city-far-2.png",
@@ -1436,6 +1508,18 @@
       "sha256": "445160d4f36927ac8f07705df2e09c1ef6492e46d3b104ce09d9644c09672620"
     },
     {
+      "path": "assets/source/kit/doors-a.png",
+      "role": "generated-source",
+      "bytes": 1906939,
+      "sha256": "91036211fee70356ad436070002b14c7e7bbcce5590dd3bc6ad834a171ff0775"
+    },
+    {
+      "path": "assets/source/kit/doors-b.png",
+      "role": "generated-source",
+      "bytes": 2121323,
+      "sha256": "68f90f9bf456ea0c02fc3397aa948248ca5372e9f35be6c2af78a542cecf41be"
+    },
+    {
       "path": "assets/source/kit/growth-far.png",
       "role": "generated-source",
       "bytes": 3210261,
@@ -1470,6 +1554,24 @@
       "role": "generated-source",
       "bytes": 4528647,
       "sha256": "378c4609f3e9df60834af404d8225715cb21d46570b46968158ac5c0784b2cc2"
+    },
+    {
+      "path": "assets/source/kit/hq-near-1.png",
+      "role": "generated-source",
+      "bytes": 3597650,
+      "sha256": "45b0642232d282f03070aaceca611416993f135d249bb21ae0a18efd9d1ec904"
+    },
+    {
+      "path": "assets/source/kit/hq-near-2.png",
+      "role": "generated-source",
+      "bytes": 3976897,
+      "sha256": "f29af15050bd2d004a5294d87bf2db0b04a4be070569b8aa4f4985a88e2653d9"
+    },
+    {
+      "path": "assets/source/kit/hq-view-1.png",
+      "role": "generated-source",
+      "bytes": 2944416,
+      "sha256": "0031785a7ca74f941b49b73c217e7c55f8efc1dff74a724a1d5341e0cf865349"
     },
     {
       "path": "assets/source/kit/layouts/layout-far.png",
@@ -1526,6 +1628,24 @@
       "sha256": "77b86b55afd8dcbf64622822f88c26e302c20382b2b68e5f7f0580e503b41c64"
     },
     {
+      "path": "assets/source/kit/prompts/alley-near-2.txt",
+      "role": "generated-source",
+      "bytes": 1389,
+      "sha256": "aadfad38a11786256a48de79931a3bac2def2855a57295a9ad3a8dc852c3263d"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-near-3.txt",
+      "role": "generated-source",
+      "bytes": 1574,
+      "sha256": "7b1a45e00412022dea81981154fc3ef02e0a36bdad117a75e7ad5a647f344ba8"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-near-4.txt",
+      "role": "generated-source",
+      "bytes": 1615,
+      "sha256": "609a3bc014b82cb1a97ad0d084efe4c6e90b10cc9e9b3c98fbe687bab790403a"
+    },
+    {
       "path": "assets/source/kit/prompts/alley-near.txt",
       "role": "generated-source",
       "bytes": 1700,
@@ -1536,6 +1656,36 @@
       "role": "generated-source",
       "bytes": 932,
       "sha256": "ad91d676f112ec27f992500df637d605fb1a6f10f47aabe1a05522b872eb522a"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-trees-1.txt",
+      "role": "generated-source",
+      "bytes": 1077,
+      "sha256": "691f44e0020abe6e2dbcf89c8fc7df650fc3acd2704738324bab21f48db324e9"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-algorithm.txt",
+      "role": "generated-source",
+      "bytes": 1337,
+      "sha256": "f2f53e798b757d58d57725feb78aa404a96ab660387c5e369a8c8dc7ef13a46d"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-finalreview.txt",
+      "role": "generated-source",
+      "bytes": 1286,
+      "sha256": "e12c5cf2cb4dbd6f1e5f228947a742462bfa348c3bb056bd5b73db9480eee363"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-recruitmentbot.txt",
+      "role": "generated-source",
+      "bytes": 1401,
+      "sha256": "90888263890dbd186c8f89fe5d492ce420984a46d0fa80353e659467cd98f590"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-scopecreep.txt",
+      "role": "generated-source",
+      "bytes": 1350,
+      "sha256": "104069a95c98ce96902a7cfd62d28cb2cf41638c8a89f0a76aa0cdfd7daef113"
     },
     {
       "path": "assets/source/kit/prompts/city-far-2.txt",
@@ -1598,6 +1748,18 @@
       "sha256": "e378f641f1d9537117e6cb649d610106fa65a278ca94d4f00903b74b4710efdf"
     },
     {
+      "path": "assets/source/kit/prompts/doors-a.txt",
+      "role": "generated-source",
+      "bytes": 2009,
+      "sha256": "c7fac71e0c64cfc98b2cfc002d5b7392f05f96bee71003911090996be386a58b"
+    },
+    {
+      "path": "assets/source/kit/prompts/doors-b.txt",
+      "role": "generated-source",
+      "bytes": 1167,
+      "sha256": "440e84a450ad30c448ee7c2cae9e12b7f613b033793ef92f8c234d8226d0b9c2"
+    },
+    {
       "path": "assets/source/kit/prompts/growth-far.txt",
       "role": "generated-source",
       "bytes": 1782,
@@ -1638,6 +1800,24 @@
       "role": "generated-source",
       "bytes": 1070,
       "sha256": "3747e102a02cde31b1141d206852c4f54b7ef16d5d11de04811a7a3f41f77914"
+    },
+    {
+      "path": "assets/source/kit/prompts/hq-near-1.txt",
+      "role": "generated-source",
+      "bytes": 1127,
+      "sha256": "f49aa1107c5f38921e740a490cf88a5c19e10b4cfd9483f9116443c3ddac5fe5"
+    },
+    {
+      "path": "assets/source/kit/prompts/hq-near-2.txt",
+      "role": "generated-source",
+      "bytes": 1086,
+      "sha256": "871f82b2dca7793866ffccc58591620f72abddcd4a16facc6df131ffc7aed541"
+    },
+    {
+      "path": "assets/source/kit/prompts/hq-view-1.txt",
+      "role": "generated-source",
+      "bytes": 1027,
+      "sha256": "e1d678e61d6d540a099609510766bda52fda07dea486692ef630821629186975"
     },
     {
       "path": "assets/source/kit/prompts/jobs.json",

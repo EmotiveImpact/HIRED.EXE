@@ -161,6 +161,17 @@
       const letters = ['###..###..####', '#..#.#..#.#...', '#..#.#..#.#...', '###..#..#.###.', '#....#..#.#...', '#....#..#.#...', '#....###..#...'];
       letters.forEach((row, j) => [...row].forEach((c, i) => { if (c === '#') P.set(5 + i, 14 + j, 'w'); }));
       P.shadow();
+    },
+    // The guestbook: an open book, signed on the right-hand page, and the pen that did it.
+    guestbook: P => {
+      P.rect(2, 10, 28, 17, 'n');
+      P.rect(3, 8, 13, 17, 'w'); P.rect(16, 8, 13, 17, 'w');
+      P.rect(15, 8, 2, 17, 's'); P.rect(16, 8, 1, 17, 'g');
+      for (const y of [11, 14, 17, 20]) P.rect(5, y, 8, 1, 'g');
+      for (const y of [11, 14]) P.rect(19, y, 8, 1, 'g');
+      P.rows('b', [[18, 19, 20], [19, 20, 21], [19, 23, 24], [20, 19, 20], [20, 22, 23], [20, 25, 26], [21, 21, 22]]);
+      P.outline(); P.shadow();
+      P.line(23, 16, 29, 4, 'k', 5); P.line(24, 17, 30, 5, 'r', 3); P.rect(24, 17, 2, 3, 'k'); P.set(23, 20, 'k');
     }
   };
 

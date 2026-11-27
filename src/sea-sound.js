@@ -11,11 +11,13 @@
     return 12 * (Number(m[3]) + 1) + NOTE[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0);
   }
   const hz = n => 440 * Math.pow(2, (n - 69) / 12);
-  // 'Dm' or 'Bb' to the root (in octave 2) and the triad above it.
+  // 'Dm', 'Bb', 'G7', 'Am7', 'Fmaj7', 'Gsus4', 'Bdim' or 'C/E' to the root (in octave 2), the
+  // bass note (the root unless one is given after a slash) and the chord's notes.
+  const QUALITY = {'': [0, 4, 7], m: [0, 3, 7], 7: [0, 4, 7, 10], m7: [0, 3, 7, 10], maj7: [0, 4, 7, 11], sus4: [0, 5, 7], dim: [0, 3, 6]};
   function chord(name) {
-    const m = /^([A-G][#b]?)(m?)$/.exec(name);
+    const m = /^([A-G][#b]?)(maj7|m7|sus4|dim|m|7)?(?:\/([A-G][#b]?))?$/.exec(name);
     const root = midi(m[1] + '2');
-    return {root, tones: [0, m[2] ? 3 : 4, 7].map(i => root + i)};
+    return {root, bass: m[3] ? midi(m[3] + '2') : root, tones: QUALITY[m[2] || ''].map(i => root + i)};
   }
 
   // A song is a grid of sixteenth-note steps. Melodies are written one token per eighth note:
@@ -55,37 +57,88 @@
     {bpm: 126, shift: -2, lead: 'saw'}, {bpm: 144, shift: 3}
   ];
 
+  // Bass patterns, one bar each, as [step, note, length, velocity]. r is the bar's bass note,
+  // fifth the note a fifth above it, and lead a chord note that steps towards the next bar.
+  const BASS = {
+    octave: (r, fifth) => [r, r + 12, r, r + 12, r, r + 12, fifth, r + 12].map((n, i) => [i * 2, n, 2, i % 2 ? 0.75 : 1]),
+    half: (r, fifth) => [[0, r, 6, 1], [8, fifth, 6, 1]],
+    held: r => [[0, r, 12, 1]],
+    // Steady eighth notes that lean into the next chord.
+    drive: (r, fifth, lead) => [r, r, r, r, r, r, fifth, lead].map((n, i) => [i * 2, n, 2, i % 2 ? 0.8 : 1]),
+    // A bouncing line: root, a hop up the octave, and a step towards the next chord.
+    bounce: (r, fifth, lead) => [[0, r, 3, 1], [3, r + 12, 1, 0.7], [4, r, 2, 0.9], [6, r + 12, 2, 0.8], [8, r, 3, 1], [11, fifth, 1, 0.7], [12, r + 12, 2, 0.9], [14, lead, 2, 0.85]],
+    // Funk: short notes around the beat with room for the snare.
+    funk: (r, fifth, lead) => [[0, r, 2, 1], [3, r, 1, 0.75], [6, r + 12, 1, 0.8], [7, r, 1, 0.7], [8, r, 2, 1], [10, fifth, 1, 0.8], [13, r + 12, 1, 0.8], [14, lead, 2, 0.9]],
+    // Four to the bar, walking through the chord.
+    walk: (r, fifth, lead, b) => [[0, r, 4, 1], [4, r + (b.tones[1] - b.root), 4, 0.85], [8, fifth, 4, 0.9], [12, lead, 4, 0.85]]
+  };
+  // The chord note nearest the next bar's bass note, for the bass to step from.
+  function leading(b, next) {
+    if (!next || next.bass === b.bass) return b.root + 7 > b.bass + 9 ? b.root - 5 : b.root + 7;
+    let best = b.bass + 7, gap = 99;
+    for (const tone of b.tones) for (const n of [tone - 12, tone, tone + 12]) {
+      const d = Math.abs(n - next.bass);
+      if (d && d < gap && n >= 31 && n <= 55) { gap = d; best = n; }
+    }
+    return best;
+  }
+
+  // Turn a song into its grid of steps. A song in parts (an array of smaller songs that take
+  // any setting they do not give from the song) is each part in turn, end to end. Besides the
+  // tune a song can have more lines (voices: [{inst, tune, vel, pan}]), chords played on given
+  // steps (comp: {inst, steps, len, vel, pan}), a written bass line (bassline), a crash to open
+  // (crash) and a swing (the off-beat eighth note played late by that share of its length).
+  // wide spreads the drums across the stereo picture.
   function compile(spec, shift = 0) {
+    if (spec.parts) {
+      const parts = spec.parts.map(part => compile(Object.assign({}, spec, {parts: null}, part), shift));
+      return {grid: [].concat(...parts.map(p => p.grid)), steps: parts.reduce((n, p) => n + p.steps, 0), step: parts[0].step, once: !!spec.once, swing: spec.swing || 0};
+    }
     const bars = spec.chords.split(' ').map(chord);
     const steps = bars.length * 16, grid = Array.from({length: steps}, () => []);
-    const add = (step, inst, note, len, vel = 1) => { if (step < steps) grid[step].push({inst, note: note + shift, len, vel}); };
-    // The tune, two steps per token.
-    const tokens = spec.tune.replace(/\|/g, ' ').trim().split(/\s+/);
-    let last = null;
-    tokens.forEach((tok, i) => {
-      if (tok === '.') { if (last) last.len += 2; return; }
-      last = null;
-      if (tok === '-') return;
-      last = {inst: spec.lead, note: midi(tok) + shift, len: 2, vel: 1};
-      if (i * 2 < steps) grid[i * 2].push(last);
-    });
+    const add = (step, inst, note, len, vel = 1, pan = 0) => { if (step < steps) grid[step].push({inst, note: note + shift, len, vel, pan}); };
+    // A written line, two steps per token (or div steps).
+    const line = (text, inst, {vel = 1, pan = 0, div = 2} = {}) => {
+      let last = null;
+      text.replace(/\|/g, ' ').trim().split(/\s+/).forEach((tok, i) => {
+        if (tok === '.') { if (last) last.len += div; return; }
+        last = null;
+        if (tok === '-') return;
+        last = {inst, note: midi(tok) + shift, len: div, vel, pan};
+        if (i * div < steps) grid[i * div].push(last);
+      });
+    };
+    if (spec.tune) line(spec.tune, spec.lead, {vel: spec.leadVel || 1});
+    for (const voice of spec.voices || []) line(voice.tune, voice.inst, voice);
+    if (spec.bassline) line(spec.bassline, spec.bassInst || 'bass');
     const groove = typeof spec.groove === 'object' ? spec.groove : GROOVE[spec.groove || 'none'];
+    const fill = Array.isArray(groove.fill) ? {s: groove.fill, t: []} : groove.fill;
+    const arp = spec.arp === true ? {} : spec.arp, comp = spec.comp;
+    const pad = spec.pad === true ? [0, bars.length] : spec.pad;
     bars.forEach((b, bar) => {
       const s = bar * 16, lastBar = bar === bars.length - 1;
-      const r = b.root, fifth = b.root + 7;
-      if (spec.bass === 'octave') [r, r + 12, r, r + 12, r, r + 12, fifth, r + 12].forEach((n, i) => add(s + i * 2, 'bass', n, 2, i % 2 ? 0.75 : 1));
-      else if (spec.bass === 'half') { add(s, 'bass', r, 6); add(s + 8, 'bass', fifth, 6); }
-      else if (spec.bass === 'held') add(s, 'bass', r, 12);
-      if (spec.arp) [0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3].forEach((p, i) => add(s + i, 'arp', (p === 3 ? b.tones[0] + 12 : b.tones[p]) + 24, 1, 0.8));
-      if (spec.pad && bar >= spec.pad[0] && bar < spec.pad[1]) b.tones.forEach(n => add(s, 'pad', n + 12, 16));
-      const hits = lastBar && !spec.once && groove.fill.length ? {k: groove.k.filter(x => x < 10), s: [4, ...groove.fill], h: groove.h.filter(x => x < 10)} : groove;
+      const r = b.bass, fifth = b.bass === b.root ? b.root + 7 : b.root + (b.root < b.bass ? 12 : 0);
+      if (!spec.bassline && BASS[spec.bass]) for (const [at, n, len, vel] of BASS[spec.bass](r, fifth, leading(b, bars[bar + 1] || spec.then && chord(spec.then)), b)) add(s + at, spec.bassInst || 'bass', n, len, vel);
+      // Arpeggios run up the chord: 0, 1, 2 are its notes, and past the last the octave above.
+      const tone = p => b.tones[p % b.tones.length] + 12 * Math.floor(p / b.tones.length);
+      if (arp) (arp.pattern || [0, 1, 2, 1, 0, 1, 2, 3, 0, 1, 2, 1, 0, 1, 2, 3]).forEach((p, i) => { if (p !== null) add(s + i, arp.inst || 'arp', (arp.pattern ? tone(p) : p === 3 ? b.tones[0] + 12 : b.tones[p]) + (arp.up === undefined ? 24 : arp.up), arp.len || 1, arp.vel || 0.8, arp.pan || 0); });
+      if (comp) for (const at of comp.steps) b.tones.slice(0, 3).forEach(n => add(s + at, comp.inst, n + (comp.up === undefined ? 24 : comp.up), comp.len || 2, comp.vel || 0.7, comp.pan || 0));
+      if (pad && bar >= pad[0] && bar < pad[1]) b.tones.forEach(n => add(s, spec.padInst || 'pad', n + 12, 16, 1, spec.padPan || 0));
+      const filling = lastBar && !spec.once && spec.fill !== false && (fill.s.length || fill.t.length);
+      const hits = filling ? {k: groove.k.filter(x => x < 10), s: [4, ...fill.s], h: groove.h.filter(x => x < 10), o: [], c: []} : groove;
       for (const x of hits.k) add(s + x, 'kick', 0, 1);
       for (const x of hits.s) add(s + x, 'snare', 0, 1, x > 9 && lastBar ? 0.7 + (x - 10) * 0.08 : 1);
-      for (const x of hits.h) add(s + x, 'hat', 0, 1, x % 4 ? 0.6 : 1);
+      for (const x of hits.h) add(s + x, 'hat', 0, 1, x % 4 ? 0.6 : 1, spec.wide ? 0.25 : 0);
+      for (const x of hits.o || []) add(s + x, 'ohat', 0, 1, 1, spec.wide ? 0.25 : 0);
+      for (const x of hits.c || []) add(s + x, 'clap', 0, 1);
+      if (filling) fill.t.forEach(([x, n], i) => add(s + x, 'tom', n, 1, 0.8 + i * 0.05, spec.wide ? -0.4 + i * 0.25 : 0));
+      if (spec.crash && !bar) add(s, 'crash', 0, 1, 1, spec.wide ? -0.2 : 0);
     });
     if (spec.roll) for (let i = 0; i < 8; i++) add(i, 'snare', 0, 1, 0.35 + i * 0.06);
-    return {grid, steps, step: 60 / spec.bpm / 4, once: !!spec.once};
+    return {grid, steps, step: 60 / spec.bpm / 4, once: !!spec.once, swing: spec.swing || 0};
   }
+  // How late a step plays in a swung song: the off-beat eighth note, and the sixteenth after it.
+  const late = (song, pos) => song.swing ? [0, 0, 2, 1][pos % 4] * song.swing * song.step : 0;
 
   // Build the sound engine. context: an AudioContext (or OfflineAudioContext for tests);
   // without one, it makes its own on the first call to unlock(). songs and effects replace
@@ -93,7 +146,8 @@
   // kit holds the tone and hiss building blocks.
   H.seaSound = function ({context = null, muted = false, songs = null, effects = null} = {}) {
     const book = songs || SONGS;
-    let ctx = context, out = null, musicBus = null, sfxBus = null, echo = null, noise = null, pulse = null, pulse12 = null;
+    let ctx = context, out = null, musicBus = null, sfxBus = null, echo = null, noise = null, pulse = null, pulse12 = null, breath = null, pipes = null;
+    const pans = new WeakMap();
     let song = null, songGain = null, songName = null, timer = 0, hidden = false;
     const log = [];
     function build() {
@@ -123,7 +177,18 @@
         return ctx.createPeriodicWave(real, imag);
       };
       pulse = wave(0.25); pulse12 = wave(0.125);
+      // A flute's few soft overtones, and an organ's drawbars.
+      const partials = list => ctx.createPeriodicWave(new Float32Array(list.length + 1), new Float32Array([0, ...list]));
+      breath = partials([1, 0.32, 0.1, 0.04]); pipes = partials([1, 0.55, 0.05, 0.3, 0, 0.12, 0, 0.06]);
       return true;
+    }
+    // A place in the stereo picture, from -1 (left) to 1 (right), feeding the given bus.
+    function panned(bus, pan) {
+      if (!pan || !ctx.createStereoPanner) return bus;
+      let places = pans.get(bus);
+      if (!places) pans.set(bus, places = {});
+      if (!places[pan]) { places[pan] = ctx.createStereoPanner(); places[pan].pan.value = pan; places[pan].connect(bus); }
+      return places[pan];
     }
 
     // Building blocks: an oscillator with a pitch sweep, and a burst of filtered noise.
@@ -152,8 +217,78 @@
       s.onended = () => g.disconnect();
     }
 
+    // A held note: oscillators (one for each detuning, in cents) through a low-pass that can
+    // open or close as the note starts, with an attack, a fall to a sustained level, a release
+    // and a vibrato that comes in late.
+    function held(t, n, len, {type = 'sawtooth', wave = null, cents = [0], vol, attack = 0.02, decay = 0, sustain = 1, release = 0.08, cut = 0, cut0 = 0, sweep = 0.08, vib = 0, bus, send = 0}) {
+      const end = t + Math.max(attack + 0.02, len * 0.95), stop = end + release * 3 + 0.02;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + attack);
+      if (decay) g.gain.setTargetAtTime(vol * sustain, t + attack, decay / 3);
+      g.gain.setTargetAtTime(0.0001, end, release / 3);
+      let into = g;
+      if (cut) {
+        const f = ctx.createBiquadFilter(); f.type = 'lowpass';
+        f.frequency.setValueAtTime(cut0 || cut, t);
+        if (cut0) f.frequency.exponentialRampToValueAtTime(cut, t + sweep);
+        f.connect(g); into = f;
+      }
+      let depth = null;
+      if (vib) {
+        const lfo = ctx.createOscillator(); depth = ctx.createGain();
+        lfo.frequency.value = 5.5; depth.gain.setValueAtTime(0, t + Math.min(0.12, len / 2)); depth.gain.linearRampToValueAtTime(hz(n) * vib, t + Math.min(0.45, len));
+        lfo.connect(depth); lfo.start(t); lfo.stop(stop);
+      }
+      cents.forEach((c, i) => {
+        const o = ctx.createOscillator();
+        if (wave) o.setPeriodicWave(wave); else o.type = type;
+        o.frequency.value = hz(n) * Math.pow(2, c / 1200);
+        if (depth) depth.connect(o.frequency);
+        o.connect(into); o.start(t); o.stop(stop);
+        if (!i) o.onended = () => g.disconnect();
+      });
+      g.connect(bus);
+      if (send) { const e = ctx.createGain(); e.gain.value = send; g.connect(e); e.connect(echo); }
+    }
+
     // Instruments for the sequencer: (start time, MIDI note, length in seconds, velocity, bus).
     const INSTRUMENTS = {
+      // The sampled instruments of a 16-bit console, near enough: a breathy flute, a brass
+      // section, strings, a slapped bass, a marimba, steel drums, an organ and a piano.
+      flute(t, n, len, v, bus) {
+        held(t, n, len, {wave: breath, vol: 0.12 * v, attack: 0.035, release: 0.1, vib: 0.006, bus, send: 0.7});
+        hiss(t, {type: 'bandpass', f0: Math.min(6000, hz(n) * 2.5), q: 1.2, dur: 0.07, vol: 0.025 * v, bus});
+      },
+      brass(t, n, len, v, bus) { held(t, n, len, {cents: [-6, 6], vol: 0.15 * v, attack: 0.03, decay: 0.2, sustain: 0.75, release: 0.07, cut0: 500, cut: 2400, sweep: 0.07, vib: 0.004, bus, send: 0.5}); },
+      strings(t, n, len, v, bus) { held(t, n, len, {cents: [-9, 0, 9], vol: 0.018 * v, attack: 0.09, release: 0.22, cut: 2000, vib: 0.004, bus, send: 0.5}); },
+      slap(t, n, len, v, bus) {
+        held(t, n, len, {vol: 0.15 * v, attack: 0.004, decay: 0.18, sustain: 0.45, release: 0.04, cut0: 2400, cut: 380, sweep: 0.1, bus});
+        tone(t, {type: 'triangle', f0: hz(n), dur: Math.max(0.1, len * 0.9), vol: 0.26 * v, bus});
+      },
+      marimba(t, n, len, v, bus) {
+        tone(t, {type: 'triangle', f0: hz(n), dur: Math.min(0.55, len + 0.3), vol: 0.22 * v, bus, send: 0.6});
+        tone(t, {type: 'sine', f0: hz(n) * 4, dur: 0.05, vol: 0.07 * v, bus});
+      },
+      steel(t, n, len, v, bus) {
+        tone(t, {type: 'sine', f0: hz(n), dur: Math.min(0.8, len + 0.45), vol: 0.2 * v, bus, send: 0.7});
+        tone(t, {type: 'sine', f0: hz(n) * 2, dur: 0.3, vol: 0.09 * v, bus, send: 0.4});
+        tone(t, {type: 'sine', f0: hz(n) * 3.01, dur: 0.14, vol: 0.04 * v, bus});
+      },
+      organ(t, n, len, v, bus) { held(t, n, len, {wave: pipes, vol: 0.09 * v, attack: 0.008, release: 0.04, bus, send: 0.3}); },
+      piano(t, n, len, v, bus) {
+        tone(t, {type: 'triangle', f0: hz(n), dur: Math.min(0.7, len + 0.3), vol: 0.15 * v, bus, send: 0.4});
+        tone(t, {wave: pulse, f0: hz(n), dur: 0.11, vol: 0.045 * v, bus, filter: 2600});
+      },
+      tom(t, n, len, v, bus) {
+        tone(t, {type: 'sine', f0: hz(n) * 1.5, f1: hz(n) * 0.85, dur: 0.24, vol: 0.5 * v, bus, send: 0.2});
+        hiss(t, {type: 'bandpass', f0: 900, q: 0.8, dur: 0.04, vol: 0.1 * v, bus});
+      },
+      ohat(t, n, len, v, bus) { hiss(t, {type: 'highpass', f0: 7000, dur: 0.24, vol: 0.075 * v, bus}); },
+      crash(t, n, len, v, bus) {
+        hiss(t, {type: 'highpass', f0: 5200, dur: 1.3, vol: 0.15 * v, bus, send: 0.3});
+        hiss(t, {type: 'bandpass', f0: 3400, q: 0.6, dur: 0.35, vol: 0.09 * v, bus});
+      },
+      clap(t, n, len, v, bus) { for (const at of [0, 0.011, 0.024]) hiss(t + at, {type: 'bandpass', f0: 1300, q: 1.1, dur: at > 0.02 ? 0.14 : 0.03, vol: 0.2 * v, bus, send: 0.3}); },
       pulse(t, n, len, v, bus) {
         const o = ctx.createOscillator(), g = ctx.createGain(), f = ctx.createBiquadFilter(), lfo = ctx.createOscillator(), depth = ctx.createGain();
         o.setPeriodicWave(pulse); o.frequency.value = hz(n);
@@ -278,8 +413,8 @@
           if (song.once) { clearInterval(timer); timer = 0; log.push('end:' + songName); song = null; songName = null; return; }
           song.pos = 0;
         }
-        const t = Math.max(song.next, ctx.currentTime);
-        for (const e of song.grid[song.pos]) INSTRUMENTS[e.inst](t, e.note, e.len * song.step, e.vel, songGain);
+        const t = Math.max(song.next, ctx.currentTime) + late(song, song.pos);
+        for (const e of song.grid[song.pos]) INSTRUMENTS[e.inst](t, e.note, e.len * song.step, e.vel, panned(songGain, e.pan));
         song.pos++; song.next += song.step;
       }
     }
@@ -370,16 +505,19 @@
         if (ctx && !context && ctx.close) ctx.close().catch(() => {});
         ctx = null; out = null;
       },
-      // For tests: schedule a whole song from time t on an offline context.
-      render(name, t = 0, level = 0) {
+      // For tests: schedule a whole song from time t on an offline context, or only some of
+      // its instruments (only: a list of their names).
+      render(name, t = 0, level = 0, only = null) {
         build();
         const s = prepare(name, level);
         const g = ctx.createGain(); g.gain.value = s.gain; g.connect(musicBus);
-        s.grid.forEach((list, i) => list.forEach(e => INSTRUMENTS[e.inst](t + i * s.step, e.note, e.len * s.step, e.vel, g)));
+        s.grid.forEach((list, i) => list.forEach(e => { if (!only || only.includes(e.inst)) INSTRUMENTS[e.inst](t + i * s.step + late(s, i), e.note, e.len * s.step, e.vel, panned(g, e.pan)); }));
         return s.steps * s.step;
       },
       renderEffect(name, t = 0) { build(); effectMap()[name](t); }
     };
     return api;
   };
+  // For tests and tools: a song's grid of steps.
+  H.seaSound.compile = compile;
 })(globalThis.Hired);
