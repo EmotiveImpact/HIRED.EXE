@@ -1,7 +1,7 @@
 // HIRE.EXE's own music and effects, played on Sea Trial's 16-bit engine (src/sea-sound.js),
 // so the platformer sounds as full and as loud as the submarine. One theme per world, each
 // thirty-two bars in four parts and scored for the sort of instruments a 16-bit console's
-// games had, a short fanfare when a world is cleared, and the intro's music.
+// games had, and a short fanfare when a world is cleared.
 // Songs use the engine's notation: one token per eighth note, '.' holds, '-' rests,
 // and one chord per bar for the bass, arpeggios and pads. gain evens each theme out to
 // Sea Trial's level music.
@@ -103,19 +103,7 @@
       ]},
     // World cleared: plays once and rings out over the results.
     clear: {bpm: 150, lead: 'pulse', groove: 'none', bass: 'held', pad: [1, 3], once: true, roll: true, chords: 'C G C',
-      tune: 'G4 C5 E5 G5 C6 . G5 C6 | D6 . . B5 G5 . D6 . | C6 . . . . . . -'},
-    // The intro, once the telly is off: Application Alley's tune at a stroll on a marimba, kept
-    // low and full of gaps so the talking sits on top. It goes round until the title lands.
-    'intro-room': {bpm: 92, gain: 0.4, wide: true, lead: 'marimba', bass: 'half', groove: 'calm', pad: true, padInst: 'strings',
-      comp: {inst: 'piano', steps: [6, 14], vel: 0.5, pan: -0.3}, chords: 'C Am F G C Am Dm G7',
-      tune: 'G4 . . E4 G4 . C5 . | - - - - A4 . . . | A4 . . F4 A4 . C5 . | - - - - B4 . . . | ' +
-        'G4 . . E4 G4 . C5 . | - - - - E5 . C5 . | D5 . . . A4 . F4 . | G4 . . . . . - -'},
-    // The title landing: a drum roll and a run up the brass into C, at Application Alley's pace.
-    'intro-title': {bpm: 124, gain: 1.1, wide: true, lead: 'brass', groove: 'none', bass: 'held', bassInst: 'slap', once: true,
-      parts: [
-        {chords: 'G7', roll: true, tune: 'G4 B4 D5 F5 G5 . B5 D6'},
-        {chords: 'C C', crash: true, pad: true, padInst: 'strings', tune: 'C6 . G5 C6 . E6 . . | C6 . . . . . - -'}
-      ]}
+      tune: 'G4 C5 E5 G5 C6 . G5 C6 | D6 . . B5 G5 . D6 . | C6 . . . . . . -'}
   };
   const WORLDS = ['alley', 'city', 'growth', 'interview'];
 
