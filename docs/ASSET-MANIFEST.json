@@ -754,20 +754,20 @@
     {
       "path": "assets/production/intro/driver.mp3",
       "role": "production-asset",
-      "bytes": 58558,
-      "sha256": "7d7b133d353c6fad3c7cccf4c08d1a361a3f5b0c819967dc50cfde9747ab9690"
+      "bytes": 39332,
+      "sha256": "748e33c82213dfda7cfb49f16334f029fc83cbd8c0d5dd6570fd872f931edb9b"
     },
     {
       "path": "assets/production/intro/driver.mp4",
       "role": "production-asset",
-      "bytes": 125302,
-      "sha256": "02fbc3aaadb4d4a1887172327065a7cc6fe74c299e2c14aaee71514df4960c6a"
+      "bytes": 76504,
+      "sha256": "ba8c9ddbcf9b344423407ce016b03fd3b631e6d11304e3206a54129712a9ef1e"
     },
     {
       "path": "assets/production/intro/driver.webp",
       "role": "production-asset",
-      "bytes": 58936,
-      "sha256": "d81ac3caa819311fa7e3a30af6a6e39491798df9d3ada6f6f5d37df357f27d17"
+      "bytes": 32840,
+      "sha256": "50351a119b6d32355f31252384c0a50ef8e05d7a77bc078253097c3f50fb9a20"
     },
     {
       "path": "assets/production/intro/news.mp3",
@@ -804,6 +804,24 @@
       "role": "production-asset",
       "bytes": 75594,
       "sha256": "5aeaa2fa83bbe1ccbe6a845ed07c3b5706d950c983ff2788648e388ed86f5b87"
+    },
+    {
+      "path": "assets/production/intro/reply.mp3",
+      "role": "production-asset",
+      "bytes": 40795,
+      "sha256": "d391c5878bdcc6cb8b3afe7d5c2ceaf1fb465d84c581e195624963a18e965511"
+    },
+    {
+      "path": "assets/production/intro/reply.mp4",
+      "role": "production-asset",
+      "bytes": 93419,
+      "sha256": "00800d859e6697214588f7b952592fef898b53cbd4a87350e7dd2aabbb8aed04"
+    },
+    {
+      "path": "assets/production/intro/reply.webp",
+      "role": "production-asset",
+      "bytes": 39884,
+      "sha256": "f31fb519270509b1fb59577a0cefc2466d7652f4d03a9801823cb34b1f8b66a4"
     },
     {
       "path": "assets/production/intro/studio.mp3",
@@ -1330,8 +1348,8 @@
     {
       "path": "assets/source/intro/driver-seedance.mp4",
       "role": "generated-source",
-      "bytes": 668931,
-      "sha256": "2145f13d6a129ed6258c7683023e721783e8e3418659a56a2de0b87acd2e3e06"
+      "bytes": 350117,
+      "sha256": "929cf9721147fdff0702ad6e0d75b507884356c0120d7510b9ec356a5148c445"
     },
     {
       "path": "assets/source/intro/driver.webp",
@@ -1374,6 +1392,12 @@
       "role": "generated-source",
       "bytes": 1513039,
       "sha256": "f584a41a342beceb205c741dcb86455d8257c284d2c5f27a707a8dcede785a90"
+    },
+    {
+      "path": "assets/source/intro/reply-seedance.mp4",
+      "role": "generated-source",
+      "bytes": 413734,
+      "sha256": "2c7cca098b03749a28688e67405664af418d40caeea6e6e54d33914ee4203868"
     },
     {
       "path": "assets/source/intro/studio-seedance.mp4",

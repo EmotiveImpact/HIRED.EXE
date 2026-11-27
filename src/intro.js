@@ -11,7 +11,7 @@
   // A line is [speaker, words, second of the clip at which it is spoken]. Every clip begins just
   // before its first word. A shot with an `end` is left at that second: a channel half a second
   // after its last word, as someone hopping channels would leave it, the room once the doorbell
-  // has rung, the driver before Augustus finishes his sentence and the last shot as he finishes it.
+  // has rung, his reply before he finishes the sentence and the last shot as he finishes it.
   const BEATS = [
     {channel: 1, art: 'news', end: 10.25, lines: [
       ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0.1],
@@ -33,9 +33,10 @@
       ['Pepper', 'Yes, sir.', 4.65],
       ['Driver', 'Sir? Who’s that?', 5.6],
       ['Augustus', 'That’s Pepper. My AI assistant.', 8.35]]},
-    {art: 'driver', end: 5.15, lines: [
-      ['Driver', 'What are you, a black Tony Stark or something?', 0.38],
-      ['Augustus', 'Don’t hate the player…', 3.94]]},
+    {art: 'driver', end: 3, lines: [
+      ['Driver', 'What are you, a black Tony Stark or something?', 0.45]]},
+    {art: 'reply', end: 1.9, lines: [
+      ['Augustus', 'Don’t hate the player…', 0.42]]},
     {art: 'play', end: 7.85, lines: [
       ['Pepper', 'Sir. Found one.', 0.3],
       ['Pepper', 'A startup wants an AI product builder.', 2.4],
@@ -91,7 +92,7 @@
       q('.intro-snow').style.backgroundImage = `url(${noise()})`;
       BEATS.forEach(b => { new Image().src = asset(still(b.art)); });
 
-      // A shot's clip and its voices are fetched while the shot before it plays.
+      // A shot's clip and its voices are fetched while the shots before it play.
       const films = {}, voices = {}, filmed = clips && clipsWelcome();
       function fetchShot(b) {
         if (!filmed || !b || films[b.art]) return;
@@ -200,7 +201,8 @@
         pic.src = asset(still(b.art));
         osd.textContent = b.channel ? 'CH ' + b.channel : '';
         stopFilm();
-        fetchShot(BEATS[beat + 1]);
+        // Two shots ahead, so a shot of a couple of seconds does not leave the next one unready.
+        fetchShot(BEATS[beat + 1]); fetchShot(BEATS[beat + 2]);
         film = films[b.art] || null;
         if (!film) { line = 0; say(); return; }
         // The still shows at once. The clip takes over as soon as it and its voices are ready.
