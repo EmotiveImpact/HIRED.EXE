@@ -8,10 +8,11 @@
 </style>
 </head>
 <body><main><a href="index.html">Play HIRE.EXE</a><h1>The cutscenes</h1><nav aria-label="Jump to a scene"></nav><div id="story"></div><noscript>Enable JavaScript to read the illustrated sequence.</noscript></main>
-<script src="src/director-scenes.js"></script><script>
+<script src="src/edition.js"></script><script src="src/director-scenes.js"></script><script>
 let count=0;
-for(const scene of directorScenes){
- const section=document.createElement('section');section.id='scene-'+(directorScenes.indexOf(scene)+1);
+const cut=directorCut();
+for(const scene of cut){
+ const section=document.createElement('section');section.id='scene-'+(cut.indexOf(scene)+1);
  const title=document.createElement('h2');title.textContent=scene.title;section.append(title);
  const link=document.createElement('a');link.href='#'+section.id;link.textContent=scene.title;document.querySelector('nav').append(link);
  for(const [id,shot,...lines] of scene.shots){
