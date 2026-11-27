@@ -749,6 +749,51 @@ def growth_traffic():
     return frames, {}
 
 
+# --- Bosses ---------------------------------------------------------------------------------------
+
+# Each boss is one picture of four poses in a row on green: at rest, winding up, attacking and
+# open to a stomp (Final Review: calm, asking, reading, satisfied). They are kept at one scale, set
+# by the first pose, so a slumped pose is shorter rather than enlarged.
+BOSS_HEIGHT = 108
+
+
+def pose_runs(alpha, count, gap=8):
+    """The column spans of `count` figures standing in a row, split where the picture is clear.
+    Effects that float a little apart (stars, dust, light lines) join the nearest figure."""
+    used = np.where(alpha.any(axis=0))[0]
+    runs = [[used[0], used[0]]]
+    for x in used[1:]:
+        if x - runs[-1][1] > gap:
+            runs.append([x, x])
+        else:
+            runs[-1][1] = x
+    while len(runs) > count:
+        gaps = [runs[i + 1][0] - runs[i][1] for i in range(len(runs) - 1)]
+        i = int(np.argmin(gaps))
+        runs[i:i + 2] = [[runs[i][0], runs[i + 1][1]]]
+    # Two figures whose effects touch are parted at the thinnest column between them.
+    while len(runs) < count:
+        i = int(np.argmax([x1 - x0 for x0, x1 in runs]))
+        x0, x1 = runs[i]
+        third = (x1 - x0) // 3
+        cut = x0 + third + int(np.argmin(alpha[:, x0 + third:x1 - third].sum(axis=0)))
+        runs[i:i + 1] = [[x0, cut], [cut + 1, x1]]
+    return runs
+
+
+def boss_poses():
+    frames = {}
+    for boss in ('recruitmentbot', 'scopecreep', 'algorithm', 'finalreview'):
+        sheet = dehaloed(matte(Image.open(SRC / f'boss-{boss}.png'), sample=(0.0, 0.0, 1.0, 0.04), keep_marks=True))
+        alpha = np.asarray(sheet)[..., 3] > 40
+        runs = pose_runs(alpha, 4)
+        poses = [trim(sheet.crop((x0, 0, x1 + 1, sheet.height)))[0] for x0, x1 in runs]
+        scale = BOSS_HEIGHT / poses[0].height
+        for i, pose in enumerate(poses):
+            frames[f'boss_{boss}_{i}'] = crisp(pose, max(8, round(pose.height * scale)), colours=64)
+    return frames, {}
+
+
 # --- Final Interview HQ ---------------------------------------------------------------------------
 
 # The atrium is two pictures, the second painted as the next stretch to the right of the first and
@@ -800,7 +845,7 @@ def pack(frames, extra):
 def main():
     BACKGROUNDS.mkdir(parents=True, exist_ok=True)
     frames, extra, banner = alley_traffic()
-    for more in (city_traffic(), growth_traffic(), signs(), machinery(), pickups()):
+    for more in (city_traffic(), growth_traffic(), signs(), machinery(), pickups(), boss_poses()):
         frames.update(more[0])
         extra.update(more[1])
     title_hero()

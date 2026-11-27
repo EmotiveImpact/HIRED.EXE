@@ -676,14 +676,14 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 7983,
-      "sha256": "2874966c3b415fb6cb1a17f354a3b47fd44a02c42ec38007b9ea5392ea1a0fb9"
+      "bytes": 9535,
+      "sha256": "d38d7bff28639a92b13da4dcbed2472acab3f47f472ed0a8d53d4e825bd7a9ff"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
       "role": "production-asset",
-      "bytes": 177622,
-      "sha256": "fff967f0cae2b2a57e9380f3107db4c8dec45241ec84fd7d71f22922a162e511"
+      "bytes": 430189,
+      "sha256": "8e5fe152918026bcf43db230627dd2e7c600df6679ad3d5c74815149b2a7436b"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -1162,8 +1162,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 6543,
-      "sha256": "82c5f4fd2d228f6c90ff23d094ac25c3607be3cc226b10ee11247abb56a794c1"
+      "bytes": 6812,
+      "sha256": "bd275618bbf66964e1bfa94dde24e13c99d01e553de3c83abfe1e266742255b1"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1188,6 +1188,30 @@
       "role": "generated-source",
       "bytes": 2102174,
       "sha256": "18e4598cc8319bc45e624a76d7786889c907b4c6cdce3b5e7631edb9f6bd5d51"
+    },
+    {
+      "path": "assets/source/kit/boss-algorithm.png",
+      "role": "generated-source",
+      "bytes": 1844125,
+      "sha256": "36158aa6df7fe1b9b2697ef51d298bec58f86e8f8d0d80de7e09f587264921c5"
+    },
+    {
+      "path": "assets/source/kit/boss-finalreview.png",
+      "role": "generated-source",
+      "bytes": 2158373,
+      "sha256": "bd8829d5e581298d27c1367ddeed751468e92abe313d44a864576311039a682f"
+    },
+    {
+      "path": "assets/source/kit/boss-recruitmentbot.png",
+      "role": "generated-source",
+      "bytes": 1577283,
+      "sha256": "9efaecd526692dae1250e269bdaf913846e04d24f74e28a0dcd33e7fda18da49"
+    },
+    {
+      "path": "assets/source/kit/boss-scopecreep.png",
+      "role": "generated-source",
+      "bytes": 1196660,
+      "sha256": "8bac69fd09834a89cb0d7b78c17ef8c4c28df201675e686bc616f2fd1bf23b1e"
     },
     {
       "path": "assets/source/kit/city-far-2.png",
@@ -1356,6 +1380,30 @@
       "role": "generated-source",
       "bytes": 932,
       "sha256": "ad91d676f112ec27f992500df637d605fb1a6f10f47aabe1a05522b872eb522a"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-algorithm.txt",
+      "role": "generated-source",
+      "bytes": 1337,
+      "sha256": "f2f53e798b757d58d57725feb78aa404a96ab660387c5e369a8c8dc7ef13a46d"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-finalreview.txt",
+      "role": "generated-source",
+      "bytes": 1286,
+      "sha256": "e12c5cf2cb4dbd6f1e5f228947a742462bfa348c3bb056bd5b73db9480eee363"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-recruitmentbot.txt",
+      "role": "generated-source",
+      "bytes": 1401,
+      "sha256": "90888263890dbd186c8f89fe5d492ce420984a46d0fa80353e659467cd98f590"
+    },
+    {
+      "path": "assets/source/kit/prompts/boss-scopecreep.txt",
+      "role": "generated-source",
+      "bytes": 1350,
+      "sha256": "104069a95c98ce96902a7cfd62d28cb2cf41638c8a89f0a76aa0cdfd7daef113"
     },
     {
       "path": "assets/source/kit/prompts/city-far-2.txt",

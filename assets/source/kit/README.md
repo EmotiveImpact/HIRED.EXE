@@ -1,7 +1,7 @@
 # Sources for the layered backgrounds and the painted kit
 
 Fourteen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
-game's existing art as reference, and twelve made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
+game's existing art as reference, and sixteen made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
 The first three, whose names end in `-2`, came from a written description alone. The other six
 carry those scenes on to the right: each was asked for with the stretch before it attached from
 CapCut's canvas as its reference. They are kept as generated. The Dreamina pictures carry the
@@ -29,6 +29,7 @@ cuts away or paints out. The CapCut pictures have no marks.
 | `growth-movers.png` | Chart airship, two couriers, rocket, bullet train | green |
 | `hq-view-1.png` | Final Interview HQ's view of the city at sunrise, seen through the atrium's glass | none: a full picture |
 | `hq-near-1.png`, `hq-near-2.png` | The atrium's arches, balconies, banners and planters, in two stretches | red, in every pane of glass |
+| `boss-recruitmentbot.png`, `boss-scopecreep.png`, `boss-algorithm.png`, `boss-finalreview.png` | Each boss in four poses: at rest, winding up, attacking and open to a stomp (Final Review: calm, asking, reading and satisfied) | green |
 
 What the tool changes on the way in, and why:
 
@@ -64,6 +65,9 @@ What the tool changes on the way in, and why:
 - A scrap of a building painted into Ship It City's clouds is painted out.
 - Growth Run's train is three carriages long as drawn. Its middle carriage rides three times.
 - Cut-outs with a green rim from the ground colour have it shaved off.
+- The bosses' poses are found by the clear columns between them and kept at the scale of the first
+  pose, then brought down like the trains. Final Review's green tick was painted on the green
+  ground and keys out with it, so the game draws the tick.
 
 - Signs are pressed to the height the levels allow: the frame keeps its thickness and the dark
   face is squeezed to two lines of text. The game writes the text.

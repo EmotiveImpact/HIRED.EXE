@@ -22,6 +22,8 @@
   // A train crosses the view left to right every so often: the first a few seconds into the
   // level, each later one a while after the last has gone.
   const TRAIN = { speed: 115, first: 4, every: 22 };
+  // Which way each boss's painted poses face: -1 left, 1 right. They are turned to face the player.
+  const BOSS_FACES = { recruitmentbot: -1, scopecreep: 1, algorithm: 1, finalreview: 1 };
 
   class Renderer {
     constructor(canvas) {
@@ -958,11 +960,34 @@
       }
     }
 
+    // A boss in one of its painted poses, kept at the scale of its first pose so a slumped pose is
+    // shorter rather than stretched. False if the kit has no poses for it.
+    bossPose(b, pose, centreX, feet, height, flip) {
+      const first = this.frame('kit', 'boss_' + b.type + '_0'), f = this.frame('kit', 'boss_' + b.type + '_' + pose);
+      if (!first || !f) return false;
+      return this.sprite('kit', 'boss_' + b.type + '_' + pose, centreX, feet, height * f.h / first.h, flip);
+    }
+
+    // The green tick Final Review holds up once the room is yours.
+    tick(x, y) {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+      ctx.strokeStyle = ink; ctx.lineWidth = 8;
+      ctx.beginPath(); ctx.moveTo(x, y + 9); ctx.lineTo(x + 7, y + 16); ctx.lineTo(x + 21, y); ctx.stroke();
+      ctx.strokeStyle = '#6cf08c'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(x, y + 9); ctx.lineTo(x + 7, y + 16); ctx.lineTo(x + 21, y); ctx.stroke();
+      ctx.restore();
+    }
+
     boss(state) {
       const b = state.boss;
       if (!b || !this.visible(b.x - 80, b.w + 160)) return;
       if (b.type === 'finalreview') {
-        this.sprite('enemies', b.type, b.x + b.w / 2, b.floor, 90);
+        // Calm, then asking, then reading while you are on your way; satisfied once you are in.
+        const pose = b.alive ? Math.floor(this.time / 2.5) % 3 : 3;
+        if (!this.bossPose(b, pose, b.x + b.w / 2, b.floor, 90, false)) this.sprite('enemies', b.type, b.x + b.w / 2, b.floor, 90);
+        if (!b.alive && this.frame('kit', 'boss_finalreview_3')) this.tick(b.x + b.w / 2 - 44, b.floor - 96);
         this.label(b.alive ? 'RECEPTION' : 'THE ROOM IS YOURS', b.x + b.w / 2, b.floor - 105, '#ffe8ae', 12);
         return;
       }
@@ -979,7 +1004,9 @@
         ctx.restore();
       }
       const hitFlash = b.hitCooldown > 0 && Math.floor(b.hitCooldown / 4) % 2;
-      if (!hitFlash) this.sprite('enemies', b.type, cx, feet, visualHeight);
+      // At rest, winding up, attacking, then open to a stomp. The poses face the player.
+      const pose = { telegraph: 1, attack: 2, vulnerable: 3 }[b.phase] || 0;
+      if (!hitFlash && !this.bossPose(b, pose, cx, feet, visualHeight, BOSS_FACES[b.type] * b.facing < 0)) this.sprite('enemies', b.type, cx, feet, visualHeight);
       if (b.active) {
         const y = feet - visualHeight - 34;
         this.label(b.name.toUpperCase() + (b.enraged && b.maxHealth > 1 ? ' · ESCALATED' : ''), cx, y - 15, b.enraged ? '#ffc2a8' : '#fff9e9', 10);
