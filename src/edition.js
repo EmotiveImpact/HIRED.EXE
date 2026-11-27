@@ -57,7 +57,7 @@ const solvedEdition = {
   // Keep the lists in step with links and working below, and with src/cv-text.js.
   readme: `README.TXT
 
-HIRE.EXE, version 1.0
+HIRE.EXE, version 0.4
 A job application, disguised as a video game.
 
 WHAT THIS IS

@@ -219,6 +219,74 @@
 .comic-dialogue p + strong { display:block; margin-top:.45rem; }
 .comic-dialogue .comic-after { margin-top:.4em; font-style:italic; font-size:.9em; }
 .comic-dialogue:empty { display:none; }
+/* Phones. A dialog's text scrolls under its pinned buttons, so whatever the player has just asked
+   for has to be in view without scrolling, and the buttons must not take half the window. */
+/* The interview: the answer scrolls clear of the pinned button (see showInterview), and once a
+   topic is picked the hint above the topics makes way for it. */
+#viewport .interview-response{scroll-margin-bottom:76px}
+@media (max-width:540px) and (orientation:portrait){
+  #viewport .interview-answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+  #viewport .modal-body:has(.interview-response) > .muted{display:none}
+  #viewport .interview-response{line-height:1.5;margin-top:0}
+  #viewport .interview-progress{margin-bottom:12px}
+}
+/* The ending on an upright phone: no ornament, the notes and the two scores on one row, and
+   five buttons in two short rows. */
+@media (max-width:540px) and (orientation:portrait){
+  #viewport .success-icon{display:none}
+  #viewport .finish-text p:last-child{margin-bottom:12px}
+  #viewport .finish-score{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px}
+  #viewport .finish-score .interview-response{margin:0;padding:8px 10px;font-size:12px;line-height:1.5}
+  #viewport .finish-score .interview-response strong{font-size:11px}
+  #viewport .finish-score .result-strip{margin:0;gap:6px;flex-wrap:nowrap}
+  #viewport .finish-score .result-stat{min-width:62px;padding:6px 8px}
+  #viewport .finish-score .result-stat strong{font-size:18px}
+  #viewport .finish-score .result-stat span{font-size:8px;margin-top:2px}
+  #viewport .finish-score .tiny-note{grid-column:1 / -1;margin:8px 0 0!important}
+  #viewport .finish-score ~ .modal-actions{gap:6px;margin-top:8px}
+  #viewport .finish-score ~ .modal-actions .btn{flex:1 1 30%;min-height:36px;padding:6px 8px;font-size:11px}
+  #viewport .finish-score ~ .modal-actions a[href^="mailto:"]{flex-basis:44%}
+}
+/* A phone on its side has width to spare and very little height. */
+@media (orientation:landscape) and (max-height:500px){
+  /* Cutscenes: the picture on the left, the words beside it, the buttons underneath. Stacked,
+     four lines of dialogue left the picture no room at all. */
+  #viewport .comic{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;height:100%;overflow:hidden}
+  #viewport .comic-header{grid-column:1 / -1;padding-block:6px}
+  #viewport .comic-art{grid-column:1;grid-row:2;height:auto;min-height:0}
+  #viewport .comic-illustrated .comic-illustration{width:100%;height:100%;aspect-ratio:auto;box-shadow:none}
+  #viewport .comic-dialogue{grid-column:2;grid-row:2;overflow:auto;border-top:0;border-left:4px solid #251a43;padding:9px 11px}
+  #viewport .comic-dialogue:empty{display:block}
+  #viewport .comic-actions{grid-column:1 / -1;grid-row:3;position:static;padding:6px 11px}
+  #viewport .comic-actions .btn,#viewport .comic-skip{min-height:34px}
+  /* Messages sit above the touch buttons instead of across them. */
+  #viewport .toast{bottom:62px}
+  /* Dialogs: drop what is only decoration, and keep the buttons to one short row. */
+  #viewport .interview-progress,#viewport .modal-body:has(.interview-answers) > .muted,#viewport .success-icon{display:none}
+  #viewport .interview-answers{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin:8px 0}
+  #viewport .interview-answers .btn{min-height:32px;padding:6px 8px}
+  #viewport .interview-response{margin-top:0;padding:8px 10px;line-height:1.45;font-size:12px}
+  #viewport .modal-body .eyebrow{margin-bottom:4px}
+  #viewport .modal-body p{margin-bottom:8px}
+  #viewport .modal-actions{margin-top:8px;gap:6px}
+  #viewport .modal-actions .btn{min-height:32px;padding:5px 8px;font-size:11px}
+  #viewport .result-strip{margin:8px 0;gap:6px}
+  #viewport .result-stat{padding:5px 8px}
+  #viewport .result-stat strong{font-size:18px}
+  #viewport .modal-body .bonus-result{margin-bottom:4px}
+  #viewport .tiny-note{margin-top:6px!important}
+  /* The ending: the words on the left, the notes and scores on the right, the buttons below. */
+  #viewport .modal-body:has(> .finish-score){display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:0 14px;align-content:start}
+  #viewport .finish-text .eyebrow{display:none}
+  #viewport .finish-text h2{font-size:17px;margin-bottom:6px}
+  #viewport .finish-text p:last-child{margin:0}
+  #viewport .finish-score .interview-response{margin:0;padding:6px 9px}
+  #viewport .finish-score .result-strip{flex-wrap:nowrap;margin:6px 0}
+  #viewport .finish-score .result-stat span{font-size:8px;margin-top:1px}
+  #viewport .finish-score .tiny-note{margin:0!important}
+  #viewport .finish-score ~ .modal-actions{grid-column:1 / -1}
+  #viewport .finish-score ~ .modal-actions .btn{font-size:10px;padding:4px 6px}
+}
 
 /* Accidental browser gestures (see src/gestures.js for the part CSS cannot do).
    No pull-to-refresh or edge bounce, no pinch or double-tap zoom, no text selection,
@@ -304,19 +372,32 @@ input, textarea, .notepad-text, .help-topic, .setup-email-box .setup-address {
 .dos-log p{margin:0 0 .65em}
 #dos-prompt:not(:empty)::after{content:'▮'}
 #dos-skip{background:transparent;color:#ddd;border:1px solid #777;padding:8px 14px;font:inherit;font-size:14px}
-#os-dialog .modal-window:has(.standard-calc){width:min(362px,100%);background:#c8c7cc}
-#os-dialog .modal-window:has(.standard-calc)>.modal-body{padding:12px;background:#c8c7cc}
-.calc-readout{background:#e8ede0;border:2px inset #eee;padding:5px 9px}
-.calc-expression{display:block;min-height:1.4em;font:12px monospace;text-align:right;color:#39473d}
-.standard-calc .calc-display{background:none;padding:0;font:26px/1.3 monospace}
-.standard-calc .calc-keys{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.calc-keys [data-key]{min-height:38px;background:#d7d5d9;border:2px outset #eee;color:#202552;font:600 16px monospace}
-.calc-keys [data-key]:active{border-style:inset}
-.calc-keys [data-key^="M"],.calc-keys [data-key^="C"]{color:#87293c}
-.calc-keys [data-key="="]{grid-row:5 / span 2;grid-column:5;background:#afc5df}
-.calc-keys [data-key="0"]{grid-column:span 2}
-.standard-calc details{font:13px monospace;margin-top:10px}
-.calc-history{max-height:80px;overflow:auto;margin:6px 0 0;padding-left:22px}
+/* Calculator, as Windows 3.1 drew it: a grey window, a white readout, bevelled keys with blue
+   digits, red operators and memory keys, and dark red C, CE and Back. */
+#os-dialog .modal-window:has(.standard-calc){width:min(272px,100%);background:var(--w31-face)}
+#os-dialog .modal-window:has(.standard-calc)>.modal-body{padding:9px 10px 10px;background:var(--w31-face)}
+.standard-calc{font:bold 13px Arial,Helvetica,sans-serif;color:#000}
+.standard-calc .calc-display{display:block;background:#fff;color:#000;border:1px solid #000;padding:3px 6px;text-align:right;font:bold 15px/1.35 Arial,Helvetica,sans-serif;overflow:hidden;white-space:nowrap}
+.standard-calc .calc-display[data-whole]::after{content:'.'}
+.calc-top{display:flex;justify-content:space-between;align-items:center;margin:9px 0 7px}
+.calc-memory{width:30px;height:27px;display:grid;place-items:center;box-shadow:inset 1px 1px var(--w31-shadow),inset -1px -1px #fff}
+.calc-clears{display:grid;grid-template-columns:repeat(3,46px);gap:5px}
+.standard-calc .calc-keys{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:0}
+.standard-calc [data-key]{min-height:27px;min-width:0;padding:0;background:var(--w31-face);border:1px solid #000;border-radius:3px;box-shadow:inset 1px 1px #fff,inset 2px 2px #fff,inset -1px -1px var(--w31-shadow),inset -2px -2px var(--w31-shadow);font:bold 13px Arial,Helvetica,sans-serif;cursor:default;transform:none}
+.standard-calc [data-key]:active{box-shadow:inset 1px 1px var(--w31-shadow),inset 2px 2px var(--w31-shadow);padding:2px 0 0 2px}
+.standard-calc [data-key]:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+.standard-calc .calc-digit{color:#00f}
+.standard-calc .calc-red{color:#f00}
+.standard-calc .calc-clear{color:#800000}
+.standard-calc .calc-navy{color:#000080}
+.standard-calc .calc-keys [data-key^="M"]{margin-right:7px}
+@media (pointer:coarse){
+  .standard-calc [data-key],.calc-memory{min-height:38px;height:auto}
+  .calc-memory{height:38px}
+}
+.standard-calc details{margin-top:9px;font:13px Arial,Helvetica,sans-serif}
+.standard-calc summary{font-weight:bold;cursor:default}
+.calc-history{max-height:80px;overflow:auto;margin:5px 0 0;padding:4px 6px 4px 26px;background:#fff;border:1px solid #000}
 .game-launch{display:grid;place-items:center;background:#161639}.load-card{display:grid;gap:12px;padding:18px 25px;background:silver;border:3px outset white;color:#13132c}.load-card progress{width:100%;accent-color:navy}
 .overlay.game-title{display:grid;place-items:center;text-align:center;color:white;background:linear-gradient(0deg,#171440ee,#17144066)}
 .game-title section{padding:12px}.game-title img{width:clamp(48px,9vw,90px);image-rendering:pixelated;border:3px solid white;box-shadow:4px 4px #21183b}.game-title h1{font:bold clamp(40px,9vw,112px)/1 monospace;letter-spacing:-.08em;margin:10px 0;text-shadow:4px 5px #252049}.game-title h1 span{color:#ffc956}.game-title p{margin:6px 0 15px}

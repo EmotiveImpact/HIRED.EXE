@@ -68,6 +68,7 @@
     : 'A / D move · Space jump / double jump · Shift dash';
   let renderer, uiMode='boot', ready=false, previousTime=0, toastTimeout, ribbonTimeout;
   let interviewIndex=0, interviewChoice=null;
+  let savedJokeTold=false;
   let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
   let desktopReturn=null, titleBack=null, titleWake=null, artworkLoad=null, assetReport=null;
@@ -132,8 +133,9 @@
     activeSurface().querySelector('#dialog-close').addEventListener('click',onClose);focusDialog();
   }
   // Desktop programs open as their own windows beside Program Manager. Each
-  // returns a modal()-shaped opener, so Calculator and Sea Trial need no changes.
-  const desktopApp=(id,opts={})=>(title,body,wide=false)=>H.wm.openApp({id,title,body,wide,...opts});
+  // returns a modal()-shaped opener, so Calculator and Sea Trial need no changes. A program can
+  // pass more window options as a fourth argument, such as its menu bar.
+  const desktopApp=(id,opts={})=>(title,body,wide=false,more={})=>H.wm.openApp({id,title,body,wide,...opts,...more});
   // CALC001.PNG, archived Windows 3.x Calculator resource:
   // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
   const CALC_ICON='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">';
@@ -550,7 +552,9 @@
     modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There are no wrong answers. Those are my job.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,game.state?.mode==='complete'?showComplete:showHome);
     q.answers.forEach((_,i)=>$('answer-'+i).addEventListener('click',()=>{interviewChoice=i;showInterview();}));
     $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex<E.interview.length)showInterview();else if(E.interviewer)beginScene(H.LEVELS.length+1);else showFinish();});
-    if(interviewChoice!==null)requestAnimationFrame(()=>$('interview-next')?.focus({preventScroll:true}));
+    // Each pick redraws the dialog from the top. On a phone the answer can start below the fold,
+    // so bring it into view, clear of the pinned button (scroll-margin in styles.css).
+    if(interviewChoice!==null)requestAnimationFrame(()=>{$('interview-next')?.focus({preventScroll:true});activeSurface().querySelector('.interview-response')?.scrollIntoView({block:'nearest'});});
   }
   function showFinish() {
     setMode('finish');
@@ -566,7 +570,8 @@
       draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p><div class="modal-actions">${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}<button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div>`,false,showHome);
+    // Two blocks, the words and the score, so a phone can set them side by side (styles.css).
+    modal('HIRE.EXE / Introduction complete',`<div class="finish-text"><div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p></div><div class="finish-score"><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p></div><div class="modal-actions">${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}<button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div>`,false,showHome);
     bindActions({'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -652,7 +657,9 @@
       if(e.type==='bonus')toast(e.item.title+' · '+e.item.line,3800);
       if(e.type==='checkpoint'){
         progress.checkpoint=game.checkpointRecord();
-        toast(save()?'Saved. First thing an editor learns. Usually the hard way.':'Checkpoint reached for this session.',2600);
+        // The joke is told once a visit. There are some twenty save points in a play-through.
+        toast(save()?(savedJokeTold?'Saved.':'Saved. First thing an editor learns. Usually the hard way.'):'Checkpoint reached for this session.',savedJokeTold?1600:2600);
+        savedJokeTold=true;
       }
       if(e.type==='respawn'){const b=game.state.boss;const why=e.reason==='feed'?'The Feed scrolled past you.':b?.active&&bark(b.type)?.lose?bark(b.type).lose:e.reason==='fall'?'You fell into a gap in your CV.':'Unfortunately, on this occasion.';toast(why+(game.state.assist?' Back to the checkpoint.':` ${e.lives} ${e.lives===1?'life':'lives'} left.`),3400);}
       if(e.type==='gameOver'){toast('Game over. We’ve decided to start the process again from the beginning.',4200);gameOver=e.levelIndex;break;}

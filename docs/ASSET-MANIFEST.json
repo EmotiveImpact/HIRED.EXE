@@ -580,8 +580,8 @@
     {
       "path": "assets/production/characters/portrait-reference.png",
       "role": "production-asset",
-      "bytes": 55870,
-      "sha256": "881e44e6f3f13cd1e1fa18bfa427e554af80d951263ff6e8314a8d3198971b1e"
+      "bytes": 10693,
+      "sha256": "b5d76b9939cc5de53bfe5088c16ad2ebb31ce42024e723f73634363b29aa5bb4"
     },
     {
       "path": "assets/production/characters/title-hero.webp",
@@ -1218,6 +1218,12 @@
       "role": "generated-source",
       "bytes": 149242,
       "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+    },
+    {
+      "path": "assets/source/characters/portrait-reference-v1.png",
+      "role": "generated-source",
+      "bytes": 55870,
+      "sha256": "881e44e6f3f13cd1e1fa18bfa427e554af80d951263ff6e8314a8d3198971b1e"
     },
     {
       "path": "assets/source/characters/prompts/hero-run-afro.txt",
