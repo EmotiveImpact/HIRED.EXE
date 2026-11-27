@@ -782,6 +782,24 @@
       "sha256": "714dd7108e36d5f24e782c942d81ac2d0963992d6bbe17e6d95cc1911040601f"
     },
     {
+      "path": "assets/production/intro/play-general.mp3",
+      "role": "production-asset",
+      "bytes": 80710,
+      "sha256": "76efa11f807d34d329061d46597b1bf2497b01fb515114f153f1a39745798853"
+    },
+    {
+      "path": "assets/production/intro/play-general.mp4",
+      "role": "production-asset",
+      "bytes": 347743,
+      "sha256": "d470ee783a737536b4b4701651f3f1f487d73c95ac7b8617157a56f020e27b38"
+    },
+    {
+      "path": "assets/production/intro/play-general.webp",
+      "role": "production-asset",
+      "bytes": 69736,
+      "sha256": "84a72c394008ac490f39c5776097c8bf60fa0f9da050698135dafc8077a2dcff"
+    },
+    {
       "path": "assets/production/intro/play.mp3",
       "role": "production-asset",
       "bytes": 80710,
@@ -1356,6 +1374,12 @@
       "role": "generated-source",
       "bytes": 714800,
       "sha256": "527cb74431942459c26b96993ee320bfbc063db187879deea48dec11f31c3ed4"
+    },
+    {
+      "path": "assets/source/intro/play-general-seedance.mp4",
+      "role": "generated-source",
+      "bytes": 1449232,
+      "sha256": "11e3aaccde567d54905ca73322a3f942d55b7dfb3da14cf76d7d11a4ebcf67ee"
     },
     {
       "path": "assets/source/intro/play-seedance.mp4",
