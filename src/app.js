@@ -538,7 +538,7 @@
 
   // Music and effects: Sea Trial's 16-bit engine (src/sea-sound.js) playing a theme for each
   // world from src/game-sound.js. No audio files or network requests.
-  const audio={enabled:!progress.muted,engine:null,at:0,chime:0,
+  const audio={enabled:!progress.muted,engine:null,at:0,chime:0,mode:'',
     get running(){return this.engine?.state==='running';},
     // gesture: a click, tap or key press is behind this call. Without one (on opening the page)
     // the browser is only asked, and may well leave sound locked until the first press.
@@ -570,6 +570,10 @@
       if(!sound)return;
       sound.setMuted(!this.enabled);
       if(sound.log.length>200)sound.log.splice(0,100);
+      // The intro's music belongs to the intro: a fanfare as its title lands, and quiet anywhere else.
+      const landed=uiMode==='title'&&this.mode==='intro';this.mode=uiMode;
+      if(landed&&this.enabled&&this.running)sound.music('intro-title');
+      else if(sound.song==='intro-room'&&uiMode!=='intro')sound.music(null);
       const song=this.enabled&&this.running&&uiMode==='playing'&&game.state?H.gameSound.worlds[game.state.levelIndex]:null;
       if(song){if(sound.song!==song)sound.music(song,0,0,this.at);return;}
       if(H.gameSound.worlds.includes(sound.song)){this.at=sound.position-sound.position%16;sound.music(null);}
@@ -579,6 +583,8 @@
       if(!this.enabled||!this.running)return;
       if(type==='complete'){this.at=0;this.engine.music('clear');return;}
       this.engine.effect(type);
+      // The intro's telly going off lets the room's own music in.
+      if(type==='intro-off'&&uiMode==='intro')this.engine.music('intro-room',0,0.5);
     }
   };
   const winSounds=H.winSound();
