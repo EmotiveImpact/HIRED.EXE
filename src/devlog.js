@@ -17,7 +17,7 @@ Three of the four worlds had one flat painting for a background. Now each has fo
 
 A job application does not need a plane. It did not need a submarine either, and you can see how that went.
 
-The paintings come from AI image tools on their free plans. One has run out of credits. Another hands over a few pictures a day, so the art department works at roughly the pace of a real one.
+The paintings come from AI image tools, a few pictures a day when the credits allow. One tool has run out of credits altogether. The art department works at roughly the pace of a real one.
 
 
 25/11/2026
