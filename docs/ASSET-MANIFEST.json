@@ -1150,8 +1150,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 5127,
-      "sha256": "1ef40aa3e5c1d8ca2df7361e5ec7644f02864dcbc7b5d59f11611fe4aaff95c7"
+      "bytes": 6115,
+      "sha256": "2be2cde01c76e31fc7b92e9a5bfe86cf5ebf47b048033f4e142a3126fd2c679d"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1404,6 +1404,18 @@
       "role": "generated-source",
       "bytes": 2866,
       "sha256": "9fc1408d21a999b4e016e7355ba6ddc481b0cf275461e3d6031081fbad61112f"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-near-3.txt",
+      "role": "generated-source",
+      "bytes": 1712,
+      "sha256": "10cae23f4d71269bf16a4f2bd2c99d63553837c3356cf529de7cb238d9ebc244"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-near-4.txt",
+      "role": "generated-source",
+      "bytes": 1767,
+      "sha256": "137ddf98e50fbd496dc778c67d55ba3ed645d0c756f8fc08a221db8acebe382f"
     },
     {
       "path": "assets/source/kit/prompts/growth-near.txt",

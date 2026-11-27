@@ -62,6 +62,7 @@ WHERE EVERYTHING IS
 
 HIRE.EXE: The game. Four worlds, about five minutes.
 CV.TXT and CV.PDF: The facts, for people who skip to the end.
+DEVLOG.TXT: How this was made, a day at a time.
 Internet: Things I have shipped. Double-click to open.
 Working On: Things in beta. Same again.
 Games: The submarine. Nobody asked for it.
