@@ -154,8 +154,9 @@
   function standardSize() {
     const W = workspace.clientWidth, narrow = W < 520, gap = narrow ? 4 : 8;
     const Ht = workspace.clientHeight - iconRows();
-    const cols = narrow ? 3 : 4, rows = narrow ? 3 : 2;
-    return { gap, step: narrow ? 18 : 22, w: Math.max(150, Math.min(cols * 90 + 14, W - gap * 2)), h: Math.max(90, Math.min(rows * 74 + 38, Ht - gap * 2)) };
+    // On a phone the icons close up a little (styles.css), so four still fit across when there is room.
+    const col = narrow ? 84 : 90, cols = narrow ? (W - gap * 2 >= 4 * col + 14 ? 4 : 3) : 4, rows = narrow ? 3 : 2;
+    return { gap, step: narrow ? 18 : 22, w: Math.max(150, Math.min(cols * col + 14, W - gap * 2)), h: Math.max(90, Math.min(rows * 74 + 38, Ht - gap * 2)) };
   }
   // A group that has not been moved by hand opens in the first free place beside
   // or below the others, clear of the group icons. With no free place left it
