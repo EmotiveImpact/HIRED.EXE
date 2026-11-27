@@ -49,8 +49,9 @@
     const link = navigator.connection;
     return !calm() && !(link && (link.saveData || /(^|-)2g$/.test(link.effectiveType || '')));
   };
-  // How long a shot may wait for its clip before the still and typed lines take over.
-  const PATIENCE = 2500;
+  // How long a shot may wait for its clip to start before the still and typed lines take over.
+  // A phone fetches none of a clip until the clip is told to play, so this covers the fetch too.
+  const PATIENCE = 4000;
   let snow;
   function noise() {
     if (snow) return snow;
@@ -72,7 +73,7 @@
   // clips: false where the clips and voices do not exist, as in the single offline file.
   function play(layer, {asset = path => path, sound = () => {}, voice = null, clips = true} = {}) {
     return new Promise(resolve => {
-      let beat = -1, line = -1, timer = 0, over = false, typing = 0, watch = 0;
+      let beat = -1, line = -1, timer = 0, over = false, typing = 0, watch = 0, played = 0;
       layer.className = 'overlay intro-overlay';
       layer.setAttribute('aria-label', 'Introduction');
       layer.innerHTML = `<section class="intro">
@@ -127,7 +128,7 @@
         try { speech?.stop(); } catch (_) {}
         speech = null;
         if (!film) return;
-        film.oncanplay = film.onplaying = film.onended = film.onerror = null;
+        film.onplaying = film.onended = film.onerror = null;
         film.pause(); film.remove(); film = null;
       }
 
@@ -139,6 +140,8 @@
         stopFilm();
         try { ringing?.stop(); } catch (_) {}
         Object.values(films).forEach(f => { f.removeAttribute('src'); f.load(); });
+        // How many shots played as clips, for the visitor log: 0 means stills throughout.
+        H.intro.clipsPlayed = played;
         resolve(how);
       }
       function caption(name, text) {
@@ -163,13 +166,17 @@
         timer = setTimeout(next, reading(text));
       }
       // The clip plays once, the voices start with it, and each line shows as it is spoken.
-      function roll(b, heard) {
+      // It is told to play straight away and shown once its first picture is up: an iPhone
+      // loads no pictures before that, so waiting for it to be ready would wait for ever.
+      function roll(b, heard, started) {
         const mine = film;
-        clearTimeout(timer);
         mine.currentTime = 0;
+        mine.classList.add('is-loading');
         pic.after(mine);
         mine.onplaying = () => {
           mine.onplaying = null;
+          clearTimeout(timer); started(); played++;
+          mine.classList.remove('is-loading');
           if (heard && voice) speech = voice.play(heard);
         };
         // A shot whose `end` falls after its clip runs out holds its last frame until then.
@@ -192,7 +199,8 @@
           watch = requestAnimationFrame(follow);
         };
         line = -2; follow();
-        mine.play().catch(() => { if (film === mine) { stopFilm(); line = 0; say(); } });
+        // Refused, as an iPhone in Low Power Mode refuses: the still and typed lines instead.
+        mine.play().catch(() => { if (film === mine) { started(); stopFilm(); line = 0; say(); } });
       }
       function show() {
         const b = BEATS[beat];
@@ -205,27 +213,23 @@
         fetchShot(BEATS[beat + 1]); fetchShot(BEATS[beat + 2]);
         film = films[b.art] || null;
         if (!film) { line = 0; say(); return; }
-        // The still shows at once. The clip takes over as soon as it and its voices are ready.
+        // The still shows at once. The clip takes over as soon as its voices are in and it has
+        // started playing; if it has not started in time, the still and typed lines carry the shot.
         const mine = film;
         let waiting = true;
         const giveUp = () => {
           if (!waiting || over || film !== mine) return;
           waiting = false; stopFilm(); line = 0; say();
         };
-        const ready = () => {
-          mine.oncanplay = null;
-          voices[b.art].then(heard => {
-            if (!waiting || over || film !== mine) return;
-            waiting = false; roll(b, heard);
-          });
-        };
         caption('', ''); line = -1;
         clearTimeout(timer);
         timer = setTimeout(giveUp, PATIENCE);
         mine.onerror = giveUp;
-        if (mine.error) giveUp();
-        else if (mine.readyState >= 3) ready();
-        else mine.oncanplay = ready;
+        if (mine.error) { giveUp(); return; }
+        voices[b.art].then(heard => {
+          if (!waiting || over || film !== mine) return;
+          roll(b, heard, () => { waiting = false; });
+        });
       }
       function cut() {
         if (over) return;
