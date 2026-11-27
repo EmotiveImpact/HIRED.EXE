@@ -824,10 +824,46 @@ def pack(frames, extra):
     return sheet, meta
 
 
+# --- Doors ----------------------------------------------------------------------------------------
+
+# Each world starts at one door and ends at another. Two pictures of four doors in a row on green;
+# each door is found by the clear columns either side of it and brought down like the bosses.
+# `gaps` is how close to the ground's own colour a closed-in gap must be to key out as well.
+DOORS = {
+    'doors-a.png': (('postbox', 'container', 'rocketlift', 'boardroom'), 30),
+    'doors-b.png': (('shopfront', 'loadingbay', 'chartarch', 'goldlift'), 0),
+}
+DOOR_HEIGHT = 126
+
+
+def doors():
+    green = lambda r, g, b: (g > r + 24) & (g > b + 24)
+    frames = {}
+    for name, (kinds, gaps) in DOORS.items():
+        paint = Image.open(SRC / name).convert('RGB')
+        keyed = np.asarray(matte(paint, sample=(0.0, 0.0, 1.0, 0.04), keep_marks=True)).copy()
+        # Only the open ground keys out, and gaps that are the ground's own colour exactly (under a
+        # sign, through a gantry): the green button and the ivy on a door keep their colour. The
+        # second picture's button is close to its ground, so it keys only open ground.
+        rgb = np.asarray(paint).astype(np.float32)
+        key = np.median(rgb[: rgb.shape[0] // 25].reshape(-1, 3), axis=0)
+        gap = np.sqrt(((rgb - key) ** 2).sum(axis=2)) < gaps
+        _, ground = open_ground(keyed[..., 3] == 0)
+        kept = ~ground & ~gap
+        keyed[kept, :3] = np.asarray(paint)[kept]
+        keyed[kept, 3] = 255
+        sheet = dehaloed(shaved(Image.fromarray(keyed, 'RGBA'), green))
+        runs = pose_runs(np.asarray(sheet)[..., 3] > 40, len(kinds))
+        for kind, (x0, x1) in zip(kinds, runs):
+            door = trim(sheet.crop((x0, 0, x1 + 1, sheet.height)))[0]
+            frames[f'door_{kind}'] = crisp(door, DOOR_HEIGHT, colours=64)
+    return frames, {}
+
+
 def main():
     BACKGROUNDS.mkdir(parents=True, exist_ok=True)
     frames, extra, banner = alley_traffic()
-    for more in (city_traffic(), growth_traffic(), signs(), machinery(), pickups(), boss_poses()):
+    for more in (city_traffic(), growth_traffic(), signs(), machinery(), pickups(), boss_poses(), doors()):
         frames.update(more[0])
         extra.update(more[1])
     title_hero()

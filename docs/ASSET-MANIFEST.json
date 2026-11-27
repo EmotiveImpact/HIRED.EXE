@@ -676,14 +676,14 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 9535,
-      "sha256": "d38d7bff28639a92b13da4dcbed2472acab3f47f472ed0a8d53d4e825bd7a9ff"
+      "bytes": 10301,
+      "sha256": "ef248ad38e8df0bc3694aacc57e983acd7b333668b4ecd938a890c1ce4c9d4e4"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
       "role": "production-asset",
-      "bytes": 430189,
-      "sha256": "8e5fe152918026bcf43db230627dd2e7c600df6679ad3d5c74815149b2a7436b"
+      "bytes": 562688,
+      "sha256": "363bd20b0c0df15d4c563c7150896cbf5343e6d04609a7892bd9433969de81bb"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -1162,8 +1162,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 7302,
-      "sha256": "78e77d31467fd5930ca36c770a3c8badf3ae50be370db04c7f0058e6d147907d"
+      "bytes": 7818,
+      "sha256": "189a695d5083ff261e5517ca0ca6092cde93be24eb2bbada4ba224e1c36fed3e"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1284,6 +1284,18 @@
       "role": "generated-source",
       "bytes": 2953961,
       "sha256": "445160d4f36927ac8f07705df2e09c1ef6492e46d3b104ce09d9644c09672620"
+    },
+    {
+      "path": "assets/source/kit/doors-a.png",
+      "role": "generated-source",
+      "bytes": 1906939,
+      "sha256": "91036211fee70356ad436070002b14c7e7bbcce5590dd3bc6ad834a171ff0775"
+    },
+    {
+      "path": "assets/source/kit/doors-b.png",
+      "role": "generated-source",
+      "bytes": 2121323,
+      "sha256": "68f90f9bf456ea0c02fc3397aa948248ca5372e9f35be6c2af78a542cecf41be"
     },
     {
       "path": "assets/source/kit/growth-far.png",
@@ -1422,6 +1434,12 @@
       "role": "generated-source",
       "bytes": 932,
       "sha256": "ad91d676f112ec27f992500df637d605fb1a6f10f47aabe1a05522b872eb522a"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-trees-1.txt",
+      "role": "generated-source",
+      "bytes": 1077,
+      "sha256": "691f44e0020abe6e2dbcf89c8fc7df650fc3acd2704738324bab21f48db324e9"
     },
     {
       "path": "assets/source/kit/prompts/boss-algorithm.txt",

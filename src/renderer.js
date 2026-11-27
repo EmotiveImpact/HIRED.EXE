@@ -24,6 +24,14 @@
   const TRAIN = { speed: 115, first: 4, every: 22 };
   // Which way each boss's painted poses face: -1 left, 1 right. They are turned to face the player.
   const BOSS_FACES = { recruitmentbot: -1, scopecreep: 1, algorithm: 1, finalreview: 1 };
+  // Each world starts at one door and ends at another, both in the kit atlas.
+  const DOORS = [
+    { start: 'shopfront', exit: 'postbox' },
+    { start: 'loadingbay', exit: 'container' },
+    { start: 'chartarch', exit: 'rocketlift' },
+    { start: 'goldlift', exit: 'boardroom' },
+  ];
+  const DOOR_HEIGHT = 128;
 
   class Renderer {
     constructor(canvas) {
@@ -126,6 +134,7 @@
       for (const c of state.world.crushers || []) if (this.visible(c.x, c.w)) this.crusher(c);
       for (const s of state.world.springs) if (this.visible(s.x, s.w)) this.spring(s, state);
       for (const cp of state.world.checkpoints) if (this.visible(cp.x - 40, 120)) this.checkpoint(cp);
+      this.entrance(state);
       this.exit(state);
       this.fakeExit(state);
       for (const item of state.world.collectibles) {
@@ -1077,11 +1086,14 @@
       if (!this.visible(ex.x - 20, ex.w + 40)) return;
       const ctx = this.ctx, cx = ex.x + ex.w / 2, feet = ex.y + ex.h;
       const unlocked = !state.boss.alive;
+      const door = DOORS[state.levelIndex]?.exit;
+      const painted = door && this.frame('kit', 'door_' + door);
       if (unlocked) {
         ctx.fillStyle = 'rgba(110,250,255,.12)'; ctx.fillRect(cx - 45, feet - 114, 90, 115);
       }
-      this.sprite('props', 'portal', cx, feet + 2, 116);
-      this.label(unlocked ? (state.levelIndex === 3 ? 'FINISH THE STORY' : 'NEXT WORLD') : 'CLEAR THE REVIEW', cx, feet - 133, unlocked ? '#b6fff0' : '#efe0ff', 10);
+      if (painted) this.sprite('kit', 'door_' + door, cx, feet + 2, DOOR_HEIGHT);
+      else this.sprite('props', 'portal', cx, feet + 2, 116);
+      this.label(unlocked ? (state.levelIndex === 3 ? 'FINISH THE STORY' : 'NEXT WORLD') : 'CLEAR THE REVIEW', cx, feet - (painted ? DOOR_HEIGHT + 22 : 133), unlocked ? '#b6fff0' : '#efe0ff', 10);
       if (!unlocked) {
         const lock = this.frame('kit', 'padlock');
         if (lock) this.kit('padlock', cx - lock.w / 2, feet - 38 - lock.h);
@@ -1092,6 +1104,13 @@
           ctx.fillRect(round(cx + Math.cos(a) * 52), round(feet - 58 + Math.sin(a) * 62), 3, 3);
         }
       }
+    }
+
+    // The door the hero has just stepped out of, behind them at the start of the world.
+    entrance(state) {
+      const at = state.world.entrance, door = DOORS[state.levelIndex]?.start;
+      if (!at || !door || !this.visible(at.x - 80, 160)) return;
+      this.sprite('kit', 'door_' + door, at.x, at.y + 2, DOOR_HEIGHT);
     }
 
     label(text, x, y, colour = '#ffffff', size = 11) {
