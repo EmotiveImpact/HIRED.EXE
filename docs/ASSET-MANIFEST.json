@@ -748,20 +748,20 @@
     {
       "path": "assets/production/intro/driver.mp3",
       "role": "production-asset",
-      "bytes": 44138,
-      "sha256": "c0eeb0d053352950d9cc8b471b71a93b8051b82f978753f4c4735ad712f93974"
+      "bytes": 40795,
+      "sha256": "2f1955d01cff1287214431f65b98fd03746d16d8239225c02f689dd95be18de7"
     },
     {
       "path": "assets/production/intro/driver.mp4",
       "role": "production-asset",
-      "bytes": 222350,
-      "sha256": "433624cee2429b3b7c9dfdfe1e99c2dfb03f388d5739e199c7264d23537c0cf0"
+      "bytes": 127085,
+      "sha256": "f4193e8159e625943ea462fae510d70f07ff7c91a3d2e7ed4c2205012ea36442"
     },
     {
       "path": "assets/production/intro/driver.webp",
       "role": "production-asset",
-      "bytes": 63264,
-      "sha256": "3ea9e29ab23ef696644b9f774278bac51dee7dc6fdf4bc345d97116089a50f40"
+      "bytes": 87180,
+      "sha256": "9f59261aa5447d537c5718f27720904438a4ed5f520309ecb39a4c85544925fb"
     },
     {
       "path": "assets/production/intro/news.mp3",
@@ -782,40 +782,22 @@
       "sha256": "714dd7108e36d5f24e782c942d81ac2d0963992d6bbe17e6d95cc1911040601f"
     },
     {
-      "path": "assets/production/intro/play-general.mp3",
-      "role": "production-asset",
-      "bytes": 80710,
-      "sha256": "76efa11f807d34d329061d46597b1bf2497b01fb515114f153f1a39745798853"
-    },
-    {
-      "path": "assets/production/intro/play-general.mp4",
-      "role": "production-asset",
-      "bytes": 347743,
-      "sha256": "d470ee783a737536b4b4701651f3f1f487d73c95ac7b8617157a56f020e27b38"
-    },
-    {
-      "path": "assets/production/intro/play-general.webp",
-      "role": "production-asset",
-      "bytes": 69736,
-      "sha256": "84a72c394008ac490f39c5776097c8bf60fa0f9da050698135dafc8077a2dcff"
-    },
-    {
       "path": "assets/production/intro/play.mp3",
       "role": "production-asset",
-      "bytes": 80710,
-      "sha256": "92848a39ec8f06fde0f9e6b1f25d7538749d536f9d391f17d98747feab131f7c"
+      "bytes": 64618,
+      "sha256": "b1520c3e69d7ecf67480c453b3b5f4364fe48b90f4ba5a6598567e2ae9846987"
     },
     {
       "path": "assets/production/intro/play.mp4",
       "role": "production-asset",
-      "bytes": 412981,
-      "sha256": "62e817cedc999526d51c71926d8b67f78328ffa32afcf9b82fb47663b33b3c23"
+      "bytes": 385491,
+      "sha256": "753ff9d8696277ac87015ce04abc00e43ed2870934670ea9f4c84ada70eba236"
     },
     {
       "path": "assets/production/intro/play.webp",
       "role": "production-asset",
-      "bytes": 70888,
-      "sha256": "e116453e143aedb3c534e4fad266919cd256bcc9ea8c03a4cdb1889d2d864d1b"
+      "bytes": 74242,
+      "sha256": "444db875e0a064a009549e282ffd1ac6d16fb0b8558eda96ee1956613afdbf33"
     },
     {
       "path": "assets/production/intro/studio.mp3",
@@ -1342,8 +1324,8 @@
     {
       "path": "assets/source/intro/driver-seedance.mp4",
       "role": "generated-source",
-      "bytes": 1975814,
-      "sha256": "22785a21a846f6e30d74119e91a0d0e893ac0df04a90c4b02fa0fed9b7cd2e98"
+      "bytes": 714764,
+      "sha256": "62b6cb050ac48eec0c2d71f0e26a63a43f5ada59fc7c7b1f7d0fc2f533db317d"
     },
     {
       "path": "assets/source/intro/driver.webp",
@@ -1384,8 +1366,8 @@
     {
       "path": "assets/source/intro/play-seedance.mp4",
       "role": "generated-source",
-      "bytes": 1800284,
-      "sha256": "44ad50c0d0743a740fa44858ca0d86cdfa4ff1ff67947ba981d17b8e59fe396c"
+      "bytes": 1730577,
+      "sha256": "d048639b37b097cde064029cb2541d361839924d58dd071ca5e5dbb538533e01"
     },
     {
       "path": "assets/source/intro/studio-seedance.mp4",

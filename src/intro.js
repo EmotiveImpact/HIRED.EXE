@@ -9,19 +9,17 @@
   'use strict';
   const FOLDER = 'assets/production/intro/';
   // A line is [speaker, words, second of the clip at which it is spoken]. A shot with an `end`
-  // is left at that second: a channel as someone hopping channels would leave it, the driver
-  // before Augustus finishes his sentence, and the last shot as he finishes it.
-  // The last shot is spoken two ways, each its own take. The Solved edition hears what the
-  // studio is after; every other edition hears a line that names no kind of firm.
-  const solved = (globalThis.HIRED_EDITION || {}).id === 'solved-001';
+  // is left at that second: a channel half a second after its last word, as someone hopping
+  // channels would leave it, and the last shot as Augustus finishes the sentence he began in
+  // the shot before.
   const BEATS = [
-    {channel: 1, art: 'news', end: 9.8, lines: [
+    {channel: 1, art: 'news', end: 10.2, lines: [
       ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0],
       ['Newsreader', 'Applicants are asked to bring their old lanyard.', 7.1]]},
-    {channel: 2, art: 'tech', end: 9.5, lines: [
+    {channel: 2, art: 'tech', end: 9.9, lines: [
       ['Presenter', 'Forty thousand new apps launched this morning.', 1.4],
       ['Presenter', 'Anyone can build one now. And, looking at them, anyone has.', 5]]},
-    {channel: 3, art: 'antiques', end: 9.7, lines: [
+    {channel: 3, art: 'antiques', end: 10.1, lines: [
       ['Expert', 'A cover letter. Written by a person.', 1.2],
       ['Owner', 'Is it worth anything?', 5.5],
       ['Expert', 'Not since about 2023.', 7.4]]},
@@ -34,18 +32,13 @@
       ['Pepper', 'Yes, sir.', 5.05],
       ['Driver', 'Sir? Who’s that?', 6.4],
       ['Augustus', 'That’s Pepper. My AI assistant.', 9.05]]},
-    {art: 'driver', end: 3.95, lines: [
-      ['Driver', 'What are you, a black Tony Stark or something?', 0],
-      ['Augustus', 'Don’t hate the player…', 2.75]]},
-    solved
-      ? {art: 'play', end: 9.6, lines: [
-        ['Pepper', 'Sir. Found one.', 0],
-        ['Pepper', 'Startup studio wants a builder who ships with AI. And has taste.', 2.6],
-        ['Augustus', '…play the game.', 8.5]]}
-      : {art: 'play-general', end: 9, lines: [
-        ['Pepper', 'Sir. Found one.', 0],
-        ['Pepper', 'They want a builder who ships with AI. And has taste.', 2.6],
-        ['Augustus', '…play the game.', 7.75]]}
+    {art: 'driver', end: 4.95, lines: [
+      ['Driver', 'What are you, a black Tony Stark or something?', 0.6],
+      ['Augustus', 'Don’t hate the player…', 3.7]]},
+    {art: 'play', end: 7.9, lines: [
+      ['Pepper', 'Sir. Found one.', 0.15],
+      ['Pepper', 'A startup wants an AI product builder.', 3.1],
+      ['Augustus', '…play the game.', 6.4]]}
   ];
   const still = art => FOLDER + art + '.webp';
   const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -162,7 +155,11 @@
           mine.onplaying = null;
           if (heard && voice) speech = voice.play(heard);
         };
-        mine.onended = () => { clearTimeout(timer); timer = setTimeout(cut, b.channel ? 0 : 350); };
+        // A shot whose `end` falls after its clip runs out holds its last frame until then.
+        mine.onended = () => {
+          const held = b.end ? Math.max(0, b.end - mine.duration) * 1000 : (b.channel ? 0 : 350);
+          clearTimeout(timer); timer = setTimeout(cut, held);
+        };
         const follow = () => {
           if (over || film !== mine) return;
           const at = mine.currentTime;
