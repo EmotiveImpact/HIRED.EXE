@@ -623,3 +623,27 @@ test('the guestbook keeps plain words: it tidies an entry and refuses empty, lon
   // Ordinary words that merely contain a rude one, and an email address, are let through.
   for (const fine of ['Greetings from Scunthorpe.', 'A classic assessment.', 'Write to james@solved.studio']) assert.equal(book.refusal('James', fine), '', fine);
 });
+
+test('every world theme is written out in full: eight notes or rests to the bar on every line', () => {
+  require('../src/sea-sound.js');
+  require('../src/game-sound.js');
+  const { seaSound, gameSound } = globalThis.Hired;
+  assert.deepEqual(gameSound.worlds, ['alley', 'city', 'growth', 'interview']);
+  for (const [name, song] of Object.entries(gameSound.songs)) {
+    const parts = song.parts ? song.parts.map(part => Object.assign({}, song, { parts: null }, part)) : [song];
+    let bars = 0;
+    parts.forEach((part, i) => {
+      const count = part.chords.split(' ').length;
+      bars += count;
+      const lines = [part.tune, part.bassline, ...(part.voices || []).map(voice => voice.tune)].filter(Boolean);
+      for (const line of lines) {
+        const written = line.split('|').map(bar => bar.trim().split(/\s+/).length);
+        assert.deepEqual(written, Array(count).fill(8), `${name}, part ${i + 1}: ${line.slice(0, 40)}`);
+      }
+    });
+    const compiled = seaSound.compile(song);
+    assert.equal(compiled.steps, bars * 16, name);
+    // Every note is for an instrument the engine has, at a pitch a speaker can play.
+    for (const note of compiled.grid.flat()) assert.ok(note.note >= 0 && note.note <= 108 && note.len >= 1, `${name}: ${JSON.stringify(note)}`);
+  }
+});
