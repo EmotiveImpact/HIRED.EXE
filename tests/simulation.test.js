@@ -647,3 +647,64 @@ test('every world theme is written out in full: eight notes or rests to the bar 
     for (const note of compiled.grid.flat()) assert.ok(note.note >= 0 && note.note <= 108 && note.len >= 1, `${name}: ${JSON.stringify(note)}`);
   }
 });
+
+test('everyone gets the general edition, which names no employer; only the James link opens the Solved one', () => {
+  const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
+  const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+  const source = read('src/edition.js') + '\n' + read('src/director-scenes.js') + '\n' + read('src/cv-text.js') +
+    '\nglobalThis.cut = directorCut(); globalThis.master = directorScenes;';
+  const open = (search, stored = {}, storage = {getItem: key => stored[key] ?? null, setItem: (key, value) => { stored[key] = value; }}) => {
+    const page = {location: {search}, URLSearchParams, localStorage: storage};
+    vm.runInNewContext(source, page);
+    return page;
+  };
+  const edition = (...visit) => open(...visit).HIRED_EDITION.id;
+  assert.equal(edition(''), 'general');
+  for (const link of ['?from=james', '?from=James', '?ref=james', '?utm_source=james', '?edition=solved-001']) assert.equal(edition(link), 'solved-001', link);
+  for (const link of ['?from=email', '?from=jamesbond', '?edition=nonsense', '?edition=general']) assert.equal(edition(link), 'general', link);
+  // The choice is remembered, so the plain address keeps the same game and its save.
+  const browser = {};
+  assert.equal(edition('?from=james', browser), 'solved-001');
+  assert.equal(edition('', browser), 'solved-001');
+  assert.equal(edition('?from=linkedin', browser), 'solved-001');
+  assert.equal(edition('?edition=portfolio', browser), 'portfolio');
+  assert.equal(edition('', browser), 'solved-001');
+  assert.equal(edition('?edition=general', browser), 'general');
+  assert.equal(edition('', browser), 'general');
+  const blocked = {getItem() { throw new Error('blocked'); }, setItem() { throw new Error('blocked'); }};
+  assert.equal(edition('?from=james', {}, blocked), 'solved-001');
+  assert.equal(edition('', {}, blocked), 'general');
+
+  const general = open(''), solved = open('?from=james'), E = general.HIRED_EDITION;
+  const employer = /solved|james|morgenstern|oxford|abnormal|advert|you asked what/i;
+  // Everything the general edition can show: its own text, its cutscenes and its CV. The swap lists
+  // name what they replace, so they are left out of the search.
+  const {cutscenes, cvOmit, ...shown} = E;
+  const told = general.cut.flatMap(scene => [scene.title, ...scene.shots.flat()]);
+  for (const text of [JSON.stringify(shown), told.join('\n')]) assert.doesNotMatch(text, employer);
+  // The CV keeps its heading, The abnormal bit, and loses only the sentence that answers the advert.
+  assert.doesNotMatch(general.HIRED_EDITION_CV(general.HIRED_CV_TXT), /solved|james|morgenstern|oxford|you asked/i);
+  assert.equal(E.company, '');
+  assert.equal(E.employerSite, null);
+  assert.ok(E.directorCut && general.cut.flatMap(scene => scene.shots).length === 28);
+  assert.equal(general.HIRED_EDITION_CV('one\ntwo'), 'one\ntwo');
+  // Every swap still has something to replace, so a reworded or renumbered line cannot slip through.
+  const master = new Map(general.master.flatMap(scene => scene.shots.map(([id, , ...lines]) => [id, lines])));
+  const speakers = new Set([...master.values()].flat().map(line => line.split('|')[0]));
+  for (const [id, lines] of Object.entries(cutscenes.lines)) for (const index of Object.keys(lines)) assert.ok(master.get(id)?.[index], `${id} line ${index}`);
+  for (const speaker of Object.keys(cutscenes.speakers)) assert.ok(speakers.has(speaker), speaker);
+  for (const title of Object.keys(cutscenes.titles)) assert.ok(general.master.some(scene => scene.title === title), title);
+  for (const picture of Object.values(cutscenes.images)) assert.ok(fs.existsSync(path.join(__dirname, '..', picture)), picture);
+  for (const sentence of cvOmit) {
+    assert.ok(general.HIRED_CV_TXT.includes(sentence), sentence);
+    assert.ok(read('cv.html').includes('<span data-only="solved-001" hidden>' + sentence + '</span>'), 'cv.html marks the same sentence');
+  }
+  for (const file of [E.cvPdf || 'assets/cv/Augustus-Edem-CV.pdf', solved.HIRED_EDITION.cvPdf]) assert.ok(fs.existsSync(path.join(__dirname, '..', file)), file);
+
+  // The Solved edition is told exactly as written.
+  assert.deepEqual(JSON.parse(JSON.stringify(solved.cut.map(scene => [scene.title, scene.shots]))),
+    JSON.parse(JSON.stringify(solved.master.map(scene => [scene.title, scene.shots.map(shot => shot.filter(Boolean))]))));
+  assert.equal(solved.HIRED_EDITION.company, 'Solved Studio');
+  assert.equal(solved.HIRED_EDITION_CV(solved.HIRED_CV_TXT), solved.HIRED_CV_TXT);
+  assert.match(solved.HIRED_EDITION.readme, /You asked what I had done that was abnormal/);
+});

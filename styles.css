@@ -219,6 +219,74 @@
 .comic-dialogue p + strong { display:block; margin-top:.45rem; }
 .comic-dialogue .comic-after { margin-top:.4em; font-style:italic; font-size:.9em; }
 .comic-dialogue:empty { display:none; }
+/* Phones. A dialog's text scrolls under its pinned buttons, so whatever the player has just asked
+   for has to be in view without scrolling, and the buttons must not take half the window. */
+/* The interview: the answer scrolls clear of the pinned button (see showInterview), and once a
+   topic is picked the hint above the topics makes way for it. */
+#viewport .interview-response{scroll-margin-bottom:76px}
+@media (max-width:540px) and (orientation:portrait){
+  #viewport .interview-answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+  #viewport .modal-body:has(.interview-response) > .muted{display:none}
+  #viewport .interview-response{line-height:1.5;margin-top:0}
+  #viewport .interview-progress{margin-bottom:12px}
+}
+/* The ending on an upright phone: no ornament, the notes and the two scores on one row, and
+   five buttons in two short rows. */
+@media (max-width:540px) and (orientation:portrait){
+  #viewport .success-icon{display:none}
+  #viewport .finish-text p:last-child{margin-bottom:12px}
+  #viewport .finish-score{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px}
+  #viewport .finish-score .interview-response{margin:0;padding:8px 10px;font-size:12px;line-height:1.5}
+  #viewport .finish-score .interview-response strong{font-size:11px}
+  #viewport .finish-score .result-strip{margin:0;gap:6px;flex-wrap:nowrap}
+  #viewport .finish-score .result-stat{min-width:62px;padding:6px 8px}
+  #viewport .finish-score .result-stat strong{font-size:18px}
+  #viewport .finish-score .result-stat span{font-size:8px;margin-top:2px}
+  #viewport .finish-score .tiny-note{grid-column:1 / -1;margin:8px 0 0!important}
+  #viewport .finish-score ~ .modal-actions{gap:6px;margin-top:8px}
+  #viewport .finish-score ~ .modal-actions .btn{flex:1 1 30%;min-height:36px;padding:6px 8px;font-size:11px}
+  #viewport .finish-score ~ .modal-actions a[href^="mailto:"]{flex-basis:44%}
+}
+/* A phone on its side has width to spare and very little height. */
+@media (orientation:landscape) and (max-height:500px){
+  /* Cutscenes: the picture on the left, the words beside it, the buttons underneath. Stacked,
+     four lines of dialogue left the picture no room at all. */
+  #viewport .comic{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;height:100%;overflow:hidden}
+  #viewport .comic-header{grid-column:1 / -1;padding-block:6px}
+  #viewport .comic-art{grid-column:1;grid-row:2;height:auto;min-height:0}
+  #viewport .comic-illustrated .comic-illustration{width:100%;height:100%;aspect-ratio:auto;box-shadow:none}
+  #viewport .comic-dialogue{grid-column:2;grid-row:2;overflow:auto;border-top:0;border-left:4px solid #251a43;padding:9px 11px}
+  #viewport .comic-dialogue:empty{display:block}
+  #viewport .comic-actions{grid-column:1 / -1;grid-row:3;position:static;padding:6px 11px}
+  #viewport .comic-actions .btn,#viewport .comic-skip{min-height:34px}
+  /* Messages sit above the touch buttons instead of across them. */
+  #viewport .toast{bottom:62px}
+  /* Dialogs: drop what is only decoration, and keep the buttons to one short row. */
+  #viewport .interview-progress,#viewport .modal-body:has(.interview-answers) > .muted,#viewport .success-icon{display:none}
+  #viewport .interview-answers{grid-template-columns:repeat(auto-fit,minmax(110px,1fr));margin:8px 0}
+  #viewport .interview-answers .btn{min-height:32px;padding:6px 8px}
+  #viewport .interview-response{margin-top:0;padding:8px 10px;line-height:1.45;font-size:12px}
+  #viewport .modal-body .eyebrow{margin-bottom:4px}
+  #viewport .modal-body p{margin-bottom:8px}
+  #viewport .modal-actions{margin-top:8px;gap:6px}
+  #viewport .modal-actions .btn{min-height:32px;padding:5px 8px;font-size:11px}
+  #viewport .result-strip{margin:8px 0;gap:6px}
+  #viewport .result-stat{padding:5px 8px}
+  #viewport .result-stat strong{font-size:18px}
+  #viewport .modal-body .bonus-result{margin-bottom:4px}
+  #viewport .tiny-note{margin-top:6px!important}
+  /* The ending: the words on the left, the notes and scores on the right, the buttons below. */
+  #viewport .modal-body:has(> .finish-score){display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:0 14px;align-content:start}
+  #viewport .finish-text .eyebrow{display:none}
+  #viewport .finish-text h2{font-size:17px;margin-bottom:6px}
+  #viewport .finish-text p:last-child{margin:0}
+  #viewport .finish-score .interview-response{margin:0;padding:6px 9px}
+  #viewport .finish-score .result-strip{flex-wrap:nowrap;margin:6px 0}
+  #viewport .finish-score .result-stat span{font-size:8px;margin-top:1px}
+  #viewport .finish-score .tiny-note{margin:0!important}
+  #viewport .finish-score ~ .modal-actions{grid-column:1 / -1}
+  #viewport .finish-score ~ .modal-actions .btn{font-size:10px;padding:4px 6px}
+}
 
 /* Accidental browser gestures (see src/gestures.js for the part CSS cannot do).
    No pull-to-refresh or edge bounce, no pinch or double-tap zoom, no text selection,
@@ -304,19 +372,32 @@ input, textarea, .notepad-text, .help-topic, .setup-email-box .setup-address {
 .dos-log p{margin:0 0 .65em}
 #dos-prompt:not(:empty)::after{content:'▮'}
 #dos-skip{background:transparent;color:#ddd;border:1px solid #777;padding:8px 14px;font:inherit;font-size:14px}
-#os-dialog .modal-window:has(.standard-calc){width:min(362px,100%);background:#c8c7cc}
-#os-dialog .modal-window:has(.standard-calc)>.modal-body{padding:12px;background:#c8c7cc}
-.calc-readout{background:#e8ede0;border:2px inset #eee;padding:5px 9px}
-.calc-expression{display:block;min-height:1.4em;font:12px monospace;text-align:right;color:#39473d}
-.standard-calc .calc-display{background:none;padding:0;font:26px/1.3 monospace}
-.standard-calc .calc-keys{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.calc-keys [data-key]{min-height:38px;background:#d7d5d9;border:2px outset #eee;color:#202552;font:600 16px monospace}
-.calc-keys [data-key]:active{border-style:inset}
-.calc-keys [data-key^="M"],.calc-keys [data-key^="C"]{color:#87293c}
-.calc-keys [data-key="="]{grid-row:5 / span 2;grid-column:5;background:#afc5df}
-.calc-keys [data-key="0"]{grid-column:span 2}
-.standard-calc details{font:13px monospace;margin-top:10px}
-.calc-history{max-height:80px;overflow:auto;margin:6px 0 0;padding-left:22px}
+/* Calculator, as Windows 3.1 drew it: a grey window, a white readout, bevelled keys with blue
+   digits, red operators and memory keys, and dark red C, CE and Back. */
+#os-dialog .modal-window:has(.standard-calc){width:min(272px,100%);background:var(--w31-face)}
+#os-dialog .modal-window:has(.standard-calc)>.modal-body{padding:9px 10px 10px;background:var(--w31-face)}
+.standard-calc{font:bold 13px Arial,Helvetica,sans-serif;color:#000}
+.standard-calc .calc-display{display:block;background:#fff;color:#000;border:1px solid #000;padding:3px 6px;text-align:right;font:bold 15px/1.35 Arial,Helvetica,sans-serif;overflow:hidden;white-space:nowrap}
+.standard-calc .calc-display[data-whole]::after{content:'.'}
+.calc-top{display:flex;justify-content:space-between;align-items:center;margin:9px 0 7px}
+.calc-memory{width:30px;height:27px;display:grid;place-items:center;box-shadow:inset 1px 1px var(--w31-shadow),inset -1px -1px #fff}
+.calc-clears{display:grid;grid-template-columns:repeat(3,46px);gap:5px}
+.standard-calc .calc-keys{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:0}
+.standard-calc [data-key]{min-height:27px;min-width:0;padding:0;background:var(--w31-face);border:1px solid #000;border-radius:3px;box-shadow:inset 1px 1px #fff,inset 2px 2px #fff,inset -1px -1px var(--w31-shadow),inset -2px -2px var(--w31-shadow);font:bold 13px Arial,Helvetica,sans-serif;cursor:default;transform:none}
+.standard-calc [data-key]:active{box-shadow:inset 1px 1px var(--w31-shadow),inset 2px 2px var(--w31-shadow);padding:2px 0 0 2px}
+.standard-calc [data-key]:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+.standard-calc .calc-digit{color:#00f}
+.standard-calc .calc-red{color:#f00}
+.standard-calc .calc-clear{color:#800000}
+.standard-calc .calc-navy{color:#000080}
+.standard-calc .calc-keys [data-key^="M"]{margin-right:7px}
+@media (pointer:coarse){
+  .standard-calc [data-key],.calc-memory{min-height:38px;height:auto}
+  .calc-memory{height:38px}
+}
+.standard-calc details{margin-top:9px;font:13px Arial,Helvetica,sans-serif}
+.standard-calc summary{font-weight:bold;cursor:default}
+.calc-history{max-height:80px;overflow:auto;margin:5px 0 0;padding:4px 6px 4px 26px;background:#fff;border:1px solid #000}
 .game-launch{display:grid;place-items:center;background:#161639}.load-card{display:grid;gap:12px;padding:18px 25px;background:silver;border:3px outset white;color:#13132c}.load-card progress{width:100%;accent-color:navy}
 .overlay.game-title{display:grid;place-items:center;text-align:center;color:white;background:linear-gradient(0deg,#171440ee,#17144066)}
 .game-title section{padding:12px}.game-title img{width:clamp(48px,9vw,90px);image-rendering:pixelated;border:3px solid white;box-shadow:4px 4px #21183b}.game-title h1{font:bold clamp(40px,9vw,112px)/1 monospace;letter-spacing:-.08em;margin:10px 0;text-shadow:4px 5px #252049}.game-title h1 span{color:#ffc956}.game-title p{margin:6px 0 15px}
@@ -671,3 +752,43 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 /* A phone turned sideways has little height: lay the pause buttons and interview topics
    side by side so they all fit without scrolling. */
 @media (orientation:landscape) and (max-height:500px){.overlay .pause-actions{grid-template-columns:1fr 1fr}.overlay .interview-answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}}
+/* The intro: a telly with three channels, then two shots of the studio. The picture keeps
+   16:9 and gives up height first, so the words and Skip are always on screen. */
+.overlay.intro-overlay{position:absolute;display:block;padding:0;background:#0b0817;color:#fff}
+.intro{display:flex;flex-direction:column;height:100%;padding:clamp(6px,1.6vw,16px);gap:clamp(4px,1vw,10px)}
+.intro-stage{flex:1;min-height:0;display:grid;place-items:center;container-type:size}
+.intro-set{position:relative;aspect-ratio:16/9;width:100%;max-height:100%}
+@supports (width:1cqh){.intro-set{width:min(100cqw,177.78cqh)}}
+.intro-stage.is-tv .intro-set{aspect-ratio:16/10;padding:2.4% 2.4% 6.5%;background:linear-gradient(#4a3f63,#2c2440);border:3px solid #120d22;border-radius:14px;box-shadow:inset 0 2px #6d6090,4px 5px #05030c}
+@supports (width:1cqh){.intro-stage.is-tv .intro-set{width:min(100cqw,160cqh)}}
+.intro-stage.is-tv .intro-set::after{content:"";position:absolute;right:4%;bottom:2.2%;width:1.6%;aspect-ratio:1;border-radius:50%;background:#ff5b4d;box-shadow:0 0 6px #ff5b4d}
+.intro-stage.is-tv .intro-set::before{content:"";position:absolute;left:4%;bottom:2.4%;width:16%;height:1.6%;background:repeating-linear-gradient(90deg,#120d22 0 3px,transparent 3px 6px)}
+.intro-screen{position:relative;width:100%;height:100%;overflow:hidden;background:#000}
+.intro-stage.is-tv .intro-screen{border-radius:18px/14px;box-shadow:0 0 0 3px #120d22,inset 0 0 40px #000}
+.intro-pic,.intro-clip{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.intro-snow{position:absolute;inset:0;opacity:0;pointer-events:none;background-size:96px 96px;image-rendering:pixelated}
+/* Scan lines and a soft vignette while the picture is on the telly. */
+.intro-stage.is-tv .intro-screen::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#0000 0 2px,#0003 2px 3px),radial-gradient(ellipse at center,#0000 62%,#0007)}
+.intro-osd{position:absolute;top:5%;left:4%;font:bold clamp(11px,2.2cqw,22px)/1 monospace;color:#7dff8a;text-shadow:2px 2px #000;display:none}
+.intro-stage.is-tv .intro-osd{display:block}
+.intro-stage.is-flip .intro-snow{opacity:1;animation:intro-snow .12s steps(3) infinite}
+.intro-stage.is-flip .intro-pic,.intro-stage.is-flip .intro-clip{visibility:hidden}
+.intro-stage.is-off .intro-pic,.intro-stage.is-off .intro-clip{animation:intro-off .6s cubic-bezier(.3,0,.2,1) forwards}
+.intro-stage.is-off .intro-osd{display:none}
+@keyframes intro-snow{0%{background-position:0 0}33%{background-position:37px 61px}66%{background-position:71px 23px}100%{background-position:13px 47px}}
+@keyframes intro-off{0%{transform:none;filter:none}45%{transform:scale(1,.012);filter:brightness(4)}80%{transform:scale(.02,.012);filter:brightness(6)}100%{transform:scale(0,0);filter:brightness(6)}}
+.intro-words{flex:none;min-height:4.3em;padding:8px 12px;background:#17122b;border:2px solid #6d6090;font:15px/1.35 system-ui,sans-serif}
+.intro-words strong{display:block;font:bold 11px/1.2 monospace;letter-spacing:.08em;text-transform:uppercase;color:#ffd166;min-height:1.2em}
+.intro-words p{margin:3px 0 0}
+.intro-skip{position:absolute;top:clamp(8px,2vw,20px);right:clamp(10px,2.4vw,26px);margin:0;color:#fff;background:#0b0817b3;padding:6px 10px;z-index:2}
+@media (orientation:landscape) and (max-height:500px){.intro{padding:4px}.intro-words{min-height:3.2em;padding:4px 10px;font-size:13px}}
+/* The title lands, then waits for any button. */
+.game-title.title-wait .title-copy .btn,.game-title.title-wait .title-links{display:none}
+.game-title .title-copy .title-any{display:none;max-width:none;white-space:nowrap;margin:14px 0 0;font:bold clamp(12px,1.8vw,17px)/1.2 monospace;letter-spacing:.06em;text-transform:uppercase;color:#ffd166;text-shadow:2px 2px #120d22}
+.game-title.title-wait .title-copy .title-any{display:block;animation:title-blink 1.1s steps(2,jump-none) infinite}
+.game-title.title-land .title-copy h1{animation:title-land .55s cubic-bezier(.3,1.5,.5,1) both}
+.game-title.title-land .title-copy p,.game-title.title-land .title-hero{animation:title-rise .5s .45s both}
+@keyframes title-land{0%{transform:translateY(-160%) scale(1.25);opacity:0}60%{opacity:1}100%{transform:none}}
+@keyframes title-rise{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:none}}
+@keyframes title-blink{0%{opacity:1}100%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.game-title.title-land .title-copy h1,.game-title.title-land .title-copy p,.game-title.title-land .title-hero,.game-title.title-wait .title-any{animation:none}}

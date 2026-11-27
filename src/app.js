@@ -9,8 +9,10 @@
   const cvLink = (id, className='') => {
     const offline=globalThis.HIRED_EMBEDDED_CV;
     const props=offline?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"';
-    return `<a class="${className}" id="${id}" href="${offline || 'cv.html'}" ${props}>${offline?'Download CV (PDF)':'View CV'}</a>`;
+    return `<a class="${className}" id="${id}" href="${offline || CV_PAGE}" ${props}>${offline?'Download CV (PDF)':'View CV'}</a>`;
   };
+  // The CV as this edition words it: the page is told which edition, the PDF is the edition's own.
+  const CV_PAGE = 'cv.html' + (E.cvPdf ? '?edition=' + encodeURIComponent(E.id) : '');
   const SAVE_KEY = 'hired-exe:v04:' + E.id;
   let progress = {lastLevel:0,results:{},assist:false,muted:false,seenIntros:[]};
   let storageAvailable = true;
@@ -42,6 +44,7 @@
         progress.checkpoint = record;
       progress.delivered = saved.delivered === true;
       progress.muted = saved.muted === true;
+      progress.introSeen = saved.introSeen === true;
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
   const save = () => {try {localStorage.setItem(SAVE_KEY,JSON.stringify(progress));storageAvailable=true;return true;} catch (_) {storageAvailable=false;return false;}};
@@ -65,9 +68,10 @@
     : 'A / D move · Space jump / double jump · Shift dash';
   let renderer, uiMode='boot', ready=false, previousTime=0, toastTimeout, ribbonTimeout;
   let interviewIndex=0, interviewChoice=null;
+  let savedJokeTold=false;
   let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
-  let desktopReturn=null, titleBack=null, artworkLoad=null, assetReport=null;
+  let desktopReturn=null, titleBack=null, titleWake=null, artworkLoad=null, assetReport=null;
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
   let helpBack=showHome, worldsBack=showHome;
@@ -129,16 +133,17 @@
     activeSurface().querySelector('#dialog-close').addEventListener('click',onClose);focusDialog();
   }
   // Desktop programs open as their own windows beside Program Manager. Each
-  // returns a modal()-shaped opener, so Calculator and Sea Trial need no changes.
-  const desktopApp=(id,opts={})=>(title,body,wide=false)=>H.wm.openApp({id,title,body,wide,...opts});
+  // returns a modal()-shaped opener, so Calculator and Sea Trial need no changes. A program can
+  // pass more window options as a fourth argument, such as its menu bar.
+  const desktopApp=(id,opts={})=>(title,body,wide=false,more={})=>H.wm.openApp({id,title,body,wide,...opts,...more});
   // CALC001.PNG, archived Windows 3.x Calculator resource:
   // https://github.com/mRB0/many-windows-3.1-icons-in-png-format/blob/master/CALC001.PNG
   const CALC_ICON='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">';
   const SUB_ICON='<span class="pm-glyph pm-glyph-sub">⚓</span>';
-  const CV_PDF='assets/cv/Augustus-Edem-CV.pdf';
+  const CV_PDF=E.cvPdf||'assets/cv/Augustus-Edem-CV.pdf';
   const GAME_ICON=`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`;
   let desktopLaunch=null, desktopPlay=null;
-  function openCv(path='cv.html'){
+  function openCv(path=CV_PAGE){
     const offline=globalThis.HIRED_EMBEDDED_CV, a=document.createElement('a');
     a.href=offline||path;
     if(offline)a.download='Augustus-Edem-CV.pdf';else{a.target='_blank';a.rel='noopener';}
@@ -228,7 +233,7 @@
     });
     labelGameWindow();
   }
-  function labelGameWindow(){const button=$('hire-start');if(button&&desktopPlay)button.textContent=desktopPlay.continuing?'Continue game':'Start game';}
+  function labelGameWindow(){const button=$('hire-start');if(button&&desktopPlay)button.textContent=desktopPlay.continuing?'Continue game':'Play the game';}
   const openGuestbook=()=>H.guestbook({defaultGeo:area=>placeAtStart('guestbook',area)});
   function openStartup(){openGuestbook();openGameWindow();}
   function showHome() {
@@ -252,7 +257,8 @@
     desktopPlay={play,continuing:hasRun||hasProgress||!!reopen};
     labelGameWindow();
     const offlineCv=globalThis.HIRED_EMBEDDED_CV;
-    const internet=E.id==='solved-001';
+    // The employer's own site, where the edition has one (https:// only).
+    const internet=safeLink(E.employerSite)?.startsWith('https://')?E.employerSite:null;
     // One Internet group icon per platform in the edition.
     const linkItems=(list,prefix)=>(list||[]).filter(l=>l&&l.name&&safeLink(l.url)?.startsWith('https://'))
       .map(l=>({id:prefix+(l.id||l.name).toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:l.name,url:l.url,icon:l.id||l.name}));
@@ -266,7 +272,7 @@
       items:H.track.items({
         'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:GAME_ICON,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
         ...(E.readme?{'home-readme':{label:'README.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\README.TXT',workdir:'C:\\HIRE',runs:['readme.txt','readme'],open:()=>H.notepad('README.TXT',E.readme)}}:{}),
-        'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_CV_TXT)},
+        'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_EDITION_CV(globalThis.HIRED_CV_TXT))},
         // The CV as the PDF itself: it opens in the browser's own viewer, or downloads from the single-file build.
         'home-cv-pdf':{label:'CV.PDF',icon:H.linkIcon('CV.PDF'),href:offlineCv||CV_PDF,linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.PDF',workdir:'C:\\HIRE',runs:['cv.pdf'],open:()=>openCv(CV_PDF)},
         // DEVLOG.TXT: the dev log, how the game was made, a day at a time (src/devlog.js).
@@ -276,7 +282,7 @@
         'desk-guestbook':{label:'Guestbook',icon:H.guestbookIcon,command:'C:\\HIRE\\GUESTBK.EXE',workdir:'C:\\HIRE',runs:['guestbk.exe','guestbk','guestbook'],open:openGuestbook},
         'desk-jargon':{label:'Jargon',icon:H.jargonIcon,command:'JARGON.EXE',workdir:'C:\\WINDOWS',runs:['jargon.exe','jargon'],open:()=>H.jargon()},
         'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
-        ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
+        ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:internet,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open(internet,'_blank','noopener,noreferrer')}}:{}),
         ...Object.fromEntries([...platforms,...working].map(l=>[l.id,{label:l.name,icon:H.linkIcon?.(l.icon)||`<span class="pm-glyph pm-glyph-link">${esc(l.name[0])}</span>`,href:l.url,linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE '+l.url,workdir:'C:\\NETSCAPE',open:()=>window.open(l.url,'_blank','noopener,noreferrer')}]))
       }),
       groups:[
@@ -300,8 +306,9 @@
     if(!artworkLoad)artworkLoad=renderer.load().then(report=>assetReport=report).catch(error=>{artworkLoad=null;throw error;});
     return artworkLoad;
   }
-  // direct: Start game was pressed in HIRE.EXE's window on the desktop, which is the title
-  // screen already, so the game starts as soon as its artwork has loaded.
+  // direct: Play the game was pressed in HIRE.EXE's window on the desktop, which is the title
+  // screen already, so the game starts as soon as its artwork has loaded. The one exception is
+  // a first visit: the intro plays, and the title lands after it as the intro's last beat.
   async function launchTitle(play,continuing,direct=false){
     const launch=++launchNumber;
     setMode('game-load');
@@ -317,13 +324,30 @@
       return;
     }
     if(launch!==launchNumber||uiMode!=='game-load')return;
-    if(direct){H.track(continuing?'Game continued':'Game started');play();return;}
-    function title(){
-      setMode('title');titleBack=title;
-      layer.className='overlay game-title';
+    // A first visit opens on the intro, wherever Play the game was pressed.
+    const first=Boolean(H.intro&&!continuing&&!progress.introSeen);
+    if(direct&&!first){H.track(continuing?'Game continued':'Game started');play();return;}
+    let woken=false;
+    function title(landing){
+      setMode('title');titleBack=()=>title();titleWake?.();
+      layer.className='overlay game-title'+(woken?'':' title-wait')+(landing===true?' title-land':'');
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true"><img class="title-actor" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""></div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true"><img class="title-actor" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""></div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Play the game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div><p class="title-any" id="title-any">Press any button to continue</p></section>`;
+      // The title waits for any key, click or tap, then offers its menu. It listens for the
+      // finished click, never the press: a finger's click lands after the press, and would
+      // fall on whichever menu button had just appeared beneath it.
+      const wake=e=>{
+        if(e&&e.type==='keydown'&&(e.metaKey||e.ctrlKey||e.altKey||e.key==='Tab'||e.key==='Escape'))return;
+        // The click that skipped the intro is still on its way up: it is not a press on the title.
+        if(e?.type==='click'&&!layer.contains(e.target))return;
+        titleWake?.();
+        if(uiMode!=='title'||!layer.classList.contains('title-wait'))return;
+        if(e?.type==='keydown'){e.preventDefault();e.stopPropagation();}
+        woken=true;layer.classList.remove('title-wait');focusDialog();
+      };
+      titleWake=()=>{document.removeEventListener('keydown',wake,true);layer.removeEventListener('click',wake);};
+      if(!woken){document.addEventListener('keydown',wake,true);layer.addEventListener('click',wake);}
       $('title-play').onclick=()=>{H.track(continuing?'Game continued':'Game started');play();};
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
@@ -335,9 +359,21 @@
       if(!panels.length){modal('Cutscenes','<p>No illustrated panels in this edition.</p>',false,title);return;}
       const beat=panels[i];
       modal('Cutscenes',`<img class="replay-frame" src="${asset(beat.image)}" alt="${esc(beat.alt)}"><p>${i+1} / ${panels.length} · ${esc(beat.alt)}</p>${(beat.dialogue||[]).map(([name,line])=>`<p><strong>${esc(name)}</strong> ${esc(line)}</p>`).join('')}<div class="modal-actions"><button class="btn" id="gallery-prev" ${i?'':'disabled'}>Previous</button><button class="btn" id="gallery-next" ${i+1===panels.length?'disabled':''}>Next</button><button class="btn" id="gallery-back">Title screen</button></div>`,true,title);
-      bindActions({'gallery-prev':()=>gallery(i-1),'gallery-next':()=>gallery(i+1),'gallery-back':title});
+      bindActions({'gallery-prev':()=>gallery(i-1),'gallery-next':()=>gallery(i+1),'gallery-back':()=>title()});
     }
-    title();
+    // The title lands when the intro ends or is skipped.
+    if(first){
+      setMode('intro');
+      // The intro's voices go through the game's sound, so the mute button covers them.
+      const voice={decode:bytes=>audio.engine?audio.engine.decode(bytes):Promise.reject(new Error('No sound')),
+        play:(spoken,name='intro:voice')=>audio.enabled&&audio.running?audio.engine.sample(spoken,1,name):null};
+      // The offline file carries the stills only, so it asks for no clips or voices.
+      const how=await H.intro.play(layer,{asset,voice,clips:!globalThis.HIRED_EMBEDDED_ASSETS,sound:name=>audio.effect('intro-'+name)});
+      if(launch!==launchNumber||uiMode!=='intro')return;
+      progress.introSeen=true;save();
+      H.track(how==='skipped'?'Intro skipped':'Intro watched');
+      title(true);
+    } else title();
   }
   function beginScene(index) {
     if(H.LEVELS[index] && progress.seenIntros.includes(H.LEVELS[index].id)){
@@ -516,7 +552,9 @@
     modal('Final interview / A conversation',`<div class="interview-progress" aria-label="Question ${interviewIndex+1} of ${E.interview.length}">${E.interview.map((_,i)=>`<i class="${i<=interviewIndex?'done':''}"></i>`).join('')}</div><p class="eyebrow">CONVERSATION ${interviewIndex+1} / ${E.interview.length}</p><h2>${esc(q.question)}</h2><p class="muted">Choose a topic. There are no wrong answers. Those are my job.</p><div class="interview-answers">${q.answers.map((a,i)=>`<button class="btn answer-btn ${interviewChoice===i?'primary':''}" id="answer-${i}" aria-pressed="${interviewChoice===i}">${esc(a.label)}</button>`).join('')}</div>${interviewChoice!==null?`<div class="interview-response">${esc(q.answers[interviewChoice].text)}</div><div class="modal-actions"><button class="btn primary" id="interview-next">${interviewIndex===E.interview.length-1?'Finish the introduction':'Next topic'}</button></div>`:''}`,false,game.state?.mode==='complete'?showComplete:showHome);
     q.answers.forEach((_,i)=>$('answer-'+i).addEventListener('click',()=>{interviewChoice=i;showInterview();}));
     $('interview-next')?.addEventListener('click',()=>{interviewAnswers[interviewIndex]=q.answers[interviewChoice].label;interviewIndex++;interviewChoice=null;if(interviewIndex<E.interview.length)showInterview();else if(E.interviewer)beginScene(H.LEVELS.length+1);else showFinish();});
-    if(interviewChoice!==null)requestAnimationFrame(()=>$('interview-next')?.focus({preventScroll:true}));
+    // Each pick redraws the dialog from the top. On a phone the answer can start below the fold,
+    // so bring it into view, clear of the pinned button (scroll-margin in styles.css).
+    if(interviewChoice!==null)requestAnimationFrame(()=>{$('interview-next')?.focus({preventScroll:true});activeSurface().querySelector('.interview-response')?.scrollIntoView({block:'nearest'});});
   }
   function showFinish() {
     setMode('finish');
@@ -532,7 +570,8 @@
       draft.searchParams.set('body', 'Hi ' + E.applicant.split(' ')[0] + ',\n\nI played HIRE.EXE and picked ' + interviewAnswers.join(', ') + '. I’d like to talk about ');
       contact = draft.href;
     }
-    modal('HIRE.EXE / Introduction complete',`<div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p><div class="modal-actions">${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}<button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div>`,false,showHome);
+    // Two blocks, the words and the score, so a phone can set them side by side (styles.css).
+    modal('HIRE.EXE / Introduction complete',`<div class="finish-text"><div class="success-icon" aria-hidden="true">✦</div><p class="eyebrow">THANKS FOR PLAYING</p><h2>${esc(E.applicant)} / ${esc(E.role)}</h2><p>${esc(E.finish)}</p></div><div class="finish-score"><div class="interview-response"><strong>Your conversation notes</strong><br>${topics}</div><div class="result-strip"><div class="result-stat"><strong>${complete}/4</strong><span>WORLDS CLEARED</span></div><div class="result-stat"><strong>${skills}/12</strong><span>SKILL TOKENS</span></div></div><p class="tiny-note">A playful application, with a fictional hiring journey.</p></div><div class="modal-actions">${cvLink('final-cv','btn')}${contact?`<a class="btn" href="${esc(contact)}">Email ${esc(E.applicant.split(' ')[0])} (no form)</a>`:''}${safeLink(project?.url)?`<a class="btn" href="${esc(project.url)}" target="_blank" rel="noopener">Explore ${esc(project.name)}</a>`:''}<button class="btn" id="final-worlds">Explore the worlds</button><button class="btn" id="final-home">Return to Windows</button></div>`,false,showHome);
     bindActions({'final-worlds':showWorlds,'final-home':showHome});
   }
 
@@ -618,7 +657,9 @@
       if(e.type==='bonus')toast(e.item.title+' · '+e.item.line,3800);
       if(e.type==='checkpoint'){
         progress.checkpoint=game.checkpointRecord();
-        toast(save()?'Saved. First thing an editor learns. Usually the hard way.':'Checkpoint reached for this session.',2600);
+        // The joke is told once a visit. There are some twenty save points in a play-through.
+        toast(save()?(savedJokeTold?'Saved.':'Saved. First thing an editor learns. Usually the hard way.'):'Checkpoint reached for this session.',savedJokeTold?1600:2600);
+        savedJokeTold=true;
       }
       if(e.type==='respawn'){const b=game.state.boss;const why=e.reason==='feed'?'The Feed scrolled past you.':b?.active&&bark(b.type)?.lose?bark(b.type).lose:e.reason==='fall'?'You fell into a gap in your CV.':'Unfortunately, on this occasion.';toast(why+(game.state.assist?' Back to the checkpoint.':` ${e.lives} ${e.lives===1?'life':'lives'} left.`),3400);}
       if(e.type==='gameOver'){toast('Game over. We’ve decided to start the process again from the beginning.',4200);gameOver=e.levelIndex;break;}
@@ -696,6 +737,7 @@
   $('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('game-window').requestFullscreen();}catch(_){toast('Full screen is unavailable here. Use your browser full-screen control.');}if(uiMode==='playing')$('game').focus({preventScroll:true});});
   $('title-edition').textContent=E.editionLabel;
   $('art-book-link').search = globalThis.location.search;
+  if(!globalThis.HIRED_EMBEDDED_CV)$('cv-link').href=CV_PAGE;
   document.title='HIRE.EXE | '+E.applicant;
 
   const DOS_LOG=$('dos-start').querySelector('.dos-log').innerHTML;

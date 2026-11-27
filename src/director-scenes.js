@@ -38,10 +38,10 @@ const directorScenes = [
     ]
   },
   {
-    title:'The attachment',place:'Back in Augustus’s home studio',cue:'Cut out of the game for the actual email. Charlie Dots appears as a text chat in a neighbouring tab. Its line appears in the dialogue strip. James’s reply is the invitation that motivates the next level.',
+    title:'The attachment',place:'Back in Augustus’s home studio',cue:'Cut out of the game for the actual email. Pepper appears as a text chat in a neighbouring tab. Its line appears in the dialogue strip. James’s reply is the invitation that motivates the next level.',
     shots:[
-      ['p13-draft','The salutation','Augustus|“Hi James” or “Dear James”?','Charlie Dots, in chat|We shipped a game in less time than this greeting.'],
-      ['p14-just-sent','Sent','Augustus|Please find attached.','Charlie Dots, in chat|Strong email. Shy attachment.'],
+      ['p13-draft','The salutation','Augustus|“Hi James” or “Dear James”?','Pepper, in chat|We shipped a game in less time than this greeting.'],
+      ['p14-just-sent','Sent','Augustus|Please find attached.','Pepper, in chat|Strong email. Shy attachment.'],
       ['p15-attachment','Second email','Augustus|And, in a surprise development, my CV.','James, later by email|I played it. Come in on Thursday?']
     ]
   },
@@ -66,22 +66,36 @@ const directorScenes = [
 ];
 
 function directorPanel(id) {
+  const own = globalThis.HIRED_EDITION?.cutscenes?.images?.[id];
+  if (own) return own;
   const revision = /^city-[24]$/.test(id) ? 'v6/' : /^city-[13]$/.test(id) ? 'v5/' : id === 'p05-play' ? 'v4/' :
     ['p04-gatekeeper','p15-attachment'].includes(id) ? 'v2/' :
     id === 'office-3' ? '' : 'v3/';
   return 'assets/directors-board/' + revision + id + '.webp';
 }
 
+// The cut as this edition tells it. The shots above are written for the Solved edition; an edition
+// can reword a line, rename a speaker or a chapter, or give a shot its own picture, all in its
+// `cutscenes` entry in src/edition.js. Lines are counted from 0 within their shot.
+function directorCut(edition = globalThis.HIRED_EDITION) {
+  const own = edition?.cutscenes || {};
+  return directorScenes.map(scene => ({...scene, title: own.titles?.[scene.title] || scene.title,
+    shots: scene.shots.map(([panel, alt, ...lines]) => [panel, alt, ...lines.filter(Boolean).map((line, i) => {
+      const [who, ...words] = (own.lines?.[panel]?.[i] || line).split('|');
+      return (own.speakers?.[who] || who) + '|' + words.join('|');
+    })])}));
+}
+
 if (globalThis.HIRED_EDITION && globalThis.Hired?.SCENES) {
-  const chapters = directorScenes.map(scene => scene.shots.map(([panel, alt, ...lines]) => ({
+  const chapters = directorCut().map(scene => scene.shots.map(([panel, alt, ...lines]) => ({
     panel, alt, title: scene.title, image: directorPanel(panel),
-    dialogue: lines.filter(Boolean).map(line => line.split('|')),
+    dialogue: lines.map(line => line.split('|')),
     burst: panel === 'p05-play'
   })));
   const [studio, alley, city, growth, email, hq, office] = chapters;
   const groups = [[...studio,...alley],city,growth,[...email,...hq],office.slice(0,2),office.slice(2)];
   const game = globalThis.Hired;
-  if (globalThis.HIRED_EDITION.id === 'solved-001') {
+  if (globalThis.HIRED_EDITION.directorCut) {
     game.SCENES = groups.map(beats => ({title:beats[0].title,beats}));
   } else {
     game.SCENES[1] = {title:city[0].title, beats:city};

@@ -60,11 +60,70 @@ def sign_guestbook(context, base, mobile, errors):
     assert sent == [{'name': 'James M.', 'message': 'Came for the CV, stayed for the submarine.', 'email': 'james@example.test', 'website': ''}], sent
     # The address went to the book and is nowhere in the window.
     assert 'james@example.test' not in page.locator('.guestbook-window').inner_text()
-    # The button in HIRE.EXE's window starts the game there and then, with no title screen in between.
+    # On a first visit the button in HIRE.EXE's window opens the intro, and the title lands after it.
+    press('#hire-start')
+    expect(page.locator('#game-window')).to_be_visible()
+    expect(page.locator('.intro-osd')).to_have_text('CH 1')
+    press('#intro-skip')
+    expect(page.locator('.game-title.title-land')).to_be_visible()
+    assert page.evaluate("JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('hired-exe:v'))) || '{}').introSeen === true")
+    # Once the intro has been seen, the same button starts the game there and then, with no title
+    # screen in between.
+    page.reload()
+    page.locator('#start-game').wait_for()
     press('#hire-start')
     expect(page.locator('#game-window')).to_be_visible()
     expect(page.locator('#scene-next')).to_be_visible()
     expect(page.locator('#title-play')).to_have_count(0)
+    page.close()
+
+
+def two_editions(context, base, errors):
+    """Everyone gets the general edition. Only the link sent to James opens the Solved one."""
+    page = context.new_page()
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    def opened(address):
+        page.goto(base + address)
+        page.locator('#start-game').wait_for()
+        return page.evaluate('HIRED_EDITION.id')
+    said = "Hired.SCENES.flatMap(scene => scene.beats.flatMap(beat => beat.dialogue.flat())).join(' ')"
+    names = re.compile('solved|james|morgenstern', re.I)
+    assert opened('/') == 'general'
+    # Nothing on the general desktop, in its Notepad files or in its cutscenes names the studio or James.
+    shown = page.evaluate(f"document.body.textContent + {said} + HIRED_EDITION.readme + HIRED_EDITION_CV(HIRED_CV_TXT) + HIRED_DEVLOG_TXT + document.title")
+    assert not names.search(shown), names.search(shown)
+    assert 'You asked what' not in shown and 'Most people attach a CV.' in shown
+    expect(page.locator('#title-edition')).to_have_text('')
+    expect(page.locator('#desk-netscape')).to_have_count(0)
+    expect(page.locator('#home-cv-pdf')).to_have_attribute('href', 'assets/cv/Augustus-Edem-CV.pdf')
+    expect(page.locator('#cv-link')).to_have_attribute('href', 'cv.html')
+    page.goto(base + '/cv.html')
+    assert 'You asked' not in page.locator('main').inner_text()
+    expect(page.locator('a.download')).to_have_attribute('href', 'assets/cv/Augustus-Edem-CV.pdf')
+    page.goto(base + '/cutscenes.html')
+    expect(page.locator('figure')).to_have_count(28)
+    assert not names.search(page.locator('main').inner_text())
+    # The link in the email to James, and what it changes.
+    assert opened('/?from=james') == 'solved-001'
+    assert page.evaluate('Hired.track.log[0].f') == 'james'
+    expect(page.locator('#title-edition')).to_have_text('SOLVED STUDIO EDITION')
+    expect(page.locator('#desk-netscape')).to_have_attribute('href', 'https://solved.studio/')
+    expect(page.locator('#internet-window .pm-item')).to_have_count(5)
+    expect(page.locator('#home-cv-pdf')).to_have_attribute('href', 'assets/cv/solved/Augustus-Edem-CV.pdf')
+    expect(page.locator('#cv-link')).to_have_attribute('href', 'cv.html?edition=solved-001')
+    solved = page.evaluate(f"{said} + HIRED_EDITION.readme + HIRED_EDITION_CV(HIRED_CV_TXT)")
+    for line in ('Solved’s advert', '“Hi James” or “Dear James”?', 'You asked what I had done that was abnormal.', 'You asked what I have done that is abnormal.'):
+        assert line in solved, line
+    # The browser remembers, so James coming back to the plain address keeps his edition and his save.
+    assert opened('/') == 'solved-001'
+    page.goto(base + '/cv.html')
+    assert 'You asked what I have done that is abnormal.' in page.locator('main').inner_text()
+    expect(page.locator('a.download')).to_have_attribute('href', 'assets/cv/solved/Augustus-Edem-CV.pdf')
+    page.goto(base + '/cutscenes.html')
+    expect(page.locator('figure').nth(3)).to_contain_text('Solved’s advert')
+    # The test edition is never remembered, and ?edition=general puts the general edition back.
+    assert opened('/?edition=portfolio') == 'portfolio' and opened('/') == 'solved-001'
+    assert opened('/?edition=general') == 'general' and opened('/') == 'general'
     page.close()
 
 
@@ -132,12 +191,30 @@ def run(profile, base):
         def open_item(target):
             item = page.locator(target)
             item.tap() if mobile else item.dblclick()
+        def title_menu():
+            # A first visit opens on the intro. The title then waits for any button.
+            page.wait_for_function("['intro','title'].includes(HIRED_APP.mode)")
+            if page.evaluate("HIRED_APP.mode === 'intro'"):
+                expect(page.locator('.intro-osd')).to_have_text('CH 1')
+                expect(page.locator('.intro-words strong')).to_have_text('Newsreader')
+                activate('#intro-skip')
+                expect(page.locator('.game-title.title-land')).to_be_visible()
+            if page.locator('.game-title.title-wait').count():
+                expect(page.locator('#title-any')).to_have_text('Press any button to continue')
+                expect(page.locator('#title-play')).to_be_hidden()
+                activate('#title-any')
+                # The tap that wakes the title presses nothing on the menu that appears under it.
+                expect(page.locator('#title-play')).to_be_visible()
+                assert page.evaluate("HIRED_APP.mode === 'title'")
+        def title_play():
+            title_menu()
+            activate('#title-play')
         def launch():
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
         # HIRE.EXE's own window and the Guestbook are open from the start, tiled with Program Manager:
         # each inside the desktop, and none over another.
-        expect(page.locator('#hire-start')).to_have_text('Start game')
+        expect(page.locator('#hire-start')).to_have_text('Play the game')
         expect(page.locator('.guestbook-window')).to_be_visible()
         tiled = '''() => { const d = document.querySelector('#os-shell').getBoundingClientRect();
             const r = ['progman', 'hire', 'guestbook'].map(id => document.querySelector(`.w31-window[data-win="${id}"]`).getBoundingClientRect());
@@ -149,7 +226,7 @@ def run(profile, base):
         expect(page.locator('#guestbook-sign')).to_be_disabled()
         expect(page.locator('#main-window #desk-guestbook')).to_have_count(1)
         sign_guestbook(context, base, mobile, errors)
-        expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
+        two_editions(context, base, errors)
         # Submarine (final).exe is there from the start, with no save needed, in the Games group.
         expect(page.locator('#games-window #desk-sub')).to_have_count(1)
         # Only the main group starts open. The others wait as icons, clear of it.
@@ -175,7 +252,7 @@ def run(profile, base):
             # Each link has a picture of its own, drawn in the sixteen Windows colours.
             expect(page.locator(f'{item} .pm-glyph-art svg')).to_have_count(1)
         assert page.evaluate("new Set([...document.querySelectorAll('[id^=desk-link-] .pm-glyph-art, [id^=desk-work-] .pm-glyph-art')].map(g => g.innerHTML)).size") == 9
-        expect(page.locator('#internet-window .pm-item')).to_have_count(5)
+        expect(page.locator('#internet-window .pm-item')).to_have_count(4)
         expect(page.locator('#working-window .pm-item')).to_have_count(5)
         # Program Manager's menus drop over the group window without moving it.
         group = page.locator('#main-window')
@@ -229,8 +306,10 @@ def run(profile, base):
         open_item('#home-devlog')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - DEVLOG.TXT')
         devlog = notepad.locator('.notepad-text').input_value()
-        for line in ('Newest entry first.', 'The code STILLAVAILABLE takes 20% off either.', 'FIRST COMMIT', 'C:\\> prompt', 'hireexe.me'):
+        for line in ('Newest entry first.', 'FIRST COMMIT', 'C:\\> prompt', 'hireexe.me'):
             assert line in devlog, line
+        # The dev log is the story of the build. Offers and discount codes belong in the posts, not here.
+        assert 'STILLAVAILABLE' not in devlog
         dates = [tuple(reversed(d.split('/'))) for d in re.findall(r'^\d\d/\d\d/\d{4}$', devlog, re.M)]
         assert len(dates) >= 2 and dates == sorted(dates, reverse=True), dates
         activate('.notepad-window #dialog-close')
@@ -376,6 +455,7 @@ def run(profile, base):
         activate('#internet-window .w31-min')
         expect(page.locator('#internet-group')).to_be_visible()
         launch()
+        title_menu()
         activate('#replay-scenes')
         expect(page.locator('.replay-frame')).to_be_visible()
         activate('#gallery-back')
@@ -407,7 +487,7 @@ def run(profile, base):
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
         page.get_by_role('link', name='Play HIRE.EXE').click()
         launch()
-        activate('#title-play')
+        title_play()
         assert page.locator('#comic-title').inner_text() == 'One PDF'
         for _ in range(4):
             activate('#scene-next')
@@ -481,6 +561,7 @@ def run(profile, base):
         # Picking a later world must offer its intro once, including after reload.
         page.goto(base)
         launch()
+        title_menu()
         activate('#choose-world')
         activate('#world-2')
         expect(page.locator('#comic-title')).to_have_text('Both of them')
@@ -488,17 +569,18 @@ def run(profile, base):
         assert page.evaluate('HIRED_APP.state.levelIndex === 2')
         page.reload()
         launch()
+        title_menu()
         activate('#choose-world')
         activate('#world-2')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 2")
 
         # Phase-specific checks use completed checkpoints so the four-world run
         # below can still use its own isolated portfolio save.
-        page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
+        page.evaluate('''() => localStorage.setItem('hired-exe:v04:general',
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
         launch()
-        activate('#title-play')
+        title_play()
         expect(page.locator('#comic-title')).to_have_text('A quick addition')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v5/city-1\.webp'))
         activate('#scene-skip')
@@ -560,18 +642,18 @@ def run(profile, base):
         # On a phone the Games folder opens over the main one; put it away before launching.
         activate('#games-window .w31-min')
         launch()
-        activate('#title-play')
+        title_play()
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
 
-        page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
+        page.evaluate('''() => localStorage.setItem('hired-exe:v04:general',
             JSON.stringify({lastLevel:3,pendingScene:4,results:{
                 0:{completed:true},1:{completed:true},2:{completed:true},3:{completed:true}
             }}))''')
         page.reload()
         launch()
-        activate('#title-play')
-        expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
-        expect(page.locator('#comic-dialogue strong').first).to_have_text('James')
+        title_play()
+        expect(page.locator('#comic-title')).to_have_text('Come in on Thursday')
+        expect(page.locator('#comic-dialogue strong').first).to_have_text('Interviewer')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-1\.webp'))
         activate('#scene-next')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-2\.webp'))
@@ -580,14 +662,14 @@ def run(profile, base):
         for answer in (0, 1):
             activate(f'#answer-{answer}')
             activate('#interview-next')
-        expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
+        expect(page.locator('#comic-title')).to_have_text('Come in on Thursday')
         activate('#scene-next')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-4\.webp'))
         page.screenshot(path=OUT/'offer.jpg', animations='disabled')
         activate('#scene-next')
         expect(page.locator('#final-cv')).to_have_attribute('href', 'cv.html')
         expect(page.locator('#overlay')).to_contain_text('fictional hiring journey')
-        page.evaluate("localStorage.removeItem('hired-exe:v04:solved-001')")
+        page.evaluate("localStorage.removeItem('hired-exe:v04:general')")
         # The visitor log notes this visit's moments, and sends nothing from a test server.
         moments = page.evaluate("Hired.track.log.map(e => e.n)")
         assert 'Arrived' in moments and 'Game completed' in moments and page.evaluate("Hired.track.live") is False, moments
@@ -639,7 +721,7 @@ def run(profile, base):
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         launch()
-        activate('#title-play')
+        title_play()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')

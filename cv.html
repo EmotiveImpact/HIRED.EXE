@@ -107,7 +107,7 @@
             <article>
               <h3>HIRE.EXE | My job application, as a video game</h3>
               <p class="meta"><a href="https://hireexe.me/">hireexe.me</a> | First commit 19 November 2026</p>
-              <p><span class="lead">You asked what I have done that is abnormal. I built my job application as a video game.</span> A CV gets skimmed. A game gets played. Playable within a day: four worlds, a working Windows 3.1 desktop holding my live work, and a bonus submarine game. I directed the story, characters and sound and built it with Claude Code and Codex. A bot playtests every change on desktop, Android and iPhone.</p>
+              <p><span class="lead"><span data-only="solved-001" hidden>You asked what I have done that is abnormal. </span>I built my job application as a video game.</span> A CV gets skimmed. A game gets played. Playable within a day: four worlds, a working Windows 3.1 desktop holding my live work, and a bonus submarine game. I directed the story, characters and sound and built it with Claude Code and Codex. A bot playtests every change on desktop, Android and iPhone.</p>
               <p class="lead cta">Play it first: <a href="https://hireexe.me/">hireexe.me</a></p>
             </article>
           </section>
@@ -226,5 +226,15 @@
       </div>
     </main>
   </div>
+  <script src="src/edition.js"></script>
+  <script>
+    // One sentence answers Solved's advert. It shows only in that edition, which has its own PDF too.
+    (function () {
+      const edition = globalThis.HIRED_EDITION;
+      for (const only of document.querySelectorAll('[data-only]')) if (only.dataset.only === edition.id) only.replaceWith(...only.childNodes);
+      if (edition.cvPdf) document.querySelector('a.download').href = edition.cvPdf;
+      if (edition.cvPdf) for (const back of document.querySelectorAll('a[href="index.html"]')) back.href = 'index.html?edition=' + encodeURIComponent(edition.id);
+    })();
+  </script>
 </body>
 </html>

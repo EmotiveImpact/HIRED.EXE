@@ -1,13 +1,46 @@
 (function (H) {
   'use strict';
   H.desktopCalculator = function (modal) {
-    const keys = ['MC','MR','MS','M+','M−','←','CE','C','±','√','7','8','9','÷','%','4','5','6','×','1/x','1','2','3','−','=','0','.','+'];
+    // Windows 3.1's Standard Calculator: a memory column, the number pad, the operators, and
+    // C, CE and Back above them. The keys keep their proper symbols inside (data-key) and wear
+    // the captions the real one had.
+    const pad = ['MC','7','8','9','÷','√','MR','4','5','6','×','%','MS','1','2','3','−','1/x','M+','0','±','.','+','='];
+    const top = ['C','CE','←'];
+    const keys = [...top, ...pad];
+    const captions = {'←':'Back','÷':'/','×':'*','−':'-','√':'sqrt','±':'+/-'};
+    const spoken = {'←':'Backspace','÷':'Divide','×':'Multiply','−':'Subtract','√':'Square root','±':'Change sign'};
+    const tint = k => top.includes(k) ? 'calc-clear' : /^M|^[÷×−+=]$/.test(k) ? 'calc-red' : ['√','%','1/x'].includes(k) ? 'calc-navy' : 'calc-digit';
+    const button = k => '<button type="button" class="'+tint(k)+'" data-key="'+k+'"'+(spoken[k]?' aria-label="'+spoken[k]+'"':'')+'>'+(captions[k]||k)+'</button>';
     const operations = {'+':(a,b)=>a+b,'−':(a,b)=>a-b,'×':(a,b)=>a*b,'÷':(a,b)=>a/b};
-    modal('Calculator', '<section class="standard-calc"><div class="calc-readout"><small class="calc-expression"></small><output class="calc-display" aria-label="Result">0</output></div><div class="calc-keys">' +
-      keys.map(key=>'<button type="button" data-key="'+key+'">'+key+'</button>').join('') +
-      '</div><details><summary>History</summary><ol class="calc-history"></ol></details></section>');
+    let win = null;
+    const copy = () => navigator.clipboard?.writeText(display.value).catch(()=>{});
+    const paste = () => navigator.clipboard?.readText().then(text=>{
+      for(const ch of text.trim())if(/[0-9.]/.test(ch))input(ch);
+    }).catch(()=>{});
+    modal('Calculator', '<section class="standard-calc"><output class="calc-display" aria-label="Result" data-whole>0</output>' +
+      '<div class="calc-top"><span class="calc-memory" aria-label="Memory"></span><span class="calc-clears">' + top.map(button).join('') + '</span></div>' +
+      '<div class="calc-keys">' + pad.map(button).join('') + '</div>' +
+      '<details><summary>History</summary><ol class="calc-history"></ol></details></section>', false, {menu:[
+      { label: '&Edit', id: 'calc-edit', items: () => [
+        { label: '&Copy', key: 'Ctrl+C', id: 'calc-copy', disabled: !navigator.clipboard?.writeText, action: copy },
+        { label: '&Paste', key: 'Ctrl+V', id: 'calc-paste', disabled: !navigator.clipboard?.readText, action: paste }
+      ] },
+      { label: '&View', id: 'calc-view', items: () => [
+        { label: '&Scientific', disabled: true },
+        { label: 'S&tandard', checked: true },
+        '-',
+        { label: '&History', id: 'calc-history-menu', checked: details.open, action: () => { details.open = !details.open; } }
+      ] },
+      { label: '&Help', id: 'calc-help', items: () => [
+        { label: '&Contents', key: 'F1', disabled: true },
+        { label: '&Search for Help On...', disabled: true },
+        { label: '&How to Use Help', action: () => H.winhelp?.('using-help') },
+        '-',
+        { label: '&About Calculator...', id: 'calc-about', action: () => H.progman.about('Calculator', win) }
+      ] }
+    ]});
     const app=document.querySelector('.standard-calc');
-    const display=app.querySelector('output'), expression=app.querySelector('.calc-expression');
+    const display=app.querySelector('output'), memoryBox=app.querySelector('.calc-memory'), details=app.querySelector('details');
     const history=app.querySelector('ol');
     record('£4,000,000 ÷ 1 download = £4,000,000 per download');
     let memory=0, lhs=0, op='', repeat='', rhs=0, entering=false, supplied=false, caption='';
@@ -41,7 +74,7 @@
       if(k==='←'){if(entering)display.value=display.value.slice(0,-1).replace(/^-$|^$/,'0');return;}
       if(k==='MR'){result(memory);repeat='';return;}
       if(k==='MS'){memory=n;return;}
-      if(k==='M+'||k==='M−'){const sum=memory+(k==='M+'?n:-n);if(Number.isFinite(sum))memory=Number(format(sum));return;}
+      if(k==='M+'){const sum=memory+n;if(Number.isFinite(sum))memory=Number(format(sum));return;}
       if(['±','√','1/x','%'].includes(k)){
         const values={'±':-n,'√':Math.sqrt(n),'1/x':1/n,'%':(op==='+'||op==='−'?lhs:1)*n/100};
         result(values[k]);repeat='';return;
@@ -56,9 +89,15 @@
         calculate(repeat,rhs);op='';
       }
     }
-    function input(k){press(k);expression.textContent=[memory?'M':'',caption].filter(Boolean).join('   ');}
-    app.querySelector('.calc-keys').onclick=e=>{if(e.target.dataset.key)input(e.target.dataset.key);};
-    const win=app.closest('.modal-window');
+    // The real one shows a whole number with a full stop after it (styles.css draws that), and an
+    // M in the box on the left while memory holds something.
+    function input(k){
+      if(k)press(k);
+      memoryBox.textContent=memory?'M':'';
+      display.toggleAttribute('data-whole',/^-?\d+$/.test(display.value));
+    }
+    app.onclick=e=>{const k=e.target.closest('[data-key]')?.dataset.key;if(k)input(k);};
+    win=app.closest('.modal-window');
     win.tabIndex=-1;
     requestAnimationFrame(()=>win.focus({preventScroll:true}));
     win.onkeydown=e=>{

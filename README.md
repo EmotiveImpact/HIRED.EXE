@@ -1,6 +1,6 @@
 # HIRE.EXE
 
-An original four-world platformer and playable job application by Augustus Edem. The default edition introduces Augustus to Solved Studio. Use **Meet Augustus** for the portfolio or **View CV** for a one-page CV with a downloadable PDF. Both are available on the title screen.
+An original four-world platformer and playable job application by Augustus Edem. The default edition is for everyone and names no employer. The Solved Studio edition opens from `?from=james`. Use **Meet Augustus** for the portfolio or **View CV** for a one-page CV with a downloadable PDF. Both are available on the title screen.
 
 Play it at [hireexe.me](https://hireexe.me).
 
@@ -17,7 +17,7 @@ Open `index.html` from a complete checkout, or run `python3 -m http.server 8000`
 
 Use A/D or the arrow keys to move, Space to jump, Shift or X to dash and P to pause. Hold jump for height and press it a second time for a double jump. Down plus Jump drops through a floating platform. Touch controls support simultaneous presses. The world directory and pause menu offer Relaxed mode.
 
-Twenty illustrated shots follow Augustus from the application form to the fictional job offer. Read the complete sequence in [Cutscenes](cutscenes.html) or play each chapter during the campaign. In the Solved Studio edition, James Morgenstern appears in the interview and the fictional offer scene. Use **Next panel**, **Previous** or **Skip cutscene** to read at your own pace. After clearing a world, **Continue the story** brings you back to the next cutscene. The world directory takes you straight to gameplay.
+Twenty illustrated shots follow Augustus from the application form to the fictional job offer. Read the complete sequence in [Cutscenes](cutscenes.html) or play each chapter during the campaign. In the Solved Studio edition the interviewer is James and the opening answers Solved’s advert. The general edition tells the same story with an unnamed interviewer. Use **Next panel**, **Previous** or **Skip cutscene** to read at your own pace. After clearing a world, **Continue the story** brings you back to the next cutscene. The world directory takes you straight to gameplay.
 
 Each world has two checkpoint terminals, three optional skill tokens, a hidden portfolio field note and a bonus collectible. The bonus items include in-game ChatGPT and Claude subscription cards. A checkpoint restores health and saves a snapshot on this browser. After reloading, **Continue from checkpoint** restores that snapshot. Within the same run, retries also keep pickups and boss progress earned since the checkpoint. **Restart this world** begins the level again. When storage is unavailable the run still works in memory.
 
@@ -25,7 +25,7 @@ The interview ending records the visitor's chosen topics, links to the selected 
 
 ## Reuse for another application
 
-The default URL selects `solved-001`. Use `?edition=portfolio` for the employer-neutral version. Add another entry to the edition map in [src/edition.js](src/edition.js) and give it a distinct ID. Set its company, role, opening, closing, projects, field notes, contact and interview questions. The same built site serves each registered edition by URL and keeps results under separate keys. Unknown IDs fall back to the default. Keep private project walkthroughs as descriptions.
+The default URL selects `general`, the edition with no employer in it. `?from=james` (the link in the email to James) or `?edition=solved-001` selects the Solved Studio edition, and the browser remembers that choice until `?edition=general` is opened. `?edition=portfolio` is the older neutral edition the playtest uses. An edition rewords the cutscenes through its `cutscenes` entry (lines, speakers, chapter titles and pictures by shot ID), so the shots in [src/director-scenes.js](src/director-scenes.js) stay one list. The CV page, CV.TXT and CV.PDF follow the edition too: `cvOmit` lists the sentences an edition leaves out and `cvPdf` names its own PDF, so reprint both PDFs from `cv.html` after any CV change (`cv.html` for the general one, `cv.html?edition=solved-001` for `assets/cv/solved/`). Add another entry to the edition map in [src/edition.js](src/edition.js) and give it a distinct ID. Set its company, role, opening, closing, projects, field notes, contact and interview questions. The same built site serves each registered edition by URL and keeps results under separate keys. Unknown IDs fall back to the default. Keep private project walkthroughs as descriptions.
 
 The portfolio currently links to [Vlume](https://vlumeaudio.com/) and [Cairn](https://cairnmac.com/).
 
