@@ -64,7 +64,8 @@
 
   // Plays the intro in `layer` and resolves with 'done' or 'skipped'.
   // voice: {decode(bytes) -> Promise of a sound, play(sound) -> something with stop(), or null}.
-  function play(layer, {asset = path => path, sound = () => {}, voice = null} = {}) {
+  // clips: false where the clips and voices do not exist, as in the single offline file.
+  function play(layer, {asset = path => path, sound = () => {}, voice = null, clips = true} = {}) {
     return new Promise(resolve => {
       let beat = -1, line = -1, timer = 0, over = false, typing = 0, watch = 0;
       layer.className = 'overlay intro-overlay';
@@ -87,7 +88,7 @@
       BEATS.forEach(b => { new Image().src = asset(still(b.art)); });
 
       // A shot's clip and its voices are fetched while the shot before it plays.
-      const films = {}, voices = {}, filmed = clipsWelcome();
+      const films = {}, voices = {}, filmed = clips && clipsWelcome();
       function fetchShot(b) {
         if (!filmed || !b || films[b.art]) return;
         const film = document.createElement('video');

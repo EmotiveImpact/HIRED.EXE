@@ -700,8 +700,8 @@
     {
       "path": "assets/production/intro/antiques.mp3",
       "role": "production-asset",
-      "bytes": 80813,
-      "sha256": "11dfeaafda248259f305b864abc3be5972f7efbc01e2d5ab3a6a4327b8c491ff"
+      "bytes": 80501,
+      "sha256": "1694957b20bd608737ffbc64b52d22d12dd39f1a9a36176322a6ae39c5d8c278"
     },
     {
       "path": "assets/production/intro/antiques.mp4",
@@ -718,8 +718,8 @@
     {
       "path": "assets/production/intro/door.mp3",
       "role": "production-asset",
-      "bytes": 94187,
-      "sha256": "67cd5f64510cd9e9af96538495b099fd0254a838165a091fda63a71b47c6eb4a"
+      "bytes": 94293,
+      "sha256": "aa12b09ab4f830f6b9e16a86dc131467cde6b595e78c08a96bed4438779fcfe9"
     },
     {
       "path": "assets/production/intro/door.mp4",
@@ -736,8 +736,8 @@
     {
       "path": "assets/production/intro/driver.mp3",
       "role": "production-asset",
-      "bytes": 44241,
-      "sha256": "417a150435ea1d5f96cf302dd546b37992d9de25fb1c1b70f58925082aa15ba2"
+      "bytes": 44138,
+      "sha256": "c0eeb0d053352950d9cc8b471b71a93b8051b82f978753f4c4735ad712f93974"
     },
     {
       "path": "assets/production/intro/driver.mp4",
@@ -754,8 +754,8 @@
     {
       "path": "assets/production/intro/found.mp3",
       "role": "production-asset",
-      "bytes": 64721,
-      "sha256": "a83e396fb3f9897e9548de4557d243f90232fff3f8bdad5ef705c8bf79f015de"
+      "bytes": 64618,
+      "sha256": "57a231335b77938c6f3230ec7fe097d6ecea5e5ad4fcb84020934ca47c25465b"
     },
     {
       "path": "assets/production/intro/found.mp4",
@@ -772,8 +772,8 @@
     {
       "path": "assets/production/intro/news.mp3",
       "role": "production-asset",
-      "bytes": 80813,
-      "sha256": "307fefe5060055498f17eb15b95abf18ce050a587f0ff732509cde72f46eeda9"
+      "bytes": 80501,
+      "sha256": "4d7651e152118db71816a6c222581b7ea47f64512c58f4553d4d435404b17f63"
     },
     {
       "path": "assets/production/intro/news.mp4",
@@ -790,8 +790,8 @@
     {
       "path": "assets/production/intro/studio.mp3",
       "role": "production-asset",
-      "bytes": 80813,
-      "sha256": "1b9e398bcca8787f2d3e0933dd8b8a4a6ab415fbac600dd1db0850691b32db49"
+      "bytes": 80501,
+      "sha256": "7ffe08535771335a52b297debdacd1ac201a4f4615bb6463881d192f65a71db2"
     },
     {
       "path": "assets/production/intro/studio.mp4",
@@ -808,8 +808,8 @@
     {
       "path": "assets/production/intro/tech.mp3",
       "role": "production-asset",
-      "bytes": 78305,
-      "sha256": "33db6d4be5ae55566dd395f3ecc32e5fe3bcd8585538f7325274b260f5462476"
+      "bytes": 78202,
+      "sha256": "4c3e503df15547052595f0f01f61c30e190ad63b241007c2c3f781973d8e7fec"
     },
     {
       "path": "assets/production/intro/tech.mp4",
