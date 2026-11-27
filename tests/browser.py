@@ -159,7 +159,7 @@ def run(profile, base):
         open_item('#home-devlog')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - DEVLOG.TXT')
         devlog = notepad.locator('.notepad-text').input_value()
-        for line in ('Newest entry first.', 'FIRST COMMIT', 'C:\\> prompt', 'hireexe.me'):
+        for line in ('Newest entry first.', 'The code STILLAVAILABLE takes 20% off either.', 'FIRST COMMIT', 'C:\\> prompt', 'hireexe.me'):
             assert line in devlog, line
         dates = [tuple(reversed(d.split('/'))) for d in re.findall(r'^\d\d/\d\d/\d{4}$', devlog, re.M)]
         assert len(dates) >= 2 and dates == sorted(dates, reverse=True), dates

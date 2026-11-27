@@ -8,6 +8,11 @@ HIRE.EXE: the making of a job application that got out of hand.
 Newest entry first.
 
 
+WHILE YOU ARE HERE
+
+I have shipped ordinary things too: Vlume (vlumeaudio.com) and Cairn (cairnmac.com), both for the Mac. The code STILLAVAILABLE takes 20% off either. It works for as long as I am.
+
+
 27/11/2026
 A PLANE, BY THE HOUR
 
