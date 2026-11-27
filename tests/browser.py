@@ -35,6 +35,10 @@ def sign_guestbook(context, base, mobile, errors):
     page.goto(base)
     page.locator('#start-game').wait_for()
     press = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
+    open_item = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).dblclick())
+    # The Guestbook waits as an icon in the applicant's group.
+    expect(page.locator('.guestbook-window')).to_have_count(0)
+    open_item('#desk-guestbook')
     # What a visitor wrote is shown as the text it is, never as markup.
     expect(page.locator('.gb-entry')).to_have_count(1)
     expect(page.locator('.gb-entry b')).to_have_text('<b>Mum</b>')
@@ -65,8 +69,9 @@ def sign_guestbook(context, base, mobile, errors):
     assert sent == [{'name': 'James M.', 'message': 'Came for the CV, stayed for the submarine.', 'email': 'james@example.test', 'website': ''}], sent
     # The address went to the book and is nowhere in the window.
     assert 'james@example.test' not in page.locator('.guestbook-window').inner_text()
-    # On a first visit the button in HIRE.EXE's window opens the intro, and the title lands after it.
-    press('#hire-start')
+    # On a first visit HIRE.EXE opens on the intro, and the title lands after it.
+    press('#guestbook-close')
+    open_item('#start-game')
     expect(page.locator('#game-window')).to_be_visible()
     expect(page.locator('.intro-osd')).to_have_text('CH 1')
     # The first shot plays as video even so (where this browser can play the clips at all).
@@ -75,8 +80,7 @@ def sign_guestbook(context, base, mobile, errors):
     press('#intro-skip')
     expect(page.locator('.game-title.title-land')).to_be_visible()
     assert page.evaluate("JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('hired-exe:v'))) || '{}').introSeen === true")
-    # Once the intro has been seen, the same button starts the game there and then, with no title
-    # screen in between.
+    # Once the intro has been seen, HIRE.EXE opens on its title screen.
     page.reload()
     page.locator('#start-game').wait_for()
     # Options > Replay intro shows it again, whatever has been seen, and the title lands after it.
@@ -87,10 +91,10 @@ def sign_guestbook(context, base, mobile, errors):
     expect(page.locator('.game-title.title-land')).to_be_visible()
     page.reload()
     page.locator('#start-game').wait_for()
-    press('#hire-start')
+    open_item('#start-game')
     expect(page.locator('#game-window')).to_be_visible()
-    expect(page.locator('#scene-next')).to_be_visible()
-    expect(page.locator('#title-play')).to_have_count(0)
+    expect(page.locator('.game-title')).to_be_visible()
+    expect(page.locator('.intro-osd')).to_have_count(0)
     page.close()
 
 
@@ -228,18 +232,11 @@ def run(profile, base):
         def launch():
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
-        # HIRE.EXE's own window and the Guestbook are open from the start, tiled with Program Manager:
-        # each inside the desktop, and none over another.
-        expect(page.locator('#hire-start')).to_have_text('Play the game')
-        expect(page.locator('.guestbook-window')).to_be_visible()
-        tiled = '''() => { const d = document.querySelector('#os-shell').getBoundingClientRect();
-            const r = ['progman', 'hire', 'guestbook'].map(id => document.querySelector(`.w31-window[data-win="${id}"]`).getBoundingClientRect());
-            return r.every(a => a.left >= d.left && a.top >= d.top && a.right <= d.right + 1 && a.bottom <= d.bottom + 1) &&
-                r.every((a, i) => r.every((b, j) => i >= j || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)); }'''
-        assert page.evaluate(tiled)
-        # The test server keeps no guestbook, so the window says so and asks nothing of the network.
-        expect(page.locator('.gb-note')).to_contain_text('cannot reach it')
-        expect(page.locator('#guestbook-sign')).to_be_disabled()
+        # Only Program Manager is open at the start. HIRE.EXE and the Guestbook wait as icons.
+        expect(page.locator('#hire-start')).to_have_count(0)
+        expect(page.locator('.guestbook-window')).to_have_count(0)
+        assert page.evaluate("[...document.querySelectorAll('.w31-window')].filter(w => w.offsetParent).map(w => w.dataset.win).join() === 'progman'")
+        expect(page.locator('#main-window #start-game')).to_have_count(1)
         expect(page.locator('#main-window #desk-guestbook')).to_have_count(1)
         sign_guestbook(context, base, mobile, errors)
         two_editions(context, base, errors)
@@ -729,9 +726,12 @@ def run(profile, base):
         context.route(re.compile(r'^https?://'), reject_network)
         page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
-        # The single file opens the same two windows, and its guestbook does not go looking for the book.
-        expect(page.locator('#hire-start')).to_be_visible()
+        # The single file starts the same way, and its guestbook does not go looking for the book.
+        expect(page.locator('.guestbook-window')).to_have_count(0)
+        open_item('#desk-guestbook')
+        expect(page.locator('.gb-note')).to_contain_text('cannot reach it')
         expect(page.locator('#guestbook-sign')).to_be_disabled()
+        activate('#guestbook-close')
         # CV.TXT and CV.PDF replace the old CV web page icon.
         expect(page.locator('#home-cv')).to_have_count(0)
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')

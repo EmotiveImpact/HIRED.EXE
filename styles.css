@@ -636,17 +636,6 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .gb-list::-webkit-scrollbar-button:single-button:horizontal:decrement,.notepad-text::-webkit-scrollbar-button:single-button:horizontal:decrement,#os-dialog [data-win="portfolio"]>.modal-body::-webkit-scrollbar-button:single-button:horizontal:decrement,.pm-items::-webkit-scrollbar-button:single-button:horizontal:decrement{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAHCAYAAAAvZezQAAAAKElEQVR42mNgQAX/mZA5DAwMDEzIHJjAf2Q9TAwMDIzoAgzogii2AABRKAUIZ9MPkQAAAABJRU5ErkJggg==)}
 .gb-list::-webkit-scrollbar-button:single-button:horizontal:increment,.notepad-text::-webkit-scrollbar-button:single-button:horizontal:increment,#os-dialog [data-win="portfolio"]>.modal-body::-webkit-scrollbar-button:single-button:horizontal:increment,.pm-items::-webkit-scrollbar-button:single-button:horizontal:increment{background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAHCAYAAAAvZezQAAAAKUlEQVR42l3MsQkAMAwDwXP231lpQhBW83CFIGrnNRs+NkA2TMPYh3ABXQwFCKNwFkcAAAAASUVORK5CYII=)}
 @media (pointer:coarse){.notepad-text{font-size:15px;padding:4px 6px}}
-/* HIRE.EXE's window on the desktop: the game's title screen, sized by its window. */
-.hire-window{width:min(640px,100%);height:min(390px,100%)}
-.hire-window .modal-body{display:flex;padding:0;overflow:hidden;background:#15142e}
-.hire-title{flex:1;position:relative;min-width:0;display:flex;align-items:center;overflow:hidden;container-type:size;isolation:isolate;color:#fff;background:linear-gradient(90deg,#15142efa 0%,#191338c9 45%,transparent 82%),var(--title-scene) center/cover}
-.hire-hero{position:absolute;right:4%;bottom:0;height:78%;width:auto;max-width:36%;object-fit:contain;object-position:bottom;image-rendering:pixelated;filter:drop-shadow(4px 4px 0 #1a173b88);z-index:-1}
-.hire-copy{width:68%;padding:0 0 0 6cqw;text-align:left}
-.hire-copy h1{margin:0 0 2cqh;white-space:nowrap;font:bold clamp(26px,min(11cqw,26cqh),96px)/1 monospace;letter-spacing:-.08em;text-shadow:.04em .05em #252049}
-.hire-copy h1 span{color:#ffc956}
-.hire-copy p{margin:0 0 5cqh;max-width:30ch;white-space:pre-line;font:bold clamp(11px,min(2.3cqw,5.5cqh),18px)/1.3 Arial,Helvetica,sans-serif;text-shadow:1px 1px #15142e}
-.hire-copy .btn{flex:none;width:auto;min-height:clamp(30px,13cqh,46px);padding:0 clamp(12px,3cqw,26px);font-size:clamp(12px,min(2.4cqw,6cqh),16px)}
-@container (max-height:120px){.hire-copy p{display:none}.hire-copy h1{margin-bottom:5cqh}}
 
 /* Guestbook */
 .guestbook-window{width:min(360px,100%);height:min(420px,100%)}
