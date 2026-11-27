@@ -8,37 +8,38 @@
 (function (H) {
   'use strict';
   const FOLDER = 'assets/production/intro/';
-  // A line is [speaker, words, second of the clip at which it is spoken]. A shot with an `end`
-  // is left at that second: a channel half a second after its last word, as someone hopping
-  // channels would leave it, and the last shot as Augustus finishes the sentence he began in
-  // the shot before.
+  // A line is [speaker, words, second of the clip at which it is spoken]. Every clip begins just
+  // before its first word. A shot with an `end` is left at that second: a channel half a second
+  // after its last word, as someone hopping channels would leave it, the room as the doorbell
+  // rings, the driver before Augustus finishes his sentence and the last shot as he finishes it.
   const BEATS = [
-    {channel: 1, art: 'news', end: 10.2, lines: [
-      ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0],
-      ['Newsreader', 'Applicants are asked to bring their old lanyard.', 7.1]]},
-    {channel: 2, art: 'tech', end: 9.9, lines: [
-      ['Presenter', 'Forty thousand new apps launched this morning.', 1.4],
-      ['Presenter', 'Anyone can build one now. And, looking at them, anyone has.', 5]]},
-    {channel: 3, art: 'antiques', end: 10.1, lines: [
-      ['Expert', 'A cover letter. Written by a person.', 1.2],
-      ['Owner', 'Is it worth anything?', 5.5],
-      ['Expert', 'Not since about 2023.', 7.4]]},
-    {art: 'studio', lines: [
-      ['Augustus', 'Pepper. We need a job. We’re too good not to be shipping.', 2.3],
-      ['Pepper', 'On it.', 7],
-      ['Doorbell', 'Ding dong.', 8.5]]},
+    {channel: 1, art: 'news', end: 10.25, lines: [
+      ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0.1],
+      ['Newsreader', 'Applicants are asked to bring their old lanyard.', 6.8]]},
+    {channel: 2, art: 'tech', end: 10, lines: [
+      ['Presenter', 'Forty thousand new apps launched this morning.', 0.4],
+      ['Presenter', 'Anyone can build one now.', 3.7],
+      ['Presenter', 'And, looking at the state of them, anyone has.', 5.75]]},
+    {channel: 3, art: 'antiques', end: 10.05, lines: [
+      ['Expert', 'A cover letter. Written by a person.', 0.4],
+      ['Owner', 'Is it worth anything?', 4.4],
+      ['Expert', 'Not since about 2023.', 6.95]]},
+    {art: 'studio', end: 7.8, lines: [
+      ['Augustus', 'Pepper. We need a job. We’re too good not to be shipping.', 0.4],
+      ['Pepper', 'On it.', 5.7],
+      ['Doorbell', 'Ding dong.', 6.7]]},
     {art: 'door', lines: [
-      ['Augustus', 'Pepper! Nothing with a ping-pong table.', 0],
-      ['Pepper', 'Yes, sir.', 5.05],
-      ['Driver', 'Sir? Who’s that?', 6.4],
-      ['Augustus', 'That’s Pepper. My AI assistant.', 9.05]]},
-    {art: 'driver', end: 4.95, lines: [
-      ['Driver', 'What are you, a black Tony Stark or something?', 0.6],
-      ['Augustus', 'Don’t hate the player…', 3.7]]},
-    {art: 'play', end: 7.9, lines: [
-      ['Pepper', 'Sir. Found one.', 0.15],
-      ['Pepper', 'A startup wants an AI product builder.', 3.1],
-      ['Augustus', '…play the game.', 6.4]]}
+      ['Augustus', 'Oh, and Pepper. Nothing with a ping-pong table.', 0.75],
+      ['Pepper', 'Yes, sir.', 4.65],
+      ['Driver', 'Sir? Who’s that?', 5.6],
+      ['Augustus', 'That’s Pepper. My AI assistant.', 8.35]]},
+    {art: 'driver', end: 3.95, lines: [
+      ['Driver', 'What are you, a black Tony Stark or something?', 0.25],
+      ['Augustus', 'Don’t hate the player…', 2.75]]},
+    {art: 'play', end: 7.85, lines: [
+      ['Pepper', 'Sir. Found one.', 0.4],
+      ['Pepper', 'A startup wants an AI product builder.', 2.55],
+      ['Augustus', '…play the game.', 6.65]]}
   ];
   const still = art => FOLDER + art + '.webp';
   const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;

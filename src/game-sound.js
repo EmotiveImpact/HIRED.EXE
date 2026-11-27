@@ -152,9 +152,9 @@
     // The intro's old telly: a clunk and a burst of snow between channels, a thump and a dying
     // whine as it goes off, and the doorbell.
     'intro-flip'(t) {
-      tone(t, {type: 'square', f0: 110, f1: 60, dur: 0.05, vol: 0.2, filter: 900});
-      hiss(t + 0.02, {type: 'bandpass', f0: 2600, f1: 3400, q: 0.5, dur: 0.2, vol: 0.4});
-      tone(t + 0.22, {type: 'square', f0: 140, f1: 80, dur: 0.04, vol: 0.14, filter: 900});
+      tone(t, {type: 'square', f0: 110, f1: 60, dur: 0.05, vol: 0.3, filter: 900});
+      hiss(t + 0.02, {type: 'bandpass', f0: 2600, f1: 3400, q: 0.5, dur: 0.22, vol: 0.7});
+      tone(t + 0.22, {type: 'square', f0: 140, f1: 80, dur: 0.04, vol: 0.2, filter: 900});
     },
     'intro-off'(t) {
       tone(t, {type: 'sine', f0: 150, f1: 45, dur: 0.16, vol: 0.4});
