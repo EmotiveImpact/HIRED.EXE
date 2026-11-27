@@ -520,8 +520,8 @@
     {
       "path": "assets/production/backgrounds/ship-it-city-near.webp",
       "role": "production-asset",
-      "bytes": 459278,
-      "sha256": "b2093c75ace8a210136f3ee3b41b3c2597077e1fbcd9a3e6b0fde90cbcf5fc8b"
+      "bytes": 457538,
+      "sha256": "839521df7f44bf1dd2f607ca827867ff0f5a2544e079ec1a2e7086b04fe922b3"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city-sky.webp",
@@ -664,14 +664,14 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 7380,
-      "sha256": "0309dceb7a2cff49a63776210e3e7eaf22324378280cd58b09cfa805de767649"
+      "bytes": 7279,
+      "sha256": "fbbdc12db0ea700b0c150e3b86f88c47f2e4584b5ec8700d8fd3c5fc2b37dc26"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
       "role": "production-asset",
-      "bytes": 220150,
-      "sha256": "b3c0dd9d0989e144f00dce3d1562e39f5c3bceddb4bbad8fb35f4b483cfa19ca"
+      "bytes": 183200,
+      "sha256": "ff7f5d1f3f2a05e75efac7d5541d2858d290e14d9eaeadd7b6984c6261ce1a19"
     },
     {
       "path": "assets/production/environment/props-atlas.json",

@@ -19,7 +19,9 @@
   // Things that cross the sky behind the level. Speeds are pixels a second; `far` is how much of the
   // camera's travel they share, so distant things slide past more slowly than near ones.
   const PLANE = { speed: 46, far: .06, wait: 4, rest: 620, y: 58, rope: 18, font: 'bold 13px monospace', ink: '#3b2148', hem: '#d6453d', cord: '#7a4a2a' };
-  const TRAIN = { speed: 120, rest: 1500 };
+  // A train crosses the view left to right every so often: the first a few seconds into the
+  // level, each later one a while after the last has gone.
+  const TRAIN = { speed: 115, first: 4, every: 22 };
 
   class Renderer {
     constructor(canvas) {
@@ -158,6 +160,7 @@
           if (i === scene.rocket?.behind) this.rocket(scene.rocket, (this.camera - start) * layer.speed);
           if (i === scene.behind) this.traffic(scene);
           this.strip(layers[i], offset, layers[i].width, HGT);
+          if (i === scene.behind && scene.train) this.train(scene);
           if (i === scene.smoke?.layer) this.smoke(scene.smoke, offset, layers[i].width);
           if (layer.haze) { ctx.fillStyle = layer.haze; ctx.fillRect(0, 0, W, HGT); }
         });
@@ -192,7 +195,7 @@
     lap(value, lap) { return ((value % lap) + lap) % lap; }
 
     // What moves behind the level: something that floats (a balloon, an airship), a small flock
-    // (gulls, delivery drones), a train along the world's bridge, and the plane with its banner.
+    // (gulls, delivery drones) and the plane with its banner. The train is drawn with its bridge.
     // A world still on a single plate gets the plane alone.
     traffic(scene) {
       const t = this.levelTime, cam = this.camera;
@@ -209,16 +212,24 @@
         }
       }
       this.plane(root.HIRED_EDITION?.banners?.[this.levelIndex] || 'HIRE ' + String(root.HIRED_EDITION?.applicant || 'ME').split(' ')[0].toUpperCase() + '.');
-      if (scene?.rail) {
-        // The train runs one way, rests out of sight, then comes back the other way.
-        const f = this.frame('kit', scene.train || 'train');
-        if (f) {
-          const lap = W + f.w + TRAIN.rest, run = t * TRAIN.speed, back = Math.floor(run / lap) & 1;
-          const along = this.lap(run, lap) - f.w, slide = this.lap(cam * scene.layers[scene.behind].speed, W + f.w);
-          const x = back ? W - f.w - along : along;
-          draw(scene.train || 'train', this.lap(x - slide + f.w, W + f.w) - f.w, scene.rail - f.h, back);
-        }
-      }
+    }
+
+    // The train runs on top of the world's bridge, in front of what stands on it, so it slides with
+    // that layer as the camera moves and travels at its own speed on top. It always runs the way
+    // its engine faces.
+    train(scene) {
+      const f = this.frame('kit', scene.train), t = this.levelTime;
+      if (!f) return;
+      const slide = this.camera * scene.layers[scene.behind].speed;
+      let run = this.trainRun;
+      if (!run || run.level !== this.levelIndex || t < run.seen) run = this.trainRun = { level: this.levelIndex, start: t + TRAIN.first };
+      run.seen = t;
+      if (t < run.start) return;
+      if (run.from === undefined) run.from = slide - f.w;
+      const x = run.from + (t - run.start) * TRAIN.speed - slide;
+      // Once it is off the far side (or the player has long outrun it), the next one is due.
+      if (x > W || t - run.start > 60) { run.start = t + TRAIN.every; run.from = undefined; return; }
+      if (x + f.w >= 0) this.kit(scene.train, x, scene.rail - f.h);
     }
 
     // Now and then a rocket climbs out from behind the skyline and leaves by the top of the screen.

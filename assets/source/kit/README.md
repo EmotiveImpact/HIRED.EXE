@@ -11,7 +11,7 @@ cuts away or paints out. The three from CapCut, whose names end in `-2`, have no
 | `alley-sky.png` | Application Alley's sky | none: a full picture |
 | `alley-far.png` | Its far skyline | green |
 | `alley-near.png` | Its viaduct and treetops | red, since the trees are green and pink |
-| `alley-movers.png` | Plane, blank banner, train, two gulls, balloon | green |
+| `alley-movers.png` | Plane, blank banner, train (no longer used: Application Alley has no train), two gulls, balloon | green |
 | `signs.png` | Four blank signs, one for each world | green |
 | `machinery-a.png` | Press head and rod, spring up and down, conveyor, speed strip, two orbs | green |
 | `machinery-b.png` | Gate pillar, blank tag, bell, padlock, warning sign | green |

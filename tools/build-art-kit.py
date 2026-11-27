@@ -18,7 +18,7 @@ Requires Pillow and NumPy, used for build tooling only.
 from pathlib import Path
 import json
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'assets/source/kit'
@@ -115,6 +115,29 @@ def sized(im, width=None, height=None):
 def cut(sheet, box, **size):
     """One sprite from a matted sheet: a box in the sheet's pixels, trimmed and scaled."""
     return sized(trim(sheet.crop(box))[0], **size)
+
+
+def crisp(im, height, colours=28, outline=(46, 30, 78)):
+    """A large sprite brought down to game pixels so it stays sharp: averaged rather than
+    resampled, sharpened, held to a small palette and ringed with a dark violet outline, which also
+    hides any trace of the key colour round its edge. It comes out two pixels taller than asked."""
+    im = trim(im)[0]
+    width = max(1, round(im.width * height / im.height))
+    data = np.asarray(im.convert('RGBA')).astype(np.float32)
+    data[..., :3] *= data[..., 3:] / 255
+    small = np.asarray(Image.fromarray(data.clip(0, 255).astype(np.uint8), 'RGBA').resize((width, height), Image.BOX)).astype(np.float32)
+    alpha = small[..., 3:]
+    small[..., :3] = np.where(alpha > 0, small[..., :3] * 255 / np.maximum(alpha, 1), 0)
+    rgb = Image.fromarray(small[..., :3].clip(0, 255).astype(np.uint8), 'RGB')
+    rgb = rgb.filter(ImageFilter.UnsharpMask(radius=1.2, percent=90, threshold=2))
+    rgb = np.asarray(rgb.quantize(colors=colours, method=Image.MEDIANCUT, dither=Image.NONE).convert('RGB'))
+    out = np.zeros((height + 2, width + 2, 4), np.uint8)
+    out[1:-1, 1:-1, :3] = rgb
+    out[1:-1, 1:-1, 3] = (small[..., 3] > 128) * 255
+    solid = out[..., 3] > 0
+    ring = ~solid & (np.roll(solid, 1, 0) | np.roll(solid, -1, 0) | np.roll(solid, 1, 1) | np.roll(solid, -1, 1))
+    out[ring] = (*outline, 255)
+    return Image.fromarray(out, 'RGBA')
 
 
 def banded(im, cuts, heights, width):
@@ -378,7 +401,6 @@ def alley_traffic():
     frames = {
         'plane': plane,
         'banner': banner,
-        'train': cut(sheet, (300, 600, 2310, 846), height=36),
         'gull_0': gull,
         'gull_1': glide,
         'balloon': sized(trim(basket)[0], width=40),
@@ -530,7 +552,7 @@ def alley_layers():
         'far': (layer(far, 0.375, -125, haze=(176, 196, 240), haze_from=(255, 345)), {'speed': 0.07}),
         'near': (layer(near, 0.3, 134), {'speed': 0.18}),
         'trees': (layer(trees, 0.36, 367), {'speed': 0.3}),
-    }, {'behind': 2, 'rail': 308, 'float': {'sprite': 'balloon', 'at': [260, 104]},
+    }, {'behind': 2, 'float': {'sprite': 'balloon', 'at': [260, 104]},
         'flock': {'sprite': 'gull', 'count': 3, 'y': 150, 'beat': 4}})
 
 
@@ -553,6 +575,18 @@ def shaved(im, tinted, depth=8):
     return Image.fromarray(data, 'RGBA')
 
 
+def unpinked(im, lead=45):
+    """The magenta ground's cast taken out of a cut-out: wherever red and blue both stand well clear
+    of green (nothing painted in Ship It City is that colour), they are brought down to it."""
+    data = np.asarray(im).astype(np.int32)
+    r, g, b = data[..., 0], data[..., 1], data[..., 2]
+    pink = (data[..., 3] > 0) & (r > g + lead) & (b > g + lead)
+    level = g + lead // 2
+    data[..., 0] = np.where(pink, np.minimum(r, level), r)
+    data[..., 2] = np.where(pink, np.minimum(b, level + 10), b)
+    return Image.fromarray(data.astype(np.uint8), 'RGBA')
+
+
 def city_layers():
     """Ship It City's skyline, and its bridge, factories and trees, are each one painted picture
     on a flat ground. The front bank of trees is lifted out of the second to slide by itself."""
@@ -560,7 +594,7 @@ def city_layers():
     sky = unmarked(Image.open(SRC / 'city-sky.png'), also=[(2290, 270, 2560, 470)]).convert('RGB').resize(SCREEN, Image.LANCZOS)
     far = matte(Image.open(SRC / 'city-far-2.png'), keep_marks=True)
     whole = Image.open(SRC / 'city-near-2.png')
-    near = matte(whole, keep_marks=True)
+    near = unpinked(matte(whole, keep_marks=True))
     # Leaves are greener than they are red and blue, or dark and teal in their shade; the lit
     # windows behind them are bright and as blue as they are green.
     trees = front_bank(whole, CITY_ART['trees'], lambda r, g, b: (g > r + 20) & ((g > b + 15) | ((g < 130) & (g > b - 12))), rim=36)
@@ -589,7 +623,7 @@ def city_traffic():
         'drone_0': cut(sheet, (1256, 208, 1724, 584), width=30),
         'drone_1': cut(sheet, (1868, 192, 2272, 568), width=30),
         # A faint line is drawn under the wheels: the train stops just above it.
-        'freight': cut(sheet, (284, 744, 2284, 1040), height=34),
+        'freight': crisp(sheet.crop((284, 744, 2284, 1040)), 40),
         'puff_0': cut(sheet, (308, 1204, 472, 1340), width=11),
         'puff_1': cut(sheet, (500, 1164, 704, 1340), width=15),
         'puff_2': cut(sheet, (732, 1104, 1004, 1336), width=20),
@@ -646,7 +680,7 @@ def growth_traffic():
         'courier_0': cut(sheet, (1128, 200, 1764, 504), width=32),
         'courier_1': cut(sheet, (1848, 204, 2456, 504), width=32),
         'rocket': cut(sheet, (84, 668, 456, 1380), width=20),
-        'maglev': sized(long, height=40),
+        'maglev': crisp(long, 42),
     }
     return frames, {}
 
