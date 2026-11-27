@@ -8,7 +8,7 @@
   // last until the page is reloaded, so a visitor can never lose HIRE.EXE. Window
   // positions are kept by Options > Save Settings on Exit.
   const wm = H.wm, esc = wm.esc;
-  const STORE = 'hired-exe:progman:v3';
+  const STORE = 'hired-exe:progman:v4';
   const CELL_W = 92, CELL_H = 78;
   const PM_ICON = '<span class="pm-icon-art"><i></i><i></i><i></i><i></i></span>';
   const APP_ICON = '<span class="pm-glyph pm-glyph-app" aria-hidden="true"></span>';
@@ -118,7 +118,7 @@
     const rec = wm.register(pm, {
       id: 'progman', title: 'Program Manager', icon: PM_ICON, iconId: 'pm-icon', area: root.closest('#os-shell') || root,
       resizable: true, maximisable: true, minSize: [240, 160], state: saved?.state,
-      defaultGeo: area => saved?.geo || defaultPmGeo(area),
+      defaultGeo: area => saved?.geo || cfg.place?.(area) || defaultPmGeo(area),
       onClose: () => { exitWindows(); return false; },
       focus: focusSelection,
       onState: () => requestAnimationFrame(() => layoutGroups()),
@@ -142,11 +142,18 @@
     const w = Math.min(780, W - 48), h = Math.min(Math.max(360, Ht * 0.6), Ht - 96, 520);
     return { x: (W - w) / 2, y: Math.max(12, Math.min(72, Ht * 0.07)), w, h };
   }
+  // The height the group icons take along the bottom: one row, or more in a narrow Program Manager.
+  function iconRows() {
+    const n = state.groups.filter(g => g.state === 'min').length;
+    return n ? Math.ceil(n / Math.max(1, Math.floor((workspace.clientWidth - 6) / 86))) * 72 : 0;
+  }
   // Every group window opens at one standard size, whatever it holds, as a new
   // window did in 3.1: room for four icons across and two rows, or three by three
-  // in a narrow Program Manager. Icons that do not fit are reached by its scroll bar.
+  // in a narrow Program Manager, and no taller than the space above the row of group
+  // icons. Icons that do not fit are reached by its scroll bar.
   function standardSize() {
-    const W = workspace.clientWidth, Ht = workspace.clientHeight, narrow = W < 520, gap = narrow ? 4 : 8;
+    const W = workspace.clientWidth, narrow = W < 520, gap = narrow ? 4 : 8;
+    const Ht = workspace.clientHeight - iconRows();
     const cols = narrow ? 3 : 4, rows = narrow ? 3 : 2;
     return { gap, step: narrow ? 18 : 22, w: Math.max(150, Math.min(cols * 90 + 14, W - gap * 2)), h: Math.max(90, Math.min(rows * 74 + 38, Ht - gap * 2)) };
   }
@@ -155,7 +162,7 @@
   // opens over them, a step down and to the right, as windows cascade.
   function placeGroup(g) {
     const { gap, step, w, h } = standardSize();
-    const W = workspace.clientWidth, Ht = workspace.clientHeight - (state.groups.some(x => x.state === 'min') ? 72 : 0);
+    const W = workspace.clientWidth, Ht = workspace.clientHeight - iconRows();
     const others = state.groups.filter(x => x !== g && x.state === 'normal' && x.geo).map(x => x.geo);
     const clear = (x, y) => others.every(o => x + w <= o.x || o.x + o.w <= x || y + h <= o.y || o.y + o.h <= y);
     for (let y = gap; y === gap || y + h <= Ht; y += h + gap)
@@ -574,7 +581,7 @@
   function cascadeGroups() {
     const list = openGroups();
     for (const g of list) g.auto = false;
-    const W = workspace.clientWidth, Ht = workspace.clientHeight - (state.groups.some(g => g.state === 'min') ? 72 : 0);
+    const W = workspace.clientWidth, Ht = workspace.clientHeight - iconRows();
     list.forEach((g, i) => { g.state = 'normal'; g.geo = { x: i * 24, y: i * 24, w: Math.max(170, W * 0.62), h: Math.max(110, Ht * 0.62) }; });
     layoutGroups();
     if (list.length) activateGroup((list.find(g => g.id === state.active) || list.at(-1)).id);
@@ -584,7 +591,7 @@
     if (!list.length) return;
     for (const g of list) g.auto = false;
     const cols = Math.ceil(Math.sqrt(list.length)), rows = Math.ceil(list.length / cols);
-    const W = workspace.clientWidth, Ht = workspace.clientHeight - (state.groups.some(g => g.state === 'min') ? 72 : 0);
+    const W = workspace.clientWidth, Ht = workspace.clientHeight - iconRows();
     list.forEach((g, i) => { g.state = 'normal'; g.geo = { x: (i % cols) * W / cols, y: Math.floor(i / cols) * Ht / rows, w: W / cols, h: Ht / rows }; });
     layoutGroups();
   }

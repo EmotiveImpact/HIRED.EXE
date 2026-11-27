@@ -297,12 +297,13 @@
   }
   wm.controlMenu = id => { const rec = tops.get(id); if (rec) controlMenu(rec, rec.state === 'min' ? rec.icon : null, rec.state === 'min'); };
 
-  // The caption of a registered window: control-menu box, title, buttons.
+  // The caption of a registered window: control-menu box, title, buttons. The close button is
+  // #dialog-close unless close names another id, as a window that stays open beside others must.
   wm.caption = function ({ title, min = true, max = true, close = false, tag = 'header', className = '' }) {
     return '<' + tag + ' class="w31-caption ' + className + '"><button type="button" class="w31-sysbox" aria-label="Control menu" title="Control menu"></button><span class="w31-title">' + esc(title) + '</span>' +
       (min ? '<button type="button" class="w31-min" aria-label="Minimise" title="Minimise"></button>' : '') +
       (max ? '<button type="button" class="w31-max" aria-label="Maximise" title="Maximise"></button>' : '') +
-      (close ? '<button type="button" id="dialog-close" aria-label="Close this window" title="Close">×</button>' : '') + '</' + tag + '>';
+      (close ? '<button type="button" class="w31-close" id="' + (close === true ? 'dialog-close' : esc(close)) + '" aria-label="Close this window" title="Close">×</button>' : '') + '</' + tag + '>';
   };
 
   // opts: {id, title, icon (html), area, resizable, maximisable, minSize, defaultGeo(area),
@@ -442,24 +443,32 @@
     }
     arrangeIcons();
   }
-  Object.assign(wm, { activate, minimise, maximise, restore, close, remove });
+  // Put a window somewhere new, as Tile does. A minimised or maximised one goes there when restored.
+  function place(id, geo) {
+    const rec = tops.get(id);
+    if (!rec) return;
+    rec.geo = clamp(geo, rec.area);
+    if (rec.opts.resizable) rec.sized = true;
+    if (rec.state === 'normal') apply(rec);
+  }
+  Object.assign(wm, { activate, minimise, maximise, restore, close, remove, place });
   wm.get = id => tops.get(id);
   wm.active = () => activeId;
   wm.windows = () => stack.map(id => tops.get(id)).filter(Boolean);
 
   // Application windows (Calculator, Help, Sea Trial, the portfolio) open in the
   // desktop's window layer and sit beside Program Manager.
-  wm.openApp = function ({ id, title, body, wide = false, icon = '', resizable = false, maximisable = false, minSize, className = '', onClose, menu = null, iconId, focus }) {
+  wm.openApp = function ({ id, title, body, wide = false, icon = '', resizable = false, maximisable = false, minSize, className = '', onClose, menu = null, iconId, focus, closeId = true, defaultGeo, onGeometry }) {
     const existing = tops.get(id);
     if (existing) remove(id);
     const win = document.createElement('section');
     win.className = 'modal-window w31-app ' + (wide ? 'wide ' : '') + className;
     win.setAttribute('role', 'dialog'); win.setAttribute('aria-label', title);
-    win.innerHTML = wm.caption({ title, min: true, max: maximisable, close: true, className: 'small-title' }) + (menu ? '<nav class="w31-menubar" aria-label="' + esc(title) + ' menus"></nav>' : '') + '<div class="modal-body">' + body + '</div>';
+    win.innerHTML = wm.caption({ title, min: true, max: maximisable, close: closeId, className: 'small-title' }) + (menu ? '<nav class="w31-menubar" aria-label="' + esc(title) + ' menus"></nav>' : '') + '<div class="modal-body">' + body + '</div>';
     appLayer.append(win);
     appLayer.hidden = false;
-    win.querySelector('#dialog-close').addEventListener('click', () => close(id));
-    const rec = wm.register(win, { id, title, icon, area: appLayer, resizable, maximisable, minSize, iconId, onClose, focus });
+    win.querySelector('.w31-close').addEventListener('click', () => close(id));
+    const rec = wm.register(win, { id, title, icon, area: appLayer, resizable, maximisable, minSize, iconId, onClose, focus, defaultGeo, onGeometry });
     if (menu) rec.menubar = menubar(win.querySelector('.w31-menubar'), menu);
     activate(id);
     return win;
@@ -666,6 +675,8 @@
     if (!iconBar) return;
     // Icons line up along the bottom of the desktop, left to right, in the order they were minimised.
     iconBar.hidden = !iconBar.querySelector('.desk-icon:not([hidden])');
+    // Whoever tiled the desktop hears that an icon has come or gone.
+    wm.onArrange?.();
   }
   Object.assign(wm, { cascade, tile, arrangeIcons });
 
@@ -697,7 +708,7 @@
     if (!wm.visible()) return;
     const rec = tops.get(activeId);
     if (e.key === 'Escape' && e.ctrlKey) { e.preventDefault(); if (!dialogs.length) taskList(); return; }
-    if (e.key === 'Escape' && !openMenu && !dialogs.length && rec && rec.id !== 'progman' && rec.state !== 'min' && !e.defaultPrevented) {
+    if (e.key === 'Escape' && !e.repeat && !openMenu && !dialogs.length && rec && rec.id !== 'progman' && rec.state !== 'min' && !e.defaultPrevented) {
       if (!rec.el.contains(document.activeElement) && document.activeElement !== document.body) return;
       e.preventDefault(); close(rec.id); return;
     }
