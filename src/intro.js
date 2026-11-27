@@ -8,8 +8,9 @@
 (function (H) {
   'use strict';
   const FOLDER = 'assets/production/intro/';
-  // A line is [speaker, words, second of the clip at which it is spoken]. A channel is left at
-  // `end`, the second its last word lands, as someone hopping channels would leave it.
+  // A line is [speaker, words, second of the clip at which it is spoken]. A shot with an `end`
+  // is left at that second: a channel as someone hopping channels would leave it, the driver
+  // before Augustus finishes his sentence, and the last shot as he finishes it.
   const BEATS = [
     {channel: 1, art: 'news', end: 9.8, lines: [
       ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0],
@@ -30,12 +31,13 @@
       ['Pepper', 'Yes, sir.', 5.05],
       ['Driver', 'Sir? Who’s that?', 6.4],
       ['Augustus', 'That’s Pepper. My AI assistant.', 9.05]]},
-    {art: 'driver', lines: [
+    {art: 'driver', end: 3.95, lines: [
       ['Driver', 'What are you, a black Tony Stark or something?', 0],
-      ['Augustus', 'Don’t hate the player. Play the game.', 2.75]]},
-    {art: 'found', lines: [
-      ['Pepper', 'Oh. Found one.', 0],
-      ['Augustus', 'That’s perfect.', 5.9]]}
+      ['Augustus', 'Don’t hate the player…', 2.75]]},
+    {art: 'play', end: 9.6, lines: [
+      ['Pepper', 'Sir. Found one.', 0],
+      ['Pepper', 'Startup studio wants a builder who ships with AI. And has taste.', 2.6],
+      ['Augustus', '…play the game.', 8.5]]}
   ];
   const still = art => FOLDER + art + '.webp';
   const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;

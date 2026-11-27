@@ -764,24 +764,6 @@
       "sha256": "3ea9e29ab23ef696644b9f774278bac51dee7dc6fdf4bc345d97116089a50f40"
     },
     {
-      "path": "assets/production/intro/found.mp3",
-      "role": "production-asset",
-      "bytes": 64618,
-      "sha256": "57a231335b77938c6f3230ec7fe097d6ecea5e5ad4fcb84020934ca47c25465b"
-    },
-    {
-      "path": "assets/production/intro/found.mp4",
-      "role": "production-asset",
-      "bytes": 184049,
-      "sha256": "0a41402eda7b0078a969e3a58f658148a35a2fdd2050120a478c1084d1079f7d"
-    },
-    {
-      "path": "assets/production/intro/found.webp",
-      "role": "production-asset",
-      "bytes": 112354,
-      "sha256": "2eeeff173a2dd7cee377e0a65b8a675f40d5c7992169bb04a1e873784106cccb"
-    },
-    {
       "path": "assets/production/intro/news.mp3",
       "role": "production-asset",
       "bytes": 80710,
@@ -798,6 +780,24 @@
       "role": "production-asset",
       "bytes": 150556,
       "sha256": "714dd7108e36d5f24e782c942d81ac2d0963992d6bbe17e6d95cc1911040601f"
+    },
+    {
+      "path": "assets/production/intro/play.mp3",
+      "role": "production-asset",
+      "bytes": 80710,
+      "sha256": "92848a39ec8f06fde0f9e6b1f25d7538749d536f9d391f17d98747feab131f7c"
+    },
+    {
+      "path": "assets/production/intro/play.mp4",
+      "role": "production-asset",
+      "bytes": 412981,
+      "sha256": "62e817cedc999526d51c71926d8b67f78328ffa32afcf9b82fb47663b33b3c23"
+    },
+    {
+      "path": "assets/production/intro/play.webp",
+      "role": "production-asset",
+      "bytes": 70888,
+      "sha256": "e116453e143aedb3c534e4fad266919cd256bcc9ea8c03a4cdb1889d2d864d1b"
     },
     {
       "path": "assets/production/intro/studio.mp3",
@@ -1356,6 +1356,12 @@
       "role": "generated-source",
       "bytes": 714800,
       "sha256": "527cb74431942459c26b96993ee320bfbc063db187879deea48dec11f31c3ed4"
+    },
+    {
+      "path": "assets/source/intro/play-seedance.mp4",
+      "role": "generated-source",
+      "bytes": 1800284,
+      "sha256": "44ad50c0d0743a740fa44858ca0d86cdfa4ff1ff67947ba981d17b8e59fe396c"
     },
     {
       "path": "assets/source/intro/studio-seedance.mp4",
