@@ -1,39 +1,41 @@
 // The opening of HIRE.EXE: three channels on an old telly, the telly goes off, dinner arrives
 // at the door, and Pepper the assistant finds the job. The title screen lands when this ends.
-// Every beat is a painted still. A beat may also name a short silent clip, which plays in
-// place of the still on connections that can afford it; the still stays underneath.
+// Every shot is a painted still with a short clip that starts on the still's own frame, in
+// which the characters say their lines. The voices are a separate sound file played through
+// the game's own sound, so the mute button covers them. Each line is also a subtitle.
+// Without the clips (data saver, a slow connection, reduced motion, the offline file) the
+// stills stand in and the lines are typed out at reading pace.
 (function (H) {
   'use strict';
   const FOLDER = 'assets/production/intro/';
+  // A line is [speaker, words, second of the clip at which it is spoken].
   const BEATS = [
     {channel: 1, art: 'news', lines: [
-      ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.'],
-      ['Newsreader', 'Applicants are asked to bring their old lanyard.']]},
+      ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0],
+      ['Newsreader', 'Applicants are asked to bring their old lanyard.', 7.3]]},
     {channel: 2, art: 'tech', lines: [
-      ['Presenter', 'Forty thousand new apps launched this morning.'],
-      ['Presenter', 'Anyone can build one now. And, looking at them, anyone has.']]},
+      ['Presenter', 'Forty thousand new apps launched this morning.', 0],
+      ['Presenter', 'Anyone can build one now. And, looking at them, anyone has.', 4.3]]},
     {channel: 3, art: 'antiques', lines: [
-      ['Expert', 'A cover letter. Written by a person.'],
-      ['Owner', 'Is it worth anything?'],
-      ['Expert', 'Not since about 2023.']]},
+      ['Expert', 'A cover letter. Written by a person.', 0],
+      ['Owner', 'Is it worth anything?', 5.3],
+      ['Expert', 'Not since about 2023.', 7.4]]},
     {art: 'studio', lines: [
-      ['Doorbell', 'Ding dong.'],
-      ['Augustus', 'That’ll be dinner.']]},
+      ['Augustus', 'Pepper. We need a job. We’re too good not to be shipping.', 1.9],
+      ['Pepper', 'On it.', 7.2],
+      ['Doorbell', 'Ding dong.', 8.5]]},
     {art: 'door', lines: [
-      ['Augustus', 'Pepper, we need a job. We’re too good not to be shipping.'],
-      ['Pepper', 'Yes, sir.'],
-      ['Driver', 'Sir? Who’s that?'],
-      ['Augustus', 'That’s Pepper. My AI assistant.']]},
+      ['Augustus', 'Pepper! Nothing with a ping-pong table.', 0],
+      ['Pepper', 'Yes, sir.', 3.7],
+      ['Driver', 'Sir? Who’s that?', 6.3],
+      ['Augustus', 'That’s Pepper. My AI assistant.', 9]]},
     {art: 'driver', lines: [
-      ['Driver', 'What are you, a black Tony Stark or something?'],
-      ['Augustus', 'Don’t hate the player. Play the game.']]},
+      ['Driver', 'What are you, a black Tony Stark or something?', 0],
+      ['Augustus', 'Don’t hate the player. Play the game.', 2.75]]},
     {art: 'found', lines: [
-      ['Pepper', 'Oh. Found one.'],
-      ['Augustus', 'That’s perfect.']]}
+      ['Pepper', 'Oh. Found one.', 0],
+      ['Augustus', 'That’s perfect.', 5.9]]}
   ];
-  // Channels with a clip: five silent seconds that open on the still's own frame.
-  const CLIPS = ['news', 'tech', 'antiques'];
-  const esc = text => String(text).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
   const still = art => FOLDER + art + '.webp';
   const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Clips are a treat, never a wait: none on data saver or a slow connection.
@@ -41,6 +43,8 @@
     const link = navigator.connection;
     return !calm() && !(link && (link.saveData || /(^|-)2g$/.test(link.effectiveType || '')));
   };
+  // How long a shot may wait for its clip before the still and typed lines take over.
+  const PATIENCE = 2500;
   let snow;
   function noise() {
     if (snow) return snow;
@@ -58,9 +62,10 @@
   const reading = line => Math.max(1700, 900 + line.length * 48);
 
   // Plays the intro in `layer` and resolves with 'done' or 'skipped'.
-  function play(layer, {asset = path => path, sound = () => {}} = {}) {
+  // voice: {decode(bytes) -> Promise of a sound, play(sound) -> something with stop(), or null}.
+  function play(layer, {asset = path => path, sound = () => {}, voice = null} = {}) {
     return new Promise(resolve => {
-      let beat = -1, line = -1, timer = 0, over = false, typing = 0;
+      let beat = -1, line = -1, timer = 0, over = false, typing = 0, watch = 0;
       layer.className = 'overlay intro-overlay';
       layer.setAttribute('aria-label', 'Introduction');
       layer.innerHTML = `<section class="intro">
@@ -79,20 +84,30 @@
       const who = q('.intro-words strong'), words = q('.intro-words p'), osd = q('.intro-osd');
       q('.intro-snow').style.backgroundImage = `url(${noise()})`;
       BEATS.forEach(b => { new Image().src = asset(still(b.art)); });
-      // Clips start loading now, so each is ready by the time its channel comes round.
-      const films = {};
-      if (clipsWelcome()) CLIPS.forEach(art => {
+
+      // A shot's clip and its voices are fetched while the shot before it plays.
+      const films = {}, voices = {}, filmed = clipsWelcome();
+      function fetchShot(b) {
+        if (!filmed || !b || films[b.art]) return;
         const film = document.createElement('video');
         film.className = 'intro-clip';
         film.muted = true; film.playsInline = true; film.preload = 'auto';
         film.setAttribute('playsinline', ''); film.setAttribute('aria-hidden', 'true');
-        film.src = asset(FOLDER + art + '.mp4');
-        films[art] = film;
-      });
-      let film = null;
+        film.src = asset(FOLDER + b.art + '.mp4');
+        films[b.art] = film;
+        voices[b.art] = voice
+          ? fetch(asset(FOLDER + b.art + '.mp3')).then(reply => reply.ok ? reply.arrayBuffer() : Promise.reject())
+            .then(bytes => voice.decode(bytes)).catch(() => null)
+          : Promise.resolve(null);
+      }
+      let film = null, speech = null;
       function stopFilm() {
+        cancelAnimationFrame(watch);
+        try { speech?.stop(); } catch (_) {}
+        speech = null;
         if (!film) return;
-        film.oncanplay = null; film.pause(); film.remove(); film = null;
+        film.oncanplay = film.onplaying = film.onended = film.onerror = null;
+        film.pause(); film.remove(); film = null;
       }
 
       function finish(how) {
@@ -104,14 +119,19 @@
         Object.values(films).forEach(f => { f.removeAttribute('src'); f.load(); });
         resolve(how);
       }
+      function caption(name, text) {
+        who.textContent = name;
+        words.textContent = text;
+      }
+      // Typed lines at reading pace, for a shot with no clip.
       function say() {
         const [name, text] = BEATS[beat].lines[line];
-        who.textContent = name;
         clearInterval(typing);
-        if (calm()) words.textContent = text;
+        if (name === 'Doorbell') sound('bell');
+        if (calm()) caption(name, text);
         else {
           let shown = 0;
-          words.textContent = '';
+          caption(name, '');
           typing = setInterval(() => {
             words.textContent = text.slice(0, shown += 2);
             if (shown >= text.length) clearInterval(typing);
@@ -120,6 +140,33 @@
         clearTimeout(timer);
         timer = setTimeout(next, reading(text));
       }
+      // The clip plays once, the voices start with it, and each line shows as it is spoken.
+      function roll(b, heard) {
+        const mine = film;
+        clearTimeout(timer);
+        mine.currentTime = 0;
+        pic.after(mine);
+        mine.onplaying = () => {
+          mine.onplaying = null;
+          if (heard && voice) speech = voice.play(heard);
+        };
+        mine.onended = () => { clearTimeout(timer); timer = setTimeout(cut, 350); };
+        const follow = () => {
+          if (over || film !== mine) return;
+          const at = mine.currentTime;
+          let now = 0;
+          b.lines.forEach((l, i) => { if (at >= l[2] - 0.12) now = i; });
+          if (at < b.lines[0][2] - 0.12) now = -1;
+          if (now !== line) {
+            line = now;
+            if (now < 0) caption('', '');
+            else { caption(b.lines[now][0], b.lines[now][1]); if (b.lines[now][0] === 'Doorbell') sound('bell'); }
+          }
+          watch = requestAnimationFrame(follow);
+        };
+        line = -2; follow();
+        mine.play().catch(() => { if (film === mine) { stopFilm(); line = 0; say(); } });
+      }
       function show() {
         const b = BEATS[beat];
         stage.classList.toggle('is-tv', Boolean(b.channel));
@@ -127,37 +174,51 @@
         pic.src = asset(still(b.art));
         osd.textContent = b.channel ? 'CH ' + b.channel : '';
         stopFilm();
-        if (films[b.art]) {
-          // The still shows at once; the clip takes over when it can play, and holds its last frame.
-          film = films[b.art];
-          const roll = () => {
-            if (over || film !== films[b.art] || film.isConnected) return;
-            film.currentTime = 0;
-            pic.after(film);
-            film.play().catch(stopFilm);
-          };
-          if (film.readyState >= 3) roll(); else film.oncanplay = roll;
-        }
-        line = 0;
-        say();
+        fetchShot(BEATS[beat + 1]);
+        film = films[b.art] || null;
+        if (!film) { line = 0; say(); return; }
+        // The still shows at once. The clip takes over as soon as it and its voices are ready.
+        const mine = film;
+        let waiting = true;
+        const giveUp = () => {
+          if (!waiting || over || film !== mine) return;
+          waiting = false; stopFilm(); line = 0; say();
+        };
+        const ready = () => {
+          mine.oncanplay = null;
+          voices[b.art].then(heard => {
+            if (!waiting || over || film !== mine) return;
+            waiting = false; roll(b, heard);
+          });
+        };
+        caption('', ''); line = -1;
+        clearTimeout(timer);
+        timer = setTimeout(giveUp, PATIENCE);
+        mine.onerror = giveUp;
+        if (mine.error) giveUp();
+        else if (mine.readyState >= 3) ready();
+        else mine.oncanplay = ready;
       }
       function cut() {
+        if (over) return;
         const from = BEATS[beat], to = BEATS[beat + 1];
         if (!to) { finish('done'); return; }
         clearTimeout(timer); clearInterval(typing);
         beat++;
         const flip = from?.channel && to.channel, off = from?.channel && !to.channel;
         if (calm() || !(flip || off)) { show(); return; }
-        who.textContent = ''; words.textContent = '';
+        stopFilm();
+        caption('', '');
         if (flip) osd.textContent = 'CH ' + to.channel;
         stage.classList.add(flip ? 'is-flip' : 'is-off');
         sound(flip ? 'flip' : 'off');
         timer = setTimeout(show, flip ? 260 : 620);
       }
+      // Any key or a tap moves on: to the next shot while a clip plays, else to the next line.
       function next() {
         if (over) return;
         if (stage.classList.contains('is-flip') || stage.classList.contains('is-off')) return;
-        if (beat >= 0 && line < BEATS[beat].lines.length - 1) { line++; say(); }
+        if (!film && beat >= 0 && line < BEATS[beat].lines.length - 1) { line++; say(); }
         else cut();
       }
       function onKey(e) {
@@ -169,6 +230,7 @@
       document.addEventListener('keydown', onKey, true);
       q('.intro').addEventListener('pointerdown', e => { if (!e.target.closest('#intro-skip')) next(); });
       q('#intro-skip').onclick = () => finish('skipped');
+      fetchShot(BEATS[0]);
       cut();
     });
   }
