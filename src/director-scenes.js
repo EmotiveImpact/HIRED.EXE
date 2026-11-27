@@ -38,10 +38,10 @@ const directorScenes = [
     ]
   },
   {
-    title:'The attachment',place:'Back in Augustus’s home studio',cue:'Cut out of the game for the actual email. Charlie Dots appears as a text chat in a neighbouring tab. Its line appears in the dialogue strip. James’s reply is the invitation that motivates the next level.',
+    title:'The attachment',place:'Back in Augustus’s home studio',cue:'Cut out of the game for the actual email. Pepper appears as a text chat in a neighbouring tab. Its line appears in the dialogue strip. James’s reply is the invitation that motivates the next level.',
     shots:[
-      ['p13-draft','The salutation','Augustus|“Hi James” or “Dear James”?','Charlie Dots, in chat|We shipped a game in less time than this greeting.'],
-      ['p14-just-sent','Sent','Augustus|Please find attached.','Charlie Dots, in chat|Strong email. Shy attachment.'],
+      ['p13-draft','The salutation','Augustus|“Hi James” or “Dear James”?','Pepper, in chat|We shipped a game in less time than this greeting.'],
+      ['p14-just-sent','Sent','Augustus|Please find attached.','Pepper, in chat|Strong email. Shy attachment.'],
       ['p15-attachment','Second email','Augustus|And, in a surprise development, my CV.','James, later by email|I played it. Come in on Thursday?']
     ]
   },

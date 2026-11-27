@@ -1,5 +1,5 @@
-// The opening of HIRE.EXE: three channels on an old telly, the telly goes off, and a short
-// word with the assistant finds the job. The title screen lands when this ends.
+// The opening of HIRE.EXE: three channels on an old telly, the telly goes off, dinner arrives
+// at the door, and Pepper the assistant finds the job. The title screen lands when this ends.
 // Every beat is a painted still. A beat may also name a short silent clip, which plays in
 // place of the still on connections that can afford it; the still stays underneath.
 (function (H) {
@@ -17,10 +17,18 @@
       ['Owner', 'Is it worth anything?'],
       ['Expert', 'Not since about 2023.']]},
     {art: 'studio', lines: [
-      ['Augustus', 'Right. We need a job. We’re too good not to be shipping.'],
-      ['Charlie Dots', 'On it.']]},
+      ['Doorbell', 'Ding dong.'],
+      ['Augustus', 'That’ll be dinner.']]},
+    {art: 'door', lines: [
+      ['Augustus', 'Pepper, we need a job. We’re too good not to be shipping.'],
+      ['Pepper', 'Yes, sir.'],
+      ['Driver', 'Sir? Who’s that?'],
+      ['Augustus', 'That’s Pepper. My AI assistant.']]},
+    {art: 'driver', lines: [
+      ['Driver', 'What are you, a black Tony Stark or something?'],
+      ['Augustus', 'Don’t hate the player. Play the game.']]},
     {art: 'found', lines: [
-      ['Charlie Dots', 'Oh. Found one.'],
+      ['Pepper', 'Oh. Found one.'],
       ['Augustus', 'That’s perfect.']]}
   ];
   // Channels with a clip: five silent seconds that open on the still's own frame.

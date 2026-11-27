@@ -710,10 +710,22 @@
       "sha256": "ef6b72d20a4fd4fb9a78fe3d9d90c3fb509066e76740de0b8ed3e5cbe216f952"
     },
     {
+      "path": "assets/production/intro/door.webp",
+      "role": "production-asset",
+      "bytes": 95096,
+      "sha256": "1cc158261605078f23786a283b93a8f538ba773e6246122f1ff95f07e8802dd3"
+    },
+    {
+      "path": "assets/production/intro/driver.webp",
+      "role": "production-asset",
+      "bytes": 98724,
+      "sha256": "a770fe21c1e611d9b462204fda3fe3849784a6b3654c82e1f2d459b0cb813ab9"
+    },
+    {
       "path": "assets/production/intro/found.webp",
       "role": "production-asset",
-      "bytes": 99914,
-      "sha256": "1f40abedc37e940a761543ca06aa317e046478c2cbd1fb34d2e3c8400ceed959"
+      "bytes": 112354,
+      "sha256": "2eeeff173a2dd7cee377e0a65b8a675f40d5c7992169bb04a1e873784106cccb"
     },
     {
       "path": "assets/production/intro/news.mp4",
@@ -730,8 +742,8 @@
     {
       "path": "assets/production/intro/studio.webp",
       "role": "production-asset",
-      "bytes": 115166,
-      "sha256": "dda4083bba668e6bcacc22cdf794140e7f5878a4ea578819d3645c05b339448c"
+      "bytes": 125056,
+      "sha256": "438e15536d5e845c458a30c34684e9b1fb1beb35e3d7cb7a67cda78d8d145209"
     },
     {
       "path": "assets/production/intro/tech.mp4",
@@ -1208,10 +1220,22 @@
       "sha256": "b12ce0153933b8d478c2119213041b8f62208af5934cea5ef0e7b726dedf1f59"
     },
     {
+      "path": "assets/source/intro/door.webp",
+      "role": "generated-source",
+      "bytes": 350716,
+      "sha256": "051aab0c87ab0fea73b01bde239d957fbd24b9bcfb8966262aa9e764b96aaa32"
+    },
+    {
+      "path": "assets/source/intro/driver.webp",
+      "role": "generated-source",
+      "bytes": 368326,
+      "sha256": "b5b7941316370fc096c9c4b78b36e8467a22093c81c3d3591f75a52a678803c3"
+    },
+    {
       "path": "assets/source/intro/found.webp",
       "role": "generated-source",
-      "bytes": 464848,
-      "sha256": "9862ee40777f6467e93bf9b64d72bcfbc70617dfdc60e84046257358715a87e9"
+      "bytes": 374658,
+      "sha256": "461eef9f9b518dac9dab14da651084c3e821c2afa8d461f4e8d3cf84ed7a12f1"
     },
     {
       "path": "assets/source/intro/news-seedance.mp4",
@@ -1228,8 +1252,8 @@
     {
       "path": "assets/source/intro/studio.webp",
       "role": "generated-source",
-      "bytes": 599206,
-      "sha256": "e815b58d0c2a6be5ae74493648eccd6e9cf5fdc5796c3b44f2abd4a32e354890"
+      "bytes": 445198,
+      "sha256": "c1af832da1eb15c5bd7872c9417f23b2f4161a573f51c98c8033d69110efc637"
     },
     {
       "path": "assets/source/intro/tech-seedance.mp4",
