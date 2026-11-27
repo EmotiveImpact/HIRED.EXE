@@ -784,20 +784,20 @@
     {
       "path": "assets/production/intro/play.mp3",
       "role": "production-asset",
-      "bytes": 63155,
-      "sha256": "5a6942e1f55b3b1501f36c1f5f6d82f5d5764d25738e12012f04f58482d8d573"
+      "bytes": 64618,
+      "sha256": "a7a3f46b67ec03443a74efda5503b0d6856446721948360e2373fa093ce3af5a"
     },
     {
       "path": "assets/production/intro/play.mp4",
       "role": "production-asset",
-      "bytes": 330036,
-      "sha256": "24f564b69a557a959465b6139e07e2a115599c6ae3241f7f97393d36db0fe12e"
+      "bytes": 342555,
+      "sha256": "fce8e6bc36d547b96b8dc75bd55ead50ce998fe8fad26f37d72ae1f4f5fec39e"
     },
     {
       "path": "assets/production/intro/play.webp",
       "role": "production-asset",
-      "bytes": 74638,
-      "sha256": "662a9fb8755a68519530071fadd7ed5e8508626c75710fa5dc9fe0b0fb1d33be"
+      "bytes": 75594,
+      "sha256": "5aeaa2fa83bbe1ccbe6a845ed07c3b5706d950c983ff2788648e388ed86f5b87"
     },
     {
       "path": "assets/production/intro/studio.mp3",
@@ -1366,8 +1366,8 @@
     {
       "path": "assets/source/intro/play-seedance.mp4",
       "role": "generated-source",
-      "bytes": 1477033,
-      "sha256": "2e1599e2c57abec79784d3ff298fc31341deb7a4805e216f52959bfa2cd9add4"
+      "bytes": 1513039,
+      "sha256": "f584a41a342beceb205c741dcb86455d8257c284d2c5f27a707a8dcede785a90"
     },
     {
       "path": "assets/source/intro/studio-seedance.mp4",
