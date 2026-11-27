@@ -165,7 +165,7 @@ def run(profile, base):
         expect(page.locator('#game-window')).to_be_hidden()
         # HIRE.EXE's own window and the Guestbook are open from the start, tiled with Program Manager:
         # each inside the desktop, and none over another.
-        expect(page.locator('#hire-start')).to_have_text('Start game')
+        expect(page.locator('#hire-start')).to_have_text('Play the game')
         expect(page.locator('.guestbook-window')).to_be_visible()
         tiled = '''() => { const d = document.querySelector('#os-shell').getBoundingClientRect();
             const r = ['progman', 'hire', 'guestbook'].map(id => document.querySelector(`.w31-window[data-win="${id}"]`).getBoundingClientRect());

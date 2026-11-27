@@ -712,14 +712,14 @@
     {
       "path": "assets/production/intro/antiques.mp3",
       "role": "production-asset",
-      "bytes": 80501,
-      "sha256": "1694957b20bd608737ffbc64b52d22d12dd39f1a9a36176322a6ae39c5d8c278"
+      "bytes": 80710,
+      "sha256": "ba70467288d26a400af57fcce597d14d5a699753d3dfbd77178fe4348ad4d400"
     },
     {
       "path": "assets/production/intro/antiques.mp4",
       "role": "production-asset",
-      "bytes": 680939,
-      "sha256": "012420a3e12bba3044fb99863b83fa06ef501c3098b6233f2b821b3c112122eb"
+      "bytes": 716369,
+      "sha256": "c0468e774ea494e86794a864930dcfa08a7127b05d7a1b27869ebe0105b830b3"
     },
     {
       "path": "assets/production/intro/antiques.webp",
@@ -730,20 +730,20 @@
     {
       "path": "assets/production/intro/door.mp3",
       "role": "production-asset",
-      "bytes": 94293,
-      "sha256": "aa12b09ab4f830f6b9e16a86dc131467cde6b595e78c08a96bed4438779fcfe9"
+      "bytes": 96592,
+      "sha256": "af6ebaa1f229dd04bd62d07c7b3ed0caf05592aacdf21dbd65ea6f6cd0e622ea"
     },
     {
       "path": "assets/production/intro/door.mp4",
       "role": "production-asset",
-      "bytes": 402285,
-      "sha256": "8bdc9da052dfd0e0b50ea70fcd4a4627d1416e9fd632f03d879d6c0a14bc37bb"
+      "bytes": 442209,
+      "sha256": "130d256fb0dbb66b6ba93a719f509047fbb720927f575c78b5644d82e40b1336"
     },
     {
       "path": "assets/production/intro/door.webp",
       "role": "production-asset",
-      "bytes": 100044,
-      "sha256": "5de8bb4a70df6b011d8579a82d4844288be5624693030dd96e8336aff32bc08a"
+      "bytes": 95096,
+      "sha256": "1cc158261605078f23786a283b93a8f538ba773e6246122f1ff95f07e8802dd3"
     },
     {
       "path": "assets/production/intro/driver.mp3",
@@ -754,14 +754,14 @@
     {
       "path": "assets/production/intro/driver.mp4",
       "role": "production-asset",
-      "bytes": 210275,
-      "sha256": "bdfe86a68b448b6de3d42b29e1a835edb8d7b6c4db6cb688afcb28bcd8a76caf"
+      "bytes": 222350,
+      "sha256": "433624cee2429b3b7c9dfdfe1e99c2dfb03f388d5739e199c7264d23537c0cf0"
     },
     {
       "path": "assets/production/intro/driver.webp",
       "role": "production-asset",
-      "bytes": 98912,
-      "sha256": "6c6545700fc57ba515e69566fced7ec867368615e4f4ec1ac500a65c6a7e2cdd"
+      "bytes": 63264,
+      "sha256": "3ea9e29ab23ef696644b9f774278bac51dee7dc6fdf4bc345d97116089a50f40"
     },
     {
       "path": "assets/production/intro/found.mp3",
@@ -784,14 +784,14 @@
     {
       "path": "assets/production/intro/news.mp3",
       "role": "production-asset",
-      "bytes": 80501,
-      "sha256": "4d7651e152118db71816a6c222581b7ea47f64512c58f4553d4d435404b17f63"
+      "bytes": 80710,
+      "sha256": "b4a153ef8b3a7656fd46d1f0b3dbbe5b777c125297aeeeae15dd84d1da0fb7a6"
     },
     {
       "path": "assets/production/intro/news.mp4",
       "role": "production-asset",
-      "bytes": 280118,
-      "sha256": "53d52d158455ad5dac278578dc61c8eeca6bedbe81510421d40f61c4e8b49ee4"
+      "bytes": 772957,
+      "sha256": "8430e702514d3b57faa105e06fd9019e386c2d777ae55d4ec289872777c40399"
     },
     {
       "path": "assets/production/intro/news.webp",
@@ -802,14 +802,14 @@
     {
       "path": "assets/production/intro/studio.mp3",
       "role": "production-asset",
-      "bytes": 80501,
-      "sha256": "7ffe08535771335a52b297debdacd1ac201a4f4615bb6463881d192f65a71db2"
+      "bytes": 80710,
+      "sha256": "c52460bcec13d668181589416234bb53426263f367ec31fe7050cf0569478326"
     },
     {
       "path": "assets/production/intro/studio.mp4",
       "role": "production-asset",
-      "bytes": 498460,
-      "sha256": "531146ccece8aa01320eac523bdd99eb41ef64e8dfadc937117d91e895cf2c46"
+      "bytes": 175376,
+      "sha256": "7f47b909f530fb012e530b8b8ef3aa777b25e270c18323d57e5f1094d0dae1bc"
     },
     {
       "path": "assets/production/intro/studio.webp",
@@ -820,14 +820,14 @@
     {
       "path": "assets/production/intro/tech.mp3",
       "role": "production-asset",
-      "bytes": 78202,
-      "sha256": "4c3e503df15547052595f0f01f61c30e190ad63b241007c2c3f781973d8e7fec"
+      "bytes": 80710,
+      "sha256": "6bdc54ad201d82697f47d6e77b2bc2f28f7363c50348eee0460ddec749b88283"
     },
     {
       "path": "assets/production/intro/tech.mp4",
       "role": "production-asset",
-      "bytes": 293935,
-      "sha256": "6af690092b0a9240916dee7914c9282f39e1cbd2015be5c4d0a51c3cc0f52835"
+      "bytes": 534711,
+      "sha256": "722afcb816bd169557b2106fd34357e475d8d1ca10e5302ede7ebea16d2dd161"
     },
     {
       "path": "assets/production/intro/tech.webp",
@@ -1300,8 +1300,8 @@
     {
       "path": "assets/source/intro/antiques-seedance.mp4",
       "role": "generated-source",
-      "bytes": 3935401,
-      "sha256": "c89f93878d9d456823282429bc29da52dbe0b15a12ffff30318b39f0f7bd8507"
+      "bytes": 3369534,
+      "sha256": "5aa00006a3d281166e716bbc43c4cbd01e33ee84dde85d1e3de5f3bbcd75fb0d"
     },
     {
       "path": "assets/source/intro/antiques.webp",
@@ -1312,8 +1312,8 @@
     {
       "path": "assets/source/intro/door-seedance.mp4",
       "role": "generated-source",
-      "bytes": 2032664,
-      "sha256": "d2d245d0a1d349982148598dc63e816fd3a27b8b8310226a35ef7d3748b43f54"
+      "bytes": 1770441,
+      "sha256": "79bb5b025b0fc5d0a1c027a93a828d5b2ae6a2717ce84fffb970d771399bfe98"
     },
     {
       "path": "assets/source/intro/door.webp",
@@ -1348,8 +1348,8 @@
     {
       "path": "assets/source/intro/news-seedance.mp4",
       "role": "generated-source",
-      "bytes": 2799691,
-      "sha256": "ceeabf077cf15684d0c64cdaa8b3e080eacfad7aa68c153cab2d69e4ee39c9cb"
+      "bytes": 3671502,
+      "sha256": "ee6d101b5b652275cdd05db56d9752f5ff44170029cf28839b4aa7656779b252"
     },
     {
       "path": "assets/source/intro/news.webp",
@@ -1360,8 +1360,8 @@
     {
       "path": "assets/source/intro/studio-seedance.mp4",
       "role": "generated-source",
-      "bytes": 2611835,
-      "sha256": "8504b6662775d6bc131f8bad701156b438d541b8a065175d69bb2b93a6574b06"
+      "bytes": 1089297,
+      "sha256": "413da5329305b8228227b4be3c2a8fb34105e4b7f6af59efa4d572e265fadce0"
     },
     {
       "path": "assets/source/intro/studio.webp",
@@ -1372,8 +1372,8 @@
     {
       "path": "assets/source/intro/tech-seedance.mp4",
       "role": "generated-source",
-      "bytes": 2239135,
-      "sha256": "68a1d6ec32405ed6edf29720608eb6ecdc61d5314263dd06e0f72d5bbadf7718"
+      "bytes": 2520045,
+      "sha256": "7dd729a2a9e512f6f55a6ec8eca5e398d8eb8d9101e32167b436f1690fc9ac27"
     },
     {
       "path": "assets/source/intro/tech.webp",

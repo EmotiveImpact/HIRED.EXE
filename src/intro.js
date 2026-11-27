@@ -13,23 +13,23 @@
   const BEATS = [
     {channel: 1, art: 'news', end: 9.8, lines: [
       ['Newsreader', 'Breaking news. The companies that replaced their staff with AI are hiring them back.', 0],
-      ['Newsreader', 'Applicants are asked to bring their old lanyard.', 7.3]]},
-    {channel: 2, art: 'tech', end: 9.4, lines: [
-      ['Presenter', 'Forty thousand new apps launched this morning.', 0],
-      ['Presenter', 'Anyone can build one now. And, looking at them, anyone has.', 4.3]]},
-    {channel: 3, art: 'antiques', end: 9.85, lines: [
-      ['Expert', 'A cover letter. Written by a person.', 0],
-      ['Owner', 'Is it worth anything?', 5.3],
+      ['Newsreader', 'Applicants are asked to bring their old lanyard.', 7.1]]},
+    {channel: 2, art: 'tech', end: 9.5, lines: [
+      ['Presenter', 'Forty thousand new apps launched this morning.', 1.4],
+      ['Presenter', 'Anyone can build one now. And, looking at them, anyone has.', 5]]},
+    {channel: 3, art: 'antiques', end: 9.7, lines: [
+      ['Expert', 'A cover letter. Written by a person.', 1.2],
+      ['Owner', 'Is it worth anything?', 5.5],
       ['Expert', 'Not since about 2023.', 7.4]]},
     {art: 'studio', lines: [
-      ['Augustus', 'Pepper. We need a job. We’re too good not to be shipping.', 1.9],
-      ['Pepper', 'On it.', 7.2],
+      ['Augustus', 'Pepper. We need a job. We’re too good not to be shipping.', 2.3],
+      ['Pepper', 'On it.', 7],
       ['Doorbell', 'Ding dong.', 8.5]]},
     {art: 'door', lines: [
       ['Augustus', 'Pepper! Nothing with a ping-pong table.', 0],
-      ['Pepper', 'Yes, sir.', 3.7],
-      ['Driver', 'Sir? Who’s that?', 6.3],
-      ['Augustus', 'That’s Pepper. My AI assistant.', 9]]},
+      ['Pepper', 'Yes, sir.', 5.05],
+      ['Driver', 'Sir? Who’s that?', 6.4],
+      ['Augustus', 'That’s Pepper. My AI assistant.', 9.05]]},
     {art: 'driver', lines: [
       ['Driver', 'What are you, a black Tony Stark or something?', 0],
       ['Augustus', 'Don’t hate the player. Play the game.', 2.75]]},
