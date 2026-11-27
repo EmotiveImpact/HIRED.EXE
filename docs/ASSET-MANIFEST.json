@@ -562,14 +562,14 @@
     {
       "path": "assets/production/characters/hero-atlas.json",
       "role": "production-asset",
-      "bytes": 6622,
-      "sha256": "eae49ecc234a196fcd683d2744cdac9a6dc1c2e883b3935524bd18916c86c334"
+      "bytes": 7298,
+      "sha256": "0b4d567f9bf833a473285babb9f66787ccc0f5cc88b76e6e6c2a88a3adeffa0c"
     },
     {
       "path": "assets/production/characters/hero-atlas.png",
       "role": "production-asset",
-      "bytes": 59014,
-      "sha256": "c0f00927e16287be7fdf145112fedde9d7062ac49a41d86f9e1a9aa6d6378172"
+      "bytes": 73277,
+      "sha256": "6df5a08242a2819afed0b0d32332179ea3e6406f6a167c47a7bdd1354d86c475"
     },
     {
       "path": "assets/production/characters/portrait-reference.png",
@@ -580,8 +580,8 @@
     {
       "path": "assets/production/characters/title-hero.webp",
       "role": "production-asset",
-      "bytes": 4598,
-      "sha256": "8d6564d12fa4c4d6c0e1f1fdf090c939325ddf6381548c8783f13f6150868953"
+      "bytes": 4540,
+      "sha256": "4f8efec04274062da014e362939bc2fb26118f048714e777710dd14f9f322790"
     },
     {
       "path": "assets/production/enemies/enemy-atlas.json",
@@ -1046,6 +1046,12 @@
       "sha256": "674fad30db628ab44e3b9e3c5d9ec5f5270b715bf3b5f3504dfc1447db4955d6"
     },
     {
+      "path": "assets/source/characters/afro/hero-run-afro.webp",
+      "role": "generated-source",
+      "bytes": 147364,
+      "sha256": "9e31123618271a5f2cc3df9f29cb3aa01cb5e7f45ecfaf10c8b5da05e8f09d46"
+    },
+    {
       "path": "assets/source/characters/afro/hero-sheet-afro.webp",
       "role": "generated-source",
       "bytes": 326494,
@@ -1056,6 +1062,12 @@
       "role": "generated-source",
       "bytes": 149242,
       "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+    },
+    {
+      "path": "assets/source/characters/prompts/hero-run-afro.txt",
+      "role": "generated-source",
+      "bytes": 1449,
+      "sha256": "7c6b7e2cc2a66121f99e3121b2e70aebd0f9a8e5d171bf55c6191bd866d90214"
     },
     {
       "path": "assets/source/characters/prompts/hero-sheet-afro.txt",
