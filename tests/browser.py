@@ -1,6 +1,7 @@
 """Run with Playwright browsers installed. Uses a disposable origin and context."""
 import argparse
 import re
+import time
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -724,7 +725,13 @@ def run(profile, base):
             external_requests.append(route.request.url)
             route.abort()
         context.route(re.compile(r'^https?://'), reject_network)
-        page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
+        # Each single file is some 30 MB with its pictures inside it, and WebKit on a shared runner has
+        # taken over the usual 30 s to load one from disk. Allow two minutes and say how long.
+        def open_single_file(name):
+            began = time.monotonic()
+            page.goto((ROOT/'dist'/name).as_uri(), timeout=120000)
+            print(f'{name} loaded in {time.monotonic() - began:.1f} s', flush=True)
+        open_single_file('HIRE-EXE-v0.4-PLAY.html')
         page.locator('#start-game').wait_for()
         # The single file starts the same way, and its guestbook does not go looking for the book.
         expect(page.locator('.guestbook-window')).to_have_count(0)
@@ -746,7 +753,7 @@ def run(profile, base):
         )
         activate('#scene-skip')
         assert page.evaluate("HIRED_APP.mode") == 'playing'
-        page.goto((ROOT/'dist/HIRE-EXE-v0.4-ART-BOOK.html').as_uri())
+        open_single_file('HIRE-EXE-v0.4-ART-BOOK.html')
         page.locator('[data-go="components"]').first.click()
         page.select_option('#animation-select','victory')
         assert page.locator('#hero-preview').is_visible()
