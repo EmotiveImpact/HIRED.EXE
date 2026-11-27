@@ -76,7 +76,7 @@ def run(profile, base):
         def open_item(target):
             item = page.locator(target)
             item.tap() if mobile else item.dblclick()
-        def title_play():
+        def title_menu():
             # A first visit opens on the intro. The title then waits for any button.
             page.wait_for_function("['intro','title'].includes(HIRED_APP.mode)")
             if page.evaluate("HIRED_APP.mode === 'intro'"):
@@ -88,6 +88,8 @@ def run(profile, base):
                 expect(page.locator('#title-any')).to_have_text('Press any button to continue')
                 expect(page.locator('#title-play')).to_be_hidden()
                 activate('#title-any')
+        def title_play():
+            title_menu()
             activate('#title-play')
         def launch():
             open_item('#start-game')
@@ -309,6 +311,7 @@ def run(profile, base):
         activate('#internet-window .w31-min')
         expect(page.locator('#internet-group')).to_be_visible()
         launch()
+        title_menu()
         activate('#replay-scenes')
         expect(page.locator('.replay-frame')).to_be_visible()
         activate('#gallery-back')
@@ -414,6 +417,7 @@ def run(profile, base):
         # Picking a later world must offer its intro once, including after reload.
         page.goto(base)
         launch()
+        title_menu()
         activate('#choose-world')
         activate('#world-2')
         expect(page.locator('#comic-title')).to_have_text('Both of them')
@@ -421,6 +425,7 @@ def run(profile, base):
         assert page.evaluate('HIRED_APP.state.levelIndex === 2')
         page.reload()
         launch()
+        title_menu()
         activate('#choose-world')
         activate('#world-2')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 2")
