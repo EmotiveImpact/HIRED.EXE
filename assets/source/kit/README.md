@@ -1,10 +1,12 @@
 # Sources for the layered backgrounds and the painted kit
 
 Fourteen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
-game's existing art as reference, and three made on CapCut (Seedream 5.5, 2K) on 27 November 2026
-from a written description alone. They are kept as generated. The Dreamina pictures carry the
+game's existing art as reference, and nine made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
+The first three, whose names end in `-2`, came from a written description alone. The other six
+carry those scenes on to the right: each was asked for with the stretch before it attached from
+CapCut's canvas as its reference. They are kept as generated. The Dreamina pictures carry the
 generator's own marks, a badge top left and a logo bottom right, which `tools/build-art-kit.py`
-cuts away or paints out. The three from CapCut, whose names end in `-2`, have no marks.
+cuts away or paints out. The CapCut pictures have no marks.
 
 | File | What it is | Ground |
 | --- | --- | --- |
@@ -18,12 +20,12 @@ cuts away or paints out. The three from CapCut, whose names end in `-2`, have no
 | `pickups.png` | Two subscription cards, cold coffee, zipped folder | pink |
 | `title-hero.png` | The hero running, for the title screen | pink |
 | `city-sky.png` | Ship It City's evening sky | none: a full picture |
-| `city-far-2.png` | Its far skyline of towers and cranes | green |
-| `city-near-2.png` | Its girder bridge, brick factories, chimneys and treetops | magenta |
+| `city-far-2.png`, `city-far-3.png` | Its far skyline of towers and cranes, in two stretches | green |
+| `city-near-2.png` to `city-near-5.png` | Its girder bridge, brick factories, chimneys and treetops, in four stretches: a crane yard, gas holder, warehouses and storage tanks further along | magenta |
 | `city-movers.png` | Airship, two drones, freight train, three puffs of smoke | hot pink |
 | `growth-sky.png` | Growth Run's twilight sky | none: a full picture |
 | `growth-far.png` | Its far skyline of chart screens and dishes | green |
-| `growth-near-2.png` | Its monorail track, neon buildings and blossom trees | green |
+| `growth-near-2.png` to `growth-near-4.png` | Its monorail track, neon buildings and blossom trees, in three stretches | green |
 | `growth-movers.png` | Chart airship, two couriers, rocket, bullet train | green |
 
 What the tool changes on the way in, and why:
@@ -38,12 +40,20 @@ What the tool changes on the way in, and why:
 - The second gull is drawn at a different angle from the first, so the second beat of the wings is
   the first gull with its wings pressed flat.
 
-- Ship It City's bridge, factories and trees are one picture, and so are Growth Run's track,
+- The stretches of one scene are joined into one long picture, so a layer runs for nearly three
+  screens before it comes round again. Each pair is cut where the two match best, found by
+  comparing narrow strips of the right end of one with the left end of the next, and
+  cross-faded over 48 pixels. The columns are written down in `CITY_ART` and `GROWTH_ART`.
+- Ship It City's bridge, factories and trees are one long picture, and so are Growth Run's track,
   buildings and blossom. Each is used whole as the layer the train runs along. Its front bank of
   trees is also lifted out to slide by itself as a nearer layer: whatever is leaf or petal
   coloured and as wide as a tree's crown, with the boughs and trunks it closes round.
-- Growth Run's far trees show at either end of its picture, cut off by pillars. Those ends are
-  left out of the nearer layer.
+- Growth Run's far trees show at either end of its long picture, cut off by pillars. Those ends
+  are left out of the nearer layer.
+- The magenta ground leaves a pink cast along Ship It City's railing and rooftops. It is taken
+  out.
+- Train sprites are averaged down rather than resampled, sharpened, held to 28 colours and ringed
+  with a dark violet outline, so they stay crisp at game size.
 - A scrap of a building painted into Ship It City's clouds is painted out.
 - Growth Run's train is three carriages long as drawn. Its middle carriage rides three times.
 - Cut-outs with a green rim from the ground colour have it shaved off.

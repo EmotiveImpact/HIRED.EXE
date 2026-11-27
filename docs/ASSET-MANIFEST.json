@@ -454,8 +454,8 @@
     {
       "path": "assets/production/backgrounds/growth-run-near.webp",
       "role": "production-asset",
-      "bytes": 255214,
-      "sha256": "ebdf68303e69e6ad408cdf9b22c7ab9777c8ee5efa461deda7880aa4b65a0c77"
+      "bytes": 213414,
+      "sha256": "857023995ab541a35533cfa2d4bad0b9d5caa3409f6b759a85ecec46bee07d08"
     },
     {
       "path": "assets/production/backgrounds/growth-run-sky.webp",
@@ -466,8 +466,8 @@
     {
       "path": "assets/production/backgrounds/growth-run-trees.webp",
       "role": "production-asset",
-      "bytes": 134232,
-      "sha256": "eb72e5e224024aa8fc31f02b036f5abc7718a85397d786ffc3e5ed8a7dcde36d"
+      "bytes": 149956,
+      "sha256": "631ac30ad131a3eba156b4fda3dc69417995d1dd196648736081a23bf4c1d23a"
     },
     {
       "path": "assets/production/backgrounds/growth-run.png",
@@ -514,14 +514,14 @@
     {
       "path": "assets/production/backgrounds/ship-it-city-far.webp",
       "role": "production-asset",
-      "bytes": 245454,
-      "sha256": "938fe1a7ae6a2cf06292149111345b7db21d8928dcddcbce3aa20d4440f2b885"
+      "bytes": 97228,
+      "sha256": "0cd9d1ab3b3b1528e3f837e41112a4c705b9aa1f18d3af5780adb0c4939ba484"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city-near.webp",
       "role": "production-asset",
-      "bytes": 457538,
-      "sha256": "839521df7f44bf1dd2f607ca827867ff0f5a2544e079ec1a2e7086b04fe922b3"
+      "bytes": 414426,
+      "sha256": "51bb91be459e075489cac522823e73b348d4716ce4fef527290abaeb50b6092f"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city-sky.webp",
@@ -532,8 +532,8 @@
     {
       "path": "assets/production/backgrounds/ship-it-city-trees.webp",
       "role": "production-asset",
-      "bytes": 261782,
-      "sha256": "62b0bf056b2192b57a995d03a46d6d6e1192c6f9c7a7c4b703b0ab4894762539"
+      "bytes": 216910,
+      "sha256": "76dcae9daf0a24f77ab1020139ac8cd20a959d568848c45e9656ed8a66979e24"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city.png",
@@ -664,8 +664,8 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 7279,
-      "sha256": "fbbdc12db0ea700b0c150e3b86f88c47f2e4584b5ec8700d8fd3c5fc2b37dc26"
+      "bytes": 7397,
+      "sha256": "6f124a7dd532fbe0526432410c7cdf6f78436d4a8347b8fce11bc79d53b105df"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
@@ -1150,8 +1150,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 5078,
-      "sha256": "bf1f92d25ca090399146f8c34550cfee8299403725688f4f362f40692f5f292d"
+      "bytes": 5127,
+      "sha256": "1ef40aa3e5c1d8ca2df7361e5ec7644f02864dcbc7b5d59f11611fe4aaff95c7"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1184,6 +1184,12 @@
       "sha256": "70eb419a2893caa0d739369cad54cecd84d00b288f9471382ac5b4834180f26e"
     },
     {
+      "path": "assets/source/kit/city-far-3.png",
+      "role": "generated-source",
+      "bytes": 2510853,
+      "sha256": "4bad488a540ef46e0ecc99be096d8bce00b3998f415a3767695a83bce290a9fc"
+    },
+    {
       "path": "assets/source/kit/city-movers.png",
       "role": "generated-source",
       "bytes": 1809257,
@@ -1194,6 +1200,24 @@
       "role": "generated-source",
       "bytes": 2886183,
       "sha256": "d76898c46d2b027255768ce1b90f32ce1b663fa8bd4c9d1628cd2a1c9fa09933"
+    },
+    {
+      "path": "assets/source/kit/city-near-3.png",
+      "role": "generated-source",
+      "bytes": 3053796,
+      "sha256": "6b3a4f0dfe865facd081271377c2f0dcf9fe8977b3f1e1c92821a25987176502"
+    },
+    {
+      "path": "assets/source/kit/city-near-4.png",
+      "role": "generated-source",
+      "bytes": 3095512,
+      "sha256": "571a526599dcf66b6b973c30fcbda943f081d72ca4be8666e1cebbcf6603faaf"
+    },
+    {
+      "path": "assets/source/kit/city-near-5.png",
+      "role": "generated-source",
+      "bytes": 3118776,
+      "sha256": "87201977f0a8ab1bbdac14ea081b97b077bd173fef15eacfb6e00de5e37f90f4"
     },
     {
       "path": "assets/source/kit/city-sky.png",
@@ -1218,6 +1242,18 @@
       "role": "generated-source",
       "bytes": 2200638,
       "sha256": "b862542190d801268c6107368490f7c58cea812358e4dce21e73a31c4614e3ec"
+    },
+    {
+      "path": "assets/source/kit/growth-near-3.png",
+      "role": "generated-source",
+      "bytes": 2162164,
+      "sha256": "5b469af8323a57353ba6ecf3881f228ddf8ccb93f30dfb475fb1981fe9485d20"
+    },
+    {
+      "path": "assets/source/kit/growth-near-4.png",
+      "role": "generated-source",
+      "bytes": 2167630,
+      "sha256": "513a78292e0e58e3ffd109f8265fde9827b59b5ec5218d409ee87b1ec846f1dd"
     },
     {
       "path": "assets/source/kit/growth-sky.png",
@@ -1298,6 +1334,12 @@
       "sha256": "2b7734f4c40da98023d44494f78263aae3c139ca61a702b228109ebc0f8562e8"
     },
     {
+      "path": "assets/source/kit/prompts/city-far-3.txt",
+      "role": "generated-source",
+      "bytes": 1366,
+      "sha256": "b2c8ab63d941274f2870c8fa32853dc3613f78f0e4f2be3ba9e6a63c11eadcd2"
+    },
+    {
       "path": "assets/source/kit/prompts/city-far.txt",
       "role": "generated-source",
       "bytes": 1776,
@@ -1314,6 +1356,24 @@
       "role": "generated-source",
       "bytes": 2568,
       "sha256": "2218bacf8e5ad51073cb4d7d8f03d0f54fb306fedae65e9bd93358eaeac6ec00"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-3.txt",
+      "role": "generated-source",
+      "bytes": 1461,
+      "sha256": "17d327320c7a20327ac4153f4778b2edccf6a82e7953624401c765d88595f2c0"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-4.txt",
+      "role": "generated-source",
+      "bytes": 1528,
+      "sha256": "62a715d3ae4c664f55a18cd2433bc79b063b768364bc9beda9f047926b796202"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-5.txt",
+      "role": "generated-source",
+      "bytes": 1521,
+      "sha256": "8db30ee05564ea74b2a96aacc7a9918f37eb3a951d7b6319377c49af2c93bada"
     },
     {
       "path": "assets/source/kit/prompts/city-near.txt",

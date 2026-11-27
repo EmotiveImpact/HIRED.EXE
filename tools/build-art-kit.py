@@ -413,6 +413,26 @@ def alley_traffic():
 
 # --- Layers ---------------------------------------------------------------------------------------
 
+def stitched(names, joins, band=48):
+    """Several pictures of one scene, each carrying on from the last, joined into one long picture.
+
+    Each picture after the first was painted as the next stretch to the right of the one before,
+    so the two share what crosses between them: the deck, the trees, the buildings under the
+    bridge. `joins` gives, for each pair, the column in the left picture and the column in the
+    right picture where they match best (found by comparing strips of the two); the pictures are
+    cut there and cross-faded over `band` pixels."""
+    pictures = [np.asarray(Image.open(SRC / name).convert('RGB')).astype(np.float32) for name in names]
+    whole, half, start = pictures[0], band // 2, 0
+    fade = np.linspace(0, 1, band)[None, :, None]
+    for picture, (left, right) in zip(pictures[1:], joins):
+        # `start` is where the last picture added begins in the joined one.
+        cut = start + left
+        mid = whole[:, cut - half:cut + half] * (1 - fade) + picture[:, right - half:right + half] * fade
+        whole = np.concatenate([whole[:, :cut - half], mid, picture[:, right + half:]], axis=1)
+        start = cut - right
+    return Image.fromarray(whole.clip(0, 255).astype(np.uint8), 'RGB')
+
+
 def layer(im, scale, top, haze=None, haze_from=None):
     """A cut-out layer as the game draws it: scaled, and set `top` pixels down a strip as tall as
     the screen. `haze` is a colour the layer melts into below `haze_from`, to the foot of the strip."""
@@ -522,6 +542,10 @@ def save_layers(world, layers, scene):
         path = BACKGROUNDS / f'{world}-{name}.webp'
         if im.mode == 'RGB':
             im.save(path, 'WEBP', quality=90, method=6)
+        elif im.width > SCREEN[0]:
+            # A long joined layer is several screens of painting: kept lossless it would weigh
+            # over a megabyte, and at this quality the loss cannot be seen. Its edges stay exact.
+            im.save(path, 'WEBP', quality=95, alpha_quality=100, method=6)
         else:
             im.save(path, 'WEBP', lossless=True, method=6)
         scene['layers'].append({'image': str(path.relative_to(ROOT)), **how})
@@ -592,8 +616,8 @@ def city_layers():
     on a flat ground. The front bank of trees is lifted out of the second to slide by itself."""
     # A scrap of a building is painted into the clouds on the right.
     sky = unmarked(Image.open(SRC / 'city-sky.png'), also=[(2290, 270, 2560, 470)]).convert('RGB').resize(SCREEN, Image.LANCZOS)
-    far = matte(Image.open(SRC / 'city-far-2.png'), keep_marks=True)
-    whole = Image.open(SRC / 'city-near-2.png')
+    far = matte(stitched(CITY_ART['far'], CITY_ART['far_joins']), keep_marks=True)
+    whole = stitched(CITY_ART['near'], CITY_ART['near_joins'])
     near = unpinked(matte(whole, keep_marks=True))
     # Leaves are greener than they are red and blue, or dark and teal in their shade; the lit
     # windows behind them are bright and as blue as they are green.
@@ -610,9 +634,18 @@ def city_layers():
         'smoke': {'layer': 2, 'from': [[round(x * scale), round(y * scale) + CITY['near']] for x, y in CITY_ART['chimneys']]}})
 
 
-# Where things are in the painted picture, in its own pixels: the bridge deck the train runs on,
-# the top of each chimney, and the row the front trees are lifted from.
-CITY_ART = {'deck': 716, 'chimneys': ((574, 438), (1040, 183), (1606, 408)), 'trees': 1100}
+# The bridge is four pictures and the skyline two, each painted as the next stretch to the right of
+# the last and joined where they match (see `stitched`). Where things are in the joined picture, in its own pixels: the
+# bridge deck the train runs on, the top of each chimney, and the row the front trees are lifted from.
+CITY_ART = {
+    'near': ('city-near-2.png', 'city-near-3.png', 'city-near-4.png', 'city-near-5.png'),
+    'near_joins': ((2000, 24), (2484, 908), (1792, 548)),
+    'far': ('city-far-2.png', 'city-far-3.png'),
+    'far_joins': ((1796, 648),),
+    'deck': 716,
+    'chimneys': ((574, 438), (1040, 183), (1606, 408), (3498, 290), (4612, 517)),
+    'trees': 1100,
+}
 CITY = {'far': -70, 'near': 7, 'haze': (250, 350)}
 
 
@@ -633,9 +666,17 @@ def city_traffic():
 
 # --- Growth Run -----------------------------------------------------------------------------------
 
-# The top of the track the train runs on, the row the front blossom is lifted from and the
-# columns it is lifted between, in the painted picture's own pixels.
-GROWTH_ART = {'track': 580, 'trees': 1030, 'ends': (250, 2250)}
+# The track is several pictures, each painted as the next stretch to the right of the last and joined
+# where they match (see `stitched`). In the joined picture's own pixels: the top of the track the
+# train runs on, the row the front blossom is lifted from, and how much is left off each end when
+# it is lifted.
+GROWTH_ART = {
+    'near': ('growth-near-2.png', 'growth-near-3.png', 'growth-near-4.png'),
+    'near_joins': ((2532, 44), (2532, 44)),
+    'track': 580,
+    'trees': 1030,
+    'ends': (250, 310),
+}
 GROWTH = {'far': -60, 'near': 59}
 
 
@@ -644,14 +685,15 @@ def growth_layers():
     front bank of blossom is lifted out of it to slide by itself."""
     sky = unmarked(Image.open(SRC / 'growth-sky.png')).convert('RGB').resize(SCREEN, Image.LANCZOS)
     far = matte(Image.open(SRC / 'growth-far.png'))
-    whole = Image.open(SRC / 'growth-near-2.png')
+    whole = stitched(GROWTH_ART['near'], GROWTH_ART['near_joins'])
     green = lambda r, g, b: (g > r + 24) & (g > b + 24)
     near = shaved(matte(whole, keep_marks=True), green)
     # Petals are redder than they are green, no bluer than they are red, and never yellow: the
     # violet buildings behind them are bluer and their lit windows yellower. The far trees that
     # show at either end of the picture, behind the pillars, are left out with those ends.
     petal = lambda r, g, b: (r > 170) & (r > g + 25) & (r > b - 10) & (b > g - 10)
-    trees = front_bank(whole.crop((GROWTH_ART['ends'][0], 0, GROWTH_ART['ends'][1], whole.height)), GROWTH_ART['trees'], petal, rim=12)
+    left, right = GROWTH_ART['ends']
+    trees = front_bank(whole.crop((left, 0, whole.width - right, whole.height)), GROWTH_ART['trees'], petal, rim=12)
     scale = 0.375
     return save_layers('growth-run', {
         'sky': (sky, {'speed': 0.02, 'drift': 2}),
