@@ -706,8 +706,8 @@
     {
       "path": "assets/production/intro/antiques.mp4",
       "role": "production-asset",
-      "bytes": 818076,
-      "sha256": "2de6dd69cc65213fc8ede9cd1ef0e1a66901187fbf88c8d74e7a6297cfaff437"
+      "bytes": 680939,
+      "sha256": "012420a3e12bba3044fb99863b83fa06ef501c3098b6233f2b821b3c112122eb"
     },
     {
       "path": "assets/production/intro/antiques.webp",
@@ -724,14 +724,14 @@
     {
       "path": "assets/production/intro/door.mp4",
       "role": "production-asset",
-      "bytes": 471767,
-      "sha256": "eb3f9b199821e79d7e75d52ba411c037883e94e2aa3950c21556a33cd4c06146"
+      "bytes": 402285,
+      "sha256": "8bdc9da052dfd0e0b50ea70fcd4a4627d1416e9fd632f03d879d6c0a14bc37bb"
     },
     {
       "path": "assets/production/intro/door.webp",
       "role": "production-asset",
-      "bytes": 95096,
-      "sha256": "1cc158261605078f23786a283b93a8f538ba773e6246122f1ff95f07e8802dd3"
+      "bytes": 100044,
+      "sha256": "5de8bb4a70df6b011d8579a82d4844288be5624693030dd96e8336aff32bc08a"
     },
     {
       "path": "assets/production/intro/driver.mp3",
@@ -742,14 +742,14 @@
     {
       "path": "assets/production/intro/driver.mp4",
       "role": "production-asset",
-      "bytes": 222350,
-      "sha256": "433624cee2429b3b7c9dfdfe1e99c2dfb03f388d5739e199c7264d23537c0cf0"
+      "bytes": 210275,
+      "sha256": "bdfe86a68b448b6de3d42b29e1a835edb8d7b6c4db6cb688afcb28bcd8a76caf"
     },
     {
       "path": "assets/production/intro/driver.webp",
       "role": "production-asset",
-      "bytes": 63264,
-      "sha256": "3ea9e29ab23ef696644b9f774278bac51dee7dc6fdf4bc345d97116089a50f40"
+      "bytes": 98912,
+      "sha256": "6c6545700fc57ba515e69566fced7ec867368615e4f4ec1ac500a65c6a7e2cdd"
     },
     {
       "path": "assets/production/intro/found.mp3",
@@ -778,8 +778,8 @@
     {
       "path": "assets/production/intro/news.mp4",
       "role": "production-asset",
-      "bytes": 682501,
-      "sha256": "c24792402d88f4cf63e582519a264a737fb26a2431c2a958f0a36ea788c73a45"
+      "bytes": 280118,
+      "sha256": "53d52d158455ad5dac278578dc61c8eeca6bedbe81510421d40f61c4e8b49ee4"
     },
     {
       "path": "assets/production/intro/news.webp",
@@ -796,8 +796,8 @@
     {
       "path": "assets/production/intro/studio.mp4",
       "role": "production-asset",
-      "bytes": 508923,
-      "sha256": "9fb2693ae09c20c5c43a53244d529a82f3aa8fac4a2c7c5976d5cc4ad2bd1e0e"
+      "bytes": 498460,
+      "sha256": "531146ccece8aa01320eac523bdd99eb41ef64e8dfadc937117d91e895cf2c46"
     },
     {
       "path": "assets/production/intro/studio.webp",
@@ -814,8 +814,8 @@
     {
       "path": "assets/production/intro/tech.mp4",
       "role": "production-asset",
-      "bytes": 478722,
-      "sha256": "0bcaea1861a6a3b1dc556233dc4adc5422f8d4096aa4d0e0d08db09cfc996852"
+      "bytes": 293935,
+      "sha256": "6af690092b0a9240916dee7914c9282f39e1cbd2015be5c4d0a51c3cc0f52835"
     },
     {
       "path": "assets/production/intro/tech.webp",
