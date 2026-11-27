@@ -27,6 +27,11 @@ def sign_guestbook(context, base, mobile, errors):
         route.fulfill(json={'entries': kept, 'total': len(kept)})
     page.route('**/api/guestbook', book)
     page.add_init_script("globalThis.HIRED_GUESTBOOK_URL = '/api/guestbook'")
+    # Behave as an iPhone does: a video fetches none of its pictures until it is told to play.
+    page.add_init_script('''(() => {
+        const d = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'preload');
+        Object.defineProperty(HTMLMediaElement.prototype, 'preload', {get() { return d.get.call(this); }, set() { d.set.call(this, 'none'); }});
+    })()''')
     page.goto(base)
     page.locator('#start-game').wait_for()
     press = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
@@ -64,11 +69,22 @@ def sign_guestbook(context, base, mobile, errors):
     press('#hire-start')
     expect(page.locator('#game-window')).to_be_visible()
     expect(page.locator('.intro-osd')).to_have_text('CH 1')
+    # The first shot plays as video even so (where this browser can play the clips at all).
+    if context.browser.browser_type.name != 'webkit' and page.evaluate('''document.createElement('video').canPlayType('video/mp4; codecs="avc1.4D401E"') !== '' '''):
+        page.wait_for_function("(() => { const v = document.querySelector('.intro-clip:not(.is-loading)'); return v && !v.paused && v.currentTime > 0; })()")
     press('#intro-skip')
     expect(page.locator('.game-title.title-land')).to_be_visible()
     assert page.evaluate("JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('hired-exe:v'))) || '{}').introSeen === true")
     # Once the intro has been seen, the same button starts the game there and then, with no title
     # screen in between.
+    page.reload()
+    page.locator('#start-game').wait_for()
+    # Options > Replay intro shows it again, whatever has been seen, and the title lands after it.
+    press('#pm-options')
+    press('#pm-intro')
+    expect(page.locator('.intro-osd')).to_have_text('CH 1')
+    press('#intro-skip')
+    expect(page.locator('.game-title.title-land')).to_be_visible()
     page.reload()
     page.locator('#start-game').wait_for()
     press('#hire-start')

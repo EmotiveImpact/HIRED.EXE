@@ -295,6 +295,7 @@
       ],
       hooks:{
         replayStartup:async()=>{await runStartup();H.progman.focus();audio.system('SystemStart');},
+        replayIntro:()=>{if(uiMode==='home'&&desktopPlay)launchTitle(desktopPlay.play,desktopPlay.continuing,false,true);},
         exitWindows:()=>exitWindows(),
         help:(topic,then)=>H.winhelp(topic,then)
       }
@@ -309,7 +310,8 @@
   // direct: Play the game was pressed in HIRE.EXE's window on the desktop, which is the title
   // screen already, so the game starts as soon as its artwork has loaded. The one exception is
   // a first visit: the intro plays, and the title lands after it as the intro's last beat.
-  async function launchTitle(play,continuing,direct=false){
+  // again: Options > Replay intro in Program Manager, which shows the intro whatever has been seen.
+  async function launchTitle(play,continuing,direct=false,again=false){
     const launch=++launchNumber;
     setMode('game-load');
     const layer=$('overlay');
@@ -319,13 +321,13 @@
     try{await loadArtwork();}catch{
       if(launch===launchNumber&&uiMode==='game-load'){
         modal('HIRE.EXE','<p>The game artwork could not load.</p><button class="btn" id="retry-launch">Try again</button>');
-        $('retry-launch').onclick=()=>launchTitle(play,continuing,direct);
+        $('retry-launch').onclick=()=>launchTitle(play,continuing,direct,again);
       }
       return;
     }
     if(launch!==launchNumber||uiMode!=='game-load')return;
     // A first visit opens on the intro, wherever Play the game was pressed.
-    const first=Boolean(H.intro&&!continuing&&!progress.introSeen);
+    const first=Boolean(H.intro&&(again||(!continuing&&!progress.introSeen)));
     if(direct&&!first){H.track(continuing?'Game continued':'Game started');play();return;}
     let woken=false;
     function title(landing){
@@ -371,7 +373,7 @@
       const how=await H.intro.play(layer,{asset,voice,clips:!globalThis.HIRED_EMBEDDED_ASSETS,sound:name=>audio.effect('intro-'+name)});
       if(launch!==launchNumber||uiMode!=='intro')return;
       progress.introSeen=true;save();
-      H.track(how==='skipped'?'Intro skipped':'Intro watched');
+      H.track(how==='skipped'?'Intro skipped':'Intro watched',(H.intro.clipsPlayed||0)+' of '+H.intro.beats.length+' shots as video');
       title(true);
     } else title();
   }

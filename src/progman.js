@@ -532,7 +532,8 @@
       { label: '&Minimise on Use', checked: o.minimiseOnUse, action: toggle('minimiseOnUse') },
       { label: '&Save Settings on Exit', checked: o.saveOnExit, action: toggle('saveOnExit') },
       '-',
-      { label: '&Replay startup', id: 'pm-reboot', action: () => cfg.hooks.replayStartup() }
+      { label: '&Replay startup', id: 'pm-reboot', action: () => cfg.hooks.replayStartup() },
+      { label: 'Replay &intro', id: 'pm-intro', action: () => cfg.hooks.replayIntro() }
     ];
   }
   function persistOptions() {
