@@ -418,8 +418,8 @@
     {
       "path": "assets/production/backgrounds/application-alley-near.webp",
       "role": "production-asset",
-      "bytes": 199200,
-      "sha256": "7b138da2de80e594a670c244eaec2dda688dd57cf9b83cb980ce09f85e565248"
+      "bytes": 233888,
+      "sha256": "202e97cc9b64ddeb02d8d7b3cd2fa2923888fb585706a98f5664c0b3bbb369d6"
     },
     {
       "path": "assets/production/backgrounds/application-alley-sky.webp",
@@ -430,8 +430,8 @@
     {
       "path": "assets/production/backgrounds/application-alley-trees.webp",
       "role": "production-asset",
-      "bytes": 188942,
-      "sha256": "ea5225767f84f10692d7ba66013cce0903fb3fbbeca4a3fcb45ccac9e0256946"
+      "bytes": 27534,
+      "sha256": "c4d04fe829b6ccc25b5676ff34468c2ffcc2b4aa052ecfd7acbb0265083a377e"
     },
     {
       "path": "assets/production/backgrounds/application-alley.png",
@@ -1162,8 +1162,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 6812,
-      "sha256": "bd275618bbf66964e1bfa94dde24e13c99d01e553de3c83abfe1e266742255b1"
+      "bytes": 7302,
+      "sha256": "78e77d31467fd5930ca36c770a3c8badf3ae50be370db04c7f0058e6d147907d"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1178,6 +1178,24 @@
       "sha256": "c99ac1cc6f752e3d49d579124fef250ded003f1d76511cce3772bd5dac3b2c5b"
     },
     {
+      "path": "assets/source/kit/alley-near-2.png",
+      "role": "generated-source",
+      "bytes": 2489079,
+      "sha256": "5666df6bbc9ee3ce8c3c3db7663373834bf2e834458086959c1e42aa97df4b50"
+    },
+    {
+      "path": "assets/source/kit/alley-near-3.png",
+      "role": "generated-source",
+      "bytes": 2533458,
+      "sha256": "8df901c0234ab891143fe67c89c38ce0114ba544b1f9d85cbf60f5d85e9be48d"
+    },
+    {
+      "path": "assets/source/kit/alley-near-4.png",
+      "role": "generated-source",
+      "bytes": 2420342,
+      "sha256": "59dd79ee5e4ba4599328fa1fd00ca0b06afa5a30092e8b0c1b97c444018f1747"
+    },
+    {
       "path": "assets/source/kit/alley-near.png",
       "role": "generated-source",
       "bytes": 1939694,
@@ -1188,6 +1206,12 @@
       "role": "generated-source",
       "bytes": 2102174,
       "sha256": "18e4598cc8319bc45e624a76d7786889c907b4c6cdce3b5e7631edb9f6bd5d51"
+    },
+    {
+      "path": "assets/source/kit/alley-trees-1.png",
+      "role": "generated-source",
+      "bytes": 2097911,
+      "sha256": "1d44c629c9fa17a823200f47ee3a0bfb15a976878135db859cfe812da1400189"
     },
     {
       "path": "assets/source/kit/boss-algorithm.png",
@@ -1368,6 +1392,24 @@
       "role": "generated-source",
       "bytes": 1869,
       "sha256": "77b86b55afd8dcbf64622822f88c26e302c20382b2b68e5f7f0580e503b41c64"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-near-2.txt",
+      "role": "generated-source",
+      "bytes": 1389,
+      "sha256": "aadfad38a11786256a48de79931a3bac2def2855a57295a9ad3a8dc852c3263d"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-near-3.txt",
+      "role": "generated-source",
+      "bytes": 1574,
+      "sha256": "7b1a45e00412022dea81981154fc3ef02e0a36bdad117a75e7ad5a647f344ba8"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-near-4.txt",
+      "role": "generated-source",
+      "bytes": 1615,
+      "sha256": "609a3bc014b82cb1a97ad0d084efe4c6e90b10cc9e9b3c98fbe687bab790403a"
     },
     {
       "path": "assets/source/kit/prompts/alley-near.txt",

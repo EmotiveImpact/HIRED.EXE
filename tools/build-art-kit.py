@@ -451,53 +451,6 @@ def layer(im, scale, top, haze=None, haze_from=None):
     return strip
 
 
-def shaded(light, ramp):
-    """Colours for a field of light, 0 to 1, run through three colours from shade to highlight."""
-    low, mid, high = (np.array(c, np.float32) for c in ramp)
-    light = light[..., None]
-    return np.where(light < 0.5, low + (mid - low) * light * 2, mid + (high - mid) * (light * 2 - 1))
-
-
-def brightness(data, floor=80, span=130):
-    return np.clip((data @ np.array([0.3, 0.59, 0.11], np.float32) - floor) / span, 0, 1)
-
-
-PINKS = ((150, 62, 150), (236, 124, 214), (255, 214, 244))
-GREENS = ((18, 92, 74), (62, 166, 76), (176, 232, 108))
-
-
-def blossom(im, rows, lift):
-    """Flat pink treetops given leaves: each pink pixel takes the light and shade of the green
-    canopy `lift` pixels below it, in pinks."""
-    data = np.asarray(im.convert('RGB')).astype(np.float32)
-    r, g, b = (data[..., c] for c in range(3))
-    pink = (r > 200) & (b > 200) & (g > 100) & (g < 200)
-    pink[: rows[0]] = False
-    pink[rows[1]:] = False
-    data = np.where(pink[..., None], shaded(brightness(np.roll(data, -lift, axis=0)), PINKS), data)
-    return Image.fromarray(data.clip(0, 255).astype(np.uint8), 'RGB')
-
-
-def treetops(im, start):
-    """The canopy on its own, from row `start` down: everything from the first leaf in each column
-    to the foot of the picture. What stands behind the trees there is neither green nor pink."""
-    data = np.asarray(im.convert('RGB'))[start:].astype(np.int32)
-    r, g, b = (data[..., c] for c in range(3))
-    leaf = (g > r + 12) & (g > b - 40) | (g > r + 40)                  # greens and the teal shade
-    petal = (r > 140) & (r > g + 36) & (b > g + 24) & (b < r + 12)     # the pinks `blossom` lays down
-    # A column's canopy begins where leaves carry on for a while, so one stray pixel starts nothing.
-    found = (leaf | petal).astype(np.int32)
-    ahead = np.cumsum(np.concatenate([found, np.zeros((16, found.shape[1]), np.int32)]), axis=0)
-    steady = ((ahead[16:] - ahead[:-16] + found) >= 14) & (found > 0)
-    first = np.where(steady.any(axis=0), steady.argmax(axis=0), len(steady))
-    # No column starts higher than its neighbours do: a spike one pixel wide is not a tree.
-    near = np.pad(first, 4, mode='edge')
-    first = np.maximum(first, np.median(np.stack([near[i: i + len(first)] for i in range(9)]), axis=0).astype(int))
-    canopy = np.arange(len(steady))[:, None] >= first[None]
-    out = np.dstack([data, np.where(canopy, 255, 0)]).astype(np.uint8)
-    return Image.fromarray(out, 'RGBA')
-
-
 def spread(mask, size):
     """A mask grown by `size` pixels each way, as a square."""
     for axis in (0, 1):
@@ -529,12 +482,6 @@ def front_bank(im, start, tree, crown=60, rim=20):
     return Image.fromarray(np.dstack([data, alpha * 255]).astype(np.uint8), 'RGBA')
 
 
-def without_rows(im, start, end):
-    """A picture with a band of rows taken out and the rest closed up."""
-    data = np.asarray(im)
-    return Image.fromarray(np.concatenate([data[:start], data[end:]]), im.mode)
-
-
 def save_layers(world, layers, scene):
     """Write a world's layers and note them in its scene, back to front."""
     scene['layers'] = []
@@ -552,30 +499,65 @@ def save_layers(world, layers, scene):
     return scene
 
 
-def alley_canopy():
-    """Application Alley's viaduct and trees, with its flat pink treetops given leaves."""
-    return blossom(unmarked(Image.open(SRC / 'alley-near.png')), (900, 1180), 240)
+# The viaduct is three pictures, each painted as the next stretch to the right of the last and joined
+# where they match (see `stitched`). The row of treetops in front is a picture of its own.
+ALLEY_ART = {
+    'near': ('alley-near-2.png', 'alley-near-3.png', 'alley-near-4.png'),
+    'near_joins': ((1552, 472), (2520, 524)),
+}
+ALLEY = {'scale': 0.4, 'near': 40, 'trees': 100}
+
+
+def open_ground(clear, least=600, step=4):
+    """Where a picture on a red ground is open ground: the stretches of red that reach the top of the
+    picture or are as big as the opening of an arch, with a few pixels round them for their soft
+    edges. A red tree or roof makes patches of red too; those are small and closed in. Returns the
+    open ground itself, and the same with its edges."""
+    height, width = clear.shape
+    rows, cols = height // step, width // step
+    small = clear[:rows * step, :cols * step].reshape(rows, step, cols, step).all(axis=(1, 3))
+    keep, todo = np.zeros_like(small), small.copy()
+    while todo.any():
+        y, x = np.argwhere(todo)[0]
+        # A copy, so the fill is written to the picture that is read back.
+        canvas = Image.fromarray(todo.astype(np.uint8) * 255, 'L').copy()
+        ImageDraw.floodfill(canvas, (int(x), int(y)), 128)
+        region = np.asarray(canvas) == 128
+        # A half arch at either end is open ground too: the layer goes on, mirrored, past its ends.
+        if region.sum() >= least or region[0].any() or region[:, 0].any() or region[:, -1].any():
+            keep |= region
+        todo &= ~region
+    big = np.zeros_like(clear)
+    big[:rows * step, :cols * step] = np.repeat(np.repeat(keep, step, axis=0), step, axis=1)
+    return big, spread(big, step + 3)
 
 
 def alley_layers():
     sky = unmarked(Image.open(SRC / 'alley-sky.png')).convert('RGB').resize(SCREEN, Image.LANCZOS)
     far = matte(Image.open(SRC / 'alley-far.png'))
-    whole = alley_canopy()
-    # The viaduct's deck is drawn very deep: a plain band comes out of it.
-    near = matte(without_rows(whole, 664, 752), keep_marks=True)
-    # The dark line round each arch picks up the red of the ground. It goes back to the stone's
-    # own dark violet.
-    data = np.asarray(near).copy()
-    r, g, b = (data[..., c].astype(np.int32) for c in range(3))
-    data[(data[..., 3] > 0) & (g < 45) & (r > b) & (r > 60)] = (62, 26, 98, 255)
-    near = Image.fromarray(data, 'RGBA')
-    # The same canopy again, larger and nearer, in front of the viaduct's feet.
-    trees = treetops(whole, 960)
+    whole = stitched(ALLEY_ART['near'], ALLEY_ART['near_joins'])
+    keyed = np.asarray(matte(whole, keep_marks=True)).copy()
+    # Only open ground keys out: the red trees and terracotta roofs keep their own colour. Through
+    # the wide arch the ground shows as a deeper red down the lane; that goes too.
+    paint = np.asarray(whole).astype(np.int32)
+    red = (paint[..., 0] > 205) & (paint[..., 1] < 70) & (paint[..., 2] < 70)
+    core, ground = open_ground(red)
+    keyed[~ground, :3] = paint[~ground]
+    keyed[~ground, 3] = 255
+    keyed[core & red, 3] = 0
+    # Round each arch the dark line picks up the red of the ground. It goes back to the stone's own
+    # dark violet.
+    r, g, b = (keyed[..., c].astype(np.int32) for c in range(3))
+    keyed[ground & (keyed[..., 3] > 0) & (g < 45) & (r > b) & (r > 60)] = (62, 26, 98, 255)
+    near = Image.fromarray(keyed, 'RGBA')
+    # A row of treetops close up, painted on its own, slides in front.
+    trees = matte(Image.open(SRC / 'alley-trees-1.png'))
+    scale = ALLEY['scale']
     return save_layers('application-alley', {
         'sky': (sky, {'speed': 0.02, 'drift': 3}),
         'far': (layer(far, 0.375, -125, haze=(176, 196, 240), haze_from=(255, 345)), {'speed': 0.07}),
-        'near': (layer(near, 0.3, 134), {'speed': 0.18}),
-        'trees': (layer(trees, 0.36, 367), {'speed': 0.3}),
+        'near': (layer(near, scale, ALLEY['near']), {'speed': 0.18}),
+        'trees': (layer(trees, 0.44, ALLEY['trees']), {'speed': 0.3}),
     }, {'behind': 2, 'float': {'sprite': 'balloon', 'at': [260, 104]},
         'flock': {'sprite': 'gull', 'count': 3, 'y': 150, 'beat': 4}})
 
