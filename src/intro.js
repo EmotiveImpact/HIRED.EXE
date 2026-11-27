@@ -38,8 +38,8 @@
       ['Augustus', 'Don’t hate the player…', 2.75]]},
     {art: 'play', end: 7.85, lines: [
       ['Pepper', 'Sir. Found one.', 0.4],
-      ['Pepper', 'A startup wants an AI product builder.', 2.55],
-      ['Augustus', '…play the game.', 6.65]]}
+      ['Pepper', 'A startup wants an AI product builder.', 3.05],
+      ['Augustus', '…play the game.', 6.75]]}
   ];
   const still = art => FOLDER + art + '.webp';
   const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
