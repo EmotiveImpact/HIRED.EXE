@@ -42,6 +42,7 @@
         progress.checkpoint = record;
       progress.delivered = saved.delivered === true;
       progress.muted = saved.muted === true;
+      progress.introSeen = saved.introSeen === true;
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
   const save = () => {try {localStorage.setItem(SAVE_KEY,JSON.stringify(progress));storageAvailable=true;return true;} catch (_) {storageAvailable=false;return false;}};
@@ -67,7 +68,7 @@
   let interviewIndex=0, interviewChoice=null;
   let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
-  let desktopReturn=null, titleBack=null, artworkLoad=null, assetReport=null;
+  let desktopReturn=null, titleBack=null, titleWake=null, artworkLoad=null, assetReport=null;
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
   let helpBack=showHome, worldsBack=showHome;
@@ -223,12 +224,23 @@
       return;
     }
     if(launch!==launchNumber||uiMode!=='game-load')return;
-    function title(){
-      setMode('title');titleBack=title;
-      layer.className='overlay game-title';
+    let woken=false;
+    function title(landing){
+      setMode('title');titleBack=()=>title();titleWake?.();
+      layer.className='overlay game-title'+(woken?'':' title-wait')+(landing===true?' title-land':'');
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true"><img class="title-actor" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""></div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true"><img class="title-actor" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""></div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div><p class="title-any" id="title-any">Press any button to continue</p></section>`;
+      // The title waits for any key, click or tap, then offers its menu.
+      const wake=e=>{
+        if(e&&e.type==='keydown'&&(e.metaKey||e.ctrlKey||e.altKey||e.key==='Tab'||e.key==='Escape'))return;
+        titleWake?.();
+        if(uiMode!=='title'||!layer.classList.contains('title-wait'))return;
+        if(e?.type==='keydown'){e.preventDefault();e.stopPropagation();}
+        woken=true;layer.classList.remove('title-wait');focusDialog();
+      };
+      titleWake=()=>{document.removeEventListener('keydown',wake,true);layer.removeEventListener('pointerdown',wake);layer.removeEventListener('click',wake);};
+      if(!woken){document.addEventListener('keydown',wake,true);layer.addEventListener('pointerdown',wake);layer.addEventListener('click',wake);}
       $('title-play').onclick=()=>{H.track(continuing?'Game continued':'Game started');play();};
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
@@ -240,9 +252,17 @@
       if(!panels.length){modal('Cutscenes','<p>No illustrated panels in this edition.</p>',false,title);return;}
       const beat=panels[i];
       modal('Cutscenes',`<img class="replay-frame" src="${asset(beat.image)}" alt="${esc(beat.alt)}"><p>${i+1} / ${panels.length} · ${esc(beat.alt)}</p>${(beat.dialogue||[]).map(([name,line])=>`<p><strong>${esc(name)}</strong> ${esc(line)}</p>`).join('')}<div class="modal-actions"><button class="btn" id="gallery-prev" ${i?'':'disabled'}>Previous</button><button class="btn" id="gallery-next" ${i+1===panels.length?'disabled':''}>Next</button><button class="btn" id="gallery-back">Title screen</button></div>`,true,title);
-      bindActions({'gallery-prev':()=>gallery(i-1),'gallery-next':()=>gallery(i+1),'gallery-back':title});
+      bindActions({'gallery-prev':()=>gallery(i-1),'gallery-next':()=>gallery(i+1),'gallery-back':()=>title()});
     }
-    title();
+    // A first visit opens on the intro; the title lands when it ends or is skipped.
+    if(H.intro&&!continuing&&!progress.introSeen){
+      setMode('intro');
+      const how=await H.intro.play(layer,{asset,sound:name=>audio.effect('intro-'+name)});
+      if(launch!==launchNumber||uiMode!=='intro')return;
+      progress.introSeen=true;save();
+      H.track(how==='skipped'?'Intro skipped':'Intro watched');
+      title(true);
+    } else title();
   }
   function beginScene(index) {
     if(H.LEVELS[index] && progress.seenIntros.includes(H.LEVELS[index].id)){

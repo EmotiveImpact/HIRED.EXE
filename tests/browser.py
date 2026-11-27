@@ -76,6 +76,19 @@ def run(profile, base):
         def open_item(target):
             item = page.locator(target)
             item.tap() if mobile else item.dblclick()
+        def title_play():
+            # A first visit opens on the intro. The title then waits for any button.
+            page.wait_for_function("['intro','title'].includes(HIRED_APP.mode)")
+            if page.evaluate("HIRED_APP.mode === 'intro'"):
+                expect(page.locator('.intro-osd')).to_have_text('CH 1')
+                expect(page.locator('.intro-words strong')).to_have_text('Newsreader')
+                activate('#intro-skip')
+                expect(page.locator('.game-title.title-land')).to_be_visible()
+            if page.locator('.game-title.title-wait').count():
+                expect(page.locator('#title-any')).to_have_text('Press any button to continue')
+                expect(page.locator('#title-play')).to_be_hidden()
+                activate('#title-any')
+            activate('#title-play')
         def launch():
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
@@ -327,7 +340,7 @@ def run(profile, base):
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
         page.get_by_role('link', name='Play HIRE.EXE').click()
         launch()
-        activate('#title-play')
+        title_play()
         assert page.locator('#comic-title').inner_text() == 'One PDF'
         for _ in range(4):
             activate('#scene-next')
@@ -418,7 +431,7 @@ def run(profile, base):
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
         launch()
-        activate('#title-play')
+        title_play()
         expect(page.locator('#comic-title')).to_have_text('A quick addition')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v5/city-1\.webp'))
         activate('#scene-skip')
@@ -480,7 +493,7 @@ def run(profile, base):
         # On a phone the Games folder opens over the main one; put it away before launching.
         activate('#games-window .w31-min')
         launch()
-        activate('#title-play')
+        title_play()
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
 
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:solved-001',
@@ -489,7 +502,7 @@ def run(profile, base):
             }}))''')
         page.reload()
         launch()
-        activate('#title-play')
+        title_play()
         expect(page.locator('#comic-title')).to_have_text('Thursday at James’s')
         expect(page.locator('#comic-dialogue strong').first).to_have_text('James')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-1\.webp'))
@@ -556,7 +569,7 @@ def run(profile, base):
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         launch()
-        activate('#title-play')
+        title_play()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')

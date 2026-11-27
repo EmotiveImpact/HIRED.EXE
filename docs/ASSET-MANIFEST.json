@@ -698,6 +698,54 @@
       "sha256": "0e73591412dfdc629fad18f3cdeea79eeb9c7b6c71d8eb3a472c06f632b21e07"
     },
     {
+      "path": "assets/production/intro/antiques.mp4",
+      "role": "production-asset",
+      "bytes": 513198,
+      "sha256": "c878ac886e6e51a90fa677316494ba8accbbf59fd33bd043ef0bd6568a718af2"
+    },
+    {
+      "path": "assets/production/intro/antiques.webp",
+      "role": "production-asset",
+      "bytes": 164314,
+      "sha256": "ef6b72d20a4fd4fb9a78fe3d9d90c3fb509066e76740de0b8ed3e5cbe216f952"
+    },
+    {
+      "path": "assets/production/intro/found.webp",
+      "role": "production-asset",
+      "bytes": 99914,
+      "sha256": "1f40abedc37e940a761543ca06aa317e046478c2cbd1fb34d2e3c8400ceed959"
+    },
+    {
+      "path": "assets/production/intro/news.mp4",
+      "role": "production-asset",
+      "bytes": 408736,
+      "sha256": "540f8ae7bc54caa905069f0e4fae2a1b0fe5518c4a439f95052a5ee02b220201"
+    },
+    {
+      "path": "assets/production/intro/news.webp",
+      "role": "production-asset",
+      "bytes": 150556,
+      "sha256": "714dd7108e36d5f24e782c942d81ac2d0963992d6bbe17e6d95cc1911040601f"
+    },
+    {
+      "path": "assets/production/intro/studio.webp",
+      "role": "production-asset",
+      "bytes": 115166,
+      "sha256": "dda4083bba668e6bcacc22cdf794140e7f5878a4ea578819d3645c05b339448c"
+    },
+    {
+      "path": "assets/production/intro/tech.mp4",
+      "role": "production-asset",
+      "bytes": 151700,
+      "sha256": "257737dde42e41c631fb1bf09301d2c9b0333433670db42700807eb7b3b39136"
+    },
+    {
+      "path": "assets/production/intro/tech.webp",
+      "role": "production-asset",
+      "bytes": 108234,
+      "sha256": "bc8bf960fac8c430221816d19f49695c47d68e2c5a1698ac7c141dc328aa3648"
+    },
+    {
       "path": "assets/production/story/manga-panels.webp",
       "role": "production-asset",
       "bytes": 350262,
@@ -1148,10 +1196,58 @@
       "sha256": "6a056fc0ad547b205f3612d373a2a98bd960c1332116d175c03b9b83b9ac86e0"
     },
     {
+      "path": "assets/source/intro/antiques-seedance.mp4",
+      "role": "generated-source",
+      "bytes": 2846604,
+      "sha256": "762bb3701ba3f7d2e87c52fc438b6f2c7dac1d9b279c22db9e1d2976da316776"
+    },
+    {
+      "path": "assets/source/intro/antiques.webp",
+      "role": "generated-source",
+      "bytes": 810990,
+      "sha256": "b12ce0153933b8d478c2119213041b8f62208af5934cea5ef0e7b726dedf1f59"
+    },
+    {
+      "path": "assets/source/intro/found.webp",
+      "role": "generated-source",
+      "bytes": 464848,
+      "sha256": "9862ee40777f6467e93bf9b64d72bcfbc70617dfdc60e84046257358715a87e9"
+    },
+    {
+      "path": "assets/source/intro/news-seedance.mp4",
+      "role": "generated-source",
+      "bytes": 2158670,
+      "sha256": "3395922f409dc53c398c3013ef22086528ebcd5a15fe6dab89fe892aa14175bd"
+    },
+    {
+      "path": "assets/source/intro/news.webp",
+      "role": "generated-source",
+      "bytes": 714800,
+      "sha256": "527cb74431942459c26b96993ee320bfbc063db187879deea48dec11f31c3ed4"
+    },
+    {
+      "path": "assets/source/intro/studio.webp",
+      "role": "generated-source",
+      "bytes": 599206,
+      "sha256": "e815b58d0c2a6be5ae74493648eccd6e9cf5fdc5796c3b44f2abd4a32e354890"
+    },
+    {
+      "path": "assets/source/intro/tech-seedance.mp4",
+      "role": "generated-source",
+      "bytes": 602494,
+      "sha256": "5e3f0b8eda03cd3c3ad9b5c5e77921607e9465f9613bf62b818cb3e48ded4aa9"
+    },
+    {
+      "path": "assets/source/intro/tech.webp",
+      "role": "generated-source",
+      "bytes": 549480,
+      "sha256": "64acb0c57406df2538861031d0c39120be2439bf3a7a35037b9ae633d87760c7"
+    },
+    {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 5127,
-      "sha256": "1ef40aa3e5c1d8ca2df7361e5ec7644f02864dcbc7b5d59f11611fe4aaff95c7"
+      "bytes": 6115,
+      "sha256": "2be2cde01c76e31fc7b92e9a5bfe86cf5ebf47b048033f4e142a3126fd2c679d"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1404,6 +1500,18 @@
       "role": "generated-source",
       "bytes": 2866,
       "sha256": "9fc1408d21a999b4e016e7355ba6ddc481b0cf275461e3d6031081fbad61112f"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-near-3.txt",
+      "role": "generated-source",
+      "bytes": 1712,
+      "sha256": "10cae23f4d71269bf16a4f2bd2c99d63553837c3356cf529de7cb238d9ebc244"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-near-4.txt",
+      "role": "generated-source",
+      "bytes": 1767,
+      "sha256": "137ddf98e50fbd496dc778c67d55ba3ed645d0c756f8fc08a221db8acebe382f"
     },
     {
       "path": "assets/source/kit/prompts/growth-near.txt",
