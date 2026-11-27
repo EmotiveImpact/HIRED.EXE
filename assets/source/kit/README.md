@@ -1,7 +1,7 @@
 # Sources for the layered backgrounds and the painted kit
 
 Fourteen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
-game's existing art as reference, and sixteen made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
+game's existing art as reference, and twenty made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
 The first three, whose names end in `-2`, came from a written description alone. The other six
 carry those scenes on to the right: each was asked for with the stretch before it attached from
 CapCut's canvas as its reference. They are kept as generated. The Dreamina pictures carry the
@@ -12,7 +12,9 @@ cuts away or paints out. The CapCut pictures have no marks.
 | --- | --- | --- |
 | `alley-sky.png` | Application Alley's sky | none: a full picture |
 | `alley-far.png` | Its far skyline | green |
-| `alley-near.png` | Its viaduct and treetops | red, since the trees are green and pink |
+| `alley-near.png` | Its first viaduct and treetops (no longer used) | red, since the trees are green and pink |
+| `alley-near-2.png` to `alley-near-4.png` | Its lilac stone viaduct, lamps, arches and treetops, in three stretches: a clock pier, a wide arch over a lane and a footbridge stair further along | red |
+| `alley-trees-1.png` | A row of treetops close up, for the nearest layer | red |
 | `alley-movers.png` | Plane, blank banner, train (no longer used: Application Alley has no train), two gulls, balloon | green |
 | `signs.png` | Four blank signs, one for each world | green |
 | `machinery-a.png` | Press head and rod, spring up and down, conveyor, speed strip, two orbs | green |
@@ -53,6 +55,9 @@ What the tool changes on the way in, and why:
   coloured and as wide as a tree's crown, with the boughs and trunks it closes round.
 - Growth Run's far trees show at either end of its long picture, cut off by pillars. Those ends
   are left out of the nearer layer.
+- Application Alley's red ground also shows in a few red trees and terracotta roofs. Only red that
+  reaches the top of the picture, or is as big as an arch's opening, is keyed out; the rest keeps
+  its colour.
 - The magenta ground leaves a pink cast along Ship It City's railing and rooftops. It is taken
   out.
 - Train sprites are averaged down rather than resampled, sharpened, held to 28 colours and ringed
