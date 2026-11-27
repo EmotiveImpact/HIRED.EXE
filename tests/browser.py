@@ -224,6 +224,16 @@ def run(profile, base):
         for line in ('WHAT THIS IS', 'WHERE EVERYTHING IS', 'Hire Augustus.exe: Run this last.', 'KNOWN ISSUES', 'double-click HIRE.EXE'):
             assert line in notepad.locator('.notepad-text').input_value(), line
         activate('.notepad-window #dialog-close')
+        # DEVLOG.TXT is the dev log: how the game was made, newest entry first, in Notepad.
+        expect(page.locator('#home-devlog')).to_contain_text('DEVLOG.TXT')
+        open_item('#home-devlog')
+        expect(notepad.locator('.w31-title')).to_have_text('Notepad - DEVLOG.TXT')
+        devlog = notepad.locator('.notepad-text').input_value()
+        for line in ('Newest entry first.', 'The code STILLAVAILABLE takes 20% off either.', 'FIRST COMMIT', 'C:\\> prompt', 'hireexe.me'):
+            assert line in devlog, line
+        dates = [tuple(reversed(d.split('/'))) for d in re.findall(r'^\d\d/\d\d/\d{4}$', devlog, re.M)]
+        assert len(dates) >= 2 and dates == sorted(dates, reverse=True), dates
+        activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
         open_item('#home-cv-txt')
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - CV.TXT')
