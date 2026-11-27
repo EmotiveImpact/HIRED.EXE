@@ -54,6 +54,11 @@ What the tool changes on the way in, and why:
   out.
 - Train sprites are averaged down rather than resampled, sharpened, held to 28 colours and ringed
   with a dark violet outline, so they stay crisp at game size.
+- The movers were painted with a thin white or cream line outside their dark outline, like a
+  sticker's edge, which showed as a white ring in the game. Light pixels are peeled off each
+  cut-out's rim until the dark outline is reached. The plane, airship, chart airship, balloon,
+  drones, couriers, rocket and gull are then brought down the same way as the trains (64 colours),
+  so every mover has the same dark violet edge.
 - A scrap of a building painted into Ship It City's clouds is painted out.
 - Growth Run's train is three carriages long as drawn. Its middle carriage rides three times.
 - Cut-outs with a green rim from the ground colour have it shaved off.

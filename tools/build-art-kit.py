@@ -387,13 +387,13 @@ def cloth(sheet, box, height):
 
 
 def alley_traffic():
-    sheet = matte(Image.open(SRC / 'alley-movers.png'), keep_marks=True)
+    sheet = dehaloed(matte(Image.open(SRC / 'alley-movers.png'), keep_marks=True))
     logo = marks(sheet)[1]
-    plane = cut(sheet, (240, 90, 910, 560), width=76)
+    plane = crisp(sheet.crop((240, 90, 910, 560)), 51, colours=64)
     banner, banner_meta = cloth(sheet, (1150, 110, 2290, 560), 28)
     basket = balloon(sheet, (1730, 850, 2130, 1420))
     # One gull, wings up; for the second beat of its wings the upper half is pressed flat.
-    gull = cut(sheet, (390, 910, 810, 1225), width=26)
+    gull = crisp(sheet.crop((390, 910, 810, 1225)), 17, colours=64)
     body = gull.height * 11 // 19
     glide = Image.new('RGBA', gull.size)
     glide.paste(sized(gull.crop((0, 0, gull.width, body)), width=gull.width, height=body // 2), (0, body - body // 2))
@@ -403,7 +403,7 @@ def alley_traffic():
         'banner': banner,
         'gull_0': gull,
         'gull_1': glide,
-        'balloon': sized(trim(basket)[0], width=40),
+        'balloon': crisp(basket, 56, colours=64),
     }
     # The tow rope leaves the plane at its tail, halfway down the fin's root.
     tail = np.where(np.asarray(plane)[..., 3][:, :6].any(axis=1))[0]
@@ -599,6 +599,27 @@ def shaved(im, tinted, depth=8):
     return Image.fromarray(data, 'RGBA')
 
 
+def dehaloed(im, depth=8, light=150):
+    """A cut-out with the pale rim taken off. The movers were painted with a dark outline and a thin
+    white or cream line outside it, like a sticker's edge, which shows as a white ring once the
+    ground is gone. Light pixels are peeled off the rim a ring at a time, which stops at the dark
+    outline; where a sprite has no such rim nothing is taken."""
+    data = np.asarray(im).copy()
+    for _ in range(depth):
+        solid = data[..., 3] > 0
+        inside = solid.copy()
+        for axis in (0, 1):
+            for step in (1, -1):
+                inside &= np.roll(solid, step, axis=axis)
+        rgb = data[..., :3].astype(np.int32)
+        level = (rgb[..., 0] * 3 + rgb[..., 1] * 6 + rgb[..., 2]) // 10
+        gone = solid & ~inside & ((level > light) | (data[..., 3] < 200))
+        if not gone.any():
+            break
+        data[gone, 3] = 0
+    return Image.fromarray(data, 'RGBA')
+
+
 def unpinked(im, lead=45):
     """The magenta ground's cast taken out of a cut-out: wherever red and blue both stand well clear
     of green (nothing painted in Ship It City is that colour), they are brought down to it."""
@@ -650,16 +671,17 @@ CITY = {'far': -70, 'near': 7, 'haze': (250, 350)}
 
 
 def city_traffic():
-    sheet = matte(Image.open(SRC / 'city-movers.png'), keep_marks=True)
+    soft = matte(Image.open(SRC / 'city-movers.png'), keep_marks=True)
+    sheet = dehaloed(soft)
     frames = {
-        'airship': cut(sheet, (280, 170, 950, 695), width=66),
-        'drone_0': cut(sheet, (1256, 208, 1724, 584), width=30),
-        'drone_1': cut(sheet, (1868, 192, 2272, 568), width=30),
+        'airship': crisp(sheet.crop((280, 170, 950, 695)), 49, colours=64),
+        'drone_0': crisp(sheet.crop((1256, 208, 1724, 584)), 22, colours=64),
+        'drone_1': crisp(sheet.crop((1868, 192, 2272, 568)), 26, colours=64),
         # A faint line is drawn under the wheels: the train stops just above it.
         'freight': crisp(sheet.crop((284, 744, 2284, 1040)), 40),
-        'puff_0': cut(sheet, (308, 1204, 472, 1340), width=11),
-        'puff_1': cut(sheet, (500, 1164, 704, 1340), width=15),
-        'puff_2': cut(sheet, (732, 1104, 1004, 1336), width=20),
+        'puff_0': cut(soft, (308, 1204, 472, 1340), width=11),
+        'puff_1': cut(soft, (500, 1164, 704, 1340), width=15),
+        'puff_2': cut(soft, (732, 1104, 1004, 1336), width=20),
     }
     return frames, {}
 
@@ -708,7 +730,7 @@ def growth_layers():
 
 def growth_traffic():
     green = lambda r, g, b: (g > r + 24) & (g > b + 24)
-    sheet = shaved(matte(Image.open(SRC / 'growth-movers.png'), keep_marks=True), green)
+    sheet = dehaloed(shaved(matte(Image.open(SRC / 'growth-movers.png'), keep_marks=True), green))
     # Three carriages make a short train, so the middle one rides three times.
     train, box = trim(sheet.crop((640, 716, 2400, 1184)))
     first, second = 1140 - 640 - box[0], 1712 - 640 - box[0]
@@ -718,10 +740,10 @@ def growth_traffic():
         long.paste(train.crop((first, 0, second, train.height)), (first + i * (second - first), 0))
     long.paste(train.crop((second, 0, train.width, train.height)), (second + 2 * (second - first), 0))
     frames = {
-        'screenship': cut(sheet, (180, 64, 1028, 628), width=72),
-        'courier_0': cut(sheet, (1128, 200, 1764, 504), width=32),
-        'courier_1': cut(sheet, (1848, 204, 2456, 504), width=32),
-        'rocket': cut(sheet, (84, 668, 456, 1380), width=20),
+        'screenship': crisp(sheet.crop((180, 64, 1028, 628)), 45, colours=64),
+        'courier_0': crisp(sheet.crop((1128, 200, 1764, 504)), 13, colours=64),
+        'courier_1': crisp(sheet.crop((1848, 204, 2456, 504)), 13, colours=64),
+        'rocket': crisp(sheet.crop((84, 668, 456, 1380)), 37, colours=64),
         'maglev': crisp(long, 42),
     }
     return frames, {}
