@@ -9,14 +9,34 @@
   // A funky one-bar drum pattern for Ship It City, and a ticking one for the interview.
   const FUNK = {k: [0, 3, 8, 11], s: [4, 12], h: [0, 2, 4, 6, 7, 8, 10, 12, 14, 15], fill: [10, 12, 13, 14, 15]};
   const CLOCK = {k: [0, 8], s: [4, 12], h: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], fill: [10, 12, 13, 14, 15]};
+  // Application Alley's drums: a pop beat with an open hat before the bar line and a run round
+  // the toms to end each part, and a four-on-the-floor lift for the middle with a snare build.
+  const POP = {k: [0, 7, 8], s: [4, 12], h: [0, 2, 4, 6, 8, 10, 12], o: [14], fill: {s: [11], t: [[12, 52], [13, 50], [14, 47], [15, 43]]}};
+  const LIFT = {k: [0, 4, 8, 12], s: [4, 12], h: [2, 6, 10, 14], fill: [8, 10, 12, 13, 14, 15]};
+  // Its tune's first six bars, which three of its four parts share, and the marimba's answers
+  // in the gaps of those six bars.
+  const ALLEY = 'G5 . E5 G5 . C6 . B5 | A5 . . . E5 . A5 . | A5 . F5 A5 . C6 . A5 | G5 . . . D5 . G5 . | G5 . E5 G5 . C6 . B5 | A5 . . . C6 . E6 . | ';
+  const ANSWER = '- - - - - - - - | - E5 C5 E5 - - - - | - - - - - - - - | - D5 B4 D5 - - - - | - - - - - - - - | - E5 C5 E5 - - - - | ';
   const SONGS = {
-    // 01 Application Alley: C major and cheerful, the original tune twice, then a new middle.
-    alley: {bpm: 124, gain: 1.1, lead: 'pulse', groove: 'drive', bass: 'octave', arp: true, pad: [8, 16],
-      chords: 'C G Am G C G Am C F G Em Am F G Am G',
-      tune: 'C5 - E5 G5 - E5 D5 C5 | B4 - D5 F5 - D5 B4 G4 | A4 C5 - E5 G5 - F5 E5 | D5 - B4 G4 - B4 D5 - | ' +
-        'C5 - E5 G5 - E5 D5 C5 | B4 - D5 F5 - D5 B4 G4 | A4 C5 - E5 G5 - A5 B5 | C6 . . . G5 . E5 . | ' +
-        'A5 . G5 . F5 . E5 . | D5 . E5 . F5 . G5 . | E5 . D5 . C5 . B4 . | A4 . . . C5 . E5 . | ' +
-        'F5 . E5 . D5 . C5 . | B4 . C5 . D5 . G5 . | E5 . . . C5 . E5 . | D5 . . . B4 . G4 .'},
+    // 01 Application Alley: C major and cheerful, in four eight-bar parts. A trumpet tune over a
+    // slapped bass and off-beat piano, a marimba answering it the second time round, a flute
+    // middle over strings and steel drums, then the tune again with the flute in harmony.
+    alley: {bpm: 124, gain: 1, wide: true, lead: 'brass', bass: 'bounce', bassInst: 'slap', groove: POP, crash: true,
+      comp: {inst: 'piano', steps: [2, 6, 10, 14], vel: 0.8, pan: -0.3},
+      parts: [
+        {chords: 'C Am F G C Am Dm G', then: 'C', tune: ALLEY + 'D6 . C6 A5 . F5 A5 . | G5 . . . - G4 B4 D5'},
+        {chords: 'C Am F G C Am G C', then: 'F', tune: ALLEY + 'D6 . B5 G5 . B5 D6 . | C6 . . . . . - -',
+          voices: [{inst: 'marimba', vel: 0.85, pan: 0.4, tune: ANSWER + '- - - - - - - - | - G4 C5 E5 G5 . - -'}]},
+        {chords: 'F G Em Am Dm G C G7', then: 'C', lead: 'flute', bass: 'drive', groove: LIFT, comp: null, pad: true, padInst: 'strings',
+          arp: {inst: 'steel', pattern: [0, null, 1, null, 2, null, 1, null, 3, null, 2, null, 1, null, 2, null], vel: 0.5, pan: 0.35},
+          tune: '- A5 A5 A5 . G5 F5 . | - B5 B5 B5 . A5 G5 . | - G5 G5 G5 . E5 B4 . | A4 . C5 E5 . A5 . . | ' +
+            '- F5 F5 F5 . E5 D5 . | - G5 G5 G5 . F5 D5 . | E5 . G5 C6 . E6 . . | D6 . . B5 . G5 F5 D5'},
+        {chords: 'C Am F G C Am G C', then: 'C', pad: true, padInst: 'strings', tune: ALLEY + 'D6 . B5 G5 . B5 D6 . | C6 . . . - G4 B4 D5',
+          voices: [
+            {inst: 'flute', vel: 0.55, pan: -0.3, tune: 'E5 . C5 E5 . G5 . G5 | E5 . . . C5 . E5 . | F5 . C5 F5 . A5 . F5 | D5 . . . B4 . D5 . | ' +
+              'E5 . C5 E5 . G5 . G5 | E5 . . . A5 . C6 . | B5 . G5 D5 . G5 B5 . | G5 . . . - - - -'},
+            {inst: 'marimba', vel: 0.85, pan: 0.4, tune: ANSWER + '- - - - - - - - | - G4 C5 E5 - - - -'}]}
+      ]},
     // 02 Ship It City: D minor funk on a brassy lead, built on the original off-beat riff.
     city: {bpm: 112, gain: 1.5, lead: 'saw', groove: FUNK, bass: 'octave', arp: true, pad: [8, 16],
       chords: 'Dm C F Gm Dm C F A Bb C Am Dm Bb C Gm A',
