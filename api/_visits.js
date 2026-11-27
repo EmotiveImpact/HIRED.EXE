@@ -1,8 +1,10 @@
-// Shared by the visitor log (t.js) and its private page (stats.js). The site keeps no packages,
+// Shared by the visitor log (t.js), its private page (stats.js) and the guestbook (guestbook.js). The site keeps no packages,
 // so this talks to the Neon database over HTTPS, the way Neon's own serverless driver does.
 // HIRE_VISITS_DB is the connection string of a role that can only read and add rows in
-// visit_events; it is set on the Vercel project, never in the repository.
+// visit_events, and read, add and hide rows in guestbook; it is set on the Vercel project, never
+// in the repository.
 'use strict';
+const crypto = require('node:crypto');
 
 async function sql(query, params = []) {
   const db = process.env.HIRE_VISITS_DB;
@@ -33,4 +35,11 @@ function describeBrowser(ua) {
 
 const isBot = ua => !ua || /bot|crawl|spider|headless|preview|lighthouse|vercel|monitor|curl|wget|python|node/i.test(ua);
 
-module.exports = {sql, describeBrowser, isBot};
+// The private page's key: HIRE_STATS_KEY on the Vercel project.
+function rightKey(given) {
+  const key = process.env.HIRE_STATS_KEY || '';
+  const a = Buffer.from(String(given || '')), b = Buffer.from(key);
+  return key.length >= 12 && a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+module.exports = {sql, describeBrowser, isBot, rightKey};

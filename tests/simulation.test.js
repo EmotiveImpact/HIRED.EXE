@@ -597,3 +597,29 @@ test('the Feed has its art: a leading edge taller than the screen, its face insi
   for (const icon of ['heart', 'like', 'bell', 'badge', 'bubble', 'share']) assert.ok(feed.frames[icon]?.w > 8, `${icon} is cut out`);
   assert.ok(feed.body.size[0] >= 200 && feed.body.size[1] >= 200, 'the body tile is big enough to repeat quietly');
 });
+
+test('the guestbook keeps plain words: it tidies an entry and refuses empty, long, linked or rude ones', () => {
+  const book = require('../api/guestbook.js');
+  assert.equal(book.cleanName('  James ​  M.‮ '), 'James M.');
+  assert.equal(book.cleanName(42), '');
+  // Line endings are made one kind, blank runs are closed up and a tower of lines is folded into its last.
+  assert.equal(book.cleanMessage('  Came for the CV,\r\nstayed   for the submarine.\n\n\n\nLovely.  '), 'Came for the CV,\nstayed for the submarine.\n\nLovely.');
+  assert.equal(book.cleanMessage(Array.from({length: 12}, (_, i) => 'line ' + i).join('\n')).split('\n').length, 8);
+  // Markup is not removed: it is stored as typed, and the window only ever shows it as text.
+  assert.equal(book.cleanMessage('<b>bold</b>'), '<b>bold</b>');
+  assert.equal(book.refusal('James', 'Nice work.'), '');
+  assert.equal(book.refusal('', 'Nice work.'), 'name');
+  assert.equal(book.refusal('James', ''), 'message');
+  assert.equal(book.refusal('J'.repeat(book.NAME_MAX + 1), 'Hello'), 'long');
+  assert.equal(book.refusal('James', 'a'.repeat(book.MESSAGE_MAX + 1)), 'long');
+  assert.equal(book.refusal('James', 'a'.repeat(book.MESSAGE_MAX)), '');
+  for (const spam of ['see http://example.test', 'visit www.example.test today', 'cheap-pills.com is great']) assert.equal(book.refusal('James', spam), 'link', spam);
+  assert.equal(book.refusal('James', 'what a wanker'), 'rude');
+  // An email address is optional. One that is given is closed up and has to look like an address.
+  assert.equal(book.cleanEmail('  james@solved.studio \u200B'), 'james@solved.studio');
+  assert.equal(book.refusal('James', 'Nice work.', ''), '');
+  assert.equal(book.refusal('James', 'Nice work.', 'james@solved.studio'), '');
+  for (const wrong of ['james', 'james@solved', '@solved.studio', 'a@b@c.d', 'j'.repeat(book.EMAIL_MAX) + '@x.io']) assert.equal(book.refusal('James', 'Nice work.', wrong), 'email', wrong);
+  // Ordinary words that merely contain a rude one, and an email address, are let through.
+  for (const fine of ['Greetings from Scunthorpe.', 'A classic assessment.', 'Write to james@solved.studio']) assert.equal(book.refusal('James', fine), '', fine);
+});

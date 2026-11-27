@@ -1,10 +1,9 @@
 // The private page that shows what visitors did: /api/stats?key=... where the key is
 // HIRE_STATS_KEY on the Vercel project. Without the right key it answers 404, like any
 // page that is not there. Every visit is listed with its place, device and the moments
-// src/track.js noted, newest first.
+// src/track.js noted, newest first, and below them the guestbook, where an entry can be hidden.
 'use strict';
-const crypto = require('node:crypto');
-const {sql} = require('./_visits.js');
+const {sql, rightKey} = require('./_visits.js');
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const clock = secs => Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
@@ -13,13 +12,17 @@ const countries = new Intl.DisplayNames(['en-GB'], {type: 'region'});
 const country = code => { try { return countries.of(code); } catch (_) { return code; } };
 const PERIODS = [[1, 'Today'], [7, '7 days'], [30, '30 days'], [365, 'A year']];
 
-function rightKey(given) {
-  const key = process.env.HIRE_STATS_KEY || '';
-  const a = Buffer.from(String(given || '')), b = Buffer.from(key);
-  return key.length >= 12 && a.length === b.length && crypto.timingSafeEqual(a, b);
+// Every guestbook entry, with a button to hide it from the Guestbook window or show it again.
+function guestbook(entries, key) {
+  if (!entries) return '';
+  const action = '/api/guestbook?key=' + encodeURIComponent(key);
+  return `<h2 id="guestbook">Guestbook</h2>
+${entries.length ? entries.map(([id, when, name, message, hidden, source, email]) => `<section class="visit${hidden === 't' ? ' hidden' : ''}"><header><strong>${esc(name)}</strong>${email ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : ''}<span class="soft">${esc(when)}</span>${
+  source ? `<span class="soft">from ${esc(source)}</span>` : ''}<form method="post" action="${esc(action)}"><button name="${hidden === 't' ? 'show' : 'hide'}" value="${esc(id)}">${hidden === 't' ? 'Show again' : 'Hide'}</button> <button name="remove" value="${esc(id)}" onclick="return confirm('Delete this entry and its email address for good?')">Delete</button></form></header><p class="said">${esc(message)}</p>${
+  hidden === 't' ? '<p class="soft">Hidden: visitors do not see this entry.</p>' : ''}</section>`).join('') : '<p class="empty">Nobody has signed the guestbook yet.</p>'}`;
 }
 
-function page(rows, days, key) {
+function page(rows, days, key, entries) {
   const visits = new Map();
   for (const [id, when, name, detail, secs, code, , city, device, browser, os, referrer, source] of rows) {
     let v = visits.get(id);
@@ -63,6 +66,8 @@ tr:first-child td{border-top:0}td:last-child{text-align:right;font-variant-numer
 .visit{padding:14px 16px;margin-bottom:10px}.visit header{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:baseline}
 .visit header strong{font-size:16px}.visit ol{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
 .visit li{background:var(--chip);border-radius:6px;padding:2px 8px;font-size:13.5px}.visit li time{color:var(--soft);margin-right:6px;font-variant-numeric:tabular-nums}
+.visit header form{margin-left:auto}.visit button{font:inherit;padding:2px 10px;border:1px solid var(--line);border-radius:6px;background:var(--chip);color:inherit;cursor:pointer}
+.said{margin-top:8px;white-space:pre-wrap;overflow-wrap:anywhere}.visit.hidden .said,.visit.hidden strong{opacity:.5;text-decoration:line-through}
 .empty{padding:28px 16px;text-align:center;color:var(--soft);background:var(--card);border:1px dashed var(--line);border-radius:10px}
 </style></head><body><main>
 <h1>HIRE<span>.EXE</span> visitors</h1>
@@ -76,6 +81,7 @@ ${list.map(v => `<section class="visit"><header><strong>${esc(v.when)}</strong><
 <h2>What they did</h2>
 ${popular.length ? `<table>${popular.map(([what, n]) => `<tr><td>${esc(what)}</td><td>${n} ${n === 1 ? 'visit' : 'visits'}</td></tr>`).join('')}</table>` : '<p class="empty">Nobody has opened anything yet.</p>'}`
   : '<h2>Each visit</h2><p class="empty">No visits in this period yet.</p>'}
+${guestbook(entries, key)}
 </main></body></html>`;
 }
 
@@ -98,8 +104,12 @@ module.exports = async function handler(req, res) {
                         else now() - $1::int * interval '1 day' end
        order by min(at) over (partition by visit) desc, at, id
        limit 20000`, [days]);
+    // The guestbook is listed whole, whatever the period. Without its table the page still opens.
+    const entries = await sql(
+      `select id, to_char(at at time zone 'Europe/London', 'Dy DD Mon YYYY, HH24:MI'), name, message, hidden, source, email
+       from guestbook order by at desc, id desc limit 1000`).catch(() => null);
     res.statusCode = 200;
-    res.end(page(rows, days, key));
+    res.end(page(rows, days, key, entries));
   } catch (error) {
     console.error('visitor page:', error.message);
     res.statusCode = 500;

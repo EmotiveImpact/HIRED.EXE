@@ -136,7 +136,8 @@
   const CALC_ICON='<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAf0lEQVR4Ae2WAQqAQAgE9+k+zZ/ZAZIcRdYhUrQDQ9wFITJAIIQ41m9gMOtVZBoiLv3FsiK3FCQDqOpjp29kwq4HWAHDog2sNlGwgQaTDbiqukc1KD1nG4iogOrzgwbc+jMbYAN/aeCEvgZ8oNn+BsKPNADzy77n8besX0LewQYWnBFReoXS9wAAAABJRU5ErkJggg==" alt="">';
   const SUB_ICON='<span class="pm-glyph pm-glyph-sub">⚓</span>';
   const CV_PDF='assets/cv/Augustus-Edem-CV.pdf';
-  let desktopLaunch=null;
+  const GAME_ICON=`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`;
+  let desktopLaunch=null, desktopPlay=null;
   function openCv(path='cv.html'){
     const offline=globalThis.HIRED_EMBEDDED_CV, a=document.createElement('a');
     a.href=offline||path;
@@ -144,7 +145,92 @@
     a.click();
   }
   // The running game is a task too, so the Task List can switch to it or end it.
-  H.wm.extraTasks=()=>(game.state||desktopReturn)&&desktopLaunch?[{title:'HIRE.EXE',switchTo:()=>desktopLaunch(),end:()=>{game.state=null;desktopReturn=null;showHome();}}]:[];
+  H.wm.extraTasks=()=>(game.state||desktopReturn)&&desktopLaunch&&!H.wm.get('hire')?[{title:'HIRE.EXE',switchTo:()=>desktopLaunch(),end:()=>{game.state=null;desktopReturn=null;showHome();}}]:[];
+  // Windows starts with HIRE.EXE and the Guestbook already open, as programs in a StartUp group
+  // were, so neither has to be found. They are tiled with Program Manager: on a wide screen the
+  // game sits above Program Manager with the Guestbook down the right-hand side; on a narrower
+  // one the game and the Guestbook share the top row; on a phone the three are stacked; and on a
+  // screen with little height Program Manager takes the left and the other two the right.
+  function startPlaces(area){
+    // As Tile does, the windows leave the bottom row of the desktop free while a minimised window's icon sits there.
+    const W=area.clientWidth, Ht=area.clientHeight-(H.wm.windows().some(r=>r.state==='min')?74:0), g=W<640?4:8;
+    // Program Manager's height: its menu, one group window of two rows, and the row of group icons.
+    const pmH=matchMedia('(pointer: coarse)').matches?342:326, rest=Ht-pmH-3*g;
+    let progman, hire, guestbook;
+    // Space left over on a tall screen is shared: Program Manager grows a little and the rest goes above and below.
+    const settle=h=>{const spare=Math.max(0,rest-h), more=Math.min(100,spare);return {more,y:g+Math.floor((spare-more)/2)};};
+    if(W>=640&&rest<180){
+      // A phone on its side: Program Manager down the left, wide enough for its row of group icons.
+      // The desktop is never shorter than 420, which is taller than such a screen, so the windows keep to the part in view.
+      const seen=Math.min(Ht,Math.max(280,innerHeight-Math.round(area.getBoundingClientRect().top+scrollY)));
+      const w=Math.min(400,Math.max(364,Math.round(W*.45))), top=Math.round((seen-3*g)*.46);
+      progman={x:g,y:g,w,h:seen-2*g};
+      hire={x:w+2*g,y:g,w:W-w-3*g,h:top};
+      guestbook={x:w+2*g,y:top+2*g,w:W-w-3*g,h:seen-top-3*g};
+    }else if(W>=1114){
+      const left=Math.max(790,Math.round((W-3*g)*.64)), h=Math.min(rest,Math.round(left*9/16)+30), {more,y}=settle(h);
+      hire={x:g,y,w:left,h};
+      progman={x:g,y:y+h+g,w:left,h:pmH+more};
+      guestbook={x:left+2*g,y,w:W-left-3*g,h:h+g+pmH+more};
+    }else if(W>=640&&rest>Math.round((W-2*g)*9/16)+250){
+      // A tall screen, such as a tablet held upright: the game across the top, the other two side by side below it.
+      const h=Math.round((W-2*g)*9/16)+30, left=Math.max(364,Math.round((W-3*g)*.56)), below=Ht-h-3*g;
+      hire={x:g,y:g,w:W-2*g,h};
+      progman={x:g,y:h+2*g,w:left,h:below};
+      guestbook={x:left+2*g,y:h+2*g,w:W-left-3*g,h:below};
+    }else if(W>=640){
+      const left=Math.round((W-3*g)*.56), h=Math.min(rest,Math.round(left*9/16)+30), {more,y}=settle(h);
+      hire={x:g,y,w:left,h};
+      guestbook={x:left+2*g,y,w:W-left-3*g,h};
+      progman={x:g,y:y+h+g,w:W-2*g,h:pmH+more};
+    }else{
+      const w=W-2*g, top=Math.max(104,Math.min(150,Math.round(W*.3),Ht-pmH-4*g-190)), h=Math.max(130,Math.min(320,Ht-top-pmH-4*g));
+      hire={x:g,y:g,w,h:top};
+      guestbook={x:g,y:top+2*g,w,h};
+      progman={x:g,y:top+h+3*g,w,h:Math.max(200,Math.min(pmH,Ht-top-h-4*g))};
+    }
+    return {progman:H.wm.clamp(progman,area),hire:H.wm.clamp(hire,area),guestbook:H.wm.clamp(guestbook,area)};
+  }
+  const placed={};
+  const placeAtStart=(id,area)=>placed[id]=startPlaces(area)[id];
+  // When the screen changes shape (a phone turned round, a browser resized) the windows are tiled
+  // again. One the visitor has moved or sized is theirs, and stays where they put it.
+  let tiling=false;
+  function retile(){
+    const area=$('os-shell');
+    if(tiling||!area.clientWidth||!area.clientHeight)return;
+    tiling=true;
+    const next=startPlaces(area);
+    for(const id of Object.keys(placed)){
+      const rec=H.wm.get(id), was=placed[id];
+      if(!rec?.geo||['x','y','w','h'].some(k=>rec.geo[k]!==was[k])){delete placed[id];continue;}
+      placed[id]=next[id];
+      H.wm.place(id,next[id]);
+    }
+    tiling=false;
+  }
+  addEventListener('resize',retile);
+  H.wm.onArrange=retile;
+  // HIRE.EXE's window on the desktop: the title screen, and the button that starts the game.
+  function openGameWindow(){
+    const running=H.wm.get('hire');
+    if(running?.el.isConnected){if(running.state==='min')H.wm.restore('hire');else H.wm.activate('hire');return;}
+    const win=H.wm.openApp({id:'hire',title:'HIRE.EXE',icon:GAME_ICON,iconId:'hire-icon',className:'hire-window',closeId:'hire-close',
+      resizable:true,minSize:[200,104],defaultGeo:area=>placeAtStart('hire',area),
+      focus:()=>$('hire-start')?.focus({preventScroll:true}),
+      body:`<div class="hire-title"><img class="hire-hero" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""><div class="hire-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button type="button" class="btn primary" id="hire-start"></button></div></div>`});
+    win.querySelector('.hire-title').style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
+    const opened=performance.now();
+    $('hire-start').addEventListener('click',e=>{
+      // Enter still held from skipping the start-up must not start the game.
+      if(e.detail===0&&performance.now()-opened<600)return;
+      if(uiMode==='home'&&desktopPlay)launchTitle(desktopPlay.play,desktopPlay.continuing,true);
+    });
+    labelGameWindow();
+  }
+  function labelGameWindow(){const button=$('hire-start');if(button&&desktopPlay)button.textContent=desktopPlay.continuing?'Continue game':'Start game';}
+  const openGuestbook=()=>H.guestbook({defaultGeo:area=>placeAtStart('guestbook',area)});
+  function openStartup(){openGuestbook();openGameWindow();}
   function showHome() {
     setMode('home');
     $('status').textContent='Ready to play';
@@ -163,6 +249,8 @@
     }
     function launch(){if(uiMode==='home')launchTitle(play,hasRun||hasProgress||!!reopen);}
     desktopLaunch=launch;
+    desktopPlay={play,continuing:hasRun||hasProgress||!!reopen};
+    labelGameWindow();
     const offlineCv=globalThis.HIRED_EMBEDDED_CV;
     const internet=E.id==='solved-001';
     // One Internet group icon per platform in the edition.
@@ -174,15 +262,16 @@
     const internetItems=[...(internet?['desk-netscape']:[]),...platforms.map(l=>l.id)];
     H.wm.init($('os-shell'),$('os-dialog'));
     H.progman($('os-files'),{
-      licensee:E.applicant, organisation:E.company||'',
+      licensee:E.applicant, organisation:E.company||'', place:area=>placeAtStart('progman',area),
       items:H.track.items({
-        'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:`<img src="${asset('assets/production/enemies/icons/terminal.png')}" alt="">`,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
+        'start-game':{label:'HIRE.EXE',sub:launchLabel,icon:GAME_ICON,command:'C:\\HIRE\\HIRE.EXE',workdir:'C:\\HIRE',runs:['hire.exe','hire'],open:launch},
         ...(E.readme?{'home-readme':{label:'README.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\README.TXT',workdir:'C:\\HIRE',runs:['readme.txt','readme'],open:()=>H.notepad('README.TXT',E.readme)}}:{}),
         'home-cv-txt':{label:'CV.TXT',icon:H.notepad.icon,command:'NOTEPAD.EXE C:\\HIRE\\CV.TXT',workdir:'C:\\HIRE',runs:['notepad.exe','notepad','cv.txt'],open:()=>H.notepad('CV.TXT',globalThis.HIRED_CV_TXT)},
         // The CV as the PDF itself: it opens in the browser's own viewer, or downloads from the single-file build.
         'home-cv-pdf':{label:'CV.PDF',icon:H.linkIcon('CV.PDF'),href:offlineCv||CV_PDF,linkAttrs:offlineCv?'download="Augustus-Edem-CV.pdf"':'target="_blank" rel="noopener"',command:'C:\\HIRE\\CV.PDF',workdir:'C:\\HIRE',runs:['cv.pdf'],open:()=>openCv(CV_PDF)},
         'desk-sub':{label:'Submarine (final).exe',icon:SUB_ICON,command:'C:\\HIRE\\SUBMARIN.EXE',workdir:'C:\\HIRE',runs:['submarin.exe','submarin','submarine'],open:()=>H.seaTrial(desktopApp('sea-trial',{icon:SUB_ICON,iconId:'sea-icon'}),()=>{progress.delivered=true;save();})},
         'desk-setup':{label:'Hire Augustus.exe',icon:H.setupIcon,command:'A:\\SETUP.EXE',workdir:'A:\\',runs:['setup.exe','setup','hireaug.exe','hireaug','hireaugustus','hireedem.exe','hireedem'],open:()=>H.hireSetup({E,safeLink,openInternet:internetItems.length?()=>H.progman.openGroup('internet'):null})},
+        'desk-guestbook':{label:'Guestbook',icon:H.guestbookIcon,command:'C:\\HIRE\\GUESTBK.EXE',workdir:'C:\\HIRE',runs:['guestbk.exe','guestbk','guestbook'],open:openGuestbook},
         'desk-jargon':{label:'Jargon',icon:H.jargonIcon,command:'JARGON.EXE',workdir:'C:\\WINDOWS',runs:['jargon.exe','jargon'],open:()=>H.jargon()},
         'desk-calc':{label:'Calculator',icon:CALC_ICON,command:'CALC.EXE',workdir:'C:\\WINDOWS',runs:['calc.exe','calc'],open:()=>H.desktopCalculator(desktopApp('calc',{icon:CALC_ICON,iconId:'calc-icon'}))},
         ...(internet?{'desk-netscape':{label:'Netscape Navigator',icon:'<span class="pm-glyph pm-glyph-navigator">N</span>',href:'https://solved.studio/',linkAttrs:'target="_blank" rel="noopener noreferrer"',command:'C:\\NETSCAPE\\NETSCAPE.EXE',workdir:'C:\\NETSCAPE',runs:['netscape.exe','netscape'],open:()=>window.open('https://solved.studio/','_blank','noopener,noreferrer')}}:{}),
@@ -190,7 +279,7 @@
       }),
       groups:[
         // Only the applicant's own group starts open; the rest wait as icons along the bottom.
-        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv-txt','home-cv-pdf','desk-setup']},
+        {id:'main',title:E.applicant,file:'AUGUSTUS.GRP',state:'normal',items:[...(E.readme?['home-readme']:[]),'start-game','home-cv-txt','home-cv-pdf','desk-setup','desk-guestbook']},
         {id:'accessories',title:'Accessories',file:'ACCESSOR.GRP',items:['desk-calc']},
         {id:'games',title:'Games',file:'GAMES.GRP',items:['desk-jargon','desk-sub']},
         ...(internetItems.length?[{id:'internet',title:'Internet',file:'INTERNET.GRP',items:internetItems}]:[]),
@@ -202,13 +291,16 @@
         help:(topic,then)=>H.winhelp(topic,then)
       }
     });
+    retile();
   }
   let launchNumber=0;
   function loadArtwork(){
     if(!artworkLoad)artworkLoad=renderer.load().then(report=>assetReport=report).catch(error=>{artworkLoad=null;throw error;});
     return artworkLoad;
   }
-  async function launchTitle(play,continuing){
+  // direct: Start game was pressed in HIRE.EXE's window on the desktop, which is the title
+  // screen already, so the game starts as soon as its artwork has loaded.
+  async function launchTitle(play,continuing,direct=false){
     const launch=++launchNumber;
     setMode('game-load');
     const layer=$('overlay');
@@ -218,11 +310,12 @@
     try{await loadArtwork();}catch{
       if(launch===launchNumber&&uiMode==='game-load'){
         modal('HIRE.EXE','<p>The game artwork could not load.</p><button class="btn" id="retry-launch">Try again</button>');
-        $('retry-launch').onclick=()=>launchTitle(play,continuing);
+        $('retry-launch').onclick=()=>launchTitle(play,continuing,direct);
       }
       return;
     }
     if(launch!==launchNumber||uiMode!=='game-load')return;
+    if(direct){H.track(continuing?'Game continued':'Game started');play();return;}
     function title(){
       setMode('title');titleBack=title;
       layer.className='overlay game-title';
@@ -670,6 +763,7 @@
     await dosStartup(true);
     revealDesktop();
     showHome();
+    openStartup();
     audio.system('SystemStart');
   }
   function dosShell(){
@@ -709,7 +803,7 @@
         cd:()=>print('C:\\\n'),
         exit:()=>{}
       };
-      const needsWindows=['hire','calc','progman','winhelp','taskman','submarin','netscape','control','write','notepad','jargon','setup','hireaug','hireaugustus','hireedem'];
+      const needsWindows=['hire','calc','progman','winhelp','taskman','submarin','netscape','control','write','notepad','jargon','setup','hireaug','hireaugustus','hireedem','guestbk','guestbook'];
       function run(raw){
         const text=raw.trim();
         print(ps()+raw);
@@ -742,7 +836,7 @@
     // Ask for sound now, so that a browser that allows it has the fanfare ready for the desktop.
     audio.start(false);
     await runStartup();
-    ready=true;$('loading').classList.add('hidden');showHome();
+    ready=true;$('loading').classList.add('hidden');showHome();openStartup();
     audio.system('SystemStart');
     globalThis.HIRED_APP={get mode(){return uiMode;},get state(){return game.state;},get assets(){return assetReport;},get progress(){return JSON.parse(JSON.stringify(progress));},get sound(){const s=audio.engine;return s?{state:s.state,muted:s.muted,song:s.song,position:s.position,log:s.log.slice()}:null;}};
     requestAnimationFrame(frame);
