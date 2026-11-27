@@ -75,7 +75,7 @@ async function run() {
     check(byId('home-cv-pdf').getAttribute('href').endsWith('Augustus-Edem-CV.pdf'),'CV.PDF is missing from the title');
     check(!byId('skip-portfolio'),'Portfolio should not be on the desktop');
     click('start-game'); await until(()=>app().mode==='title','Title screen missing'); click('title-play');
-    check(!app().assets.failed.length && app().assets.loaded.length===14,'Missing runtime art');
+    check(!app().assets.failed.length && app().assets.loaded.length===24,'Missing runtime art');
     check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
     click('scene-next');
     check(byId('overlay').textContent.includes('copy to mark mine against'),'Missing opening dialogue');

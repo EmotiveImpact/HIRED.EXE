@@ -1,0 +1,7 @@
+A large, finely detailed 16-bit style pixel art character illustration for a video game title screen: one man running, full body, cut out on a flat chroma-key background.
+Two reference images of the SAME character; keep him exactly who he is. Reference 1 is his model sheet: face, hair, beard, outfit and colours. Reference 2 is his small in-game sprite sheet: copy the running pose of the third sprite in its top row and its pixel art style.
+The character: a cheerful man with warm medium-brown skin, short dense dark curly hair, a close full beard and big expressive brown eyes. A teal jacket worn open with the sleeves pushed up, a cream T-shirt, charcoal trousers, white and teal trainers, and a teal backpack with an orange strap over his left shoulder. No glasses, no hat, no jewellery.
+Pose: mid-stride, running to the RIGHT, leaning forward, one fist punching forward and the other arm back, a big confident grin, looking where he is going. Head to toe in frame with a clear margin all round, nothing cropped.
+Style: crisp pixel art drawn at a much higher resolution than the small sprite, about 300 pixels tall, with clean hard pixel edges, a thick dark plum outline, flat cel shading with a few highlight pixels, and no blur, no painterly brushwork, no anti-aliasing.
+Background: one perfectly flat, uniform, pure magenta #ff00ff everywhere. No gradient, no shadow on the ground, no ground, no scenery, no speed lines.
+No text, no letters, no logos, no watermark, no border.

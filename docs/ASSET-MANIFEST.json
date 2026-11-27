@@ -410,6 +410,30 @@
       "sha256": "87663ad8e0b14b3f20ddb65240d252d4545736ef8640f1ce4e3d0802b0d8103d"
     },
     {
+      "path": "assets/production/backgrounds/application-alley-far.webp",
+      "role": "production-asset",
+      "bytes": 156724,
+      "sha256": "b32b41f078c9c73bede0c22a65cb15a5275d5aa80880dfceae41a8e9b1bc144b"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley-near.webp",
+      "role": "production-asset",
+      "bytes": 199200,
+      "sha256": "7b138da2de80e594a670c244eaec2dda688dd57cf9b83cb980ce09f85e565248"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley-sky.webp",
+      "role": "production-asset",
+      "bytes": 64146,
+      "sha256": "15110a7f33127ef7ca903717780afb184a94118049bddbae3cce23797d38b3b8"
+    },
+    {
+      "path": "assets/production/backgrounds/application-alley-trees.webp",
+      "role": "production-asset",
+      "bytes": 188942,
+      "sha256": "ea5225767f84f10692d7ba66013cce0903fb3fbbeca4a3fcb45ccac9e0256946"
+    },
+    {
       "path": "assets/production/backgrounds/application-alley.png",
       "role": "production-asset",
       "bytes": 2267319,
@@ -420,6 +444,30 @@
       "role": "production-asset",
       "bytes": 215866,
       "sha256": "56e46ad1308d480452fa9f89eb675c9950c7ee95ca51cc956080010684368261"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run-far.webp",
+      "role": "production-asset",
+      "bytes": 301030,
+      "sha256": "76e5db1e6b033bda8953e48926604b21bb354595ea0f4c384d55b8e9a94a5017"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run-near.webp",
+      "role": "production-asset",
+      "bytes": 213414,
+      "sha256": "857023995ab541a35533cfa2d4bad0b9d5caa3409f6b759a85ecec46bee07d08"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run-sky.webp",
+      "role": "production-asset",
+      "bytes": 151734,
+      "sha256": "291b94cd016d3bf58cb42bb91fe35b87d874e423fc81be0e4b7c63a8b60af242"
+    },
+    {
+      "path": "assets/production/backgrounds/growth-run-trees.webp",
+      "role": "production-asset",
+      "bytes": 149956,
+      "sha256": "631ac30ad131a3eba156b4fda3dc69417995d1dd196648736081a23bf4c1d23a"
     },
     {
       "path": "assets/production/backgrounds/growth-run.png",
@@ -464,6 +512,30 @@
       "sha256": "494494591bcba11262ca05061bce0f41a191d69a56a99ceff6cee295e7d59cd6"
     },
     {
+      "path": "assets/production/backgrounds/ship-it-city-far.webp",
+      "role": "production-asset",
+      "bytes": 97228,
+      "sha256": "0cd9d1ab3b3b1528e3f837e41112a4c705b9aa1f18d3af5780adb0c4939ba484"
+    },
+    {
+      "path": "assets/production/backgrounds/ship-it-city-near.webp",
+      "role": "production-asset",
+      "bytes": 414426,
+      "sha256": "51bb91be459e075489cac522823e73b348d4716ce4fef527290abaeb50b6092f"
+    },
+    {
+      "path": "assets/production/backgrounds/ship-it-city-sky.webp",
+      "role": "production-asset",
+      "bytes": 80816,
+      "sha256": "5dbb7543fcb8272bbe912315ff6e7b6b13ca52b4fa22e142d663416b4d574bbd"
+    },
+    {
+      "path": "assets/production/backgrounds/ship-it-city-trees.webp",
+      "role": "production-asset",
+      "bytes": 216910,
+      "sha256": "76dcae9daf0a24f77ab1020139ac8cd20a959d568848c45e9656ed8a66979e24"
+    },
+    {
       "path": "assets/production/backgrounds/ship-it-city.png",
       "role": "production-asset",
       "bytes": 2297164,
@@ -492,6 +564,12 @@
       "role": "production-asset",
       "bytes": 55870,
       "sha256": "881e44e6f3f13cd1e1fa18bfa427e554af80d951263ff6e8314a8d3198971b1e"
+    },
+    {
+      "path": "assets/production/characters/title-hero.webp",
+      "role": "production-asset",
+      "bytes": 22910,
+      "sha256": "1623e8746cffa89143f093cc5bc3eea6905e09595a086b4419410afa36bcfa07"
     },
     {
       "path": "assets/production/enemies/enemy-atlas.json",
@@ -582,6 +660,18 @@
       "role": "production-asset",
       "bytes": 141081,
       "sha256": "969efc69ea2f44c9cb4a3eed9c6986dabb11e9caf9ff15006a87df693ba0b852"
+    },
+    {
+      "path": "assets/production/environment/kit-atlas.json",
+      "role": "production-asset",
+      "bytes": 7397,
+      "sha256": "6f124a7dd532fbe0526432410c7cdf6f78436d4a8347b8fce11bc79d53b105df"
+    },
+    {
+      "path": "assets/production/environment/kit-atlas.png",
+      "role": "production-asset",
+      "bytes": 183200,
+      "sha256": "ff7f5d1f3f2a05e75efac7d5541d2858d290e14d9eaeadd7b6984c6261ce1a19"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -1056,6 +1146,324 @@
       "role": "generated-source",
       "bytes": 1397886,
       "sha256": "6a056fc0ad547b205f3612d373a2a98bd960c1332116d175c03b9b83b9ac86e0"
+    },
+    {
+      "path": "assets/source/kit/README.md",
+      "role": "generated-source",
+      "bytes": 5127,
+      "sha256": "1ef40aa3e5c1d8ca2df7361e5ec7644f02864dcbc7b5d59f11611fe4aaff95c7"
+    },
+    {
+      "path": "assets/source/kit/alley-far.png",
+      "role": "generated-source",
+      "bytes": 1977700,
+      "sha256": "1e4bee40e040d791afefc347e94c33f7912b9b978f5c8a451cd5b9976d1d847b"
+    },
+    {
+      "path": "assets/source/kit/alley-movers.png",
+      "role": "generated-source",
+      "bytes": 1867555,
+      "sha256": "c99ac1cc6f752e3d49d579124fef250ded003f1d76511cce3772bd5dac3b2c5b"
+    },
+    {
+      "path": "assets/source/kit/alley-near.png",
+      "role": "generated-source",
+      "bytes": 1939694,
+      "sha256": "133c8b9e7ec76aef7ebd60818e4471fe4fa585e973843693f8653404377050ac"
+    },
+    {
+      "path": "assets/source/kit/alley-sky.png",
+      "role": "generated-source",
+      "bytes": 2102174,
+      "sha256": "18e4598cc8319bc45e624a76d7786889c907b4c6cdce3b5e7631edb9f6bd5d51"
+    },
+    {
+      "path": "assets/source/kit/city-far-2.png",
+      "role": "generated-source",
+      "bytes": 2584317,
+      "sha256": "70eb419a2893caa0d739369cad54cecd84d00b288f9471382ac5b4834180f26e"
+    },
+    {
+      "path": "assets/source/kit/city-far-3.png",
+      "role": "generated-source",
+      "bytes": 2510853,
+      "sha256": "4bad488a540ef46e0ecc99be096d8bce00b3998f415a3767695a83bce290a9fc"
+    },
+    {
+      "path": "assets/source/kit/city-movers.png",
+      "role": "generated-source",
+      "bytes": 1809257,
+      "sha256": "cc90b7ae887e60c709633abd4565e1ee22945b1032e47d64b842a2231a893c10"
+    },
+    {
+      "path": "assets/source/kit/city-near-2.png",
+      "role": "generated-source",
+      "bytes": 2886183,
+      "sha256": "d76898c46d2b027255768ce1b90f32ce1b663fa8bd4c9d1628cd2a1c9fa09933"
+    },
+    {
+      "path": "assets/source/kit/city-near-3.png",
+      "role": "generated-source",
+      "bytes": 3053796,
+      "sha256": "6b3a4f0dfe865facd081271377c2f0dcf9fe8977b3f1e1c92821a25987176502"
+    },
+    {
+      "path": "assets/source/kit/city-near-4.png",
+      "role": "generated-source",
+      "bytes": 3095512,
+      "sha256": "571a526599dcf66b6b973c30fcbda943f081d72ca4be8666e1cebbcf6603faaf"
+    },
+    {
+      "path": "assets/source/kit/city-near-5.png",
+      "role": "generated-source",
+      "bytes": 3118776,
+      "sha256": "87201977f0a8ab1bbdac14ea081b97b077bd173fef15eacfb6e00de5e37f90f4"
+    },
+    {
+      "path": "assets/source/kit/city-sky.png",
+      "role": "generated-source",
+      "bytes": 2953961,
+      "sha256": "445160d4f36927ac8f07705df2e09c1ef6492e46d3b104ce09d9644c09672620"
+    },
+    {
+      "path": "assets/source/kit/growth-far.png",
+      "role": "generated-source",
+      "bytes": 3210261,
+      "sha256": "6676d8c8fa2d6880394ecc7ee46fe67d5860cd3880ac4a818755887b5857af90"
+    },
+    {
+      "path": "assets/source/kit/growth-movers.png",
+      "role": "generated-source",
+      "bytes": 2095909,
+      "sha256": "8d186cb85edbcb66ec842de101cb100c5266bfb79518213d2af326bbae34f021"
+    },
+    {
+      "path": "assets/source/kit/growth-near-2.png",
+      "role": "generated-source",
+      "bytes": 2200638,
+      "sha256": "b862542190d801268c6107368490f7c58cea812358e4dce21e73a31c4614e3ec"
+    },
+    {
+      "path": "assets/source/kit/growth-near-3.png",
+      "role": "generated-source",
+      "bytes": 2162164,
+      "sha256": "5b469af8323a57353ba6ecf3881f228ddf8ccb93f30dfb475fb1981fe9485d20"
+    },
+    {
+      "path": "assets/source/kit/growth-near-4.png",
+      "role": "generated-source",
+      "bytes": 2167630,
+      "sha256": "513a78292e0e58e3ffd109f8265fde9827b59b5ec5218d409ee87b1ec846f1dd"
+    },
+    {
+      "path": "assets/source/kit/growth-sky.png",
+      "role": "generated-source",
+      "bytes": 4528647,
+      "sha256": "378c4609f3e9df60834af404d8225715cb21d46570b46968158ac5c0784b2cc2"
+    },
+    {
+      "path": "assets/source/kit/layouts/layout-far.png",
+      "role": "generated-source",
+      "bytes": 12470,
+      "sha256": "5331240cdd3f4ea8c4adb7bb91b48a701a934a476fb15ae20c7ab4c562783e11"
+    },
+    {
+      "path": "assets/source/kit/layouts/layout-near-city.png",
+      "role": "generated-source",
+      "bytes": 17972,
+      "sha256": "496ba87af4e9a3a64977dc958acc40244003ce9c49c795bc68f46a4cea8c63a5"
+    },
+    {
+      "path": "assets/source/kit/layouts/layout-near-growth.png",
+      "role": "generated-source",
+      "bytes": 17081,
+      "sha256": "6679c23fa8492d7fe3f21879fb097ae636af266492d4545af12d1aafe9265f0a"
+    },
+    {
+      "path": "assets/source/kit/layouts/layout-near.png",
+      "role": "generated-source",
+      "bytes": 17067,
+      "sha256": "f428ba7c39fa9555b3d206a3f9c2872bbf28cca18ce37f5638480e270d9e7936"
+    },
+    {
+      "path": "assets/source/kit/machinery-a.png",
+      "role": "generated-source",
+      "bytes": 1656752,
+      "sha256": "98f99b4f00d65b36af1997e8bd9c77fe3988e5bb80fdb528f74acc9d255c82ae"
+    },
+    {
+      "path": "assets/source/kit/machinery-b.png",
+      "role": "generated-source",
+      "bytes": 1558425,
+      "sha256": "3b372ab643675c3ef09cda00e2f43604b0051ccd892cd1a74e94476862ee4bb1"
+    },
+    {
+      "path": "assets/source/kit/pickups.png",
+      "role": "generated-source",
+      "bytes": 1175672,
+      "sha256": "4a1a64e0bb0a06bebb356b5419802c03c2bfd5f1bd264b1eafd4a6e9b4387068"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-far.txt",
+      "role": "generated-source",
+      "bytes": 1456,
+      "sha256": "db2a93d30b7cb0777537ad7554250484089c5a9756da39d2e9a374584a1b1c77"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-movers.txt",
+      "role": "generated-source",
+      "bytes": 1869,
+      "sha256": "77b86b55afd8dcbf64622822f88c26e302c20382b2b68e5f7f0580e503b41c64"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-near.txt",
+      "role": "generated-source",
+      "bytes": 1700,
+      "sha256": "1cc90ee94181b3c6bfafc07c4bf7f02bb6fa76c029362d68fede46d6b748f13b"
+    },
+    {
+      "path": "assets/source/kit/prompts/alley-sky.txt",
+      "role": "generated-source",
+      "bytes": 932,
+      "sha256": "ad91d676f112ec27f992500df637d605fb1a6f10f47aabe1a05522b872eb522a"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-far-2.txt",
+      "role": "generated-source",
+      "bytes": 1874,
+      "sha256": "2b7734f4c40da98023d44494f78263aae3c139ca61a702b228109ebc0f8562e8"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-far-3.txt",
+      "role": "generated-source",
+      "bytes": 1366,
+      "sha256": "b2c8ab63d941274f2870c8fa32853dc3613f78f0e4f2be3ba9e6a63c11eadcd2"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-far.txt",
+      "role": "generated-source",
+      "bytes": 1776,
+      "sha256": "c723140bdacc5550b51dee5c093ecc594d0471853a40f3a8a5b911847352cdb4"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-movers.txt",
+      "role": "generated-source",
+      "bytes": 1897,
+      "sha256": "7cb7cd80c4572a3bd65f10f54cfc309ec2340c81e19f57a686c54657599866d8"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-2.txt",
+      "role": "generated-source",
+      "bytes": 2568,
+      "sha256": "2218bacf8e5ad51073cb4d7d8f03d0f54fb306fedae65e9bd93358eaeac6ec00"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-3.txt",
+      "role": "generated-source",
+      "bytes": 1461,
+      "sha256": "17d327320c7a20327ac4153f4778b2edccf6a82e7953624401c765d88595f2c0"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-4.txt",
+      "role": "generated-source",
+      "bytes": 1528,
+      "sha256": "62a715d3ae4c664f55a18cd2433bc79b063b768364bc9beda9f047926b796202"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-5.txt",
+      "role": "generated-source",
+      "bytes": 1521,
+      "sha256": "8db30ee05564ea74b2a96aacc7a9918f37eb3a951d7b6319377c49af2c93bada"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near.txt",
+      "role": "generated-source",
+      "bytes": 2154,
+      "sha256": "4c6d59999dbb491e8855fcbdcfc1bb2b9ee88f6f7b5f67de940f41a3a7c5b8c6"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-sky.txt",
+      "role": "generated-source",
+      "bytes": 1037,
+      "sha256": "e378f641f1d9537117e6cb649d610106fa65a278ca94d4f00903b74b4710efdf"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-far.txt",
+      "role": "generated-source",
+      "bytes": 1782,
+      "sha256": "821710bca9494a021cf9211e654d5ea6729bd44f8c20325c90c1c772082ab5dd"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-movers.txt",
+      "role": "generated-source",
+      "bytes": 1982,
+      "sha256": "5add3f4ad1fdab05a6cf4dcbdadf3b53e9272e8de8ad0cf2f55f931e83b84603"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-near-2.txt",
+      "role": "generated-source",
+      "bytes": 2866,
+      "sha256": "9fc1408d21a999b4e016e7355ba6ddc481b0cf275461e3d6031081fbad61112f"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-near.txt",
+      "role": "generated-source",
+      "bytes": 2254,
+      "sha256": "75006a100511d1bae71790286fe940e7dcca677b8ed7b0608341736992fb8f0c"
+    },
+    {
+      "path": "assets/source/kit/prompts/growth-sky.txt",
+      "role": "generated-source",
+      "bytes": 1070,
+      "sha256": "3747e102a02cde31b1141d206852c4f54b7ef16d5d11de04811a7a3f41f77914"
+    },
+    {
+      "path": "assets/source/kit/prompts/jobs.json",
+      "role": "generated-source",
+      "bytes": 3240,
+      "sha256": "0a337acda75abc5e25a13ed14523d15d475064b43a0064b245d194fcf9581b09"
+    },
+    {
+      "path": "assets/source/kit/prompts/machinery-a.txt",
+      "role": "generated-source",
+      "bytes": 2238,
+      "sha256": "71a0aff908f9a6beacc6a65834a9a8f1e24c328f8d5da913fe5e30b908f766fb"
+    },
+    {
+      "path": "assets/source/kit/prompts/machinery-b.txt",
+      "role": "generated-source",
+      "bytes": 1653,
+      "sha256": "36a35e7ae8a9b096d7d9ec2100298edafaefef8fbf1a029c0ce13c4e48b16583"
+    },
+    {
+      "path": "assets/source/kit/prompts/pickups.txt",
+      "role": "generated-source",
+      "bytes": 1546,
+      "sha256": "100504fd3548322c361f61429747f19095eacbffedc23f61f10cfa5ccf88c0cd"
+    },
+    {
+      "path": "assets/source/kit/prompts/signs.txt",
+      "role": "generated-source",
+      "bytes": 1653,
+      "sha256": "d2b5548233154a186722719cccfa806104d60f00e64f6321e78c274d090ff663"
+    },
+    {
+      "path": "assets/source/kit/prompts/title-hero.txt",
+      "role": "generated-source",
+      "bytes": 1485,
+      "sha256": "d76eb261988de43a239c4bc13b69ac6d2ebb546324ebe9cdfd113f0105eeb009"
+    },
+    {
+      "path": "assets/source/kit/signs.png",
+      "role": "generated-source",
+      "bytes": 1284719,
+      "sha256": "61eacf1d2d21c94f4f43737ced24a7865731d47559a3f0fdd1af360a0f2829e3"
+    },
+    {
+      "path": "assets/source/kit/title-hero.png",
+      "role": "generated-source",
+      "bytes": 1533016,
+      "sha256": "be48038c45664f7a73f0fa2f57bff0bb806606811c103ade22e3d1c180dd8aaa"
     },
     {
       "path": "assets/source-atlases/props-4x4.png",

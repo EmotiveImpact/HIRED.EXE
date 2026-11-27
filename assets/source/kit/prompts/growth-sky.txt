@@ -1,0 +1,6 @@
+16-bit SNES-style pixel art game background layer for parallax scrolling: ONLY a twilight sky, nothing else.
+A clear dusk sky: deep royal blue at the top, melting through violet into a soft pink-lilac glow towards the bottom, with big fluffy cumulus clouds in lilac and pink with pale pink highlights, and a handful of tiny four-point white stars in the upper third, exactly like the sky, clouds and stars in the reference image.
+Match the reference image's style, palette, cloud shapes and chunky pixel size. Use it only for style: do not copy its buildings, screens, railway, train or trees.
+Layout: clouds spread evenly across the full width, running off the left and right edges. The biggest clouds sit in the upper two thirds. The lowest quarter of the picture is a calm pink-lilac haze with only a few small wispy clouds.
+No buildings, no skyline, no trees, no hills, no ground, no horizon line, no moon, no sun, no birds, no aircraft: nothing but sky, clouds and a few stars from edge to edge.
+No text, no letters, no logos, no watermark, no border, no vignette.

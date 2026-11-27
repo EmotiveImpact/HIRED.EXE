@@ -1,0 +1,9 @@
+16-bit SNES-style pixel art sprite sheet for a side-scrolling platform game: exactly four separate blank signboards in a tidy grid of 2 columns by 2 rows, evenly spaced with wide clear gaps, nothing touching, nothing in the top-left or bottom-right corner. All four are the same size and seen straight on.
+Each one is a wide notice board, about two and a half times as wide as it is tall, standing on two short legs. The face of each board is a completely blank, flat, dark panel that takes up almost the whole board, with only a slim frame round it, because the game writes on it later.
+Match the STYLE of the reference sprite sheet exactly: chunky pixels, thick dark violet outlines, flat cel shading with small highlights. Use it only for style.
+Top left, a park sign: a warm brown wooden frame of planks with brass bolts in the corners, a dark navy-violet blank face, two wooden posts.
+Top right, a factory sign: a riveted grey-blue steel frame with a yellow and black hazard stripe along its top edge, a dark slate-blue blank face, two steel posts.
+Bottom left, a neon sign: a slim glowing cyan tube frame with small purple fittings at the corners, a dark indigo blank face, two thin chrome posts.
+Bottom right, a grand lobby sign: a polished gold frame with small marble corner blocks in pale lilac, a dark plum blank face, two gold posts.
+Background: one perfectly flat, uniform, pure chroma-key green #00ff00 everywhere. No gradient, no shadows, no ground, no grid lines, no labels. Nothing green on the signs: no plants, no vines.
+No readable text, no letters, no numbers, no arrows, no symbols on the faces, no logos, no watermark, no border.

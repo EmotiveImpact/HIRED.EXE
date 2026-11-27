@@ -16,6 +16,12 @@
   // An HQ room's back wall is a flat plate that stands on the floor and scrolls with it.
   const ROOM_WALL = { height: 448, floor: 440, base: ['#3d6f7c', '#a488cf', '#cbbbe6'] };
   const LIFT_ART = { half: 64, door: 40, height: 112, header: 28 };
+  // Things that cross the sky behind the level. Speeds are pixels a second; `far` is how much of the
+  // camera's travel they share, so distant things slide past more slowly than near ones.
+  const PLANE = { speed: 46, far: .06, wait: 4, rest: 620, y: 58, rope: 18, font: 'bold 13px monospace', ink: '#3b2148', hem: '#d6453d', cord: '#7a4a2a' };
+  // A train crosses the view left to right every so often: the first a few seconds into the
+  // level, each later one a while after the last has gone.
+  const TRAIN = { speed: 115, first: 4, every: 22 };
 
   class Renderer {
     constructor(canvas) {
@@ -45,7 +51,14 @@
         feed: this.meta.feed?.image || 'assets/production/enemies/feed-atlas.png',
         feedBody: this.meta.feed?.body?.image || 'assets/production/enemies/feed-body.webp'
       };
-      BACKGROUNDS.forEach((name, i) => { specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
+      // The painted kit: scenery traffic and level machinery.
+      specs.kit = this.meta.kit?.image || 'assets/production/environment/kit-atlas.png';
+      // A world painted in layers lists them here, furthest first.
+      for (const [world, scene] of Object.entries(this.meta.kit?.scenery || {})) {
+        scene.layers.forEach((layer, i) => { specs['layer' + world + '_' + i] = layer.image; });
+      }
+      // The other worlds are still one painted plate each.
+      BACKGROUNDS.forEach((name, i) => { if (!this.meta.kit?.scenery?.[i]) specs['background' + i] = 'assets/production/backgrounds/' + name + '.webp'; });
       for (let i = 2; i <= 4; i++) specs['hqRoom' + i] = 'assets/production/backgrounds/interview-room-' + i + '.webp';
       const results = await Promise.allSettled(Object.entries(specs).map(([key, path]) => new Promise((resolve, reject) => {
         const im = new root.Image();
@@ -57,7 +70,7 @@
         im.src = root.HIRED_EMBEDDED_ASSETS?.[path] || path;
       })));
       this.failed = results.flatMap((r, i) => r.status === 'rejected' ? [Object.entries(specs)[i][1]] : []);
-      for (const key of ['hero', 'enemies', 'terrain', 'props', 'furniture', 'feed']) {
+      for (const key of ['hero', 'enemies', 'terrain', 'props', 'furniture', 'feed', 'kit']) {
         if (!this.meta[key]?.frames) this.failed.push(key + ' frame metadata');
       }
       const report = { loaded: Object.keys(this.images), failed: [...this.failed] };
@@ -75,6 +88,8 @@
       this.time = Number(realTimeSeconds) || 0;
       this.camera = state?.camera?.x || 0;
       this.levelIndex = state?.levelIndex || 0;
+      // The sky keeps the level's own clock, so it stops when the game is paused.
+      this.levelTime = state?.time ?? this.time;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = 1;
       ctx.imageSmoothingEnabled = false;
@@ -135,25 +150,177 @@
       const ctx = this.ctx, im = this.images['background' + this.levelIndex];
       // Indoors the room's own wall, drawn with the world, is the whole backdrop.
       if (floor) { ctx.fillStyle = ROOM_WALL.base[floor - 1]; ctx.fillRect(0, 0, W, HGT); return; }
+      const scene = this.meta.kit?.scenery?.[this.levelIndex];
+      const layers = scene ? scene.layers.map((layer, i) => this.images['layer' + this.levelIndex + '_' + i]) : [];
+      if (scene && layers.every(Boolean)) {
+        // A world painted in layers: each slides at its own speed, the sky slowest, and the sky's
+        // clouds drift by themselves. Traffic crosses in front of the layers named in `behind`.
+        scene.layers.forEach((layer, i) => {
+          const offset = (this.camera - start) * layer.speed + (layer.drift || 0) * this.levelTime;
+          if (i === scene.rocket?.behind) this.rocket(scene.rocket, (this.camera - start) * layer.speed);
+          if (i === scene.behind) this.traffic(scene);
+          this.strip(layers[i], offset, layers[i].width, HGT);
+          if (i === scene.behind && scene.train) this.train(scene);
+          if (i === scene.smoke?.layer) this.smoke(scene.smoke, offset, layers[i].width);
+          if (layer.haze) { ctx.fillStyle = layer.haze; ctx.fillRect(0, 0, W, HGT); }
+        });
+        return;
+      }
       if (!im) {
         ctx.fillStyle = ['#88c7ff', '#e5abc4', '#7773dc', '#a3ceec'][this.levelIndex];
         ctx.fillRect(0, 0, W, HGT); return;
       }
-      // One painted plate drifts slowly behind the physical world. Alternating
-      // mirrored copies share an edge without pretending it is a layered source.
-      const width = Math.ceil(HGT * im.width / im.height);
-      const offset = (this.camera - start) * 0.12;
-      const first = Math.floor(offset / width);
-      for (let i = first; i <= first + 2; i++) {
-        const x = round(i * width - offset);
-        ctx.save();
-        if (i % 2) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, width, HGT); }
-        else ctx.drawImage(im, x, 0, width, HGT);
-        ctx.restore();
-      }
+      // One painted plate drifts slowly behind the physical world.
+      this.strip(im, (this.camera - start) * 0.12, Math.ceil(HGT * im.width / im.height), HGT);
       // Push the painted city slightly into the distance. Collision art stays crisp.
       ctx.fillStyle = this.levelIndex === 2 ? 'rgba(28,26,84,.08)' : 'rgba(230,239,255,.09)';
       ctx.fillRect(0, 0, W, HGT);
+      this.traffic(null);
+    }
+
+    // One picture laid end to end across the view. Every other copy is mirrored, so neighbours
+    // share an edge without the picture having to repeat cleanly.
+    strip(im, offset, width, height) {
+      const ctx = this.ctx, first = Math.floor(offset / width);
+      for (let i = first; i * width - offset < W; i++) {
+        const x = round(i * width - offset);
+        ctx.save();
+        if (i & 1) { ctx.translate(x + width, 0); ctx.scale(-1, 1); ctx.drawImage(im, 0, 0, width, height); }
+        else ctx.drawImage(im, x, 0, width, height);
+        ctx.restore();
+      }
+    }
+
+    // A value that runs from 0 to `lap` and starts again, whatever the sign of what goes in.
+    lap(value, lap) { return ((value % lap) + lap) % lap; }
+
+    // What moves behind the level: something that floats (a balloon, an airship), a small flock
+    // (gulls, delivery drones) and the plane with its banner. The train is drawn with its bridge.
+    // A world still on a single plate gets the plane alone.
+    traffic(scene) {
+      const t = this.levelTime, cam = this.camera;
+      const draw = (name, x, y, flip) => {
+        const f = this.frame('kit', name);
+        if (f && x <= W && x + f.w >= 0) this.kit(name, x, y, flip);
+      };
+      const float = scene?.float, flock = scene?.flock;
+      if (float) draw(float.sprite, this.lap(float.at[0] + t * 5 - cam * .05, W + 900) - 80, float.at[1] + Math.sin(t * .5) * 6);
+      if (flock) {
+        for (let i = 0; i < flock.count; i++) {
+          const x = W + 40 - this.lap(t * 34 + cam * .08 + 260, W + 1300) + i * 26 + (i % 2) * 9;
+          draw(flock.sprite + '_' + (Math.floor(t * flock.beat + i * 1.7) & 1), x, flock.y + (i * 37) % 30 + Math.sin(t * 2 + i) * 3);
+        }
+      }
+      this.plane(root.HIRED_EDITION?.banners?.[this.levelIndex] || 'HIRE ' + String(root.HIRED_EDITION?.applicant || 'ME').split(' ')[0].toUpperCase() + '.');
+    }
+
+    // The train runs on top of the world's bridge, in front of what stands on it, so it slides with
+    // that layer as the camera moves and travels at its own speed on top. It always runs the way
+    // its engine faces.
+    train(scene) {
+      const f = this.frame('kit', scene.train), t = this.levelTime;
+      if (!f) return;
+      const slide = this.camera * scene.layers[scene.behind].speed;
+      let run = this.trainRun;
+      if (!run || run.level !== this.levelIndex || t < run.seen) run = this.trainRun = { level: this.levelIndex, start: t + TRAIN.first };
+      run.seen = t;
+      if (t < run.start) return;
+      if (run.from === undefined) run.from = slide - f.w;
+      const x = run.from + (t - run.start) * TRAIN.speed - slide;
+      // Once it is off the far side (or the player has long outrun it), the next one is due.
+      if (x > W || t - run.start > 60) { run.start = t + TRAIN.every; run.from = undefined; return; }
+      if (x + f.w >= 0) this.kit(scene.train, x, scene.rail - f.h);
+    }
+
+    // Now and then a rocket climbs out from behind the skyline and leaves by the top of the screen.
+    rocket(rocket, slide) {
+      const f = this.frame('kit', rocket.sprite);
+      if (!f) return;
+      const since = this.lap(this.levelTime - rocket.every / 3, rocket.every);
+      if (since > rocket.climb) return;
+      const rise = since / rocket.climb, x = this.lap(rocket.x - slide + f.w, W + f.w) - f.w;
+      // It gathers speed as it goes, and trembles a little.
+      this.kit(rocket.sprite, x + Math.sin(this.levelTime * 31) * .6, HGT * .62 - (HGT * .62 + f.h) * rise * rise);
+    }
+
+    // Smoke from the chimneys of a layer: puffs leave each chimney in turn, rise, drift and thin.
+    // The layer is laid end to end with every other copy mirrored, so its chimneys are too.
+    smoke(smoke, offset, width) {
+      const ctx = this.ctx, t = this.levelTime, life = 3.6, gap = 1.2;
+      for (let tile = Math.floor(offset / width); tile * width - offset < W; tile++) {
+        smoke.from.forEach(([cx, cy], n) => {
+          const x = tile * width - offset + (tile & 1 ? width - cx : cx);
+          if (x < -40 || x > W + 40) return;
+          for (let k = 0; k < life / gap; k++) {
+            const age = this.lap(t + n * .7 + tile * .4 - k * gap, life), grown = age / life;
+            const name = 'puff_' + Math.min(2, Math.floor(grown * 3)), f = this.frame('kit', name);
+            if (!f) return;
+            ctx.globalAlpha = Math.min(1, (1 - grown) * 2.2);
+            this.kit(name, x - f.w / 2 + grown * 16 + Math.sin(age * 2 + n) * 2, cy - f.h - 2 - grown * 46);
+          }
+        });
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // The plane tows a cloth banner across the sky. The banner is cut to the length of its line,
+    // and ripples more the further it trails from the tow rope.
+    plane(text) {
+      const f = this.frame('kit', 'plane'), cloth = this.banner(text), kit = this.images.kit;
+      if (!f || !cloth || !kit) return;
+      const ctx = this.ctx, t = this.levelTime, length = cloth.width + PLANE.rope + f.w;
+      const nose = this.lap((t - PLANE.wait) * PLANE.speed - this.camera * PLANE.far, W + length + PLANE.rest);
+      if (nose > W + length) return;
+      const y = PLANE.y + Math.sin(t * 1.1) * 5, tail = nose - f.w;
+      const tow = this.meta.kit.banner.tow, end = tail - PLANE.rope, top = round(y + f.tow - tow);
+      for (let sx = 0; sx < cloth.width; sx += 3) {
+        const x = round(end - cloth.width + sx);
+        if (x > W || x < -3) continue;
+        const trail = cloth.width - sx;
+        const lift = Math.sin(trail * .045 - t * 6) * Math.min(4, trail * .025);
+        ctx.drawImage(cloth, sx, 0, 3, cloth.height, x, round(top + lift), 3, cloth.height);
+      }
+      // Two cords run from the cloth's corners to the tail.
+      ctx.strokeStyle = PLANE.cord; ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (const corner of [top + 2, top + cloth.height - 2]) { ctx.moveTo(round(end) - 1, corner + .5); ctx.lineTo(round(tail) + 3, round(y + f.tow) + .5); }
+      ctx.stroke();
+      ctx.drawImage(kit, f.x, f.y, f.w, f.h, round(tail), round(y), f.w, f.h);
+    }
+
+    // The banner for one line: the painted cloth's two ends with its plain middle run out between
+    // them, and the line set on it. Made once for each line and kept.
+    banner(text) {
+      const f = this.frame('kit', 'banner'), kit = this.images.kit, cut = this.meta.kit?.banner;
+      if (!f || !kit || !cut || !root.document) return null;
+      this.banners = this.banners || {};
+      if (this.banners[text]) return this.banners[text];
+      const measure = this.ctx;
+      measure.save(); measure.font = PLANE.font;
+      const run = Math.ceil(measure.measureText(text).width) + 16;
+      measure.restore();
+      const cloth = root.document.createElement('canvas');
+      cloth.width = cut.left + run + cut.right; cloth.height = f.h;
+      const ctx = cloth.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(kit, f.x, f.y, cut.left, f.h, 0, 0, cut.left, f.h);
+      const middle = f.w - cut.left - cut.right;
+      for (let x = cut.left; x < cut.left + run; x += middle) {
+        const w = Math.min(middle, cut.left + run - x);
+        ctx.drawImage(kit, f.x + cut.left, f.y, w, f.h, x, 0, w, f.h);
+      }
+      ctx.drawImage(kit, f.x + f.w - cut.right, f.y, cut.right, f.h, cut.left + run, 0, cut.right, f.h);
+      // The hem is sewn here, so its stitches stay even however long the cloth is.
+      ctx.fillStyle = PLANE.hem;
+      for (let x = cut.hem + 1; x < cloth.width - cut.hem - 4; x += 7) {
+        ctx.fillRect(x, cut.hem, 4, 1); ctx.fillRect(x, f.h - cut.hem - 1, 4, 1);
+      }
+      for (let y = cut.hem + 3; y < f.h - cut.hem - 5; y += 6) {
+        ctx.fillRect(cut.hem, y, 1, 3); ctx.fillRect(cloth.width - cut.hem - 1, y, 1, 3);
+      }
+      ctx.fillStyle = PLANE.ink; ctx.font = PLANE.font; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(text, cut.left + run / 2, cut.line + 1);
+      return this.banners[text] = cloth;
     }
 
     ambient() {
@@ -241,19 +408,29 @@
       if (p.crumble && p.shake && p.y < p.crumble.to) ctx.restore();
     }
 
-    belt(p) {
-      // Moving chevrons along the running surface show which way the conveyor pulls.
-      const ctx = this.ctx, dir = Math.sign(p.belt), y = p.y;
-      ctx.fillStyle = '#231b3f'; ctx.fillRect(p.x, y - 2, p.w, 12);
-      ctx.fillStyle = '#ffd56b'; ctx.fillRect(p.x, y - 3, p.w, 2);
-      ctx.save(); ctx.beginPath(); ctx.rect(p.x, y - 2, p.w, 12); ctx.clip();
-      const offset = ((this.time * Math.abs(p.belt) * 60) % 28) * dir;
-      ctx.fillStyle = dir > 0 ? '#8af2bc' : '#ff9a8a';
-      for (let x = p.x - 28 + offset; x < p.x + p.w + 28; x += 28) {
-        for (let i = 0; i < 5; i++) ctx.fillRect(round(x + (dir > 0 ? i : 4 - i) * 2), y + 1 + i, 6, 1);
-        for (let i = 0; i < 4; i++) ctx.fillRect(round(x + (dir > 0 ? 3 - i : 1 + i) * 2), y + 6 + i, 6, 1);
-      }
+    // One sprite from the painted kit, at the size it was made for. Returns its frame.
+    kit(name, x, y, flip = false) {
+      const f = this.frame('kit', name), im = this.images.kit;
+      if (!f || !im) return null;
+      const ctx = this.ctx;
+      if (flip) { ctx.save(); ctx.translate(round(x) + f.w, round(y)); ctx.scale(-1, 1); ctx.drawImage(im, f.x, f.y, f.w, f.h, 0, 0, f.w, f.h); ctx.restore(); }
+      else ctx.drawImage(im, f.x, f.y, f.w, f.h, round(x), round(y), f.w, f.h);
+      return f;
+    }
+
+    // A kit sprite laid end to end from `from` to `to`, sliding by `shift`. Nothing shows outside.
+    run(name, from, to, y, shift = 0, flip = false) {
+      const f = this.frame('kit', name), ctx = this.ctx;
+      if (!f || to <= from) return;
+      ctx.save(); ctx.beginPath(); ctx.rect(from, y, to - from, f.h); ctx.clip();
+      for (let x = from - f.w + this.lap(shift, f.w); x < to; x += f.w) this.kit(name, x, y, flip);
       ctx.restore();
+    }
+
+    belt(p) {
+      // The chevrons run the way the conveyor pulls.
+      const dir = Math.sign(p.belt);
+      this.run('belt', p.x, p.x + p.w, p.y - 3, this.time * p.belt * 60, dir < 0);
     }
 
     wall(p, state) {
@@ -279,15 +456,14 @@
     }
 
     crusher(c) {
-      const ctx = this.ctx, x = round(c.x), bottom = round(c.top + c.h);
-      ctx.fillStyle = '#2b2350'; ctx.fillRect(x + c.w / 2 - 9, 0, 18, bottom - 36);
-      ctx.fillStyle = '#6b6f9c'; ctx.fillRect(x + c.w / 2 - 5, 0, 5, bottom - 36);
-      ctx.fillStyle = ink; ctx.fillRect(x - 3, bottom - 43, c.w + 6, 46);
-      ctx.fillStyle = '#51567f'; ctx.fillRect(x, bottom - 40, c.w, 40);
-      ctx.fillStyle = '#8a8fc0'; ctx.fillRect(x, bottom - 40, c.w, 5);
-      for (let i = 0; i < c.w; i += 24) {
-        ctx.fillStyle = i / 24 % 2 ? '#231b3f' : '#ffd56b'; ctx.fillRect(x + i, bottom - 10, Math.min(24, c.w - i), 10);
-      }
+      const ctx = this.ctx, x = round(c.x), bottom = round(c.top + c.h), cx = x + c.w / 2;
+      const head = this.frame('kit', 'press'), rod = this.frame('kit', 'rod'), foot = this.frame('kit', 'rod_foot');
+      if (!head || !rod || !foot) return;
+      // The rod runs up out of sight, however far the head has dropped.
+      const top = bottom - head.h, joint = top - foot.h + 3;
+      for (let y = joint - rod.h; y > -rod.h; y -= rod.h) this.kit('rod', cx - rod.w / 2, y);
+      this.kit('rod_foot', cx - foot.w / 2, joint);
+      this.kit('press', cx - head.w / 2, top);
       if (c.warn) {
         ctx.fillStyle = `rgba(255,120,120,${.3 + .3 * Math.sin(this.time * 24)})`; ctx.fillRect(x, c.floor - 4, c.w, 4);
         this.label('!', x + c.w / 2, bottom + 20, '#ffdc73', 14);
@@ -561,18 +737,16 @@
     }
 
     sign(d) {
-      const ctx = this.ctx;
-      const long = d.text.length > 25, width = long ? 180 : 174, height = long ? 58 : 65;
-      const x = round(d.x), y = round(d.y - height - 24);
-      ctx.fillStyle = '#3a325e'; ctx.fillRect(x + 12, y + height, 6, 25); ctx.fillRect(x + width - 18, y + height, 6, 25);
-      ctx.fillStyle = '#b4a4d7'; ctx.fillRect(x - 3, y - 3, width + 6, height + 6);
-      ctx.fillStyle = '#241e58'; ctx.fillRect(x, y, width, height);
-      ctx.fillStyle = '#7066ba'; ctx.fillRect(x, y, width, 4);
-      ctx.fillStyle = '#ffdc83'; ctx.fillRect(x + 8, y + 10, 4, 4); ctx.fillRect(x + width - 12, y + 10, 4, 4);
-      const lines = this.wrap(d.text, width - 22, long ? 10 : 13);
-      const lineH = long ? 12 : 15;
-      ctx.fillStyle = '#faf6ff'; ctx.font = 'bold ' + (long ? 10 : 13) + 'px monospace'; ctx.textAlign = 'center';
-      lines.forEach((line, i) => ctx.fillText(line, x + width / 2, y + (height - lines.length * lineH) / 2 + 13 + i * lineH));
+      // Each world has its own painted sign. The line is set on its dark face.
+      const ctx = this.ctx, f = this.frame('kit', 'sign_' + this.levelIndex);
+      if (!f) return;
+      const long = d.text.length > 25, size = long ? 10 : 13, lineH = long ? 12 : 15;
+      const x = round(d.x) - 3, y = round(d.y) + 1 - f.h;
+      this.kit('sign_' + this.levelIndex, x, y);
+      const [fx, fy, fw, fh] = f.face;
+      const lines = this.wrap(d.text, fw - 8, size);
+      ctx.fillStyle = '#faf6ff'; ctx.font = 'bold ' + size + 'px monospace'; ctx.textAlign = 'center';
+      lines.forEach((line, i) => ctx.fillText(line, x + fx + fw / 2, y + fy + (fh - lines.length * lineH) / 2 + size - 2 + i * lineH));
       ctx.textAlign = 'left';
     }
 
@@ -589,30 +763,17 @@
     }
 
     boost(b) {
-      const ctx = this.ctx;
-      ctx.fillStyle = '#1b3a64'; ctx.fillRect(b.x, b.y - 4, b.w, 7);
-      ctx.fillStyle = '#72f6ff'; ctx.fillRect(b.x, b.y - 5, b.w, 2);
-      ctx.save(); ctx.beginPath(); ctx.rect(b.x, b.y - 4, b.w, 7); ctx.clip();
-      const offset = (this.time * 36) % 32;
-      for (let x = b.x - 32 + offset; x < b.x + b.w; x += 32) {
-        ctx.fillStyle = '#d9feff';
-        ctx.fillRect(round(x), b.y - 3, 9, 2); ctx.fillRect(round(x + 7), b.y - 1, 7, 2);
-      }
-      ctx.restore();
+      // The strip's arrows run the way it throws you.
+      const left = this.frame('kit', 'boost_left'), right = this.frame('kit', 'boost_right'), y = b.y - 6;
+      if (!left || !right) return;
+      this.run('boost', b.x + left.w, b.x + b.w - right.w, y, this.time * 36);
+      this.kit('boost_left', b.x, y); this.kit('boost_right', b.x + b.w - right.w, y);
     }
 
     spring(s, state) {
-      const ctx = this.ctx;
       const compressed = state.player.springCooldown > 15 && Math.abs(state.player.x - s.x) < 80;
-      const height = compressed ? 9 : 18, y = s.y - height;
-      ctx.fillStyle = ink; ctx.fillRect(s.x - 2, y - 3, s.w + 4, 8);
-      ctx.fillStyle = '#ffda5e'; ctx.fillRect(s.x, y - 2, s.w, 5);
-      ctx.fillStyle = '#fff6b2'; ctx.fillRect(s.x + 2, y - 2, s.w - 4, 2);
-      ctx.strokeStyle = '#b8b9ef'; ctx.lineWidth = 3; ctx.beginPath();
-      ctx.moveTo(s.x + 9, y + 6); ctx.lineTo(s.x + s.w - 9, y + 10);
-      ctx.lineTo(s.x + 10, y + 14); ctx.lineTo(s.x + s.w - 10, s.y);
-      ctx.stroke();
-      ctx.fillStyle = '#473666'; ctx.fillRect(s.x + 3, s.y - 2, s.w - 6, 4);
+      const name = compressed ? 'spring_down' : 'spring', f = this.frame('kit', name);
+      if (f) this.kit(name, s.x + (s.w - f.w) / 2, s.y - f.h);
     }
 
     checkpoint(cp) {
@@ -641,35 +802,33 @@
       if (item.kind === 'key') {
         // A keyword tag: the only thing the CV Filter can read.
         if (item.bell) {
-          const bx = round(item.x), by = round(item.y + bob);
-          ctx.fillStyle = '#261a45'; ctx.fillRect(bx - 13, by + 6, 26, 6); ctx.fillRect(bx - 11, by - 8, 22, 15);
-          ctx.fillStyle = '#ffd36c'; ctx.fillRect(bx - 9, by - 6, 18, 12); ctx.fillRect(bx - 11, by + 7, 22, 3);
-          ctx.fillStyle = '#fff6c4'; ctx.fillRect(bx - 7, by - 5, 4, 8); ctx.fillRect(bx - 2, by - 11, 4, 4);
+          const f = this.frame('kit', 'bell');
+          if (f) this.kit('bell', item.x - f.w / 2, item.y + bob - f.h / 2);
           return;
         }
-        const x = round(item.x), y = round(item.y + bob), width = Math.max(58, item.word.length * 7 + 18);
-        ctx.fillStyle = 'rgba(255,224,112,.22)'; ctx.fillRect(x - width / 2 - 5, y - 16, width + 10, 32);
-        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 - 2, y - 13, width + 4, 26);
-        ctx.fillStyle = '#ffe070'; ctx.fillRect(x - width / 2, y - 11, width, 22);
-        ctx.fillStyle = '#fff6c4'; ctx.fillRect(x - width / 2, y - 11, width, 3);
-        ctx.fillStyle = '#261a45'; ctx.fillRect(x - width / 2 + 4, y - 2, 4, 4);
-        ctx.save(); ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(item.word, x + 4, y + 4); ctx.restore();
+        // A luggage tag: its two painted ends, and a plain run between them as long as the word.
+        const left = this.frame('kit', 'tag_left'), mid = this.frame('kit', 'tag_mid'), right = this.frame('kit', 'tag_right'), art = this.images.kit;
+        if (!left || !mid || !right || !art) return;
+        const width = Math.max(66, item.word.length * 7 + 34);
+        const x = round(item.x - width / 2), y = round(item.y + bob - left.h / 2), span = width - left.w - right.w;
+        ctx.fillStyle = 'rgba(255,224,112,.2)'; ctx.fillRect(x + 4, y - 3, width, left.h + 6);
+        this.kit('tag_left', x, y);
+        ctx.drawImage(art, mid.x, mid.y, mid.w, mid.h, x + left.w, y, span, mid.h);
+        this.kit('tag_right', x + width - right.w, y);
+        ctx.save(); ctx.fillStyle = '#261a45'; ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(item.word, x + left.w - 5 + (span + 5) / 2, y + left.h / 2 + 4); ctx.restore();
         return;
       }
       if (item.kind === 'bonus') {
-        const x = round(item.x), y = round(item.y + bob);
-        ctx.fillStyle = '#261a45';
-        ctx.fillRect(x - 18, y - 14, 36, 28);
-        ctx.fillStyle = item.colour;
-        ctx.fillRect(x - 16, y - 12, 32, 24);
-        ctx.fillStyle = '#261a45';
-        ctx.fillRect(x - 16, y - 7, 32, 3);
-        ctx.save();
-        ctx.font = 'bold 10px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(item.badge, x, y + 7);
-        ctx.restore();
+        // The two subscriptions are cards with the letters they are known by; the others need none.
+        const name = 'pickup_' + String(item.badge).toLowerCase(), f = this.frame('kit', name);
+        if (!f) return;
+        const x = round(item.x - f.w / 2), y = round(item.y + bob - f.h / 2);
+        this.kit(name, x, y);
+        if (f.label) {
+          ctx.save(); ctx.fillStyle = '#261a45'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+          ctx.fillText(item.badge, x + f.label[0], y + f.label[1] + 3); ctx.restore();
+        }
         return;
       }
       const skill = item.kind === 'skill';
@@ -693,17 +852,17 @@
     }
 
     gate(g, state) {
-      const ctx = this.ctx, x = round(g.x), floor = g.y + g.h, top = floor - 250;
-      ctx.fillStyle = '#261a45'; ctx.fillRect(x - 4, top - 6, g.w + 8, 256);
-      ctx.fillStyle = '#5a4a9a'; ctx.fillRect(x, top, g.w, 250);
-      ctx.fillStyle = '#7d6cc4'; ctx.fillRect(x, top, 5, 250);
-      for (let y = top + 14; y < floor - 8; y += 34) {
-        ctx.fillStyle = '#3a2d70'; ctx.fillRect(x + 6, y, g.w - 12, 4);
-        ctx.fillStyle = '#ffd36c'; ctx.fillRect(x + 8, y + 9, 5, 5); ctx.fillRect(x + g.w - 13, y + 9, 5, 5);
-      }
-      ctx.fillStyle = '#ffd36c'; ctx.fillRect(x - 4, top - 10, g.w + 8, 6);
-      const pulse = .5 + .5 * Math.sin(this.time * 4);
-      ctx.fillStyle = `rgba(255,120,150,${.25 + pulse * .3})`; ctx.fillRect(x - 8, top, 3, 250);
+      // A painted pillar: its base on the floor, its cap 250 up, and the shaft run between.
+      const cx = round(g.x) + g.w / 2, floor = g.y + g.h, top = floor - 250;
+      const cap = this.frame('kit', 'gate_cap'), shaft = this.frame('kit', 'gate_shaft'), base = this.frame('kit', 'gate_base');
+      if (!cap || !shaft || !base) return;
+      const ctx = this.ctx, from = top + cap.h - 12, to = floor - base.h + 4;
+      ctx.save(); ctx.beginPath(); ctx.rect(cx - shaft.w / 2 - 1, from, shaft.w + 2, to - from); ctx.clip();
+      for (let y = from; y < to; y += shaft.h) this.kit('gate_shaft', cx - shaft.w / 2, y);
+      ctx.restore();
+      this.kit('gate_base', cx - base.w / 2, floor - base.h);
+      this.kit('gate_cap', cx - cap.w / 2, top - 8);
+      const x = cx - g.w / 2;
       this.label(g.label, x + g.w / 2, top + 44, '#ffe8ae', 11);
       if (g.needs === 'keys') {
         const keys = state.world.collectibles.filter(item => item.kind === 'key');
@@ -831,8 +990,8 @@
         for (let i = 1; i < b.maxHealth; i++) { ctx.fillStyle = ink; ctx.fillRect(cx - 48 + i * 96 / b.maxHealth, y + 1, 2, 7); }
         if (warning) {
           const wx = cx + b.facing * (b.w / 2 + 36), wy = feet - 60;
-          ctx.fillStyle = '#ffdc73'; ctx.beginPath(); ctx.moveTo(wx, wy - 22); ctx.lineTo(wx - 18, wy + 10); ctx.lineTo(wx + 18, wy + 10); ctx.closePath(); ctx.fill();
-          ctx.fillStyle = ink; ctx.font = 'bold 25px monospace'; ctx.textAlign = 'center'; ctx.fillText('!', wx, wy + 6); ctx.textAlign = 'left';
+          const sign = this.frame('kit', 'warning');
+          if (sign) this.kit('warning', wx - sign.w / 2, wy + 12 - sign.h);
         } else if (b.type === 'scopecreep' && !open) {
           this.label(b.phase === 'attack' ? 'JUMP OVER THE CHARGE' : 'WAIT FOR THE STOP', cx, feet + 23, '#ffdf9a', 10);
         } else if (open) {
@@ -852,11 +1011,12 @@
 
     projectile(shot) {
       if (!this.visible(shot.x, 20)) return;
-      const ctx = this.ctx, col = shot.kind === 'purple' ? '#d7a0ff' : '#83f7ff';
-      ctx.fillStyle = 'rgba(132,218,255,.22)'; ctx.fillRect(round(shot.x - 4), round(shot.y - 4), 22, 22);
-      ctx.fillStyle = '#423171'; ctx.fillRect(round(shot.x - 1), round(shot.y - 1), 16, 16);
-      ctx.fillStyle = col; ctx.fillRect(round(shot.x + 2), round(shot.y + 2), 10, 10);
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(round(shot.x + 4), round(shot.y + 4), 4, 4);
+      const ctx = this.ctx, name = shot.kind === 'purple' ? 'orb_purple' : 'orb_cyan', f = this.frame('kit', name);
+      if (!f) return;
+      const cx = round(shot.x + 7), cy = round(shot.y + 7);
+      ctx.fillStyle = shot.kind === 'purple' ? 'rgba(215,160,255,.22)' : 'rgba(132,218,255,.22)';
+      ctx.beginPath(); ctx.arc(cx, cy, 13 + Math.sin(this.time * 14) * 1.5, 0, Math.PI * 2); ctx.fill();
+      this.kit(name, cx - f.w / 2, cy - f.h / 2);
     }
 
     player(p, state) {
@@ -896,10 +1056,8 @@
       this.sprite('props', 'portal', cx, feet + 2, 116);
       this.label(unlocked ? (state.levelIndex === 3 ? 'FINISH THE STORY' : 'NEXT WORLD') : 'CLEAR THE REVIEW', cx, feet - 133, unlocked ? '#b6fff0' : '#efe0ff', 10);
       if (!unlocked) {
-        ctx.fillStyle = '#32235f'; ctx.fillRect(cx - 18, feet - 64, 36, 27);
-        ctx.strokeStyle = '#ffe09c'; ctx.lineWidth = 3; ctx.strokeRect(cx - 9, feet - 73, 18, 17);
-        ctx.fillStyle = '#ffd36c'; ctx.fillRect(cx - 13, feet - 63, 26, 20);
-        ctx.fillStyle = ink; ctx.fillRect(cx - 2, feet - 57, 4, 8);
+        const lock = this.frame('kit', 'padlock');
+        if (lock) this.kit('padlock', cx - lock.w / 2, feet - 38 - lock.h);
       } else {
         for (let i = 0; i < 5; i++) {
           const a = this.time * 1.8 + i * Math.PI * .4;

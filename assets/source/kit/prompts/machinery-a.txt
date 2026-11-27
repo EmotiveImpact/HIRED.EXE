@@ -1,0 +1,14 @@
+16-bit SNES-style pixel art sprite sheet of factory machinery for a side-scrolling platform game: exactly eight separate objects in a tidy grid of 4 columns by 2 rows, evenly spaced with wide clear gaps, nothing touching, nothing in the top-left or bottom-right corner. All seen exactly side-on.
+Match the STYLE of the reference sprite sheets exactly: chunky pixels, thick dark violet outlines, flat cel shading with small highlights; riveted violet-grey steel with yellow and black hazard stripes, like the metal platform in the references. Use them only for style.
+Top row, left to right:
+1. The head of an industrial stamping press: a heavy, wide block of riveted violet-grey steel, about two and a half times as wide as tall, flat on the bottom with a yellow and black hazard stripe along the bottom edge, and a round steel collar in the middle of its top.
+2. A section of piston rod: a plain, straight, vertical polished steel shaft, the same width all the way, about four times as tall as wide, cut off flat at the top and bottom.
+3. A spring launch pad, extended: a flat gold plate on top of a chunky silver coil spring on a small dark base, about as wide as it is tall.
+4. The same spring launch pad squashed flat: the gold plate pressed down onto the tightly squeezed coil, about three times as wide as tall.
+Bottom row, left to right:
+5. A straight section of conveyor belt: a long low strip about six times as wide as tall, a dark rubber belt with pale yellow chevron arrows pointing to the RIGHT along its side, running over a row of small steel rollers, cut off square at both ends.
+6. A straight section of glowing speed strip: a long low dark-blue metal plate about six times as wide as tall, with bright cyan chevron arrows pointing to the RIGHT set into its top, cut off square at both ends.
+7. A glowing cyan ball of energy with a white-hot centre and a thin dark outline.
+8. A glowing purple ball of energy with a white-hot centre and a thin dark outline.
+Background: one perfectly flat, uniform, pure chroma-key green #00ff00 everywhere. No gradient, no shadows, no ground, no grid lines, no frames, no labels. Nothing green on the objects.
+No readable text, no letters, no numbers, no logos, no watermark, no border.

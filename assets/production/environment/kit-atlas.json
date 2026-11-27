@@ -1,0 +1,462 @@
+{
+  "image": "assets/production/environment/kit-atlas.png",
+  "size": [
+    512,
+    373
+  ],
+  "frames": {
+    "airship": {
+      "x": 77,
+      "y": 182,
+      "w": 66,
+      "h": 51
+    },
+    "balloon": {
+      "x": 420,
+      "y": 91,
+      "w": 40,
+      "h": 58
+    },
+    "banner": {
+      "x": 70,
+      "y": 324,
+      "w": 24,
+      "h": 28
+    },
+    "bell": {
+      "x": 39,
+      "y": 324,
+      "w": 30,
+      "h": 31
+    },
+    "belt": {
+      "x": 0,
+      "y": 357,
+      "w": 132,
+      "h": 16
+    },
+    "boost": {
+      "x": 264,
+      "y": 357,
+      "w": 30,
+      "h": 11
+    },
+    "boost_left": {
+      "x": 295,
+      "y": 357,
+      "w": 7,
+      "h": 11
+    },
+    "boost_right": {
+      "x": 303,
+      "y": 357,
+      "w": 7,
+      "h": 11
+    },
+    "courier_0": {
+      "x": 133,
+      "y": 357,
+      "w": 32,
+      "h": 15
+    },
+    "courier_1": {
+      "x": 166,
+      "y": 357,
+      "w": 32,
+      "h": 15
+    },
+    "drone_0": {
+      "x": 229,
+      "y": 324,
+      "w": 30,
+      "h": 24
+    },
+    "drone_1": {
+      "x": 95,
+      "y": 324,
+      "w": 30,
+      "h": 28
+    },
+    "freight": {
+      "x": 0,
+      "y": 281,
+      "w": 276,
+      "h": 42
+    },
+    "gate_base": {
+      "x": 126,
+      "y": 324,
+      "w": 57,
+      "h": 28
+    },
+    "gate_cap": {
+      "x": 260,
+      "y": 324,
+      "w": 51,
+      "h": 23
+    },
+    "gate_shaft": {
+      "x": 374,
+      "y": 91,
+      "w": 45,
+      "h": 72
+    },
+    "gull_0": {
+      "x": 438,
+      "y": 324,
+      "w": 26,
+      "h": 19
+    },
+    "gull_1": {
+      "x": 465,
+      "y": 324,
+      "w": 26,
+      "h": 19
+    },
+    "maglev": {
+      "x": 0,
+      "y": 236,
+      "w": 281,
+      "h": 44
+    },
+    "orb_cyan": {
+      "x": 396,
+      "y": 324,
+      "w": 20,
+      "h": 20
+    },
+    "orb_purple": {
+      "x": 417,
+      "y": 324,
+      "w": 20,
+      "h": 20
+    },
+    "padlock": {
+      "x": 277,
+      "y": 281,
+      "w": 28,
+      "h": 39
+    },
+    "pickup_cld": {
+      "x": 444,
+      "y": 281,
+      "w": 40,
+      "h": 33,
+      "label": [
+        20,
+        23
+      ]
+    },
+    "pickup_cof": {
+      "x": 366,
+      "y": 281,
+      "w": 36,
+      "h": 34
+    },
+    "pickup_gpt": {
+      "x": 403,
+      "y": 281,
+      "w": 40,
+      "h": 34,
+      "label": [
+        20,
+        23
+      ]
+    },
+    "pickup_zip": {
+      "x": 0,
+      "y": 324,
+      "w": 38,
+      "h": 32
+    },
+    "plane": {
+      "x": 0,
+      "y": 182,
+      "w": 76,
+      "h": 53,
+      "tow": 24
+    },
+    "press": {
+      "x": 144,
+      "y": 182,
+      "w": 102,
+      "h": 50
+    },
+    "puff_0": {
+      "x": 311,
+      "y": 357,
+      "w": 11,
+      "h": 9
+    },
+    "puff_1": {
+      "x": 199,
+      "y": 357,
+      "w": 15,
+      "h": 13
+    },
+    "puff_2": {
+      "x": 492,
+      "y": 324,
+      "w": 20,
+      "h": 17
+    },
+    "rocket": {
+      "x": 306,
+      "y": 281,
+      "w": 20,
+      "h": 39
+    },
+    "rod": {
+      "x": 247,
+      "y": 182,
+      "w": 34,
+      "h": 48
+    },
+    "rod_foot": {
+      "x": 312,
+      "y": 324,
+      "w": 34,
+      "h": 22
+    },
+    "screenship": {
+      "x": 282,
+      "y": 182,
+      "w": 72,
+      "h": 47
+    },
+    "sign_0": {
+      "x": 0,
+      "y": 0,
+      "w": 186,
+      "h": 90,
+      "face": [
+        20,
+        16,
+        146,
+        38
+      ]
+    },
+    "sign_1": {
+      "x": 187,
+      "y": 0,
+      "w": 186,
+      "h": 90,
+      "face": [
+        21,
+        16,
+        145,
+        38
+      ]
+    },
+    "sign_2": {
+      "x": 0,
+      "y": 91,
+      "w": 186,
+      "h": 90,
+      "face": [
+        18,
+        16,
+        151,
+        38
+      ]
+    },
+    "sign_3": {
+      "x": 187,
+      "y": 91,
+      "w": 186,
+      "h": 90,
+      "face": [
+        20,
+        16,
+        146,
+        38
+      ]
+    },
+    "spring": {
+      "x": 347,
+      "y": 324,
+      "w": 48,
+      "h": 22
+    },
+    "spring_down": {
+      "x": 215,
+      "y": 357,
+      "w": 48,
+      "h": 13
+    },
+    "tag_left": {
+      "x": 184,
+      "y": 324,
+      "w": 30,
+      "h": 26
+    },
+    "tag_mid": {
+      "x": 215,
+      "y": 324,
+      "w": 4,
+      "h": 26
+    },
+    "tag_right": {
+      "x": 220,
+      "y": 324,
+      "w": 8,
+      "h": 26
+    },
+    "warning": {
+      "x": 327,
+      "y": 281,
+      "w": 38,
+      "h": 35
+    }
+  },
+  "banner": {
+    "left": 8,
+    "right": 8,
+    "tow": 14,
+    "line": 14,
+    "hem": 4
+  },
+  "scenery": {
+    "0": {
+      "behind": 2,
+      "float": {
+        "sprite": "balloon",
+        "at": [
+          260,
+          104
+        ]
+      },
+      "flock": {
+        "sprite": "gull",
+        "count": 3,
+        "y": 150,
+        "beat": 4
+      },
+      "layers": [
+        {
+          "image": "assets/production/backgrounds/application-alley-sky.webp",
+          "speed": 0.02,
+          "drift": 3
+        },
+        {
+          "image": "assets/production/backgrounds/application-alley-far.webp",
+          "speed": 0.07
+        },
+        {
+          "image": "assets/production/backgrounds/application-alley-near.webp",
+          "speed": 0.18
+        },
+        {
+          "image": "assets/production/backgrounds/application-alley-trees.webp",
+          "speed": 0.3
+        }
+      ]
+    },
+    "1": {
+      "behind": 2,
+      "rail": 275,
+      "train": "freight",
+      "float": {
+        "sprite": "airship",
+        "at": [
+          300,
+          96
+        ]
+      },
+      "flock": {
+        "sprite": "drone",
+        "count": 2,
+        "y": 170,
+        "beat": 12
+      },
+      "smoke": {
+        "layer": 2,
+        "from": [
+          [
+            215,
+            171
+          ],
+          [
+            390,
+            76
+          ],
+          [
+            602,
+            160
+          ],
+          [
+            1312,
+            116
+          ],
+          [
+            1730,
+            201
+          ]
+        ]
+      },
+      "layers": [
+        {
+          "image": "assets/production/backgrounds/ship-it-city-sky.webp",
+          "speed": 0.02,
+          "drift": 3
+        },
+        {
+          "image": "assets/production/backgrounds/ship-it-city-far.webp",
+          "speed": 0.07
+        },
+        {
+          "image": "assets/production/backgrounds/ship-it-city-near.webp",
+          "speed": 0.18
+        },
+        {
+          "image": "assets/production/backgrounds/ship-it-city-trees.webp",
+          "speed": 0.3
+        }
+      ]
+    },
+    "2": {
+      "behind": 2,
+      "rail": 277,
+      "train": "maglev",
+      "float": {
+        "sprite": "screenship",
+        "at": [
+          520,
+          92
+        ]
+      },
+      "flock": {
+        "sprite": "courier",
+        "count": 2,
+        "y": 160,
+        "beat": 12
+      },
+      "rocket": {
+        "sprite": "rocket",
+        "behind": 1,
+        "x": 640,
+        "every": 46,
+        "climb": 15
+      },
+      "layers": [
+        {
+          "image": "assets/production/backgrounds/growth-run-sky.webp",
+          "speed": 0.02,
+          "drift": 2
+        },
+        {
+          "image": "assets/production/backgrounds/growth-run-far.webp",
+          "speed": 0.07
+        },
+        {
+          "image": "assets/production/backgrounds/growth-run-near.webp",
+          "speed": 0.18
+        },
+        {
+          "image": "assets/production/backgrounds/growth-run-trees.webp",
+          "speed": 0.3
+        }
+      ]
+    }
+  }
+}
