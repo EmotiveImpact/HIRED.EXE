@@ -568,8 +568,8 @@
     {
       "path": "assets/production/characters/hero-atlas.png",
       "role": "production-asset",
-      "bytes": 149242,
-      "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+      "bytes": 132432,
+      "sha256": "ce99aac7087ca956c2884fdb76d8cdbdc54a1ddefe1a7b830e9980a6463f9c7f"
     },
     {
       "path": "assets/production/characters/portrait-reference.png",
@@ -1044,6 +1044,12 @@
       "role": "generated-source",
       "bytes": 7181,
       "sha256": "674fad30db628ab44e3b9e3c5d9ec5f5270b715bf3b5f3504dfc1447db4955d6"
+    },
+    {
+      "path": "assets/source/characters/hero-atlas-v1.png",
+      "role": "generated-source",
+      "bytes": 149242,
+      "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
     },
     {
       "path": "assets/source/environment-prompts.json",

@@ -47,7 +47,7 @@ These are production targets chosen from the approved colour relationships, not 
 
 ## Augustus
 
-The approved hero has medium brown skin, short curly dark hair, a close beard, expressive eyes, a teal jacket over a cream shirt, charcoal trousers, white and teal trainers and a compact teal backpack. Keep these features consistent across every pose. The face should remain legible at gameplay scale, without increasing the head between frames.
+The hero matches Augustus in the intro films: medium brown skin, a big round curly black afro, a full black beard, expressive eyes, a teal jacket closed over a teal hoodie with darker teal brush-stroke stripes, charcoal trousers, white and teal trainers and a compact teal backpack. Keep these features consistent across every pose. The face should remain legible at gameplay scale, without increasing the head between frames.
 
 Gameplay uses a 34 × 58 logical collision body. The delivered hero atlas uses 80 × 96 cells rendered at their native size, with a shared foot anchor at `[40, 92]`. The visible standing character is approximately 78 pixels tall; transparent padding and extended limbs sit outside the collision rectangle. Align frames by the centre of the feet, not the bounding box. A running leg or raised fist must not make the torso drift. The right-facing set is mirrored for leftward movement.
 
@@ -183,4 +183,4 @@ python3 tools/build-character-atlas.py
 python3 tools/build.py
 ```
 
-`build-environment-atlas.py` reproduces the committed terrain and prop atlases byte for byte from `assets/source-atlases/`. `build-character-atlas.py` expects the generated hero and enemy sheets (`hero-source.png` and `enemy-cutout.png`), which are not in this repository, so the committed hero and enemy atlases are the working originals. When artwork changes, add the new generated source as a new file and keep the approved boards untouched.
+`build-environment-atlas.py` reproduces the committed terrain and prop atlases byte for byte from `assets/source-atlases/`. `build-character-atlas.py` expects the generated hero and enemy sheets (`hero-source.png` and `enemy-cutout.png`), which are not in this repository, so the committed hero and enemy atlases are the working originals. The approved short-haired hero is kept as `assets/source/characters/hero-atlas-v1.png`; `tools/repaint-hero.py` repaints it (afro, beard, striped hoodie, charcoal trousers) into the production atlas, frame for frame. When artwork changes, add the new generated source as a new file and keep the approved boards untouched.
