@@ -58,6 +58,18 @@ async function run() {
   await loaded;
   let win = frame.contentWindow;
   const app = () => win.HIRED_APP;
+  // A first visit opens on the intro; skipping it lands the title.
+  const openTitle = async () => {
+    click('start-game');
+    await until(()=>['intro','title'].includes(app().mode),'Title screen missing');
+    if(app().mode==='intro'){
+      check(byId('overlay').querySelector('.intro-osd').textContent==='CH 1','Intro did not open on the first channel');
+      click('intro-skip');
+      await until(()=>app().mode==='title','Intro did not end on the title');
+      check(byId('overlay').classList.contains('title-land'),'Title did not land after the intro');
+    }
+    check(byId('title-any').textContent==='Press any button to continue','Title prompt missing');
+  };
   const byId = id => win.document.getElementById(id);
   const click = id => { const el=byId(id); check(el && !el.disabled,'Missing control: '+id); el.click(); };
   const shots = new Set();
@@ -74,7 +86,7 @@ async function run() {
     check(win.HIRED_EDITION.id === 'portfolio','Playtest storage must be isolated');
     check(byId('home-cv-pdf').getAttribute('href').endsWith('Augustus-Edem-CV.pdf'),'CV.PDF is missing from the title');
     check(!byId('skip-portfolio'),'Portfolio should not be on the desktop');
-    click('start-game'); await until(()=>app().mode==='title','Title screen missing'); click('title-play');
+    await openTitle(); click('title-play');
     check(!app().assets.failed.length && app().assets.loaded.length===25,'Missing runtime art');
     check(app().mode==='scene' && !app().state,'Opening did not precede gameplay');
     click('scene-next');
@@ -117,7 +129,7 @@ async function run() {
             const load = new Promise(resolve => frame.addEventListener('load',resolve,{once:true}));
             win.location.reload(); await load; await until(()=>app()?.mode==='home','Checkpoint reload failed');
             check(byId('start-game').textContent.includes('checkpoint'),'Resume action missing');
-            click('start-game'); await until(()=>app().mode==='title','Title screen missing'); click('title-play');
+            await openTitle(); click('title-play');
             check(app().state.checkpoint.id===id && app().state.world.collectibles.filter(i=>i.collected).length===coins,'Checkpoint snapshot lost');
             restored=true; notes('PASS checkpoint resume after reload'); lastTick=-1;
             continue;
@@ -161,7 +173,7 @@ async function run() {
     await until(()=>app()?.mode==='home','Reload did not return to title');
     check(Object.keys(app().progress.results).length===4 && JSON.stringify(before.results)===JSON.stringify(app().progress.results),'Results did not survive reload ('+win.HIRED_EDITION.id+', '+Object.keys(app().progress.results).length+' saved worlds)');
     notes('PASS saved results after reload');
-    click('start-game'); await until(()=>app().mode==='title','Title screen missing'); click('title-play'); check(app().mode==='scene' && byId('comic-title').textContent==='You’re up','Revisiting the interview skipped its cutscene');
+    await openTitle(); click('title-play'); check(app().mode==='scene' && byId('comic-title').textContent==='You’re up','Revisiting the interview skipped its cutscene');
     click('scene-skip'); check(app().mode==='interview','Completed interview could not be reopened');
     for(const i of [0,0,1]){click('answer-'+i);click('interview-next');}
     check(app().mode==='finish','Revisited ending missing');

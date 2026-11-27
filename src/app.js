@@ -44,6 +44,7 @@
         progress.checkpoint = record;
       progress.delivered = saved.delivered === true;
       progress.muted = saved.muted === true;
+      progress.introSeen = saved.introSeen === true;
     }
   } catch (_) { storageAvailable=false; /* Private/file browsing can restrict storage. Playing still works. */ }
   const save = () => {try {localStorage.setItem(SAVE_KEY,JSON.stringify(progress));storageAvailable=true;return true;} catch (_) {storageAvailable=false;return false;}};
@@ -69,7 +70,7 @@
   let interviewIndex=0, interviewChoice=null;
   let sceneIndex=0, sceneBeat=0;
   let interviewAnswers=[];
-  let desktopReturn=null, titleBack=null, artworkLoad=null, assetReport=null;
+  let desktopReturn=null, titleBack=null, titleWake=null, artworkLoad=null, assetReport=null;
   const keys = new Set(), touch = new Set();
   const pointers = new Map();
   let helpBack=showHome, worldsBack=showHome;
@@ -230,7 +231,7 @@
     });
     labelGameWindow();
   }
-  function labelGameWindow(){const button=$('hire-start');if(button&&desktopPlay)button.textContent=desktopPlay.continuing?'Continue game':'Start game';}
+  function labelGameWindow(){const button=$('hire-start');if(button&&desktopPlay)button.textContent=desktopPlay.continuing?'Continue game':'Play the game';}
   const openGuestbook=()=>H.guestbook({defaultGeo:area=>placeAtStart('guestbook',area)});
   function openStartup(){openGuestbook();openGameWindow();}
   function showHome() {
@@ -303,8 +304,9 @@
     if(!artworkLoad)artworkLoad=renderer.load().then(report=>assetReport=report).catch(error=>{artworkLoad=null;throw error;});
     return artworkLoad;
   }
-  // direct: Start game was pressed in HIRE.EXE's window on the desktop, which is the title
-  // screen already, so the game starts as soon as its artwork has loaded.
+  // direct: Play the game was pressed in HIRE.EXE's window on the desktop, which is the title
+  // screen already, so the game starts as soon as its artwork has loaded. The one exception is
+  // a first visit: the intro plays, and the title lands after it as the intro's last beat.
   async function launchTitle(play,continuing,direct=false){
     const launch=++launchNumber;
     setMode('game-load');
@@ -320,13 +322,30 @@
       return;
     }
     if(launch!==launchNumber||uiMode!=='game-load')return;
-    if(direct){H.track(continuing?'Game continued':'Game started');play();return;}
-    function title(){
-      setMode('title');titleBack=title;
-      layer.className='overlay game-title';
+    // A first visit opens on the intro, wherever Play the game was pressed.
+    const first=Boolean(H.intro&&!continuing&&!progress.introSeen);
+    if(direct&&!first){H.track(continuing?'Game continued':'Game started');play();return;}
+    let woken=false;
+    function title(landing){
+      setMode('title');titleBack=()=>title();titleWake?.();
+      layer.className='overlay game-title'+(woken?'':' title-wait')+(landing===true?' title-land':'');
       layer.style.setProperty('--title-scene',`url("${asset('assets/production/backgrounds/application-alley.webp')}")`);
       layer.setAttribute('aria-label','HIRE.EXE title screen');
-      layer.innerHTML=`<div class="title-hero" aria-hidden="true"><img class="title-actor" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""></div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Start game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div></section>`;
+      layer.innerHTML=`<div class="title-hero" aria-hidden="true"><img class="title-actor" src="${esc(asset('assets/production/characters/title-hero.webp'))}" alt=""></div><section class="title-copy"><h1>HIRE<span>.EXE</span></h1><p>${esc(E.tagline||'A playable application by '+E.applicant)}</p><button class="btn primary" id="title-play">${continuing?'Continue game':'Play the game'}</button><div class="title-links"><button id="choose-world">Choose a world</button><button id="replay-scenes">Replay cutscenes</button></div><p class="title-any" id="title-any">Press any button to continue</p></section>`;
+      // The title waits for any key, click or tap, then offers its menu. It listens for the
+      // finished click, never the press: a finger's click lands after the press, and would
+      // fall on whichever menu button had just appeared beneath it.
+      const wake=e=>{
+        if(e&&e.type==='keydown'&&(e.metaKey||e.ctrlKey||e.altKey||e.key==='Tab'||e.key==='Escape'))return;
+        // The click that skipped the intro is still on its way up: it is not a press on the title.
+        if(e?.type==='click'&&!layer.contains(e.target))return;
+        titleWake?.();
+        if(uiMode!=='title'||!layer.classList.contains('title-wait'))return;
+        if(e?.type==='keydown'){e.preventDefault();e.stopPropagation();}
+        woken=true;layer.classList.remove('title-wait');focusDialog();
+      };
+      titleWake=()=>{document.removeEventListener('keydown',wake,true);layer.removeEventListener('click',wake);};
+      if(!woken){document.addEventListener('keydown',wake,true);layer.addEventListener('click',wake);}
       $('title-play').onclick=()=>{H.track(continuing?'Game continued':'Game started');play();};
       $('choose-world').onclick=()=>showWorlds(title);
       $('replay-scenes').onclick=()=>gallery(0);
@@ -338,9 +357,21 @@
       if(!panels.length){modal('Cutscenes','<p>No illustrated panels in this edition.</p>',false,title);return;}
       const beat=panels[i];
       modal('Cutscenes',`<img class="replay-frame" src="${asset(beat.image)}" alt="${esc(beat.alt)}"><p>${i+1} / ${panels.length} · ${esc(beat.alt)}</p>${(beat.dialogue||[]).map(([name,line])=>`<p><strong>${esc(name)}</strong> ${esc(line)}</p>`).join('')}<div class="modal-actions"><button class="btn" id="gallery-prev" ${i?'':'disabled'}>Previous</button><button class="btn" id="gallery-next" ${i+1===panels.length?'disabled':''}>Next</button><button class="btn" id="gallery-back">Title screen</button></div>`,true,title);
-      bindActions({'gallery-prev':()=>gallery(i-1),'gallery-next':()=>gallery(i+1),'gallery-back':title});
+      bindActions({'gallery-prev':()=>gallery(i-1),'gallery-next':()=>gallery(i+1),'gallery-back':()=>title()});
     }
-    title();
+    // The title lands when the intro ends or is skipped.
+    if(first){
+      setMode('intro');
+      // The intro's voices go through the game's sound, so the mute button covers them.
+      const voice={decode:bytes=>audio.engine?audio.engine.decode(bytes):Promise.reject(new Error('No sound')),
+        play:(spoken,name='intro:voice')=>audio.enabled&&audio.running?audio.engine.sample(spoken,1,name):null};
+      // The offline file carries the stills only, so it asks for no clips or voices.
+      const how=await H.intro.play(layer,{asset,voice,clips:!globalThis.HIRED_EMBEDDED_ASSETS,sound:name=>audio.effect('intro-'+name)});
+      if(launch!==launchNumber||uiMode!=='intro')return;
+      progress.introSeen=true;save();
+      H.track(how==='skipped'?'Intro skipped':'Intro watched');
+      title(true);
+    } else title();
   }
   function beginScene(index) {
     if(H.LEVELS[index] && progress.seenIntros.includes(H.LEVELS[index].id)){

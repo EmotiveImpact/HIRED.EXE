@@ -35,6 +35,7 @@ runtime_paths.add('assets/production/characters/portrait-reference.png')
 runtime_paths.add('assets/production/characters/title-hero.webp')
 runtime_paths.add('assets/production/story/manga-panels.webp')
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/directors-board').rglob('*.webp'))
+runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/intro').glob('*.webp'))
 runtime_paths.update(str(p.relative_to(ROOT)) for p in (ROOT/'assets/production/story/panels-v2').glob('*.jpg'))
 for path in runtime_paths:
     if not (ROOT/path).is_file():

@@ -671,3 +671,43 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 /* A phone turned sideways has little height: lay the pause buttons and interview topics
    side by side so they all fit without scrolling. */
 @media (orientation:landscape) and (max-height:500px){.overlay .pause-actions{grid-template-columns:1fr 1fr}.overlay .interview-answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}}
+/* The intro: a telly with three channels, then two shots of the studio. The picture keeps
+   16:9 and gives up height first, so the words and Skip are always on screen. */
+.overlay.intro-overlay{position:absolute;display:block;padding:0;background:#0b0817;color:#fff}
+.intro{display:flex;flex-direction:column;height:100%;padding:clamp(6px,1.6vw,16px);gap:clamp(4px,1vw,10px)}
+.intro-stage{flex:1;min-height:0;display:grid;place-items:center;container-type:size}
+.intro-set{position:relative;aspect-ratio:16/9;width:100%;max-height:100%}
+@supports (width:1cqh){.intro-set{width:min(100cqw,177.78cqh)}}
+.intro-stage.is-tv .intro-set{aspect-ratio:16/10;padding:2.4% 2.4% 6.5%;background:linear-gradient(#4a3f63,#2c2440);border:3px solid #120d22;border-radius:14px;box-shadow:inset 0 2px #6d6090,4px 5px #05030c}
+@supports (width:1cqh){.intro-stage.is-tv .intro-set{width:min(100cqw,160cqh)}}
+.intro-stage.is-tv .intro-set::after{content:"";position:absolute;right:4%;bottom:2.2%;width:1.6%;aspect-ratio:1;border-radius:50%;background:#ff5b4d;box-shadow:0 0 6px #ff5b4d}
+.intro-stage.is-tv .intro-set::before{content:"";position:absolute;left:4%;bottom:2.4%;width:16%;height:1.6%;background:repeating-linear-gradient(90deg,#120d22 0 3px,transparent 3px 6px)}
+.intro-screen{position:relative;width:100%;height:100%;overflow:hidden;background:#000}
+.intro-stage.is-tv .intro-screen{border-radius:18px/14px;box-shadow:0 0 0 3px #120d22,inset 0 0 40px #000}
+.intro-pic,.intro-clip{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.intro-snow{position:absolute;inset:0;opacity:0;pointer-events:none;background-size:96px 96px;image-rendering:pixelated}
+/* Scan lines and a soft vignette while the picture is on the telly. */
+.intro-stage.is-tv .intro-screen::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,#0000 0 2px,#0003 2px 3px),radial-gradient(ellipse at center,#0000 62%,#0007)}
+.intro-osd{position:absolute;top:5%;left:4%;font:bold clamp(11px,2.2cqw,22px)/1 monospace;color:#7dff8a;text-shadow:2px 2px #000;display:none}
+.intro-stage.is-tv .intro-osd{display:block}
+.intro-stage.is-flip .intro-snow{opacity:1;animation:intro-snow .12s steps(3) infinite}
+.intro-stage.is-flip .intro-pic,.intro-stage.is-flip .intro-clip{visibility:hidden}
+.intro-stage.is-off .intro-pic,.intro-stage.is-off .intro-clip{animation:intro-off .6s cubic-bezier(.3,0,.2,1) forwards}
+.intro-stage.is-off .intro-osd{display:none}
+@keyframes intro-snow{0%{background-position:0 0}33%{background-position:37px 61px}66%{background-position:71px 23px}100%{background-position:13px 47px}}
+@keyframes intro-off{0%{transform:none;filter:none}45%{transform:scale(1,.012);filter:brightness(4)}80%{transform:scale(.02,.012);filter:brightness(6)}100%{transform:scale(0,0);filter:brightness(6)}}
+.intro-words{flex:none;min-height:4.3em;padding:8px 12px;background:#17122b;border:2px solid #6d6090;font:15px/1.35 system-ui,sans-serif}
+.intro-words strong{display:block;font:bold 11px/1.2 monospace;letter-spacing:.08em;text-transform:uppercase;color:#ffd166;min-height:1.2em}
+.intro-words p{margin:3px 0 0}
+.intro-skip{position:absolute;top:clamp(8px,2vw,20px);right:clamp(10px,2.4vw,26px);margin:0;color:#fff;background:#0b0817b3;padding:6px 10px;z-index:2}
+@media (orientation:landscape) and (max-height:500px){.intro{padding:4px}.intro-words{min-height:3.2em;padding:4px 10px;font-size:13px}}
+/* The title lands, then waits for any button. */
+.game-title.title-wait .title-copy .btn,.game-title.title-wait .title-links{display:none}
+.game-title .title-copy .title-any{display:none;max-width:none;white-space:nowrap;margin:14px 0 0;font:bold clamp(12px,1.8vw,17px)/1.2 monospace;letter-spacing:.06em;text-transform:uppercase;color:#ffd166;text-shadow:2px 2px #120d22}
+.game-title.title-wait .title-copy .title-any{display:block;animation:title-blink 1.1s steps(2,jump-none) infinite}
+.game-title.title-land .title-copy h1{animation:title-land .55s cubic-bezier(.3,1.5,.5,1) both}
+.game-title.title-land .title-copy p,.game-title.title-land .title-hero{animation:title-rise .5s .45s both}
+@keyframes title-land{0%{transform:translateY(-160%) scale(1.25);opacity:0}60%{opacity:1}100%{transform:none}}
+@keyframes title-rise{0%{opacity:0;transform:translateY(12px)}100%{opacity:1;transform:none}}
+@keyframes title-blink{0%{opacity:1}100%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.game-title.title-land .title-copy h1,.game-title.title-land .title-copy p,.game-title.title-land .title-hero,.game-title.title-wait .title-any{animation:none}}

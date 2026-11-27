@@ -153,9 +153,11 @@
     // The intro's old telly: a clunk and a burst of snow between channels, a thump and a dying
     // whine as it goes off, and the doorbell.
     'intro-flip'(t) {
-      tone(t, {type: 'square', f0: 110, f1: 60, dur: 0.05, vol: 0.2, filter: 900});
-      hiss(t + 0.02, {type: 'bandpass', f0: 2600, f1: 3400, q: 0.5, dur: 0.2, vol: 0.4});
-      tone(t + 0.22, {type: 'square', f0: 140, f1: 80, dur: 0.04, vol: 0.14, filter: 900});
+      tone(t, {type: 'square', f0: 110, f1: 60, dur: 0.05, vol: 0.3, filter: 900});
+      // One hiss dies away from its first instant, so the snow between channels is nine of
+      // them, each swelling a little later than the last, and it roars for the whole flip.
+      for (let k = 0; k < 9; k++) hiss(t + 0.012, {type: 'highpass', f0: 600, dur: 0.262, attack: 0.004 + k * 0.03, vol: 0.36});
+      tone(t + 0.25, {type: 'square', f0: 140, f1: 80, dur: 0.04, vol: 0.22, filter: 900});
     },
     'intro-off'(t) {
       tone(t, {type: 'sine', f0: 150, f1: 45, dur: 0.16, vol: 0.4});
@@ -163,10 +165,8 @@
       tone(t + 0.03, {type: 'sine', f0: 2400, f1: 180, dur: 0.5, vol: 0.07});
     },
     'intro-bell'(t) {
-      tone(t, {type: 'sine', f0: hz(76), dur: 0.7, vol: 0.16, send: 0.5});
-      tone(t, {type: 'triangle', f0: hz(88), dur: 0.2, vol: 0.05});
-      tone(t + 0.42, {type: 'sine', f0: hz(72), dur: 1, vol: 0.16, send: 0.5});
-      tone(t + 0.42, {type: 'triangle', f0: hz(84), dur: 0.25, vol: 0.05});
+      tone(t, {type: 'sine', f0: hz(72), dur: 1, vol: 0.16, send: 0.5});
+      tone(t, {type: 'triangle', f0: hz(84), dur: 0.25, vol: 0.05});
     }
   });
 

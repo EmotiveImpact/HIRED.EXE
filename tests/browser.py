@@ -60,7 +60,17 @@ def sign_guestbook(context, base, mobile, errors):
     assert sent == [{'name': 'James M.', 'message': 'Came for the CV, stayed for the submarine.', 'email': 'james@example.test', 'website': ''}], sent
     # The address went to the book and is nowhere in the window.
     assert 'james@example.test' not in page.locator('.guestbook-window').inner_text()
-    # The button in HIRE.EXE's window starts the game there and then, with no title screen in between.
+    # On a first visit the button in HIRE.EXE's window opens the intro, and the title lands after it.
+    press('#hire-start')
+    expect(page.locator('#game-window')).to_be_visible()
+    expect(page.locator('.intro-osd')).to_have_text('CH 1')
+    press('#intro-skip')
+    expect(page.locator('.game-title.title-land')).to_be_visible()
+    assert page.evaluate("JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k => k.startsWith('hired-exe:v'))) || '{}').introSeen === true")
+    # Once the intro has been seen, the same button starts the game there and then, with no title
+    # screen in between.
+    page.reload()
+    page.locator('#start-game').wait_for()
     press('#hire-start')
     expect(page.locator('#game-window')).to_be_visible()
     expect(page.locator('#scene-next')).to_be_visible()
@@ -181,12 +191,30 @@ def run(profile, base):
         def open_item(target):
             item = page.locator(target)
             item.tap() if mobile else item.dblclick()
+        def title_menu():
+            # A first visit opens on the intro. The title then waits for any button.
+            page.wait_for_function("['intro','title'].includes(HIRED_APP.mode)")
+            if page.evaluate("HIRED_APP.mode === 'intro'"):
+                expect(page.locator('.intro-osd')).to_have_text('CH 1')
+                expect(page.locator('.intro-words strong')).to_have_text('Newsreader')
+                activate('#intro-skip')
+                expect(page.locator('.game-title.title-land')).to_be_visible()
+            if page.locator('.game-title.title-wait').count():
+                expect(page.locator('#title-any')).to_have_text('Press any button to continue')
+                expect(page.locator('#title-play')).to_be_hidden()
+                activate('#title-any')
+                # The tap that wakes the title presses nothing on the menu that appears under it.
+                expect(page.locator('#title-play')).to_be_visible()
+                assert page.evaluate("HIRED_APP.mode === 'title'")
+        def title_play():
+            title_menu()
+            activate('#title-play')
         def launch():
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
         # HIRE.EXE's own window and the Guestbook are open from the start, tiled with Program Manager:
         # each inside the desktop, and none over another.
-        expect(page.locator('#hire-start')).to_have_text('Start game')
+        expect(page.locator('#hire-start')).to_have_text('Play the game')
         expect(page.locator('.guestbook-window')).to_be_visible()
         tiled = '''() => { const d = document.querySelector('#os-shell').getBoundingClientRect();
             const r = ['progman', 'hire', 'guestbook'].map(id => document.querySelector(`.w31-window[data-win="${id}"]`).getBoundingClientRect());
@@ -427,6 +455,7 @@ def run(profile, base):
         activate('#internet-window .w31-min')
         expect(page.locator('#internet-group')).to_be_visible()
         launch()
+        title_menu()
         activate('#replay-scenes')
         expect(page.locator('.replay-frame')).to_be_visible()
         activate('#gallery-back')
@@ -458,7 +487,7 @@ def run(profile, base):
         expect(page.locator('figure').nth(26)).to_contain_text('Same answer.')
         page.get_by_role('link', name='Play HIRE.EXE').click()
         launch()
-        activate('#title-play')
+        title_play()
         assert page.locator('#comic-title').inner_text() == 'One PDF'
         for _ in range(4):
             activate('#scene-next')
@@ -532,6 +561,7 @@ def run(profile, base):
         # Picking a later world must offer its intro once, including after reload.
         page.goto(base)
         launch()
+        title_menu()
         activate('#choose-world')
         activate('#world-2')
         expect(page.locator('#comic-title')).to_have_text('Both of them')
@@ -539,6 +569,7 @@ def run(profile, base):
         assert page.evaluate('HIRED_APP.state.levelIndex === 2')
         page.reload()
         launch()
+        title_menu()
         activate('#choose-world')
         activate('#world-2')
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 2")
@@ -549,7 +580,7 @@ def run(profile, base):
             JSON.stringify({lastLevel:1,pendingScene:1,results:{0:{completed:true}}}))''')
         page.goto(base)
         launch()
-        activate('#title-play')
+        title_play()
         expect(page.locator('#comic-title')).to_have_text('A quick addition')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'v5/city-1\.webp'))
         activate('#scene-skip')
@@ -611,7 +642,7 @@ def run(profile, base):
         # On a phone the Games folder opens over the main one; put it away before launching.
         activate('#games-window .w31-min')
         launch()
-        activate('#title-play')
+        title_play()
         assert page.evaluate("HIRED_APP.mode === 'playing' && HIRED_APP.state.levelIndex === 1")
 
         page.evaluate('''() => localStorage.setItem('hired-exe:v04:general',
@@ -620,7 +651,7 @@ def run(profile, base):
             }}))''')
         page.reload()
         launch()
-        activate('#title-play')
+        title_play()
         expect(page.locator('#comic-title')).to_have_text('Come in on Thursday')
         expect(page.locator('#comic-dialogue strong').first).to_have_text('Interviewer')
         expect(page.locator('.comic-panel')).to_have_css('background-image', re.compile(r'office-1\.webp'))
@@ -690,7 +721,7 @@ def run(profile, base):
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')
         assert page.locator('#home-cv-pdf').get_attribute('download') == 'Augustus-Edem-CV.pdf'
         launch()
-        activate('#title-play')
+        title_play()
         assert page.evaluate('HIRED_APP.assets.failed.length') == 0
         assert page.locator('.comic-illustration').evaluate("el => el.style.backgroundImage.startsWith('url(\"data:image/webp')")
         activate('#scene-next')
