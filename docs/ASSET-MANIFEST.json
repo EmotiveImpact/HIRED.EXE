@@ -562,14 +562,14 @@
     {
       "path": "assets/production/characters/hero-atlas.json",
       "role": "production-asset",
-      "bytes": 6565,
-      "sha256": "81b2de9d18dabacebd7fbbafecce3938e6585defe52256d58a11d77a9fe17f65"
+      "bytes": 6622,
+      "sha256": "eae49ecc234a196fcd683d2744cdac9a6dc1c2e883b3935524bd18916c86c334"
     },
     {
       "path": "assets/production/characters/hero-atlas.png",
       "role": "production-asset",
-      "bytes": 132432,
-      "sha256": "ce99aac7087ca956c2884fdb76d8cdbdc54a1ddefe1a7b830e9980a6463f9c7f"
+      "bytes": 59014,
+      "sha256": "c0f00927e16287be7fdf145112fedde9d7062ac49a41d86f9e1a9aa6d6378172"
     },
     {
       "path": "assets/production/characters/portrait-reference.png",
@@ -580,8 +580,8 @@
     {
       "path": "assets/production/characters/title-hero.webp",
       "role": "production-asset",
-      "bytes": 20928,
-      "sha256": "b7a816f3f428bf6ab1b3d28bbbf0cca21607e5e58197a01919efb10e7a099e1c"
+      "bytes": 4598,
+      "sha256": "8d6564d12fa4c4d6c0e1f1fdf090c939325ddf6381548c8783f13f6150868953"
     },
     {
       "path": "assets/production/enemies/enemy-atlas.json",
@@ -1046,10 +1046,22 @@
       "sha256": "674fad30db628ab44e3b9e3c5d9ec5f5270b715bf3b5f3504dfc1447db4955d6"
     },
     {
+      "path": "assets/source/characters/afro/hero-sheet-afro.webp",
+      "role": "generated-source",
+      "bytes": 326494,
+      "sha256": "435baa6880480c7783f6fb4d36cc8aac210e0483c65b3508b38bd1b119f73013"
+    },
+    {
       "path": "assets/source/characters/hero-atlas-v1.png",
       "role": "generated-source",
       "bytes": 149242,
       "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+    },
+    {
+      "path": "assets/source/characters/prompts/hero-sheet-afro.txt",
+      "role": "generated-source",
+      "bytes": 1771,
+      "sha256": "0edc2312f8ce93734429511271216080d013196868e6c77023e2bd767a362e2a"
     },
     {
       "path": "assets/source/characters/title-hero-v1.webp",
