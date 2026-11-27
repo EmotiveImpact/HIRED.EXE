@@ -17,8 +17,8 @@ function guestbook(entries, key) {
   if (!entries) return '';
   const action = '/api/guestbook?key=' + encodeURIComponent(key);
   return `<h2 id="guestbook">Guestbook</h2>
-${entries.length ? entries.map(([id, when, name, message, hidden, source]) => `<section class="visit${hidden === 't' ? ' hidden' : ''}"><header><strong>${esc(name)}</strong><span class="soft">${esc(when)}</span>${
-  source ? `<span class="soft">from ${esc(source)}</span>` : ''}<form method="post" action="${esc(action)}"><button name="${hidden === 't' ? 'show' : 'hide'}" value="${esc(id)}">${hidden === 't' ? 'Show again' : 'Hide'}</button></form></header><p class="said">${esc(message)}</p>${
+${entries.length ? entries.map(([id, when, name, message, hidden, source, email]) => `<section class="visit${hidden === 't' ? ' hidden' : ''}"><header><strong>${esc(name)}</strong>${email ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : ''}<span class="soft">${esc(when)}</span>${
+  source ? `<span class="soft">from ${esc(source)}</span>` : ''}<form method="post" action="${esc(action)}"><button name="${hidden === 't' ? 'show' : 'hide'}" value="${esc(id)}">${hidden === 't' ? 'Show again' : 'Hide'}</button> <button name="remove" value="${esc(id)}" onclick="return confirm('Delete this entry and its email address for good?')">Delete</button></form></header><p class="said">${esc(message)}</p>${
   hidden === 't' ? '<p class="soft">Hidden: visitors do not see this entry.</p>' : ''}</section>`).join('') : '<p class="empty">Nobody has signed the guestbook yet.</p>'}`;
 }
 
@@ -106,7 +106,7 @@ module.exports = async function handler(req, res) {
        limit 20000`, [days]);
     // The guestbook is listed whole, whatever the period. Without its table the page still opens.
     const entries = await sql(
-      `select id, to_char(at at time zone 'Europe/London', 'Dy DD Mon YYYY, HH24:MI'), name, message, hidden, source
+      `select id, to_char(at at time zone 'Europe/London', 'Dy DD Mon YYYY, HH24:MI'), name, message, hidden, source, email
        from guestbook order by at desc, id desc limit 1000`).catch(() => null);
     res.statusCode = 200;
     res.end(page(rows, days, key, entries));

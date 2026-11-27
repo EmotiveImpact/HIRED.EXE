@@ -615,6 +615,11 @@ test('the guestbook keeps plain words: it tidies an entry and refuses empty, lon
   assert.equal(book.refusal('James', 'a'.repeat(book.MESSAGE_MAX)), '');
   for (const spam of ['see http://example.test', 'visit www.example.test today', 'cheap-pills.com is great']) assert.equal(book.refusal('James', spam), 'link', spam);
   assert.equal(book.refusal('James', 'what a wanker'), 'rude');
+  // An email address is optional. One that is given is closed up and has to look like an address.
+  assert.equal(book.cleanEmail('  james@solved.studio \u200B'), 'james@solved.studio');
+  assert.equal(book.refusal('James', 'Nice work.', ''), '');
+  assert.equal(book.refusal('James', 'Nice work.', 'james@solved.studio'), '');
+  for (const wrong of ['james', 'james@solved', '@solved.studio', 'a@b@c.d', 'j'.repeat(book.EMAIL_MAX) + '@x.io']) assert.equal(book.refusal('James', 'Nice work.', wrong), 'email', wrong);
   // Ordinary words that merely contain a rude one, and an email address, are let through.
   for (const fine of ['Greetings from Scunthorpe.', 'A classic assessment.', 'Write to james@solved.studio']) assert.equal(book.refusal('James', fine), '', fine);
 });

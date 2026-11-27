@@ -1,11 +1,12 @@
 // Guestbook: visitors sign their name and leave a few words, and every later visitor can read
 // them. The entries are kept by this site's own /api/guestbook in the applicant's database.
-// Names and messages are only ever shown as plain text. A copy of the site that cannot reach
+// Names and messages are only ever shown as plain text. An email address is optional, goes to the
+// applicant alone and never comes back to this window. A copy of the site that cannot reach
 // the book (an offline edition, a local file, a test server) opens the window and says so.
 (function (H) {
   'use strict';
   const wm = H.wm;
-  const ID = 'guestbook', NAME_MAX = 40, MESSAGE_MAX = 500;
+  const ID = 'guestbook', NAME_MAX = 40, MESSAGE_MAX = 500, EMAIL_MAX = 120;
   const live = /^(www\.)?hireexe\.me$/.test(location.hostname) || location.hostname.endsWith('.vercel.app');
   const address = () => globalThis.HIRED_GUESTBOOK_URL || (live ? '/api/guestbook' : '');
   H.guestbookIcon = H.linkIcon('Guestbook');
@@ -15,6 +16,7 @@
     name: 'The guestbook needs a name. It need not be your real one, but it does have to be there.',
     message: 'A name and nothing else. Mysterious. Add a few words.',
     long: 'A little shorter, please. It is a guestbook, not a memoir.',
+    email: 'That does not look like an email address. Correct it, or leave the box empty.',
     link: 'No links, please. This is a guestbook, not a lamp post.',
     rude: 'The guestbook has read that and would rather not keep it.',
     often: 'That is enough signing for now. Leave some pages for the others.',
@@ -91,6 +93,8 @@
       wm.dialog({
         title: 'Sign the Guestbook', owner: win, layout: 'side', className: 'gb-dialog',
         body: field('&Name:', {name: 'name', html: '<input id="gb-name" name="name" maxlength="' + NAME_MAX + '" autocomplete="name" autocapitalize="words" spellcheck="false">'}) +
+          field('&Email:', {name: 'email', html: '<input id="gb-email" name="email" type="email" inputmode="email" maxlength="' + EMAIL_MAX + '" autocomplete="email" autocapitalize="off" spellcheck="false">'}) +
+          '<p class="gb-hint gb-private">Optional. Only ' + wm.esc(globalThis.HIRED_EDITION?.applicant?.split(' ')[0] || 'the applicant') + ' sees it, to say thank you or to connect. It is never shown and never shared.</p>' +
           field('&Message:', {name: 'message', html: '<textarea id="gb-message" name="message" maxlength="' + MESSAGE_MAX + '" rows="5"></textarea>'}) +
           // Left empty by people, who cannot see it.
           '<input class="gb-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">' +
@@ -99,15 +103,16 @@
         onButton: async (value, v, box) => {
           if (value !== 'sign') return;
           const refuse = async why => { await wm.message({title: 'Guestbook', icon: 'exclaim', text: Object.hasOwn(WHY, why) ? WHY[why] : WHY.down}); return false; };
-          const name = v.name.replace(/\s+/g, ' ').trim(), message = v.message.trim();
+          const name = v.name.replace(/\s+/g, ' ').trim(), message = v.message.trim(), email = (v.email || '').replace(/\s+/g, '');
           if (!name || !message) { const keep = await refuse(name ? 'message' : 'name'); box.querySelector(name ? '#gb-message' : '#gb-name')?.focus({preventScroll: true}); return keep; }
+          if (email && !/^[^@]+@[^@]+\.[^@.]+$/.test(email)) { const keep = await refuse('email'); box.querySelector('#gb-email')?.focus({preventScroll: true}); return keep; }
           const buttons = [...box.querySelectorAll('.w31-buttons button')];
           for (const b of buttons) b.disabled = true;
           let why = 'down';
           try {
             const arrived = H.track?.live ? H.track.log[0] : null;
             const response = await fetch(address(), {method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json'},
-              body: JSON.stringify({name, message, website: v.website, visit: arrived?.v, source: arrived?.f})});
+              body: JSON.stringify({name, message, email, website: v.website, visit: arrived?.v, source: arrived?.f})});
             const data = await response.json().catch(() => ({}));
             if (response.ok && data.entry) {
               // An entry the unseen box caught comes back with no number, and is shown to its sender alone.

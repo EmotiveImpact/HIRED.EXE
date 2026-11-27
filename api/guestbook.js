@@ -1,20 +1,23 @@
 // The guestbook: the Guestbook window on the desktop (src/guestbook.js) reads the entries with
 // GET and signs with POST. Entries are kept for good in the guestbook table, beside the visitor
 // log. Names and messages are plain text: this stores them as typed and the window shows them
-// as text, never as HTML. Nothing here can remove an entry; the applicant hides one from the
-// private visitors page (stats.js), which posts back here with the page's key.
+// as text, never as HTML. A signer may leave an email address for the applicant alone: it is
+// stored with the entry and never sent to the window. The applicant hides an entry, or deletes
+// it and its address for good, from the private visitors page (stats.js), which posts back here
+// with the page's key.
 //
-// The table, made once in the database (the site's role may read and add rows, and change only "hidden"):
+// The table, made once in the database (the site's role may read, add and delete rows, and change only "hidden"):
 //   create table guestbook (id bigint generated always as identity primary key, at timestamptz not null default now(),
 //     name text not null check (char_length(name) between 1 and 40), message text not null check (char_length(message) between 1 and 500),
-//     who text, visit text, source text, hidden boolean not null default false);
+//     who text, visit text, source text, hidden boolean not null default false,
+//     email text check (email is null or char_length(email) between 3 and 120));
 //   create index guestbook_at on guestbook (at desc);
-//   grant select, insert on guestbook to hire_site; grant update (hidden) on guestbook to hire_site;
+//   grant select, insert, delete on guestbook to hire_site; grant update (hidden) on guestbook to hire_site;
 'use strict';
 const crypto = require('node:crypto');
 const {sql, isBot, rightKey} = require('./_visits.js');
 
-const NAME_MAX = 40, MESSAGE_MAX = 500, LINES_MAX = 8, SHOWN = 200;
+const NAME_MAX = 40, MESSAGE_MAX = 500, EMAIL_MAX = 120, LINES_MAX = 8, SHOWN = 200;
 // One signer may sign a few times; the whole book takes only so many a day and so many in all.
 const LIMITS = {signerHour: 4, signerDay: 10, bookDay: 300, book: 5000};
 
@@ -22,6 +25,8 @@ const LIMITS = {signerHour: 4, signerDay: 10, bookDay: 300, book: 5000};
 const tidy = value => String(value).normalize('NFC')
   .replace(/[\u0000-\u0008\u000B-\u001F\u007F-\u009F​-‏‪-‮⁠-⁩﻿]/g, '')
   .replace(/(\p{M}{2})\p{M}+/gu, '$1');
+const cleanEmail = value => typeof value === 'string' ? tidy(value).replace(/\s+/g, '') : '';
+const EMAIL = /^[^@]+@[^@]+\.[^@.]+$/;
 const cleanName = value => typeof value === 'string' ? tidy(value).replace(/\s+/g, ' ').trim() : '';
 function cleanMessage(value) {
   if (typeof value !== 'string') return '';
@@ -36,10 +41,12 @@ const LINK = /https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|info|biz|ru|cn|xyz|to
 const RUDE = /\b(f+u+c+k+\w*|c+u+n+t+s?|w+a+n+k+\w*|n+i+g+g+\w*|f+a+g+g*o*t*s?|r+e+t+a+r+d+\w*|k+i+k+e+s?|tw+a+t+s?|b+i+t+c+h+\w*|sh[i1]+t+\w*|a+r+s+e+h+o+l+e+s?|a+s+s+h+o+l+e+s?|d+i+c+k+h+e+a+d+s?)\b/i;
 
 // What is wrong with an entry, or '' when it can go in the book.
-function refusal(name, message) {
+function refusal(name, message, email = '') {
   if (!name) return 'name';
   if (!message) return 'message';
   if (length(name) > NAME_MAX || length(message) > MESSAGE_MAX) return 'long';
+  // The address is optional, but one that is given has to look like one.
+  if (email && (length(email) > EMAIL_MAX || !EMAIL.test(email))) return 'email';
   if (LINK.test(name) || LINK.test(message)) return 'link';
   if (RUDE.test(name) || RUDE.test(message)) return 'rude';
   return '';
@@ -88,10 +95,10 @@ async function sign(req, res) {
   const body = await readBody(req);
   if (body.length > 4000) return answer(res, 413, {error: 'long'});
   const data = parse(body);
-  const name = cleanName(data.name), message = cleanMessage(data.message);
+  const name = cleanName(data.name), message = cleanMessage(data.message), email = cleanEmail(data.email);
   // The window has a box no person can see. Whatever fills it in is thanked and not kept.
   if (data.website) return answer(res, 200, {entry: {id: 0, name, message, at: new Date().toISOString()}});
-  const wrong = refusal(name, message);
+  const wrong = refusal(name, message, email);
   if (wrong) return answer(res, 422, {error: wrong});
   const who = signer(req);
   const [[same, hour, day, bookDay, book]] = await sql(
@@ -110,17 +117,19 @@ async function sign(req, res) {
   const visit = /^[a-z0-9]{12}$/.test(data.visit) ? data.visit : null;
   const source = typeof data.source === 'string' ? data.source.replace(/[^\w .-]/g, '').slice(0, 40) || null : null;
   const rows = await sql(
-    `insert into guestbook (name, message, who, visit, source) values ($1::text, $2::text, $3::text, $4::text, $5::text)
-     returning id, name, message, ${STAMP}`, [name, message, who, visit, source]);
+    `insert into guestbook (name, message, who, visit, source, email) values ($1::text, $2::text, $3::text, $4::text, $5::text, $6::text)
+     returning id, name, message, ${STAMP}`, [name, message, who, visit, source, email || null]);
   answer(res, 200, {entry: entry(rows[0])});
 }
 
-// From the private visitors page: hide an entry from the window, or show it again.
+// From the private visitors page: hide an entry from the window, show it again, or delete it and
+// its email address for good when its signer asks.
 async function moderate(req, res, key) {
   if (req.method !== 'POST' || !rightKey(key)) { res.statusCode = 404; return res.end('Not found.'); }
   const data = parse(await readBody(req));
-  const id = Number(data.hide || data.show);
-  if (Number.isInteger(id) && id > 0) await sql('update guestbook set hidden = $2::boolean where id = $1::bigint', [id, data.hide ? 'true' : 'false']);
+  const id = Number(data.hide || data.show || data.remove);
+  if (Number.isInteger(id) && id > 0 && data.remove) await sql('delete from guestbook where id = $1::bigint', [id]);
+  else if (Number.isInteger(id) && id > 0) await sql('update guestbook set hidden = $2::boolean where id = $1::bigint', [id, data.hide ? 'true' : 'false']);
   res.statusCode = 303;
   res.setHeader('Location', '/api/stats?key=' + encodeURIComponent(key) + '#guestbook');
   res.end();
@@ -140,4 +149,4 @@ module.exports = async function handler(req, res) {
     answer(res, 500, {error: 'down'});
   }
 };
-Object.assign(module.exports, {cleanName, cleanMessage, refusal, NAME_MAX, MESSAGE_MAX});
+Object.assign(module.exports, {cleanName, cleanMessage, cleanEmail, refusal, NAME_MAX, MESSAGE_MAX, EMAIL_MAX});

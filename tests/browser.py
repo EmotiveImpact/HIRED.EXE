@@ -44,12 +44,22 @@ def sign_guestbook(context, base, mobile, errors):
     assert not sent
     expect(page.locator('#gb-message')).to_have_value('Came for the CV, stayed for the submarine.')
     page.locator('#gb-name').fill('  James   M. ')
+    # The email box is optional, says who sees it, and turns away what is not an address.
+    expect(page.locator('.gb-private')).to_contain_text('never shared')
+    page.locator('#gb-email').fill('james at example')
+    press('#guestbook-ok')
+    expect(page.locator('.w31-message')).to_contain_text('does not look like an email address')
+    press('.w31-message .w31-buttons button')
+    assert not sent
+    page.locator('#gb-email').fill('james@example.test')
     press('#guestbook-ok')
     expect(page.locator('#gb-name')).to_have_count(0)
     expect(page.locator('.gb-entry')).to_have_count(2)
     expect(page.locator('.gb-entry b').first).to_have_text('James M.')
     expect(page.locator('.gb-status')).to_contain_text('Signed')
-    assert sent == [{'name': 'James M.', 'message': 'Came for the CV, stayed for the submarine.', 'website': ''}], sent
+    assert sent == [{'name': 'James M.', 'message': 'Came for the CV, stayed for the submarine.', 'email': 'james@example.test', 'website': ''}], sent
+    # The address went to the book and is nowhere in the window.
+    assert 'james@example.test' not in page.locator('.guestbook-window').inner_text()
     # The button in HIRE.EXE's window starts the game there and then, with no title screen in between.
     press('#hire-start')
     expect(page.locator('#game-window')).to_be_visible()

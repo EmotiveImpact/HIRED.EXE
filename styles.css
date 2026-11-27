@@ -595,8 +595,9 @@ body.pm-no-drop,body.pm-no-drop *{cursor:no-drop!important}
 .gb-dialog input:focus-visible,.gb-dialog textarea:focus-visible{outline:0}
 .gb-dialog .gb-website{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 .gb-dialog .gb-hint{margin:0;font-weight:normal;font-size:12px}
+.gb-dialog .gb-private{margin:-4px 0 8px 78px}
 @media (pointer:coarse){.gb{font-size:14px}.gb-sign{min-height:32px}.gb-dialog input,.gb-dialog textarea{font-size:16px}}
-@media (max-width:480px){.gb-dialog .w31-dialog-body{flex-direction:column}.gb-dialog .w31-buttons{flex-direction:row;justify-content:center}.gb-dialog .w31-field{grid-template-columns:1fr;gap:2px}}
+@media (max-width:480px){.gb-dialog .w31-dialog-body{flex-direction:column}.gb-dialog .w31-buttons{flex-direction:row;justify-content:center}.gb-dialog .w31-field{grid-template-columns:1fr;gap:2px}.gb-dialog .gb-private{margin-left:0}}
 .notepad-find{width:min(420px,calc(100% - 16px))}
 .notepad-find-options{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px}
 .notepad-find-options .w31-group label{margin-right:8px;font-weight:bold}
