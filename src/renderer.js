@@ -31,7 +31,6 @@
     { start: 'chartarch', exit: 'rocketlift' },
     { start: 'goldlift', exit: 'boardroom' },
   ];
-  const DOOR_HEIGHT = 128;
 
   class Renderer {
     constructor(canvas) {
@@ -1091,9 +1090,9 @@
       if (unlocked) {
         ctx.fillStyle = 'rgba(110,250,255,.12)'; ctx.fillRect(cx - 45, feet - 114, 90, 115);
       }
-      if (painted) this.sprite('kit', 'door_' + door, cx, feet + 2, DOOR_HEIGHT);
+      if (painted) this.sprite('kit', 'door_' + door, cx, feet + 2, painted.h);
       else this.sprite('props', 'portal', cx, feet + 2, 116);
-      this.label(unlocked ? (state.levelIndex === 3 ? 'FINISH THE STORY' : 'NEXT WORLD') : 'CLEAR THE REVIEW', cx, feet - (painted ? DOOR_HEIGHT + 22 : 133), unlocked ? '#b6fff0' : '#efe0ff', 10);
+      this.label(unlocked ? (state.levelIndex === 3 ? 'FINISH THE STORY' : 'NEXT WORLD') : 'CLEAR THE REVIEW', cx, feet - (painted ? painted.h + 22 : 133), unlocked ? '#b6fff0' : '#efe0ff', 10);
       if (!unlocked) {
         const lock = this.frame('kit', 'padlock');
         if (lock) this.kit('padlock', cx - lock.w / 2, feet - 38 - lock.h);
@@ -1109,8 +1108,12 @@
     // The door the hero has just stepped out of, behind them at the start of the world.
     entrance(state) {
       const at = state.world.entrance, door = DOORS[state.levelIndex]?.start;
-      if (!at || !door || !this.visible(at.x - 80, 160)) return;
-      this.sprite('kit', 'door_' + door, at.x, at.y + 2, DOOR_HEIGHT);
+      const f = door && this.frame('kit', 'door_' + door);
+      if (!at || !f) return;
+      // Wide doors shift right so they never start off the left edge of the world.
+      const x = Math.max(at.x, f.w / 2 + 6);
+      if (!this.visible(x - f.w / 2, f.w)) return;
+      this.sprite('kit', 'door_' + door, x, at.y + 2, f.h);
     }
 
     label(text, x, y, colour = '#ffffff', size = 11) {

@@ -833,7 +833,12 @@ DOORS = {
     'doors-a.png': (('postbox', 'container', 'rocketlift', 'boardroom'), 30),
     'doors-b.png': (('shopfront', 'loadingbay', 'chartarch', 'goldlift'), 0),
 }
-DOOR_HEIGHT = 126
+# Each door's drawn height in game pixels, so its way in clears the hero (about 79 px tall) and
+# the rocket stands taller than him. The renderer draws every door at its sprite's own height.
+DOOR_HEIGHTS = {
+    'shopfront': 230, 'postbox': 150, 'loadingbay': 210, 'container': 156,
+    'chartarch': 150, 'rocketlift': 210, 'goldlift': 166, 'boardroom': 128,
+}
 
 
 def doors():
@@ -856,7 +861,7 @@ def doors():
         runs = pose_runs(np.asarray(sheet)[..., 3] > 40, len(kinds))
         for kind, (x0, x1) in zip(kinds, runs):
             door = trim(sheet.crop((x0, 0, x1 + 1, sheet.height)))[0]
-            frames[f'door_{kind}'] = crisp(door, DOOR_HEIGHT, colours=64)
+            frames[f'door_{kind}'] = crisp(door, DOOR_HEIGHTS[kind] - 2, colours=64)
     return frames, {}
 
 

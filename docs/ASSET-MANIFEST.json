@@ -676,14 +676,14 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 10301,
-      "sha256": "ef248ad38e8df0bc3694aacc57e983acd7b333668b4ecd938a890c1ce4c9d4e4"
+      "bytes": 10328,
+      "sha256": "f43404f5417a07a1b4223d67d39dd8c9a898fa68ac139b48d66d0b71d9ffd777"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
       "role": "production-asset",
-      "bytes": 562688,
-      "sha256": "363bd20b0c0df15d4c563c7150896cbf5343e6d04609a7892bd9433969de81bb"
+      "bytes": 661031,
+      "sha256": "0b665b527e68cf0464e5d54c1cdfee0c28cfff2c4b35525d5a9a63c7e79e44cc"
     },
     {
       "path": "assets/production/environment/props-atlas.json",
@@ -1162,8 +1162,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 7818,
-      "sha256": "189a695d5083ff261e5517ca0ca6092cde93be24eb2bbada4ba224e1c36fed3e"
+      "bytes": 8279,
+      "sha256": "f3706a8f22a83ab5b95992ed19a670d037ebb522e14218543d57520c2b055a31"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1524,6 +1524,18 @@
       "role": "generated-source",
       "bytes": 1037,
       "sha256": "e378f641f1d9537117e6cb649d610106fa65a278ca94d4f00903b74b4710efdf"
+    },
+    {
+      "path": "assets/source/kit/prompts/doors-a.txt",
+      "role": "generated-source",
+      "bytes": 2009,
+      "sha256": "c7fac71e0c64cfc98b2cfc002d5b7392f05f96bee71003911090996be386a58b"
+    },
+    {
+      "path": "assets/source/kit/prompts/doors-b.txt",
+      "role": "generated-source",
+      "bytes": 1167,
+      "sha256": "440e84a450ad30c448ee7c2cae9e12b7f613b033793ef92f8c234d8226d0b9c2"
     },
     {
       "path": "assets/source/kit/prompts/growth-far.txt",
