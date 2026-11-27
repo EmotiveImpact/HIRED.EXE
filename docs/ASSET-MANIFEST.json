@@ -22,6 +22,12 @@
     {
       "path": "assets/cv/Augustus-Edem-CV.pdf",
       "role": "production-asset",
+      "bytes": 120763,
+      "sha256": "a91a407a6a85d748babfef20fecdf9e21bde36897c0db8ad12b262691c40d496"
+    },
+    {
+      "path": "assets/cv/solved/Augustus-Edem-CV.pdf",
+      "role": "production-asset",
       "bytes": 121551,
       "sha256": "4266ee9ce2ff004ad66aae9eda52ae63c3d79b3335fbf9f57aa62d9bdb512676"
     },

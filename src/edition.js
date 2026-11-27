@@ -1,4 +1,4 @@
-/* One configuration per employer. Keep achievements and links accurate. */
+/* One configuration per employer, and a general one with no employer. Keep achievements and links accurate. */
 const solvedEdition = {
   id: 'solved-001',
   company: 'Solved Studio',
@@ -6,6 +6,12 @@ const solvedEdition = {
   role: 'Builder',
   applicant: 'Augustus Edem',
   editionLabel: 'SOLVED STUDIO EDITION',
+  // The employer's own site: a Netscape Navigator icon in the desktop's Internet group.
+  employerSite: 'https://solved.studio/',
+  // The cutscenes are the director's cut in src/director-scenes.js.
+  directorCut: true,
+  // This edition's CV has a sentence the general one leaves out (cvOmit below), so it has its own PDF.
+  cvPdf: 'assets/cv/solved/Augustus-Edem-CV.pdf',
   intro: 'I’m Augustus Edem. Most people attach a CV. I got carried away and made Solved Studio a four-world adventure. Play through my application or go straight to the work.',
   finish: 'Thanks for playing, Solved Studio. Nobody asked me for a game. You asked what I had done that was abnormal, and this seemed quicker than explaining. I’d love to walk you through the work you picked.',
   // The line under the title. Other editions keep "A playable application by <name>".
@@ -151,11 +157,58 @@ Augustus Edem
   ]
 };
 
+// The edition everyone gets: the same game with no employer in it. Nothing here names a company or
+// a person, and tests/simulation.test.js fails if that changes. It differs from the Solved edition
+// only where that one speaks to Solved: the lines below, and Setup's own default steps.
+const generalEdition = {
+  ...solvedEdition,
+  id: 'general',
+  company: '',
+  // What the cutscenes call the person across the desk.
+  interviewer: 'Interviewer',
+  role: 'AI-native builder',
+  editionLabel: '',
+  employerSite: null,
+  intro: 'I’m Augustus Edem. Most people attach a CV. I got carried away and built a four-world adventure. Play through my application or go straight to the work.',
+  finish: 'Thanks for playing. Most people attach a CV. I got carried away and built four worlds. I’d love to walk you through the work you picked.',
+  tagline: 'Most people attach a CV.\nAugustus Edem built this.',
+  readme: solvedEdition.readme.replace('You asked what I had done that was abnormal. This is it. I built my application',
+    'Most people attach a CV. I built my job application'),
+  setupSteps: null,
+  // CV.TXT, cv.html and CV.PDF leave out the one sentence that answers Solved's advert.
+  cvPdf: null,
+  cvOmit: ['You asked what I have done that is abnormal. '],
+  // The director's cut with its Solved lines swapped. Lines are counted from 0 within a shot, so the
+  // shots in src/director-scenes.js stay one list for both editions. `images` can give a shot its own
+  // picture: {'office-1': 'assets/…/office-1.webp'}.
+  cutscenes: {
+    titles: {'Thursday at James’s': 'Come in on Thursday'},
+    speakers: {'James': 'Interviewer', 'James, later by email': 'A reply, later by email'},
+    lines: {
+      'p04-gatekeeper': {0: 'Portal|Lastly, tell us what makes you stand out. Maximum 200 characters.',
+        1: 'Augustus|Stand out? I’ll do better than tell you. I’ll build you a video game.'},
+      'p05-play': {0: 'Augustus|There. That stands out. Your turn to apply for something.'},
+      'p13-draft': {0: 'Augustus|“Hi there” or “Dear Hiring Team”?'},
+      'office-2': {1: 'Augustus|You asked for a CV, so I built you a video game.'}
+    },
+    images: {}
+  },
+  interview: [
+    solvedEdition.interview[0],
+    {question:'What happens next?', answers:[
+      {label:'A call', text:'Half an hour, your questions, my screen. I’ll bring the work and leave the deck at home.'},
+      {label:'A trial project', text:'Hand me a problem, not a task list. I’ll come back with a live URL and a short note on what I’d fix next.'},
+      {label:'Monday', text:'Suits me. I’ve checked the diary. It was a short read.'}
+    ]}
+  ]
+};
+
 // Register another edition here. Each ID has its own saved results.
 const editions = new Map([
+  [generalEdition.id, generalEdition],
   [solvedEdition.id, solvedEdition],
   ['portfolio', { ...solvedEdition, id: 'portfolio', company: '', interviewer: null, role: 'Product builder',
-    editionLabel: 'PORTFOLIO EDITION', setupSteps: null, skillTitles: null, readme: null, tagline: null,
+    editionLabel: 'PORTFOLIO EDITION', employerSite: null, directorCut: false, cvPdf: null, cvOmit: generalEdition.cvOmit, setupSteps: null, skillTitles: null, readme: null, tagline: null,
     banners: ['HIRE AUGUSTUS. THE PLANE IS BY THE HOUR.', 'STILL AVAILABLE. THE PILOT HAS STARTED ASKING QUESTIONS.',
       'REFERENCES AVAILABLE. THE PILOT SAYS HE’S FINE.', 'CHEAPER THAN A RECRUITER. SLIGHTLY.'],
     interview: [
@@ -173,4 +226,25 @@ const editions = new Map([
     intro: 'I’m Augustus Edem. Play through four stages of my work in creative direction and product building, or open the portfolio.',
     finish: 'Thanks for playing. I’d love to show you how the work came together.' }]
 ]);
-globalThis.HIRED_EDITION = editions.get(new URLSearchParams(globalThis.location?.search).get('edition')) || solvedEdition;
+// Which edition this visitor gets. Everyone gets the general one. The Solved edition is for the link
+// in the email to James, hireexe.me/?from=james, or ?edition=solved-001. Either choice is remembered
+// in this browser, so coming back to the plain address keeps the same game and its saved progress;
+// ?edition=general puts it back. The test edition (?edition=portfolio) is never remembered.
+function chooseEdition() {
+  const KEY = 'hired-exe:edition', kept = [generalEdition.id, solvedEdition.id];
+  const query = new URLSearchParams(globalThis.location?.search || '');
+  const source = (query.get('from') || query.get('ref') || query.get('utm_source') || '').trim().toLowerCase();
+  let asked = query.get('edition');
+  if (!editions.has(asked)) asked = source === 'james' ? solvedEdition.id : null;
+  let remembered = null;
+  try {
+    if (kept.includes(asked)) localStorage.setItem(KEY, asked);
+    else if (!asked) remembered = localStorage.getItem(KEY);
+  } catch (_) { /* Storage can be blocked. The address still decides. */ }
+  return editions.get(asked) || editions.get(kept.includes(remembered) ? remembered : '') || generalEdition;
+}
+globalThis.HIRED_EDITIONS = editions;
+globalThis.HIRED_EDITION = chooseEdition();
+// CV.TXT for this edition: the full text less any sentence the edition leaves out.
+globalThis.HIRED_EDITION_CV = text => (globalThis.HIRED_EDITION.cvOmit || []).reduce((t, cut) => t.split(cut).join(''), String(text ?? ''));
+
