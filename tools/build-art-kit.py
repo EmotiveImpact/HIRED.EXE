@@ -8,8 +8,8 @@ Outputs:
   assets/production/environment/kit-atlas.png/.json   every small sprite, cut out at the size the
                                                       game draws it, plus where the scenery lives
   assets/production/backgrounds/<world>-<layer>.webp  the layers of a world painted in layers
-  assets/production/characters/title-hero.webp        the hero on the title screen, by way of
-                                                      tools/repaint-hero.py (afro and hoodie)
+  assets/production/characters/title-hero.webp        the hero on the title screen, cut from the
+                                                      afro hero sheet by tools/cut-hero-sheet.py
 
 Then run tools/build.py, which copies the atlas's JSON into src/assets.js.
 
@@ -25,7 +25,6 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'assets/source/kit'
 BACKGROUNDS = ROOT / 'assets/production/backgrounds'
 ATLAS = ROOT / 'assets/production/environment/kit-atlas'
-TITLE_HERO = ROOT / 'assets/source/characters/title-hero-v1.webp'  # repaint-hero.py finishes it
 SCREEN = (960, 540)
 ATLAS_WIDTH = 512
 
@@ -304,12 +303,10 @@ def pickups():
 
 
 def title_hero():
-    hero = trim(matte(Image.open(SRC / 'title-hero.png')))[0]
-    # Few colours, as pixel art has: the picture stays sharp when the page enlarges it.
-    small = sized(hero, height=480).quantize(96, method=Image.FASTOCTREE, dither=Image.NONE).convert('RGBA')
-    small.save(TITLE_HERO, 'WEBP', lossless=True, method=6)
+    """The title screen shows the same painted Augustus as the game: cut-hero-sheet.py writes both
+    the hero atlas and the title picture from the one afro sheet."""
     import subprocess, sys
-    subprocess.run([sys.executable, str(ROOT / 'tools/repaint-hero.py')], check=True)
+    subprocess.run([sys.executable, str(ROOT / 'tools/cut-hero-sheet.py')], check=True)
 
 
 # --- Application Alley's sky traffic -------------------------------------------------------------
