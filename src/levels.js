@@ -452,6 +452,9 @@
     const exitX = level.width - 160;
     const exitGround = level.platforms.find(p => p.type === 'ground' && p.x <= exitX && p.x + p.w >= exitX + 84);
     level.exit = { x: exitX, y: exitGround.y - 104, w: 84, h: 104 };
+    // The door the hero steps out of at the start: scenery only, on the ground under the spawn.
+    const startGround = level.platforms.find(p => p.type === 'ground' && p.x <= level.spawn.x && p.x + p.w >= level.spawn.x);
+    level.entrance = { x: level.spawn.x - 30, y: startGround ? startGround.y : level.spawn.y };
     level.levelIndex = levelIndex;
     return level;
   });

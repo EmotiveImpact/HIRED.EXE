@@ -12,6 +12,62 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'evidence'
 
 
+def sign_guestbook(context, base, mobile, errors):
+    """Sign the Guestbook against a stand-in for the book, then start the game from its own window."""
+    page = context.new_page()
+    page.on('pageerror', lambda error: errors.append(str(error)))
+    page.on('console', lambda msg: errors.append(msg.text) if msg.type == 'error' else None)
+    kept = [{'id': 1, 'name': '<b>Mum</b>', 'message': 'Very proud.\nStill do not know what it is.', 'at': '2026-11-25T20:01:00Z'}]
+    sent = []
+    def book(route):
+        if route.request.method == 'POST':
+            sent.append(route.request.post_data_json)
+            kept.insert(0, {'id': len(kept) + 1, 'name': sent[-1]['name'], 'message': sent[-1]['message'], 'at': '2026-11-27T09:00:00Z'})
+            return route.fulfill(json={'entry': kept[0]})
+        route.fulfill(json={'entries': kept, 'total': len(kept)})
+    page.route('**/api/guestbook', book)
+    page.add_init_script("globalThis.HIRED_GUESTBOOK_URL = '/api/guestbook'")
+    page.goto(base)
+    page.locator('#start-game').wait_for()
+    press = (lambda target: page.locator(target).tap()) if mobile else (lambda target: page.locator(target).click())
+    # What a visitor wrote is shown as the text it is, never as markup.
+    expect(page.locator('.gb-entry')).to_have_count(1)
+    expect(page.locator('.gb-entry b')).to_have_text('<b>Mum</b>')
+    expect(page.locator('.gb-entry b b')).to_have_count(0)
+    expect(page.locator('.gb-status')).to_have_text('1 entry')
+    press('#guestbook-sign')
+    # A name is asked for before anything is sent, and the box stays open with what was typed.
+    page.locator('#gb-message').fill('Came for the CV, stayed for the submarine.')
+    press('#guestbook-ok')
+    expect(page.locator('.w31-message')).to_contain_text('needs a name')
+    press('.w31-message .w31-buttons button')
+    assert not sent
+    expect(page.locator('#gb-message')).to_have_value('Came for the CV, stayed for the submarine.')
+    page.locator('#gb-name').fill('  James   M. ')
+    # The email box is optional, says who sees it, and turns away what is not an address.
+    expect(page.locator('.gb-private')).to_contain_text('never shared')
+    page.locator('#gb-email').fill('james at example')
+    press('#guestbook-ok')
+    expect(page.locator('.w31-message')).to_contain_text('does not look like an email address')
+    press('.w31-message .w31-buttons button')
+    assert not sent
+    page.locator('#gb-email').fill('james@example.test')
+    press('#guestbook-ok')
+    expect(page.locator('#gb-name')).to_have_count(0)
+    expect(page.locator('.gb-entry')).to_have_count(2)
+    expect(page.locator('.gb-entry b').first).to_have_text('James M.')
+    expect(page.locator('.gb-status')).to_contain_text('Signed')
+    assert sent == [{'name': 'James M.', 'message': 'Came for the CV, stayed for the submarine.', 'email': 'james@example.test', 'website': ''}], sent
+    # The address went to the book and is nowhere in the window.
+    assert 'james@example.test' not in page.locator('.guestbook-window').inner_text()
+    # The button in HIRE.EXE's window starts the game there and then, with no title screen in between.
+    press('#hire-start')
+    expect(page.locator('#game-window')).to_be_visible()
+    expect(page.locator('#scene-next')).to_be_visible()
+    expect(page.locator('#title-play')).to_have_count(0)
+    page.close()
+
+
 def run(profile, base):
     OUT.mkdir(exist_ok=True)
     with sync_playwright() as pw:
@@ -79,6 +135,20 @@ def run(profile, base):
         def launch():
             open_item('#start-game')
         expect(page.locator('#game-window')).to_be_hidden()
+        # HIRE.EXE's own window and the Guestbook are open from the start, tiled with Program Manager:
+        # each inside the desktop, and none over another.
+        expect(page.locator('#hire-start')).to_have_text('Start game')
+        expect(page.locator('.guestbook-window')).to_be_visible()
+        tiled = '''() => { const d = document.querySelector('#os-shell').getBoundingClientRect();
+            const r = ['progman', 'hire', 'guestbook'].map(id => document.querySelector(`.w31-window[data-win="${id}"]`).getBoundingClientRect());
+            return r.every(a => a.left >= d.left && a.top >= d.top && a.right <= d.right + 1 && a.bottom <= d.bottom + 1) &&
+                r.every((a, i) => r.every((b, j) => i >= j || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)); }'''
+        assert page.evaluate(tiled)
+        # The test server keeps no guestbook, so the window says so and asks nothing of the network.
+        expect(page.locator('.gb-note')).to_contain_text('cannot reach it')
+        expect(page.locator('#guestbook-sign')).to_be_disabled()
+        expect(page.locator('#main-window #desk-guestbook')).to_have_count(1)
+        sign_guestbook(context, base, mobile, errors)
         expect(page.locator('#desk-netscape')).to_have_attribute('href','https://solved.studio/')
         # Submarine (final).exe is there from the start, with no save needed, in the Games group.
         expect(page.locator('#games-window #desk-sub')).to_have_count(1)
@@ -153,6 +223,16 @@ def run(profile, base):
         expect(notepad.locator('.w31-title')).to_have_text('Notepad - README.TXT')
         for line in ('WHAT THIS IS', 'WHERE EVERYTHING IS', 'Hire Augustus.exe: Run this last.', 'KNOWN ISSUES', 'double-click HIRE.EXE'):
             assert line in notepad.locator('.notepad-text').input_value(), line
+        activate('.notepad-window #dialog-close')
+        # DEVLOG.TXT is the dev log: how the game was made, newest entry first, in Notepad.
+        expect(page.locator('#home-devlog')).to_contain_text('DEVLOG.TXT')
+        open_item('#home-devlog')
+        expect(notepad.locator('.w31-title')).to_have_text('Notepad - DEVLOG.TXT')
+        devlog = notepad.locator('.notepad-text').input_value()
+        for line in ('Newest entry first.', 'The code STILLAVAILABLE takes 20% off either.', 'FIRST COMMIT', 'C:\\> prompt', 'hireexe.me'):
+            assert line in devlog, line
+        dates = [tuple(reversed(d.split('/'))) for d in re.findall(r'^\d\d/\d\d/\d{4}$', devlog, re.M)]
+        assert len(dates) >= 2 and dates == sorted(dates, reverse=True), dates
         activate('.notepad-window #dialog-close')
         # CV.TXT opens in Notepad, with Notepad's own menus and the plain text CV.
         open_item('#home-cv-txt')
@@ -551,6 +631,9 @@ def run(profile, base):
         context.route(re.compile(r'^https?://'), reject_network)
         page.goto((ROOT/'dist/HIRE-EXE-v0.4-PLAY.html').as_uri())
         page.locator('#start-game').wait_for()
+        # The single file opens the same two windows, and its guestbook does not go looking for the book.
+        expect(page.locator('#hire-start')).to_be_visible()
+        expect(page.locator('#guestbook-sign')).to_be_disabled()
         # CV.TXT and CV.PDF replace the old CV web page icon.
         expect(page.locator('#home-cv')).to_have_count(0)
         assert page.locator('#home-cv-pdf').get_attribute('href').startswith('data:application/pdf;base64,')

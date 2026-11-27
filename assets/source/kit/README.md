@@ -1,7 +1,7 @@
 # Sources for the layered backgrounds and the painted kit
 
 Fourteen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
-game's existing art as reference, and nine made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
+game's existing art as reference, and twenty-two made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
 The first three, whose names end in `-2`, came from a written description alone. The other six
 carry those scenes on to the right: each was asked for with the stretch before it attached from
 CapCut's canvas as its reference. They are kept as generated. The Dreamina pictures carry the
@@ -12,7 +12,9 @@ cuts away or paints out. The CapCut pictures have no marks.
 | --- | --- | --- |
 | `alley-sky.png` | Application Alley's sky | none: a full picture |
 | `alley-far.png` | Its far skyline | green |
-| `alley-near.png` | Its viaduct and treetops | red, since the trees are green and pink |
+| `alley-near.png` | Its first viaduct and treetops (no longer used) | red, since the trees are green and pink |
+| `alley-near-2.png` to `alley-near-4.png` | Its lilac stone viaduct, lamps, arches and treetops, in three stretches: a clock pier, a wide arch over a lane and a footbridge stair further along | red |
+| `alley-trees-1.png` | A row of treetops close up, for the nearest layer | red |
 | `alley-movers.png` | Plane, blank banner, train (no longer used: Application Alley has no train), two gulls, balloon | green |
 | `signs.png` | Four blank signs, one for each world | green |
 | `machinery-a.png` | Press head and rod, spring up and down, conveyor, speed strip, two orbs | green |
@@ -27,6 +29,10 @@ cuts away or paints out. The CapCut pictures have no marks.
 | `growth-far.png` | Its far skyline of chart screens and dishes | green |
 | `growth-near-2.png` to `growth-near-4.png` | Its monorail track, neon buildings and blossom trees, in three stretches | green |
 | `growth-movers.png` | Chart airship, two couriers, rocket, bullet train | green |
+| `hq-view-1.png` | Final Interview HQ's view of the city at sunrise, seen through the atrium's glass | none: a full picture |
+| `hq-near-1.png`, `hq-near-2.png` | The atrium's arches, balconies, banners and planters, in two stretches | red, in every pane of glass |
+| `doors-a.png`, `doors-b.png` | Eight doors, four to a picture: the start and exit door of each world (shopfront and post box, loading bay and shipping container, chart arch and rocket lift, gold lift and boardroom doors). `doors-a` was repainted from the first idea sheet onto flat green | green |
+| `boss-recruitmentbot.png`, `boss-scopecreep.png`, `boss-algorithm.png`, `boss-finalreview.png` | Each boss in four poses: at rest, winding up, attacking and open to a stomp (Final Review: calm, asking, reading and satisfied) | green |
 
 What the tool changes on the way in, and why:
 
@@ -50,13 +56,27 @@ What the tool changes on the way in, and why:
   coloured and as wide as a tree's crown, with the boughs and trunks it closes round.
 - Growth Run's far trees show at either end of its long picture, cut off by pillars. Those ends
   are left out of the nearer layer.
+- Application Alley's red ground also shows in a few red trees and terracotta roofs. Only red that
+  reaches the top of the picture, or is as big as an arch's opening, is keyed out; the rest keeps
+  its colour.
 - The magenta ground leaves a pink cast along Ship It City's railing and rooftops. It is taken
   out.
 - Train sprites are averaged down rather than resampled, sharpened, held to 28 colours and ringed
   with a dark violet outline, so they stay crisp at game size.
+- The movers were painted with a thin white or cream line outside their dark outline, like a
+  sticker's edge, which showed as a white ring in the game. Light pixels are peeled off each
+  cut-out's rim until the dark outline is reached. The plane, airship, chart airship, balloon,
+  drones, couriers, rocket and gull are then brought down the same way as the trains (64 colours),
+  so every mover has the same dark violet edge.
 - A scrap of a building painted into Ship It City's clouds is painted out.
 - Growth Run's train is three carriages long as drawn. Its middle carriage rides three times.
 - Cut-outs with a green rim from the ground colour have it shaved off.
+- The bosses' poses are found by the clear columns between them and kept at the scale of the first
+  pose, then brought down like the trains. Final Review's green tick was painted on the green
+  ground and keys out with it, so the game draws the tick.
+
+- Round the doors only open ground keys out, with the gaps under a sign or through a gantry, so the
+  green button and the ivy on a door keep their colour.
 
 - Signs are pressed to the height the levels allow: the frame keeps its thickness and the dark
   face is squeezed to two lines of text. The game writes the text.
