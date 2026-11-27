@@ -580,8 +580,8 @@
     {
       "path": "assets/production/characters/title-hero.webp",
       "role": "production-asset",
-      "bytes": 22910,
-      "sha256": "1623e8746cffa89143f093cc5bc3eea6905e09595a086b4419410afa36bcfa07"
+      "bytes": 20928,
+      "sha256": "b7a816f3f428bf6ab1b3d28bbbf0cca21607e5e58197a01919efb10e7a099e1c"
     },
     {
       "path": "assets/production/enemies/enemy-atlas.json",
@@ -1050,6 +1050,12 @@
       "role": "generated-source",
       "bytes": 149242,
       "sha256": "67512aa129e1c9bd6af611fc0871237e949ed0b399bcc35824f8da79e262aadf"
+    },
+    {
+      "path": "assets/source/characters/title-hero-v1.webp",
+      "role": "generated-source",
+      "bytes": 22910,
+      "sha256": "1623e8746cffa89143f093cc5bc3eea6905e09595a086b4419410afa36bcfa07"
     },
     {
       "path": "assets/source/environment-prompts.json",

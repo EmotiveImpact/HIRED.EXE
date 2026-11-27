@@ -8,7 +8,8 @@ Outputs:
   assets/production/environment/kit-atlas.png/.json   every small sprite, cut out at the size the
                                                       game draws it, plus where the scenery lives
   assets/production/backgrounds/<world>-<layer>.webp  the layers of a world painted in layers
-  assets/production/characters/title-hero.webp        the hero on the title screen
+  assets/production/characters/title-hero.webp        the hero on the title screen, by way of
+                                                      tools/repaint-hero.py (afro and hoodie)
 
 Then run tools/build.py, which copies the atlas's JSON into src/assets.js.
 
@@ -24,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'assets/source/kit'
 BACKGROUNDS = ROOT / 'assets/production/backgrounds'
 ATLAS = ROOT / 'assets/production/environment/kit-atlas'
-TITLE_HERO = ROOT / 'assets/production/characters/title-hero.webp'
+TITLE_HERO = ROOT / 'assets/source/characters/title-hero-v1.webp'  # repaint-hero.py finishes it
 SCREEN = (960, 540)
 ATLAS_WIDTH = 512
 
@@ -307,6 +308,8 @@ def title_hero():
     # Few colours, as pixel art has: the picture stays sharp when the page enlarges it.
     small = sized(hero, height=480).quantize(96, method=Image.FASTOCTREE, dither=Image.NONE).convert('RGBA')
     small.save(TITLE_HERO, 'WEBP', lossless=True, method=6)
+    import subprocess, sys
+    subprocess.run([sys.executable, str(ROOT / 'tools/repaint-hero.py')], check=True)
 
 
 # --- Application Alley's sky traffic -------------------------------------------------------------
