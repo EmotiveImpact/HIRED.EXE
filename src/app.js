@@ -361,7 +361,7 @@
       setMode('intro');
       // The intro's voices go through the game's sound, so the mute button covers them.
       const voice={decode:bytes=>audio.engine?audio.engine.decode(bytes):Promise.reject(new Error('No sound')),
-        play:spoken=>audio.enabled&&audio.running?audio.engine.sample(spoken,1,'intro:voice'):null};
+        play:(spoken,name='intro:voice')=>audio.enabled&&audio.running?audio.engine.sample(spoken,1,name):null};
       // The offline file carries the stills only, so it asks for no clips or voices.
       const how=await H.intro.play(layer,{asset,voice,clips:!globalThis.HIRED_EMBEDDED_ASSETS,sound:name=>audio.effect('intro-'+name)});
       if(launch!==launchNumber||uiMode!=='intro')return;

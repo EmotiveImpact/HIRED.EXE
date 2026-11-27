@@ -746,22 +746,28 @@
       "sha256": "457d5bf2d3b14d1d3ac64bf6b1eeea6706703511459d30983f78c19777e03d51"
     },
     {
+      "path": "assets/production/intro/doorbell.mp3",
+      "role": "production-asset",
+      "bytes": 19480,
+      "sha256": "42e72115e7caf80c6b3fec38f043414d66f8e35be45c4efaae987a24050d5a66"
+    },
+    {
       "path": "assets/production/intro/driver.mp3",
       "role": "production-asset",
-      "bytes": 44347,
-      "sha256": "eb09b279c59b5dfa45c7fbdbb32399c95ccc651731ef405b5e6682143d1781ef"
+      "bytes": 58558,
+      "sha256": "7d7b133d353c6fad3c7cccf4c08d1a361a3f5b0c819967dc50cfde9747ab9690"
     },
     {
       "path": "assets/production/intro/driver.mp4",
       "role": "production-asset",
-      "bytes": 223723,
-      "sha256": "4ef82e3daeb1356e4ac796cf9313e60a592620e8b9f32bd6f350f9dc8e454e26"
+      "bytes": 125302,
+      "sha256": "02fbc3aaadb4d4a1887172327065a7cc6fe74c299e2c14aaee71514df4960c6a"
     },
     {
       "path": "assets/production/intro/driver.webp",
       "role": "production-asset",
-      "bytes": 66690,
-      "sha256": "9de33746c5ae68a59babc0d6755f27e6e105df863f7c79ddc246d80eb24e2e7f"
+      "bytes": 58936,
+      "sha256": "d81ac3caa819311fa7e3a30af6a6e39491798df9d3ada6f6f5d37df357f27d17"
     },
     {
       "path": "assets/production/intro/news.mp3",
@@ -1324,8 +1330,8 @@
     {
       "path": "assets/source/intro/driver-seedance.mp4",
       "role": "generated-source",
-      "bytes": 1975814,
-      "sha256": "22785a21a846f6e30d74119e91a0d0e893ac0df04a90c4b02fa0fed9b7cd2e98"
+      "bytes": 668931,
+      "sha256": "2145f13d6a129ed6258c7683023e721783e8e3418659a56a2de0b87acd2e3e06"
     },
     {
       "path": "assets/source/intro/driver.webp",
