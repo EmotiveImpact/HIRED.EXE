@@ -1,9 +1,10 @@
 # Sources for the layered backgrounds and the painted kit
 
-Seventeen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
-game's existing art as reference. They are kept exactly as generated: the badge top left and the
-logo bottom right are the generator's own marks, and `tools/build-art-kit.py` cuts them away or
-paints them out.
+Fourteen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
+game's existing art as reference, and three made on CapCut (Seedream 5.5, 2K) on 27 November 2026
+from a written description alone. They are kept as generated. The Dreamina pictures carry the
+generator's own marks, a badge top left and a logo bottom right, which `tools/build-art-kit.py`
+cuts away or paints out. The three from CapCut, whose names end in `-2`, have no marks.
 
 | File | What it is | Ground |
 | --- | --- | --- |
@@ -17,12 +18,12 @@ paints them out.
 | `pickups.png` | Two subscription cards, cold coffee, zipped folder | pink |
 | `title-hero.png` | The hero running, for the title screen | pink |
 | `city-sky.png` | Ship It City's evening sky | none: a full picture |
-| `city-far.png` | Its far skyline of cranes and works | green |
-| `city-near.png` | Its girder bridge, chimneys and treetops | magenta |
+| `city-far-2.png` | Its far skyline of towers and cranes | green |
+| `city-near-2.png` | Its girder bridge, brick factories, chimneys and treetops | magenta |
 | `city-movers.png` | Airship, two drones, freight train, three puffs of smoke | hot pink |
 | `growth-sky.png` | Growth Run's twilight sky | none: a full picture |
 | `growth-far.png` | Its far skyline of chart screens and dishes | green |
-| `growth-near.png` | Its monorail track, chart screens and blossom trees | green |
+| `growth-near-2.png` | Its monorail track, neon buildings and blossom trees | green |
 | `growth-movers.png` | Chart airship, two couriers, rocket, bullet train | green |
 
 What the tool changes on the way in, and why:
@@ -37,15 +38,13 @@ What the tool changes on the way in, and why:
 - The second gull is drawn at a different angle from the first, so the second beat of the wings is
   the first gull with its wings pressed flat.
 
-- Ship It City's bridge, chimneys and treetops came out as flat shapes. The bridge gets flanges
-  and rivets and the chimneys a lit side and courses of brick. The treetops take their leaves from
-  Application Alley's canopy, mirrored and turned green, which also serves as the nearer layer.
-- A rank of blank lilac blocks stands behind Ship It City's far skyline. It is melted most of the
-  way into the sky. A scrap of a building painted into its clouds is painted out.
-- Growth Run's back row of blossom is flat pink. It takes its light and shade from the blossom
-  drawn below it. Three of its eight identical chart screens are removed.
-- Growth Run's nearer layer is its own blossom trees twice over, a row and the same row again
-  lower and shifted along, with trunks, pillars and pale slivers kept out.
+- Ship It City's bridge, factories and trees are one picture, and so are Growth Run's track,
+  buildings and blossom. Each is used whole as the layer the train runs along. Its front bank of
+  trees is also lifted out to slide by itself as a nearer layer: whatever is leaf or petal
+  coloured and as wide as a tree's crown, with the boughs and trunks it closes round.
+- Growth Run's far trees show at either end of its picture, cut off by pillars. Those ends are
+  left out of the nearer layer.
+- A scrap of a building painted into Ship It City's clouds is painted out.
 - Growth Run's train is three carriages long as drawn. Its middle carriage rides three times.
 - Cut-outs with a green rim from the ground colour have it shaved off.
 
@@ -70,6 +69,7 @@ atlases, so they are not copied here.
 The `city-*` and `growth-*` prompts are for Ship It City and Growth Run. Each picture came from
 its prompt at the first attempt.
 
-`city-far-2`, `city-near-2` and `growth-near-2` ask again for Ship It City's skyline and bridge
-and Growth Run's track without the layout sketch, which made the first pictures come back as flat
-shapes. They have not been run yet.
+`city-far-2`, `city-near-2` and `growth-near-2` replaced the first pictures of Ship It City's
+skyline and bridge and Growth Run's track, which were asked for with a layout sketch and came
+back as flat shapes. They were asked for with these prompts, with the sentences about a reference
+picture swapped for a plain description of the style, since none was attached.

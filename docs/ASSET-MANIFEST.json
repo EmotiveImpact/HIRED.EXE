@@ -454,8 +454,8 @@
     {
       "path": "assets/production/backgrounds/growth-run-near.webp",
       "role": "production-asset",
-      "bytes": 205888,
-      "sha256": "2b373708d1f340e4cdbc156a60e4ac2d50dbf1029b521480635d6cbfc70522ae"
+      "bytes": 255214,
+      "sha256": "ebdf68303e69e6ad408cdf9b22c7ab9777c8ee5efa461deda7880aa4b65a0c77"
     },
     {
       "path": "assets/production/backgrounds/growth-run-sky.webp",
@@ -466,8 +466,8 @@
     {
       "path": "assets/production/backgrounds/growth-run-trees.webp",
       "role": "production-asset",
-      "bytes": 200758,
-      "sha256": "ca05cdd6956cb1cf95ab8f002dffc2d7fbe334b7008f3391979a2ca2e271e38e"
+      "bytes": 134232,
+      "sha256": "eb72e5e224024aa8fc31f02b036f5abc7718a85397d786ffc3e5ed8a7dcde36d"
     },
     {
       "path": "assets/production/backgrounds/growth-run.png",
@@ -514,14 +514,14 @@
     {
       "path": "assets/production/backgrounds/ship-it-city-far.webp",
       "role": "production-asset",
-      "bytes": 164540,
-      "sha256": "ceb8f9d5d4a7ec8b818ed92773c480c57e0df9fa20207f7c22f03a9c21d1e347"
+      "bytes": 245454,
+      "sha256": "938fe1a7ae6a2cf06292149111345b7db21d8928dcddcbce3aa20d4440f2b885"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city-near.webp",
       "role": "production-asset",
-      "bytes": 224492,
-      "sha256": "4e7dad7f7c5da8043c0c99ed0a14b85ae0c4d97aec57ca578f4d1058290b1b77"
+      "bytes": 459278,
+      "sha256": "b2093c75ace8a210136f3ee3b41b3c2597077e1fbcd9a3e6b0fde90cbcf5fc8b"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city-sky.webp",
@@ -532,8 +532,8 @@
     {
       "path": "assets/production/backgrounds/ship-it-city-trees.webp",
       "role": "production-asset",
-      "bytes": 170174,
-      "sha256": "1bc9a07ef10347f4e30b6e9c33b30d2b7c7971370255b5203b23e0cbc6f5c7f3"
+      "bytes": 261782,
+      "sha256": "62b0bf056b2192b57a995d03a46d6d6e1192c6f9c7a7c4b703b0ab4894762539"
     },
     {
       "path": "assets/production/backgrounds/ship-it-city.png",
@@ -664,8 +664,8 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 7381,
-      "sha256": "dbbcaf996b60b474d8f0c12d98b0302b1fc2db25e9cd58c595e92bb5088459e1"
+      "bytes": 7380,
+      "sha256": "0309dceb7a2cff49a63776210e3e7eaf22324378280cd58b09cfa805de767649"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
@@ -1150,8 +1150,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 4762,
-      "sha256": "a667a22c7449658b99b6fe9e2de5a71d9d3cf07a5cf01dde77b9c4237e321919"
+      "bytes": 5078,
+      "sha256": "bf1f92d25ca090399146f8c34550cfee8299403725688f4f362f40692f5f292d"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1178,10 +1178,10 @@
       "sha256": "18e4598cc8319bc45e624a76d7786889c907b4c6cdce3b5e7631edb9f6bd5d51"
     },
     {
-      "path": "assets/source/kit/city-far.png",
+      "path": "assets/source/kit/city-far-2.png",
       "role": "generated-source",
-      "bytes": 1918313,
-      "sha256": "2a89ff7df6e41eb793fee0c66c0eeca9bdbe165870d501c3301f2776de11ccc9"
+      "bytes": 2584317,
+      "sha256": "70eb419a2893caa0d739369cad54cecd84d00b288f9471382ac5b4834180f26e"
     },
     {
       "path": "assets/source/kit/city-movers.png",
@@ -1190,10 +1190,10 @@
       "sha256": "cc90b7ae887e60c709633abd4565e1ee22945b1032e47d64b842a2231a893c10"
     },
     {
-      "path": "assets/source/kit/city-near.png",
+      "path": "assets/source/kit/city-near-2.png",
       "role": "generated-source",
-      "bytes": 1331617,
-      "sha256": "2a3f2bf4f1695d79eafe217d86cc7381fdf09ee31efff926ff8a8cbca5e4b250"
+      "bytes": 2886183,
+      "sha256": "d76898c46d2b027255768ce1b90f32ce1b663fa8bd4c9d1628cd2a1c9fa09933"
     },
     {
       "path": "assets/source/kit/city-sky.png",
@@ -1214,10 +1214,10 @@
       "sha256": "8d186cb85edbcb66ec842de101cb100c5266bfb79518213d2af326bbae34f021"
     },
     {
-      "path": "assets/source/kit/growth-near.png",
+      "path": "assets/source/kit/growth-near-2.png",
       "role": "generated-source",
-      "bytes": 1787252,
-      "sha256": "21afacf2bc0a1dbc79cea4e9c0b833059258799502fefc331cf0f544f8940528"
+      "bytes": 2200638,
+      "sha256": "b862542190d801268c6107368490f7c58cea812358e4dce21e73a31c4614e3ec"
     },
     {
       "path": "assets/source/kit/growth-sky.png",
@@ -1292,6 +1292,12 @@
       "sha256": "ad91d676f112ec27f992500df637d605fb1a6f10f47aabe1a05522b872eb522a"
     },
     {
+      "path": "assets/source/kit/prompts/city-far-2.txt",
+      "role": "generated-source",
+      "bytes": 1874,
+      "sha256": "2b7734f4c40da98023d44494f78263aae3c139ca61a702b228109ebc0f8562e8"
+    },
+    {
       "path": "assets/source/kit/prompts/city-far.txt",
       "role": "generated-source",
       "bytes": 1776,
@@ -1302,6 +1308,12 @@
       "role": "generated-source",
       "bytes": 1897,
       "sha256": "7cb7cd80c4572a3bd65f10f54cfc309ec2340c81e19f57a686c54657599866d8"
+    },
+    {
+      "path": "assets/source/kit/prompts/city-near-2.txt",
+      "role": "generated-source",
+      "bytes": 2568,
+      "sha256": "2218bacf8e5ad51073cb4d7d8f03d0f54fb306fedae65e9bd93358eaeac6ec00"
     },
     {
       "path": "assets/source/kit/prompts/city-near.txt",
@@ -1328,6 +1340,12 @@
       "sha256": "5add3f4ad1fdab05a6cf4dcbdadf3b53e9272e8de8ad0cf2f55f931e83b84603"
     },
     {
+      "path": "assets/source/kit/prompts/growth-near-2.txt",
+      "role": "generated-source",
+      "bytes": 2866,
+      "sha256": "9fc1408d21a999b4e016e7355ba6ddc481b0cf275461e3d6031081fbad61112f"
+    },
+    {
       "path": "assets/source/kit/prompts/growth-near.txt",
       "role": "generated-source",
       "bytes": 2254,
@@ -1342,8 +1360,8 @@
     {
       "path": "assets/source/kit/prompts/jobs.json",
       "role": "generated-source",
-      "bytes": 2813,
-      "sha256": "e39670a313c138b0588eed6fe1b5bba2edfd45a9324ec28b8920b2e40e52478a"
+      "bytes": 3240,
+      "sha256": "0a337acda75abc5e25a13ed14523d15d475064b43a0064b245d194fcf9581b09"
     },
     {
       "path": "assets/source/kit/prompts/machinery-a.txt",

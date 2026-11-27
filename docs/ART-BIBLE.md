@@ -105,8 +105,8 @@ The concept boards in `references/` are never loaded by the game. Everything the
 | `assets/production/backgrounds/*.png` | One painted backdrop per world | 1672 × 941 |
 | `assets/production/backgrounds/*.webp` | The 960 × 540 copies the game loads | 960 × 540 |
 | `assets/production/backgrounds/application-alley-sky.webp`, `-far`, `-near`, `-trees` | Application Alley's four layers, each a strip as tall as the screen, clear where the layer behind shows through | 960, 960, 768 and 922 wide; 540 tall |
-| `assets/production/backgrounds/ship-it-city-sky.webp`, `-far`, `-near`, `-trees` | Ship It City's four layers, made the same way | 960, 960, 960 and 922 wide; 540 tall |
-| `assets/production/backgrounds/growth-run-sky.webp`, `-far`, `-near`, `-trees` | Growth Run's four layers, made the same way | 960, 960, 960 and 1024 wide; 540 tall |
+| `assets/production/backgrounds/ship-it-city-sky.webp`, `-far`, `-near`, `-trees` | Ship It City's four layers, made the same way | 960, 960, 960 and 1280 wide; 540 tall |
+| `assets/production/backgrounds/growth-run-sky.webp`, `-far`, `-near`, `-trees` | Growth Run's four layers, made the same way | 960, 960, 960 and 800 wide; 540 tall |
 | `assets/production/environment/kit-atlas.png` | The painted kit, every piece at the size it is drawn: plane, banner cloth, and each layered world's train, floater, flock and extras (smoke puffs, a rocket); a sign for each world; press, rod, spring, conveyor, speed strip, gate, keyword tag, bell, padlock, warning sign and the bosses' two shots; the four bonus pickups. Its JSON also says which layers a world has and where its traffic runs | 512 wide |
 | `assets/production/characters/title-hero.webp` | The hero on the title screen | 480 tall |
 | `assets/production/backgrounds/interview-room-2.webp` to `-4.webp` | The back walls of the workshop, boardroom and reception | 1190 × 448 |

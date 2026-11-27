@@ -1,8 +1,8 @@
 """Turn the generated scenery layers and sprite sheets into what the game loads.
 
 Sources live in assets/source/kit/ and are never edited. Sprite sheets and cut-out layers are
-drawn on one flat key colour (green, magenta or red, whichever the art itself does not use), and
-every source carries the generator's marks in two corners, which are cut away here.
+drawn on one flat key colour (green, magenta or red, whichever the art itself does not use). Most
+sources carry the generator's marks in two corners, which are cut away here.
 
 Outputs:
   assets/production/environment/kit-atlas.png/.json   every small sprite, cut out at the size the
@@ -18,7 +18,7 @@ Requires Pillow and NumPy, used for build tooling only.
 from pathlib import Path
 import json
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'assets/source/kit'
@@ -456,6 +456,37 @@ def treetops(im, start):
     return Image.fromarray(out, 'RGBA')
 
 
+def spread(mask, size):
+    """A mask grown by `size` pixels each way, as a square."""
+    for axis in (0, 1):
+        pad = [(0, 0), (0, 0)]
+        pad[axis] = (size + 1, size)
+        total = np.cumsum(np.pad(mask, pad).astype(np.int32), axis=axis)
+        lead = np.take(total, range(2 * size + 1, total.shape[axis]), axis=axis)
+        mask = (lead - np.take(total, range(0, total.shape[axis] - 2 * size - 1), axis=axis)) > 0
+    return mask
+
+
+def front_bank(im, start, tree, crown=60, rim=20):
+    """The front bank of trees lifted out of a painted picture, from row `start` down: whatever is
+    tree-coloured, with the boughs and trunks it closes round. A tree has a crown at least twice
+    `crown` pixels across; thin lines of the same colour on the buildings behind, and the scraps
+    of far trees seen between them, do not, and are left out. `rim` is how far a crown's leaves
+    may stick out from its round."""
+    data = np.asarray(im.convert('RGB'))[start:]
+    r, g, b = (data[..., c].astype(np.int32) for c in range(3))
+    height, width = r.shape
+    leaves = ~spread(~spread(tree(r, g, b), 4), 4)          # gaps between leaves close
+    # Whatever cannot be reached from above without crossing leaves is inside a tree.
+    reach = Image.new('L', (width, height + 1))
+    reach.paste(Image.fromarray((leaves * 255).astype(np.uint8), 'L'), (0, 1))
+    ImageDraw.floodfill(reach, (0, 0), 128)
+    solid = np.asarray(reach)[1:] != 128
+    crowns = spread(~spread(~solid, crown), crown)          # only what is as wide as a crown
+    alpha = spread(crowns, rim) & solid
+    return Image.fromarray(np.dstack([data, alpha * 255]).astype(np.uint8), 'RGBA')
+
+
 def without_rows(im, start, end):
     """A picture with a band of rows taken out and the rest closed up."""
     data = np.asarray(im)
@@ -522,84 +553,33 @@ def shaved(im, tinted, depth=8):
     return Image.fromarray(data, 'RGBA')
 
 
-def green_canopy():
-    """The Alley's canopy as one green wood, turned to face the other way: every blossom tree
-    becomes a green one of the same light and shade."""
-    data = np.asarray(alley_canopy()).astype(np.float32)[:, ::-1]
-    r, g, b = (data[..., c] for c in range(3))
-    petal = (r > 140) & (r > g + 36) & (b > g + 24) & (b < r + 12)
-    petal[:900] = False
-    data = np.where(petal[..., None], shaded(brightness(data, 70, 170), GREENS), data)
-    return Image.fromarray(data.clip(0, 255).astype(np.uint8), 'RGB')
-
-
-def city_works(im, canopy):
-    """Ship It City's bridge, chimneys and trees are drawn as flat shapes. The bridge gets flanges
-    and rivets, the chimneys a lit side and courses of brick, and the trees their leaves from
-    the green wood."""
-    data = np.asarray(im.convert('RGB')).astype(np.int32).copy()
-    height, width = data.shape[:2]
-    ys, xs = np.mgrid[:height, :width]
-    r, g, b = (data[..., c] for c in range(3))
-    steel = (abs(r - 82) < 26) & (abs(g - 86) < 26) & (abs(b - 151) < 30)
-    line, light, dark, stud = (44, 34, 92), (122, 128, 198), (58, 60, 124), (156, 162, 226)
-    top, foot = 839, 897
-    girder = steel & (ys >= top - 3) & (ys <= foot + 3)
-    data[girder & (ys < top + 16)] = light
-    data[girder & (ys < top + 6)] = line
-    data[girder & (ys > foot - 16)] = dark
-    data[girder & (ys > foot - 6)] = line
-    data[girder & (abs(ys - (top + foot) // 2) < 6) & (xs % 64 < 12)] = stud
-    for x0, x1 in ((197, 286), (835, 922), (2111, 2197)):
-        pillar = steel & (ys > foot + 3) & (xs >= x0 - 3) & (xs <= x1 + 3)
-        data[pillar & (xs < x0 + 20)] = light
-        data[pillar & (xs < x0 + 6)] = line
-        data[pillar & (xs > x1 - 20)] = dark
-        data[pillar & (xs > x1 - 6)] = line
-    # Chimneys: each row is lit on its left third and shaded on its right, with a course of
-    # darker brick every so often.
-    brick = (abs(r - 122) < 14) & (abs(g - 64) < 14) & (abs(b - 69) < 14)
-    for centre in (609, 1513, 2346):
-        part = brick & (abs(xs - centre) < 70)
-        count = part.sum(axis=1)
-        left = np.where(count > 0, part.argmax(axis=1), 0)[:, None]
-        across = (xs - left) / np.maximum(count[:, None], 1)
-        data[part & (across < 0.34)] = (152, 86, 82)
-        data[part & (across > 0.7)] = (96, 46, 62)
-        data[part & (ys % 52 < 5)] = (88, 42, 60)
-    # Trees: leaves from the green wood, a little lighter where the flat shape was the lighter green.
-    leaf = (g > r + 40) & (g > b + 40) & (ys >= 1150)
-    wood = np.asarray(canopy).astype(np.float32)[np.clip(ys - 1162 + 1090, 0, height - 1), xs]
-    wood = wood * np.where(g > 170, 1.1, 0.94)[..., None]
-    data = np.where(leaf[..., None], wood, data)
-    return Image.fromarray(data.clip(0, 255).astype(np.uint8), 'RGB')
-
-
 def city_layers():
+    """Ship It City's skyline, and its bridge, factories and trees, are each one painted picture
+    on a flat ground. The front bank of trees is lifted out of the second to slide by itself."""
     # A scrap of a building is painted into the clouds on the right.
     sky = unmarked(Image.open(SRC / 'city-sky.png'), also=[(2290, 270, 2560, 470)]).convert('RGB').resize(SCREEN, Image.LANCZOS)
-    far = matte(Image.open(SRC / 'city-far.png'))
-    # Behind the drawn buildings stands a rank of blank lilac blocks. It melts most of the way
-    # into the evening sky, so it reads as towers lost in the haze.
-    data = np.asarray(far).astype(np.float32)
-    blank = np.abs(data[..., :3] - (177, 165, 228)).max(axis=2) < 14
-    data[..., :3] = np.where(blank[..., None], data[..., :3] * 0.45 + np.array((244, 186, 200), np.float32) * 0.55, data[..., :3])
-    far = Image.fromarray(data.astype(np.uint8), 'RGBA')
-    canopy = green_canopy()
-    near = matte(city_works(unmarked(Image.open(SRC / 'city-near.png')), canopy), keep_marks=True)
-    trees = treetops(canopy, 960)
+    far = matte(Image.open(SRC / 'city-far-2.png'), keep_marks=True)
+    whole = Image.open(SRC / 'city-near-2.png')
+    near = matte(whole, keep_marks=True)
+    # Leaves are greener than they are red and blue, or dark and teal in their shade; the lit
+    # windows behind them are bright and as blue as they are green.
+    trees = front_bank(whole, CITY_ART['trees'], lambda r, g, b: (g > r + 20) & ((g > b + 15) | ((g < 130) & (g > b - 12))), rim=36)
+    scale = 0.375
     return save_layers('ship-it-city', {
         'sky': (sky, {'speed': 0.02, 'drift': 3}),
-        'far': (layer(far, 0.375, CITY['far'], haze=(226, 176, 196), haze_from=(250, 350)), {'speed': 0.07}),
-        'near': (layer(near, 0.375, CITY['near']), {'speed': 0.18}),
-        'trees': (layer(trees, 0.36, CITY['trees']), {'speed': 0.3}),
-    }, {'behind': 2, 'rail': round(839 * 0.375) + CITY['near'], 'train': 'freight',
+        'far': (layer(far, scale, CITY['far'], haze=(226, 176, 196), haze_from=CITY['haze']), {'speed': 0.07}),
+        'near': (layer(near, scale, CITY['near']), {'speed': 0.18}),
+        'trees': (layer(trees, 0.5, SCREEN[1] - round(trees.height * 0.5)), {'speed': 0.3}),
+    }, {'behind': 2, 'rail': round(CITY_ART['deck'] * scale) + CITY['near'], 'train': 'freight',
         'float': {'sprite': 'airship', 'at': [300, 96]},
         'flock': {'sprite': 'drone', 'count': 2, 'y': 170, 'beat': 12},
-        'smoke': {'layer': 2, 'from': [[round(x * 0.375), round(y * 0.375) + CITY['near']] for x, y in ((609, 486), (1513, 524), (2346, 504))]}})
+        'smoke': {'layer': 2, 'from': [[round(x * scale), round(y * scale) + CITY['near']] for x, y in CITY_ART['chimneys']]}})
 
 
-CITY = {'far': -70, 'near': -40, 'trees': 380}
+# Where things are in the painted picture, in its own pixels: the bridge deck the train runs on,
+# the top of each chimney, and the row the front trees are lifted from.
+CITY_ART = {'deck': 716, 'chimneys': ((574, 438), (1040, 183), (1606, 408)), 'trees': 1100}
+CITY = {'far': -70, 'near': 7, 'haze': (250, 350)}
 
 
 def city_traffic():
@@ -619,98 +599,32 @@ def city_traffic():
 
 # --- Growth Run -----------------------------------------------------------------------------------
 
-def growth_bank(im, lift=150):
-    """Growth Run's back row of trees is flat pink shapes. Each takes its light and shade from
-    the blossom drawn `lift` pixels below it."""
-    data = np.asarray(im.convert('RGB')).astype(np.float32)
-    height = data.shape[0]
-    r, g, b = (data[..., c] for c in range(3))
-    pink = (r > 222) & (g > 125) & (g < 205) & (b > 175) & (b < 232)
-    # Flat means the same colour a short step away in every direction.
-    for axis in (0, 1):
-        for step in (10, -10):
-            pink &= np.abs(np.roll(data, step, axis=axis) - data).max(axis=2) < 14
-    grown = pink.copy()
-    for axis in (0, 1):
-        for step in (-10, -5, 5, 10):
-            grown |= np.roll(pink, step, axis=axis)
-    flat = grown & (r > 222) & (g > 125) & (g < 205) & (b > 175) & (b < 232)
-    flat[: 1100] = False
-    # Near the foot there is nothing `lift` pixels below, so those rows look a little less far down.
-    rows = np.arange(height) + lift
-    below = data[np.where(rows >= height, height - 140 + (rows - height) % 140, rows)]
-    data = np.where(flat[..., None], shaded(brightness(below, 120, 135), BLOSSOM), data)
-    return Image.fromarray(data.clip(0, 255).astype(np.uint8), 'RGB')
-
-
-BLOSSOM = ((196, 84, 156), (240, 142, 198), (255, 226, 242))
-GROWTH = {'far': -60, 'near': -50, 'trees': 372}
-
-
-def blossom_front(im, start, drop=130):
-    """The detailed blossom trees on their own, from row `start` down, twice over: a row of them,
-    and the same row again `drop` pixels lower and shifted along, in front. Each column runs
-    from its first petals to the foot. Petals are the palest and the hottest pinks, which the
-    flat shapes behind the trees do not use."""
-    data = np.asarray(im.convert('RGB'))[start:].astype(np.int32)
-    r, g, b = (data[..., c] for c in range(3))
-    petal = (r > 225) & (((g > 204) & (r > b + 6)) | ((g < 136) & (b > 196)))   # a pale pillar is bluer than it is red
-    found = petal.astype(np.int32)
-    ahead = np.cumsum(np.concatenate([found, np.zeros((48, found.shape[1]), np.int32)]), axis=0)
-    steady = ((ahead[48:] - ahead[:-48] + found) >= 14) & petal
-    first = np.where(steady.any(axis=0), steady.argmax(axis=0), len(steady))
-    # A tree's edge is as high as the highest petal within a pixel of the art either side, so
-    # the dark gaps between boughs do not cut slits down into it.
-    near = np.pad(first, 14, mode='wrap')
-    first = np.min(np.stack([near[i: i + len(first)] for i in range(29)]), axis=0)
-    near = np.pad(first, 6, mode='wrap')
-    first = np.median(np.stack([near[i: i + len(first)] for i in range(13)]), axis=0).astype(int)
-    pink = (r > 190) & (r > g + 8) & (r > b - 6)        # not ground, screen or pillar
-    canopy = (np.arange(len(steady))[:, None] >= first[None]) & pink
-    # Slivers a few pixels wide, the pale edge of a pillar or a screen, are not trees.
-    wide = np.stack([np.roll(canopy, i, axis=1) for i in range(-6, 7)])
-    canopy &= np.stack([np.roll(wide.all(axis=0), i, axis=1) for i in range(-6, 7)]).any(axis=0)
-    row = np.dstack([data, np.where(canopy, 255, 0)]).astype(np.float32)
-    out = np.zeros((len(row) + drop, row.shape[1], 4), np.float32)
-    back = row.copy()
-    back[..., :3] *= 0.9
-    out[: len(row)] = back
-    # The bank carries on down, turned over. Trunks and ground at the foot of the picture would
-    # show there as dark blots, so they become the blossom's own shade.
-    under = back[::-1][:drop].copy()
-    under[~pink[::-1][:drop], :3] = np.array(BLOSSOM[0], np.float32) * 0.9
-    out[len(row):] = under
-    front = np.roll(row, row.shape[1] // 2 + 90, axis=1)
-    seen = front[..., 3:] > 0
-    out[drop:] = np.where(seen, front, out[drop:])
-    out[len(row):, :, 3] = 255
-    return Image.fromarray(out.clip(0, 255).astype(np.uint8), 'RGBA')
-
-
-def without_screens(im, boxes, key=(11, 230, 7)):
-    """Some of the chart screens under the track taken away, so the same chart is not seen eight
-    times: within each box, whatever is neither blossom nor pillar goes back to bare ground."""
-    data = np.asarray(im.convert('RGB')).copy()
-    for x0, y0, x1, y1 in boxes:
-        part = data[y0:y1, x0:x1]
-        part[part[..., 0] < 200] = key
-    return Image.fromarray(data, 'RGB')
+# The top of the track the train runs on, the row the front blossom is lifted from and the
+# columns it is lifted between, in the painted picture's own pixels.
+GROWTH_ART = {'track': 580, 'trees': 1030, 'ends': (250, 2250)}
+GROWTH = {'far': -60, 'near': 59}
 
 
 def growth_layers():
+    """Growth Run's track, buildings and blossom are one painted picture on a flat ground. The
+    front bank of blossom is lifted out of it to slide by itself."""
     sky = unmarked(Image.open(SRC / 'growth-sky.png')).convert('RGB').resize(SCREEN, Image.LANCZOS)
     far = matte(Image.open(SRC / 'growth-far.png'))
-    whole = unmarked(Image.open(SRC / 'growth-near.png'))
-    whole = growth_bank(without_screens(whole, [(40, 960, 290, 1320), (740, 960, 930, 1320), (1380, 960, 1590, 1320)]))
+    whole = Image.open(SRC / 'growth-near-2.png')
     green = lambda r, g, b: (g > r + 24) & (g > b + 24)
     near = shaved(matte(whole, keep_marks=True), green)
-    trees = blossom_front(whole, 1150)
+    # Petals are redder than they are green, no bluer than they are red, and never yellow: the
+    # violet buildings behind them are bluer and their lit windows yellower. The far trees that
+    # show at either end of the picture, behind the pillars, are left out with those ends.
+    petal = lambda r, g, b: (r > 170) & (r > g + 25) & (r > b - 10) & (b > g - 10)
+    trees = front_bank(whole.crop((GROWTH_ART['ends'][0], 0, GROWTH_ART['ends'][1], whole.height)), GROWTH_ART['trees'], petal, rim=12)
+    scale = 0.375
     return save_layers('growth-run', {
         'sky': (sky, {'speed': 0.02, 'drift': 2}),
-        'far': (layer(far, 0.375, GROWTH['far'], haze=(98, 92, 204), haze_from=(260, 360)), {'speed': 0.07}),
-        'near': (layer(near, 0.375, GROWTH['near']), {'speed': 0.18}),
-        'trees': (layer(trees, 0.4, GROWTH['trees']), {'speed': 0.3}),
-    }, {'behind': 2, 'rail': round(868 * 0.375) + GROWTH['near'], 'train': 'maglev',
+        'far': (layer(far, scale, GROWTH['far'], haze=(98, 92, 204), haze_from=(260, 360)), {'speed': 0.07}),
+        'near': (layer(near, scale, GROWTH['near']), {'speed': 0.18}),
+        'trees': (layer(trees, 0.4, SCREEN[1] - round(trees.height * 0.4)), {'speed': 0.3}),
+    }, {'behind': 2, 'rail': round(GROWTH_ART['track'] * scale) + GROWTH['near'], 'train': 'maglev',
         'float': {'sprite': 'screenship', 'at': [520, 92]},
         'flock': {'sprite': 'courier', 'count': 2, 'y': 160, 'beat': 12},
         'rocket': {'sprite': 'rocket', 'behind': 1, 'x': 640, 'every': 46, 'climb': 15}})
