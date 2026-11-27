@@ -457,6 +457,34 @@
           "speed": 0.3
         }
       ]
+    },
+    "3": {
+      "behind": 1,
+      "float": {
+        "sprite": "balloon",
+        "at": [
+          600,
+          96
+        ]
+      },
+      "flock": {
+        "sprite": "gull",
+        "count": 3,
+        "y": 140,
+        "beat": 4
+      },
+      "layers": [
+        {
+          "image": "assets/production/backgrounds/interview-hq-view.webp",
+          "speed": 0.03,
+          "drift": 1,
+          "haze": "rgba(214,226,255,.12)"
+        },
+        {
+          "image": "assets/production/backgrounds/interview-hq-atrium.webp",
+          "speed": 0.15
+        }
+      ]
     }
   }
 }

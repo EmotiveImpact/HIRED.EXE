@@ -1,7 +1,7 @@
 # Sources for the layered backgrounds and the painted kit
 
 Fourteen pictures made with Dreamina (Seedream 5.0 Lite, 2K) on 26 November 2026, each guided by the
-game's existing art as reference, and nine made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
+game's existing art as reference, and twelve made on CapCut (Seedream 5.5, 2K) on 27 November 2026.
 The first three, whose names end in `-2`, came from a written description alone. The other six
 carry those scenes on to the right: each was asked for with the stretch before it attached from
 CapCut's canvas as its reference. They are kept as generated. The Dreamina pictures carry the
@@ -27,6 +27,8 @@ cuts away or paints out. The CapCut pictures have no marks.
 | `growth-far.png` | Its far skyline of chart screens and dishes | green |
 | `growth-near-2.png` to `growth-near-4.png` | Its monorail track, neon buildings and blossom trees, in three stretches | green |
 | `growth-movers.png` | Chart airship, two couriers, rocket, bullet train | green |
+| `hq-view-1.png` | Final Interview HQ's view of the city at sunrise, seen through the atrium's glass | none: a full picture |
+| `hq-near-1.png`, `hq-near-2.png` | The atrium's arches, balconies, banners and planters, in two stretches | red, in every pane of glass |
 
 What the tool changes on the way in, and why:
 

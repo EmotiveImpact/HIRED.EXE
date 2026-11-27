@@ -482,6 +482,18 @@
       "sha256": "94cc61839da6d5791c9d752390e76095815621ddd5ab90cc2ed7913e51fd96a7"
     },
     {
+      "path": "assets/production/backgrounds/interview-hq-atrium.webp",
+      "role": "production-asset",
+      "bytes": 244270,
+      "sha256": "2a7b88f4251660c066a101fb0a030e8869c88b2f7d7f9be2df76b4c25026b267"
+    },
+    {
+      "path": "assets/production/backgrounds/interview-hq-view.webp",
+      "role": "production-asset",
+      "bytes": 88566,
+      "sha256": "466c3781cfd6f8958b329d09149d2ec5ee92257eb10b71d50d738f7e370e4831"
+    },
+    {
       "path": "assets/production/backgrounds/interview-hq.png",
       "role": "production-asset",
       "bytes": 2883966,
@@ -664,8 +676,8 @@
     {
       "path": "assets/production/environment/kit-atlas.json",
       "role": "production-asset",
-      "bytes": 7397,
-      "sha256": "60551a969f0051e3e7e7149fa07b132f9d33e2433a63ec9a213f5d7d3892e02e"
+      "bytes": 7983,
+      "sha256": "2874966c3b415fb6cb1a17f354a3b47fd44a02c42ec38007b9ea5392ea1a0fb9"
     },
     {
       "path": "assets/production/environment/kit-atlas.png",
@@ -1150,8 +1162,8 @@
     {
       "path": "assets/source/kit/README.md",
       "role": "generated-source",
-      "bytes": 6115,
-      "sha256": "2be2cde01c76e31fc7b92e9a5bfe86cf5ebf47b048033f4e142a3126fd2c679d"
+      "bytes": 6543,
+      "sha256": "82c5f4fd2d228f6c90ff23d094ac25c3607be3cc226b10ee11247abb56a794c1"
     },
     {
       "path": "assets/source/kit/alley-far.png",
@@ -1260,6 +1272,24 @@
       "role": "generated-source",
       "bytes": 4528647,
       "sha256": "378c4609f3e9df60834af404d8225715cb21d46570b46968158ac5c0784b2cc2"
+    },
+    {
+      "path": "assets/source/kit/hq-near-1.png",
+      "role": "generated-source",
+      "bytes": 3597650,
+      "sha256": "45b0642232d282f03070aaceca611416993f135d249bb21ae0a18efd9d1ec904"
+    },
+    {
+      "path": "assets/source/kit/hq-near-2.png",
+      "role": "generated-source",
+      "bytes": 3976897,
+      "sha256": "f29af15050bd2d004a5294d87bf2db0b04a4be070569b8aa4f4985a88e2653d9"
+    },
+    {
+      "path": "assets/source/kit/hq-view-1.png",
+      "role": "generated-source",
+      "bytes": 2944416,
+      "sha256": "0031785a7ca74f941b49b73c217e7c55f8efc1dff74a724a1d5341e0cf865349"
     },
     {
       "path": "assets/source/kit/layouts/layout-far.png",
@@ -1428,6 +1458,24 @@
       "role": "generated-source",
       "bytes": 1070,
       "sha256": "3747e102a02cde31b1141d206852c4f54b7ef16d5d11de04811a7a3f41f77914"
+    },
+    {
+      "path": "assets/source/kit/prompts/hq-near-1.txt",
+      "role": "generated-source",
+      "bytes": 1127,
+      "sha256": "f49aa1107c5f38921e740a490cf88a5c19e10b4cfd9483f9116443c3ddac5fe5"
+    },
+    {
+      "path": "assets/source/kit/prompts/hq-near-2.txt",
+      "role": "generated-source",
+      "bytes": 1086,
+      "sha256": "871f82b2dca7793866ffccc58591620f72abddcd4a16facc6df131ffc7aed541"
+    },
+    {
+      "path": "assets/source/kit/prompts/hq-view-1.txt",
+      "role": "generated-source",
+      "bytes": 1027,
+      "sha256": "e1d678e61d6d540a099609510766bda52fda07dea486692ef630821629186975"
     },
     {
       "path": "assets/source/kit/prompts/jobs.json",

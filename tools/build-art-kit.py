@@ -749,6 +749,31 @@ def growth_traffic():
     return frames, {}
 
 
+# --- Final Interview HQ ---------------------------------------------------------------------------
+
+# The atrium is two pictures, the second painted as the next stretch to the right of the first and
+# joined where they match (see `stitched`). Its glass is a flat red ground, so the view slides
+# behind the frame.
+HQ_ART = {
+    'near': ('hq-near-1.png', 'hq-near-2.png'),
+    'near_joins': ((2116, 892),),
+}
+
+
+def hq_layers():
+    """Final Interview HQ's ground floor: the view of the city at sunrise, seen through the glass
+    of the atrium the level runs through, and the atrium's frame of arches, balconies and planters
+    in front of it. The plane, balloon and gulls pass outside the glass."""
+    view = Image.open(SRC / 'hq-view-1.png').convert('RGB').resize(SCREEN, Image.LANCZOS)
+    whole = stitched(HQ_ART['near'], HQ_ART['near_joins'])
+    atrium = matte(whole, sample=(0.45, 0.25, 0.55, 0.4), keep_marks=True)
+    return save_layers('interview-hq', {
+        'view': (view, {'speed': 0.03, 'drift': 1, 'haze': 'rgba(214,226,255,.12)'}),
+        'atrium': (layer(atrium, 0.375, 0), {'speed': 0.15}),
+    }, {'behind': 1, 'float': {'sprite': 'balloon', 'at': [600, 96]},
+        'flock': {'sprite': 'gull', 'count': 3, 'y': 140, 'beat': 4}})
+
+
 # --- The atlas ------------------------------------------------------------------------------------
 
 def pack(frames, extra):
@@ -779,7 +804,7 @@ def main():
         frames.update(more[0])
         extra.update(more[1])
     title_hero()
-    scenery = {'0': alley_layers(), '1': city_layers(), '2': growth_layers()}
+    scenery = {'0': alley_layers(), '1': city_layers(), '2': growth_layers(), '3': hq_layers()}
     sheet, meta = pack(frames, extra)
     sheet.save(ATLAS.with_suffix('.png'), optimize=True)
     ATLAS.with_suffix('.json').write_text(json.dumps({
