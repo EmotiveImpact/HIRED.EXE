@@ -386,6 +386,174 @@
       "sha256": "eeca5d1ac11f06ae0c270d8eb8836f422c8706c1d12fdef12b0b2affe2f3b2de"
     },
     {
+      "path": "assets/directors-board/v7/alley-1.webp",
+      "role": "production-asset",
+      "bytes": 146112,
+      "sha256": "ee9091ddbd0a71ee77856fd256a59195e3058acca605ce7999e2d4c7ed067ccd"
+    },
+    {
+      "path": "assets/directors-board/v7/alley-2.webp",
+      "role": "production-asset",
+      "bytes": 155548,
+      "sha256": "b66b6bfd427f99ccb17b3f3c58e9ea2acaadfffb580bf4cbf6a25c17d2028da4"
+    },
+    {
+      "path": "assets/directors-board/v7/alley-3.webp",
+      "role": "production-asset",
+      "bytes": 173316,
+      "sha256": "cd3a5b3be1e7064b5fe6a1fdd2de2844aa95c4024a13176e840831b561cc009e"
+    },
+    {
+      "path": "assets/directors-board/v7/alley-4.webp",
+      "role": "production-asset",
+      "bytes": 163480,
+      "sha256": "07a8a972620b854e888b28cd4768a289b8d46d2a71e56b0cff16e073340be382"
+    },
+    {
+      "path": "assets/directors-board/v7/city-1.webp",
+      "role": "production-asset",
+      "bytes": 133276,
+      "sha256": "e6283411e444bc6d12d7a77b0f5405f62ec07e64421d5c24112d2f5668129201"
+    },
+    {
+      "path": "assets/directors-board/v7/city-2.webp",
+      "role": "production-asset",
+      "bytes": 137638,
+      "sha256": "97cac8d3f6f97d5e5359dce9c6867f9a713c0b38a51aa5d7f142e8779420c04c"
+    },
+    {
+      "path": "assets/directors-board/v7/city-3.webp",
+      "role": "production-asset",
+      "bytes": 123404,
+      "sha256": "91678161461ad63a24e5ced7f665c07c6cac83cde987801d203855fad35b914b"
+    },
+    {
+      "path": "assets/directors-board/v7/city-4.webp",
+      "role": "production-asset",
+      "bytes": 128830,
+      "sha256": "6bb616feddeaaea913a3a7a0d87bb28f0acaa7280b643b806191612019c1d3a7"
+    },
+    {
+      "path": "assets/directors-board/v7/growth-1.webp",
+      "role": "production-asset",
+      "bytes": 116034,
+      "sha256": "53f696e7a529c0190403749915c956db89794b0257b6a5b61ec6427bb8816bd3"
+    },
+    {
+      "path": "assets/directors-board/v7/growth-2.webp",
+      "role": "production-asset",
+      "bytes": 133716,
+      "sha256": "8f834760517fe7299dbb25e0457f4f74755e2f1174e8deb6ee888993e3f8d15c"
+    },
+    {
+      "path": "assets/directors-board/v7/growth-3.webp",
+      "role": "production-asset",
+      "bytes": 191122,
+      "sha256": "a463490717b05dda4173a0d92c97b81a1561eee691f8813200609c5daea13728"
+    },
+    {
+      "path": "assets/directors-board/v7/growth-4.webp",
+      "role": "production-asset",
+      "bytes": 99004,
+      "sha256": "7e4c6693c88cea855cced15d33a47be843e8c22366899149889674e1163af5de"
+    },
+    {
+      "path": "assets/directors-board/v7/hq-1.webp",
+      "role": "production-asset",
+      "bytes": 265890,
+      "sha256": "86aaef55cc3e6f17309ef4950e1f7aa665f5a68c54185759b04e821b5810b805"
+    },
+    {
+      "path": "assets/directors-board/v7/hq-2.webp",
+      "role": "production-asset",
+      "bytes": 165496,
+      "sha256": "b1184338b680ef28b2e402e4febba44d7f012ba0074f0ca674145e28e678bf31"
+    },
+    {
+      "path": "assets/directors-board/v7/hq-3.webp",
+      "role": "production-asset",
+      "bytes": 152680,
+      "sha256": "bbfbe6913ca186a44b569d90a2661357e644f48d1d6b9cce0ae6322cfd8b25c7"
+    },
+    {
+      "path": "assets/directors-board/v7/hq-4.webp",
+      "role": "production-asset",
+      "bytes": 125942,
+      "sha256": "3c7b704d3b82e7ce7574e0c23efa7f9bdabd22bf0d11ab44394efe1c876f43eb"
+    },
+    {
+      "path": "assets/directors-board/v7/office-1.webp",
+      "role": "production-asset",
+      "bytes": 123308,
+      "sha256": "2dbadb4aaca13cecc9589138a0e1fa168f0ece5836157995ce5a263555abbf9f"
+    },
+    {
+      "path": "assets/directors-board/v7/office-2.webp",
+      "role": "production-asset",
+      "bytes": 119890,
+      "sha256": "45f34ccd6d778a0d481c942fbe455a2b05651f9374e9d6a9710bc11ea981e30e"
+    },
+    {
+      "path": "assets/directors-board/v7/office-3.webp",
+      "role": "production-asset",
+      "bytes": 120736,
+      "sha256": "5cdb5927edc86f408d465d9d311e4f33b1f1c396c8497dd167816080052c8e7f"
+    },
+    {
+      "path": "assets/directors-board/v7/office-4.webp",
+      "role": "production-asset",
+      "bytes": 110204,
+      "sha256": "84d933ba8ef804f8da4fdfc54c6d756a0f92c3b2a55dca405c48382fe37b3049"
+    },
+    {
+      "path": "assets/directors-board/v7/p01-upload.webp",
+      "role": "production-asset",
+      "bytes": 101472,
+      "sha256": "3e6d1e343f43924b0f769aebdf3607f77a3f66d89aa70df6b817cbc2cae93fd8"
+    },
+    {
+      "path": "assets/directors-board/v7/p02-form.webp",
+      "role": "production-asset",
+      "bytes": 91242,
+      "sha256": "2444b631f922e0d604aa97b7c287af728e066775ae26d2a10b9849e59221e070"
+    },
+    {
+      "path": "assets/directors-board/v7/p03-the-limit.webp",
+      "role": "production-asset",
+      "bytes": 55034,
+      "sha256": "525986460cd4daea62b87a2e9a7c2615e44ba6eac4eed0172cb3aa7bbf9df852"
+    },
+    {
+      "path": "assets/directors-board/v7/p04-gatekeeper.webp",
+      "role": "production-asset",
+      "bytes": 108744,
+      "sha256": "8bf7cf6b1047d16834b3b5da6ef51257eb03dbd971927fee15d1da55d7a7a0e0"
+    },
+    {
+      "path": "assets/directors-board/v7/p05-play.webp",
+      "role": "production-asset",
+      "bytes": 97948,
+      "sha256": "21e7294b994e4e6135adc63991bb195379713f16364f1988541a14805fdf57e5"
+    },
+    {
+      "path": "assets/directors-board/v7/p13-draft.webp",
+      "role": "production-asset",
+      "bytes": 93802,
+      "sha256": "65f209df8022c8e27aafdfa603257c7d94d823dca75b098e9801326887fde532"
+    },
+    {
+      "path": "assets/directors-board/v7/p14-just-sent.webp",
+      "role": "production-asset",
+      "bytes": 99056,
+      "sha256": "f4e3587bc22f2f02ef2515a767a5f203f53c7660e3ead4b0119ab26358672c70"
+    },
+    {
+      "path": "assets/directors-board/v7/p15-attachment.webp",
+      "role": "production-asset",
+      "bytes": 95938,
+      "sha256": "9673482714acd85169fb2a71a8193c598133fb837575dd96c43961263a586c38"
+    },
+    {
       "path": "assets/manifest.json",
       "role": "production-asset",
       "bytes": 5989,

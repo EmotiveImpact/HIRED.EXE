@@ -68,9 +68,8 @@ const directorScenes = [
 function directorPanel(id) {
   const own = globalThis.HIRED_EDITION?.cutscenes?.images?.[id];
   if (own) return own;
-  const revision = /^city-[24]$/.test(id) ? 'v6/' : /^city-[13]$/.test(id) ? 'v5/' : id === 'p05-play' ? 'v4/' :
-    ['p04-gatekeeper','p15-attachment'].includes(id) ? 'v2/' :
-    id === 'office-3' ? '' : 'v3/';
+  // v7: every shot repainted with the intro's afro Augustus (28 Nov 2026).
+  const revision = 'v7/';
   return 'assets/directors-board/' + revision + id + '.webp';
 }
 
